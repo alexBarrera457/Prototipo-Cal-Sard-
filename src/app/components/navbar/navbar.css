@@ -1,0 +1,245 @@
+:host {
+  display: block;
+
+  position: fixed;
+
+  top: 0;
+  left: 0;
+
+  width: 100%;
+
+  z-index: 1000;
+}
+
+
+/* =========================
+   NAVBAR
+========================= */
+
+.navbar {
+  width: 100%;
+  height: 90px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 0 5%;
+
+  box-sizing: border-box;
+
+  color: white;
+
+  background: transparent;
+
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+
+  transition:
+    background 0.4s ease,
+    backdrop-filter 0.4s ease,
+    border-color 0.4s ease;
+}
+
+
+/* =========================
+   NAVBAR AL HACER SCROLL
+========================= */
+
+.navbar.scrolled {
+  background: rgba(31, 23, 18, 0.96);
+
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+
+/* =========================
+   SECCIONES TRANSPARENTES
+   HERO + CATEGORÍAS
+========================= */
+
+.navbar.transparent-section {
+  background: transparent;
+
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+
+/* =========================
+   LOGO
+========================= */
+
+.navbar-logo {
+  color: white;
+
+  font-family:
+    Georgia,
+    'Times New Roman',
+    serif;
+
+  font-size: 25px;
+
+  font-weight: 400;
+
+  letter-spacing: 3px;
+
+  text-decoration: none;
+
+  white-space: nowrap;
+
+  transition: opacity 0.3s ease;
+}
+
+.navbar-logo:hover {
+  opacity: 0.75;
+}
+
+
+/* =========================
+   LINKS
+========================= */
+
+.navbar-links {
+  display: flex;
+
+  align-items: center;
+
+  gap: 32px;
+}
+
+.navbar-links a {
+  position: relative;
+
+  color: white;
+
+  text-decoration: none;
+
+  font-family: Arial, sans-serif;
+
+  font-size: 11px;
+
+  font-weight: 600;
+
+  letter-spacing: 2px;
+
+  text-transform: uppercase;
+
+  white-space: nowrap;
+}
+
+
+/* =========================
+   LÍNEA HOVER
+========================= */
+
+.navbar-links a::after {
+  content: '';
+
+  position: absolute;
+
+  left: 0;
+  bottom: -8px;
+
+  width: 0;
+  height: 1px;
+
+  background: white;
+
+  transition: width 0.3s ease;
+}
+
+.navbar-links a:hover::after {
+  width: 100%;
+}
+
+
+/* =========================
+   CARRITO
+========================= */
+
+.navbar-cart {
+  width: 42px;
+  height: 42px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid rgba(255, 255, 255, 0.5);
+
+  border-radius: 50%;
+
+  color: white;
+
+  text-decoration: none;
+
+  font-size: 16px;
+
+  transition:
+    background 0.3s ease,
+    color 0.3s ease,
+    transform 0.3s ease;
+}
+
+.navbar-cart:hover {
+  background: white;
+
+  color: #2d211a;
+
+  transform: scale(1.05);
+}
+
+
+/* =========================
+   TABLET
+========================= */
+
+@media (max-width: 1000px) {
+
+  .navbar-links {
+    gap: 20px;
+  }
+
+  .navbar-links a {
+    font-size: 10px;
+  }
+
+}
+
+
+/* =========================
+   MÓVIL
+========================= */
+
+@media (max-width: 700px) {
+
+  .navbar {
+    height: 75px;
+
+    padding: 0 25px;
+  }
+
+  .navbar-logo {
+    font-size: 19px;
+
+    letter-spacing: 2px;
+  }
+
+  .navbar-links {
+    display: none;
+  }
+
+  .navbar-cart {
+    width: 38px;
+    height: 38px;
+
+    font-size: 14px;
+  }
+
+}

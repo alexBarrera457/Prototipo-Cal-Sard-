@@ -1,0 +1,407 @@
+:host {
+  display: block;
+}
+
+
+/* =========================
+   HERO
+========================= */
+
+.hero {
+  position: relative;
+
+  width: 100%;
+  height: 100vh;
+  min-height: 700px;
+
+  display: flex;
+  align-items: center;
+
+  background-image: url('/images/hero.jpg');
+
+  background-size: cover;
+  background-position: center;
+
+  overflow: hidden;
+}
+
+
+/* =========================
+   OVERLAY
+========================= */
+
+.hero-overlay {
+  position: absolute;
+
+  inset: 0;
+
+  background:
+    linear-gradient(
+      90deg,
+      rgba(20, 14, 10, 0.82) 0%,
+      rgba(20, 14, 10, 0.55) 42%,
+      rgba(20, 14, 10, 0.20) 100%
+    );
+
+  z-index: 1;
+}
+
+
+/* =========================
+   CONTENIDO
+========================= */
+
+.hero-content {
+  position: relative;
+
+  z-index: 2;
+
+  width: 90%;
+  max-width: 900px;
+
+  margin-left: 9%;
+
+  color: white;
+}
+
+
+/* =========================
+   SUBTÍTULO
+========================= */
+
+.hero-subtitle {
+  margin: 0 0 28px;
+
+  color: white;
+
+  font-family: Arial, sans-serif;
+
+  font-size: 12px;
+
+  font-weight: 600;
+
+  letter-spacing: 6px;
+
+  text-transform: uppercase;
+}
+
+
+/* =========================
+   TÍTULO
+========================= */
+
+.hero h1 {
+  margin: 0 0 30px;
+
+  color: white;
+
+  font-family:
+    Georgia,
+    'Times New Roman',
+    serif;
+
+  font-size: clamp(
+    65px,
+    8vw,
+    115px
+  );
+
+  font-weight: 400;
+
+  line-height: 0.88;
+
+  letter-spacing: -5px;
+
+  max-width: 850px;
+}
+
+
+/* =========================
+   TEXTO
+========================= */
+
+.hero-text {
+  max-width: 530px;
+
+  margin: 0 0 42px;
+
+  color: rgba(255, 255, 255, 0.88);
+
+  font-family: Arial, sans-serif;
+
+  font-size: 17px;
+
+  line-height: 1.7;
+}
+
+
+/* =========================
+   BOTÓN
+========================= */
+
+.hero-button {
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: space-between;
+
+  min-width: 210px;
+
+  padding: 18px 25px;
+
+  border: 1px solid white;
+
+  background: white;
+
+  color: #2d251f;
+
+  font-family: Arial, sans-serif;
+
+  font-size: 11px;
+
+  font-weight: 700;
+
+  letter-spacing: 2px;
+
+  cursor: pointer;
+
+  transition:
+    background 0.3s ease,
+    color 0.3s ease,
+    padding 0.3s ease;
+}
+
+.hero-button span {
+  margin-left: 30px;
+
+  font-size: 20px;
+
+  transition:
+    transform 0.3s ease;
+}
+
+
+/* HOVER */
+
+.hero-button:hover {
+  background: transparent;
+
+  color: white;
+
+  padding-left: 30px;
+}
+
+.hero-button:hover span {
+  transform: translateX(5px);
+}
+
+
+/* =========================
+   DETALLE INFERIOR
+========================= */
+
+.hero::after {
+  content: '';
+
+  position: absolute;
+
+  left: 0;
+  right: 0;
+  bottom: 0;
+
+  height: 180px;
+
+  background:
+    linear-gradient(
+      to top,
+      rgba(0, 0, 0, 0.28),
+      transparent
+    );
+
+  pointer-events: none;
+
+  z-index: 1;
+}
+
+
+/* =========================
+   INDICADOR SCROLL
+========================= */
+
+.hero-scroll {
+  position: absolute;
+
+  z-index: 3;
+
+  right: 5%;
+
+  bottom: 45px;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 15px;
+
+  color: white;
+
+  font-family: Arial, sans-serif;
+
+  font-size: 9px;
+
+  font-weight: 600;
+
+  letter-spacing: 3px;
+
+  text-transform: uppercase;
+
+  writing-mode: vertical-rl;
+}
+
+.hero-scroll::after {
+  content: '';
+
+  width: 1px;
+
+  height: 60px;
+
+  background: rgba(255, 255, 255, 0.6);
+
+  animation: scrollLine 2s infinite;
+}
+
+
+/* =========================
+   ANIMACIÓN SCROLL
+========================= */
+
+@keyframes scrollLine {
+
+  0% {
+    transform: scaleY(0);
+
+    transform-origin: top;
+  }
+
+  50% {
+    transform: scaleY(1);
+
+    transform-origin: top;
+  }
+
+  51% {
+    transform-origin: bottom;
+  }
+
+  100% {
+    transform: scaleY(0);
+
+    transform-origin: bottom;
+  }
+
+}
+
+
+/* =========================
+   TABLET
+========================= */
+
+@media (max-width: 900px) {
+
+  .hero {
+    min-height: 650px;
+  }
+
+  .hero-content {
+    width: auto;
+
+    margin-left: 6%;
+
+    margin-right: 6%;
+  }
+
+  .hero h1 {
+    font-size: clamp(
+      60px,
+      10vw,
+      90px
+    );
+  }
+
+  .hero-text {
+    font-size: 16px;
+  }
+
+  .hero-scroll {
+    right: 4%;
+  }
+
+}
+
+
+/* =========================
+   MÓVIL
+========================= */
+
+@media (max-width: 650px) {
+
+  .hero {
+    min-height: 650px;
+
+    background-position: 60% center;
+  }
+
+  .hero-overlay {
+    background:
+      linear-gradient(
+        90deg,
+        rgba(20, 14, 10, 0.82),
+        rgba(20, 14, 10, 0.45)
+      );
+  }
+
+  .hero-content {
+    width: auto;
+
+    margin: 0 25px;
+  }
+
+  .hero-subtitle {
+    font-size: 10px;
+
+    letter-spacing: 4px;
+
+    margin-bottom: 20px;
+  }
+
+  .hero h1 {
+    font-size: 62px;
+
+    letter-spacing: -3px;
+
+    line-height: 0.9;
+
+    margin-bottom: 25px;
+  }
+
+  .hero-text {
+    max-width: 100%;
+
+    font-size: 15px;
+
+    line-height: 1.6;
+
+    margin-bottom: 30px;
+  }
+
+  .hero-button {
+    min-width: 190px;
+
+    padding: 16px 20px;
+  }
+
+  .hero-scroll {
+    display: none;
+  }
+
+}

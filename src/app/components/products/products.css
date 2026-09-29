@@ -1,0 +1,354 @@
+:host {
+  display: block;
+}
+
+
+/* =========================
+   PRODUCTOS
+========================= */
+
+.products {
+  background: #f3eee5;
+
+  color: #2d241e;
+
+  padding: 140px 9% 120px;
+}
+
+
+/* =========================
+   HEADER
+========================= */
+
+.products-header {
+  display: grid;
+
+  grid-template-columns: 1.3fr 0.7fr;
+
+  gap: 80px;
+
+  align-items: end;
+
+  margin-bottom: 90px;
+}
+
+.products-label {
+  color: #9b7047;
+
+  font-size: 10px;
+
+  font-weight: bold;
+
+  letter-spacing: 4px;
+}
+
+.products-header h2 {
+  margin: 25px 0 0;
+
+  font-family:
+    Georgia,
+    'Times New Roman',
+    serif;
+
+  font-size: clamp(
+    65px,
+    8vw,
+    115px
+  );
+
+  font-weight: 400;
+
+  line-height: 0.85;
+
+  letter-spacing: -5px;
+}
+
+.products-header > p {
+  max-width: 420px;
+
+  color: #766b62;
+
+  font-size: 16px;
+
+  line-height: 1.8;
+}
+
+
+/* =========================
+   GRID
+========================= */
+
+.products-grid {
+  display: grid;
+
+  grid-template-columns: 1fr 1fr;
+
+  gap: 2px;
+
+  background: #cfc4b7;
+}
+
+
+/* =========================
+   CARD
+========================= */
+
+.product-card {
+  background: #f3eee5;
+
+  overflow: hidden;
+}
+
+
+/* =========================
+   IMAGEN
+========================= */
+
+.product-image {
+  position: relative;
+
+  height: 430px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #c8b39a,
+      #8d745c
+    );
+
+  overflow: hidden;
+
+  transition:
+    transform 0.6s ease;
+}
+
+
+/* Efecto de textura */
+
+.product-image::after {
+  content: '';
+
+  position: absolute;
+
+  inset: 0;
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(255,255,255,0.12),
+      transparent 50%
+    );
+
+  transition:
+    opacity 0.4s ease;
+}
+
+.product-card:hover .product-image::after {
+  opacity: 0.4;
+}
+
+
+/* NÚMERO */
+
+.product-number {
+  position: absolute;
+
+  top: 25px;
+  right: 30px;
+
+  z-index: 2;
+
+  color: rgba(255,255,255,0.85);
+
+  font-family:
+    Georgia,
+    'Times New Roman',
+    serif;
+
+  font-size: 18px;
+
+  font-style: italic;
+}
+
+
+/* =========================
+   INFORMACIÓN
+========================= */
+
+.product-info {
+  display: flex;
+
+  align-items: flex-end;
+
+  justify-content: space-between;
+
+  gap: 30px;
+
+  padding: 30px 5px 40px;
+}
+
+.product-info span {
+  color: #9b7047;
+
+  font-size: 9px;
+
+  font-weight: bold;
+
+  letter-spacing: 3px;
+}
+
+.product-info h3 {
+  margin: 12px 0 0;
+
+  font-family:
+    Georgia,
+    'Times New Roman',
+    serif;
+
+  font-size: 34px;
+
+  font-weight: 400;
+}
+
+.product-info a {
+  color: #2d241e;
+
+  text-decoration: none;
+
+  font-size: 10px;
+
+  font-weight: bold;
+
+  letter-spacing: 2px;
+
+  white-space: nowrap;
+
+  border-bottom: 1px solid #2d241e;
+
+  padding-bottom: 7px;
+
+  transition:
+    opacity 0.3s ease,
+    transform 0.3s ease;
+}
+
+.product-info a:hover {
+  opacity: 0.6;
+
+  transform: translateX(5px);
+}
+
+
+/* =========================
+   PARTE INFERIOR
+========================= */
+
+.products-bottom {
+  display: grid;
+
+  grid-template-columns: 1fr 1fr 1fr;
+
+  align-items: center;
+
+  gap: 30px;
+
+  padding-top: 50px;
+
+  color: #8c8178;
+
+  font-size: 10px;
+
+  letter-spacing: 2px;
+}
+
+.products-bottom span {
+  color: #9b7047;
+
+  font-weight: bold;
+}
+
+.products-bottom p {
+  margin: 0;
+
+  text-align: center;
+
+  letter-spacing: 1px;
+}
+
+.products-bottom a {
+  justify-self: end;
+
+  color: #2d241e;
+
+  text-decoration: none;
+
+  font-weight: bold;
+
+  border-bottom: 1px solid #2d241e;
+
+  padding-bottom: 7px;
+}
+
+
+/* =========================
+   TABLET
+========================= */
+
+@media (max-width: 900px) {
+
+  .products {
+    padding: 100px 6%;
+  }
+
+  .products-header {
+    grid-template-columns: 1fr;
+
+    gap: 35px;
+  }
+
+  .product-image {
+    height: 350px;
+  }
+
+}
+
+
+/* =========================
+   MÓVIL
+========================= */
+
+@media (max-width: 650px) {
+
+  .products {
+    padding: 80px 25px;
+  }
+
+  .products-header h2 {
+    font-size: 65px;
+
+    letter-spacing: -3px;
+  }
+
+  .products-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .product-image {
+    height: 350px;
+  }
+
+  .products-bottom {
+    grid-template-columns: 1fr;
+
+    gap: 25px;
+  }
+
+  .products-bottom p {
+    text-align: left;
+  }
+
+  .products-bottom a {
+    justify-self: start;
+  }
+
+}

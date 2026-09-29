@@ -1,1 +1,254 @@
-/* You can add global styles to this file, and also import other style files */
+/* =====================================================
+   CAL SARDÀ — ESTILOS GLOBALES
+===================================================== */
+
+
+/* =====================================================
+   RESET
+===================================================== */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+
+  background: #f3eee5;
+
+  color: #2d241e;
+
+  font-family: Arial, Helvetica, sans-serif;
+
+  overflow-x: hidden;
+}
+
+
+/* =====================================================
+   ELEMENTOS GENERALES
+===================================================== */
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+a {
+  color: inherit;
+}
+
+button {
+  font-family: inherit;
+}
+
+
+/* =====================================================
+   SELECCIÓN DE TEXTO
+===================================================== */
+
+::selection {
+  background: #b58a52;
+  color: white;
+}
+
+
+/* =====================================================
+   SCROLLBAR
+===================================================== */
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #eee7dc;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #8d6a45;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #63472f;
+}
+
+
+/* =====================================================
+   SCROLL REVEAL
+===================================================== */
+
+[appScrollReveal] {
+  opacity: 0;
+
+  transform: translateY(40px);
+
+  transition:
+    opacity 0.8s ease,
+    transform 0.8s ease;
+}
+
+[appScrollReveal].visible {
+  opacity: 1;
+
+  transform: translateY(0);
+}
+
+
+/* =====================================================
+   VARIANTE SUAVE
+===================================================== */
+
+[appScrollReveal="left"] {
+  transform: translateX(-50px);
+}
+
+[appScrollReveal="right"] {
+  transform: translateX(50px);
+}
+
+[appScrollReveal="scale"] {
+  transform: scale(0.95);
+}
+
+[appScrollReveal].visible[appScrollReveal="left"],
+[appScrollReveal].visible[appScrollReveal="right"] {
+  transform: translateX(0);
+}
+
+[appScrollReveal].visible[appScrollReveal="scale"] {
+  transform: scale(1);
+}
+
+
+/* =====================================================
+   CONTENEDOR GENERAL
+===================================================== */
+
+.container {
+  width: 90%;
+
+  max-width: 1400px;
+
+  margin: 0 auto;
+}
+
+
+/* =====================================================
+   BOTONES
+===================================================== */
+
+.btn {
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  min-width: 220px;
+
+  padding: 20px 30px;
+
+  border: none;
+
+  background: #ffffff;
+
+  color: #2d241e;
+
+  text-decoration: none;
+
+  font-size: 11px;
+
+  font-weight: 700;
+
+  letter-spacing: 2px;
+
+  text-transform: uppercase;
+
+  cursor: pointer;
+
+  transition:
+    background 0.3s ease,
+    color 0.3s ease,
+    transform 0.3s ease;
+}
+
+.btn:hover {
+  background: #2d241e;
+
+  color: white;
+
+  transform: translateY(-3px);
+}
+
+
+/* =====================================================
+   TÍTULOS ELEGANTES
+===================================================== */
+
+.serif {
+  font-family:
+    Georgia,
+    'Times New Roman',
+    serif;
+}
+
+
+/* =====================================================
+   SECCIONES
+===================================================== */
+
+section {
+  position: relative;
+}
+
+
+/* =====================================================
+   RESPONSIVE
+===================================================== */
+
+@media (max-width: 1000px) {
+
+  .container {
+    width: 92%;
+  }
+
+}
+
+
+@media (max-width: 700px) {
+
+  .container {
+    width: 90%;
+  }
+
+  [appScrollReveal] {
+    transform: translateY(25px);
+  }
+
+}
+
+
+/* =====================================================
+   REDUCIR ANIMACIONES
+===================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+
+  html {
+    scroll-behavior: auto;
+  }
+
+  [appScrollReveal] {
+    opacity: 1;
+
+    transform: none;
+
+    transition: none;
+  }
+
+}

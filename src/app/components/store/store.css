@@ -1,0 +1,203 @@
+:host {
+  display: block;
+}
+
+.store {
+  min-height: 750px;
+
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+
+  background: #f3eee5;
+  color: #2d211a;
+}
+
+
+/* IMAGEN */
+
+.store-image {
+  height: 100%;
+  min-height: 750px;
+  overflow: hidden;
+}
+
+.store-image img {
+  width: 100%;
+  height: 100%;
+
+  object-fit: cover;
+
+  display: block;
+
+  transition: transform 0.8s ease;
+}
+
+.store:hover .store-image img {
+  transform: scale(1.03);
+}
+
+
+/* CONTENIDO */
+
+.store-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+  padding: 100px 12%;
+}
+
+.store-label {
+  color: #9b7047;
+
+  font-size: 11px;
+  font-weight: bold;
+
+  letter-spacing: 4px;
+
+  margin-bottom: 25px;
+}
+
+.store h2 {
+  font-family: Georgia, 'Times New Roman', serif;
+
+  font-size: clamp(55px, 5vw, 80px);
+
+  font-weight: 400;
+
+  line-height: 0.92;
+
+  letter-spacing: -3px;
+
+  margin: 0 0 35px;
+}
+
+.store-content > p {
+  max-width: 470px;
+
+  color: #70645b;
+
+  font-size: 16px;
+
+  line-height: 1.7;
+
+  margin: 0 0 50px;
+}
+
+
+/* INFORMACIÓN */
+
+.store-info {
+  display: grid;
+
+  grid-template-columns: 1fr 1fr;
+
+  gap: 40px;
+
+  border-top: 1px solid #cfc4b6;
+
+  padding-top: 30px;
+
+  margin-bottom: 45px;
+}
+
+.store-info span {
+  color: #9b7047;
+
+  font-size: 10px;
+
+  font-weight: bold;
+
+  letter-spacing: 3px;
+}
+
+.store-info p {
+  color: #51463e;
+
+  font-size: 14px;
+
+  line-height: 1.7;
+
+  margin: 12px 0 0;
+}
+
+
+/* BOTÓN */
+
+.store-button {
+  width: fit-content;
+
+  display: flex;
+  align-items: center;
+
+  gap: 50px;
+
+  padding: 18px 0;
+
+  border-bottom: 1px solid #2d211a;
+
+  color: #2d211a;
+
+  text-decoration: none;
+
+  font-size: 11px;
+
+  font-weight: bold;
+
+  letter-spacing: 2px;
+
+  transition: gap 0.3s ease;
+}
+
+.store-button span {
+  font-size: 20px;
+}
+
+.store-button:hover {
+  gap: 65px;
+}
+
+
+/* TABLET */
+
+@media (max-width: 900px) {
+
+  .store {
+    grid-template-columns: 1fr;
+  }
+
+  .store-image {
+    min-height: 500px;
+    height: 500px;
+  }
+
+  .store-content {
+    padding: 90px 7%;
+  }
+
+}
+
+
+/* MÓVIL */
+
+@media (max-width: 600px) {
+
+  .store-image {
+    min-height: 400px;
+    height: 400px;
+  }
+
+  .store-content {
+    padding: 70px 25px;
+  }
+
+  .store h2 {
+    font-size: 50px;
+  }
+
+  .store-info {
+    grid-template-columns: 1fr;
+    gap: 25px;
+  }
+
+}

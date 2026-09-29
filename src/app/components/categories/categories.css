@@ -1,0 +1,470 @@
+:host {
+  display: block;
+}
+
+
+/* =========================
+   CATEGORÍAS
+========================= */
+
+.categories {
+  position: relative;
+
+  min-height: 100vh;
+
+  padding: 150px 9% 100px;
+
+  background: #2d241e;
+
+  color: white;
+
+  overflow: hidden;
+}
+
+
+/* =========================
+   DECORACIÓN
+========================= */
+
+.categories::before {
+  content: '';
+
+  position: absolute;
+
+  width: 500px;
+  height: 500px;
+
+  top: -250px;
+  right: -150px;
+
+  border: 1px solid rgba(255,255,255,0.08);
+
+  border-radius: 50%;
+}
+
+.categories::after {
+  content: '';
+
+  position: absolute;
+
+  width: 300px;
+  height: 300px;
+
+  bottom: -150px;
+  left: -100px;
+
+  border: 1px solid rgba(255,255,255,0.06);
+
+  border-radius: 50%;
+}
+
+
+/* =========================
+   INTRO
+========================= */
+
+.categories-intro {
+  position: relative;
+
+  z-index: 2;
+
+  display: grid;
+
+  grid-template-columns: 1fr 0.7fr;
+
+  gap: 80px;
+
+  align-items: end;
+
+  margin-bottom: 100px;
+}
+
+.categories-label {
+  color: #c7a275;
+
+  font-size: 10px;
+
+  font-weight: bold;
+
+  letter-spacing: 4px;
+}
+
+.categories-intro h2 {
+  margin: 25px 0 0;
+
+  font-family:
+    Georgia,
+    'Times New Roman',
+    serif;
+
+  font-size: clamp(
+    70px,
+    9vw,
+    130px
+  );
+
+  font-weight: 400;
+
+  line-height: 0.82;
+
+  letter-spacing: -6px;
+}
+
+.categories-intro p {
+  max-width: 430px;
+
+  margin-bottom: 8px;
+
+  color: rgba(255,255,255,0.65);
+
+  font-size: 16px;
+
+  line-height: 1.8;
+}
+
+
+/* =========================
+   LISTA
+========================= */
+
+.categories-list {
+  position: relative;
+
+  z-index: 2;
+
+  border-top: 1px solid rgba(255,255,255,0.2);
+}
+
+
+/* =========================
+   CATEGORÍA
+========================= */
+
+.category-item {
+  position: relative;
+
+  display: grid;
+
+  grid-template-columns: 100px 1fr 70px;
+
+  align-items: center;
+
+  min-height: 150px;
+
+  padding: 0 20px;
+
+  border-bottom: 1px solid rgba(255,255,255,0.2);
+
+  color: white;
+
+  text-decoration: none;
+
+  overflow: hidden;
+
+  transition:
+    padding 0.4s ease,
+    color 0.4s ease;
+}
+
+
+/* =========================
+   IMAGEN DE FONDO
+========================= */
+
+.category-item::before {
+  content: '';
+
+  position: absolute;
+
+  inset: 0;
+
+  background-image:
+    linear-gradient(
+      90deg,
+      rgba(20,14,10,0.82),
+      rgba(20,14,10,0.35)
+    ),
+    var(--category-image);
+
+  background-size: cover;
+
+  background-position: center;
+
+  opacity: 0;
+
+  transform: scale(1.08);
+
+  transition:
+    opacity 0.5s ease,
+    transform 0.7s ease;
+
+  z-index: -2;
+}
+
+
+/* OSCURECER IMAGEN */
+
+.category-item::after {
+  content: '';
+
+  position: absolute;
+
+  inset: 0;
+
+  background:
+    linear-gradient(
+      90deg,
+      rgba(20,14,10,0.65),
+      rgba(20,14,10,0.15)
+    );
+
+  opacity: 0;
+
+  transition: opacity 0.5s ease;
+
+  z-index: -1;
+}
+
+
+/* =========================
+   HOVER
+========================= */
+
+.category-item:hover {
+  padding-left: 35px;
+
+  color: white;
+}
+
+.category-item:hover::before {
+  opacity: 1;
+
+  transform: scale(1);
+}
+
+.category-item:hover::after {
+  opacity: 1;
+}
+
+
+/* =========================
+   NÚMERO
+========================= */
+
+.category-number {
+  font-family:
+    Georgia,
+    'Times New Roman',
+    serif;
+
+  font-size: 18px;
+
+  font-style: italic;
+
+  color: #c7a275;
+
+  transition:
+    color 0.3s ease;
+}
+
+.category-item:hover .category-number {
+  color: white;
+}
+
+
+/* =========================
+   CONTENIDO
+========================= */
+
+.category-content span {
+  font-size: 9px;
+
+  font-weight: bold;
+
+  letter-spacing: 3px;
+
+  opacity: 0.6;
+}
+
+.category-content h3 {
+  margin: 10px 0 0;
+
+  font-family:
+    Georgia,
+    'Times New Roman',
+    serif;
+
+  font-size: clamp(
+    38px,
+    4vw,
+    62px
+  );
+
+  font-weight: 400;
+
+  line-height: 1;
+}
+
+
+/* =========================
+   FLECHA
+========================= */
+
+.category-arrow {
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  width: 50px;
+  height: 50px;
+
+  border: 1px solid rgba(255,255,255,0.4);
+
+  border-radius: 50%;
+
+  font-size: 20px;
+
+  transition:
+    background 0.3s ease,
+    color 0.3s ease,
+    transform 0.3s ease;
+}
+
+.category-item:hover .category-arrow {
+  background: white;
+
+  color: #2d241e;
+
+  border-color: white;
+
+  transform: rotate(45deg);
+}
+
+
+/* =========================
+   FOOTER
+========================= */
+
+.categories-footer {
+  position: relative;
+
+  z-index: 2;
+
+  display: grid;
+
+  grid-template-columns: 1fr 1fr 1fr;
+
+  align-items: center;
+
+  padding-top: 45px;
+
+  color: rgba(255,255,255,0.5);
+
+  font-size: 10px;
+
+  letter-spacing: 2px;
+}
+
+.categories-footer span {
+  color: #c7a275;
+
+  font-weight: bold;
+}
+
+.categories-footer p {
+  margin: 0;
+
+  text-align: center;
+
+  letter-spacing: 1px;
+}
+
+.categories-footer a {
+  justify-self: end;
+
+  color: white;
+
+  text-decoration: none;
+
+  font-weight: bold;
+
+  border-bottom: 1px solid rgba(255,255,255,0.6);
+
+  padding-bottom: 7px;
+}
+
+
+/* =========================
+   TABLET
+========================= */
+
+@media (max-width: 900px) {
+
+  .categories {
+    padding: 110px 6% 80px;
+  }
+
+  .categories-intro {
+    grid-template-columns: 1fr;
+
+    gap: 35px;
+
+    margin-bottom: 70px;
+  }
+
+}
+
+
+/* =========================
+   MÓVIL
+========================= */
+
+@media (max-width: 650px) {
+
+  .categories {
+    padding: 90px 25px 70px;
+  }
+
+  .categories-intro h2 {
+    font-size: 70px;
+
+    letter-spacing: -4px;
+  }
+
+  .category-item {
+    grid-template-columns: 45px 1fr 50px;
+
+    min-height: 120px;
+
+    padding: 0;
+  }
+
+  .category-item:hover {
+    padding-left: 10px;
+  }
+
+  .category-content h3 {
+    font-size: 34px;
+  }
+
+  .category-arrow {
+    width: 40px;
+    height: 40px;
+  }
+
+  .categories-footer {
+    grid-template-columns: 1fr;
+
+    gap: 25px;
+  }
+
+  .categories-footer p {
+    text-align: left;
+  }
+
+  .categories-footer a {
+    justify-self: start;
+  }
+
+}

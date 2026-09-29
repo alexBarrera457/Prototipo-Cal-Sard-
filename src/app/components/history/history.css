@@ -1,0 +1,253 @@
+:host {
+  display: block;
+}
+
+
+/* ================================
+   HISTORY SECTION
+================================ */
+
+.history {
+  position: relative;
+
+  display: grid;
+  grid-template-columns: 48% 52%;
+  align-items: center;
+
+  min-height: 850px;
+
+  padding: 140px 9%;
+
+  background: #f3eee5;
+
+  overflow: hidden;
+}
+
+
+/* ================================
+   BIG 1930
+================================ */
+
+.history-number {
+  position: absolute;
+
+  top: 35px;
+  right: 6%;
+
+  color: rgba(55, 43, 32, 0.08);
+
+  font-family: Georgia, 'Times New Roman', serif;
+
+  font-size: clamp(160px, 20vw, 300px);
+  font-weight: 400;
+
+  line-height: 1;
+
+  pointer-events: none;
+}
+
+
+/* ================================
+   IMAGE
+================================ */
+
+.history-image {
+  position: relative;
+
+  width: 100%;
+  height: 620px;
+
+  overflow: hidden;
+}
+
+.history-image::after {
+  content: '';
+
+  position: absolute;
+  inset: 0;
+
+  background: rgba(40, 25, 15, 0.08);
+}
+
+.history-image img {
+  width: 100%;
+  height: 100%;
+
+  display: block;
+
+  object-fit: cover;
+
+  transition: transform 0.8s ease;
+}
+
+.history-image:hover img {
+  transform: scale(1.03);
+}
+
+
+/* ================================
+   CONTENT
+================================ */
+
+.history-content {
+  position: relative;
+
+  z-index: 2;
+
+  padding-left: 12%;
+  padding-right: 5%;
+}
+
+
+/* LABEL */
+
+.history-label {
+  margin: 0 0 25px;
+
+  color: #76563f;
+
+  font-family: Arial, sans-serif;
+
+  font-size: 11px;
+  font-weight: 600;
+
+  letter-spacing: 5px;
+}
+
+
+/* TITLE */
+
+.history-content h2 {
+  margin: 0 0 35px;
+
+  color: #2d251f;
+
+  font-family: Georgia, 'Times New Roman', serif;
+
+  font-size: clamp(55px, 6vw, 85px);
+  font-weight: 400;
+
+  line-height: 0.95;
+
+  letter-spacing: -3px;
+}
+
+
+/* TEXT */
+
+.history-text {
+  max-width: 480px;
+
+  margin: 0 0 40px;
+
+  color: #5d5148;
+
+  font-family: Arial, sans-serif;
+
+  font-size: 16px;
+
+  line-height: 1.8;
+}
+
+
+/* LINK */
+
+.history-link {
+  display: inline-flex;
+  align-items: center;
+
+  padding-bottom: 10px;
+
+  border-bottom: 1px solid #76563f;
+
+  color: #2d251f;
+
+  font-family: Arial, sans-serif;
+
+  font-size: 11px;
+  font-weight: 600;
+
+  letter-spacing: 2px;
+
+  text-decoration: none;
+
+  cursor: pointer;
+}
+
+.history-link span {
+  margin-left: 25px;
+
+  font-size: 18px;
+
+  transition: transform 0.3s ease;
+}
+
+.history-link:hover span {
+  transform: translateX(7px);
+}
+
+
+/* ================================
+   TABLET
+================================ */
+
+@media (max-width: 900px) {
+
+  .history {
+    grid-template-columns: 1fr;
+
+    gap: 70px;
+
+    padding: 100px 7%;
+  }
+
+  .history-image {
+    height: 550px;
+  }
+
+  .history-content {
+    padding: 0;
+  }
+
+  .history-number {
+    top: 20px;
+    right: 4%;
+  }
+}
+
+
+/* ================================
+   MOBILE
+================================ */
+
+@media (max-width: 600px) {
+
+  .history {
+    gap: 50px;
+
+    min-height: auto;
+
+    padding: 90px 6%;
+  }
+
+  .history-number {
+    top: 30px;
+
+    font-size: 130px;
+  }
+
+  .history-image {
+    height: 430px;
+  }
+
+  .history-content h2 {
+    font-size: 55px;
+
+    letter-spacing: -2px;
+  }
+
+  .history-text {
+    font-size: 15px;
+  }
+
+}
