@@ -4,32 +4,281 @@
   [class.transparent-section]="transparentSection"
 >
 
-  <a href="#inicio" class="navbar-logo">
-    CAL SARDÀ
-  </a>
+  <div class="navbar-inner">
 
-  <div class="navbar-links">
+    <!-- =========================
+         LOGO
+    ========================== -->
 
-    <a href="#inicio">Inicio</a>
+    <a
+      href="#inicio"
+      class="navbar-logo"
+    >
 
-    <a href="#historia">Historia</a>
+      <span class="logo-small">
+        DESDE 1930
+      </span>
 
-    <a href="#productos">Productos</a>
+      <span class="logo-main">
+        CAL SARDÀ
+      </span>
 
-    <a href="#categorias">Categorías</a>
+    </a>
 
-    <a href="#tienda">Tienda</a>
 
-    <a href="#contacto">Contacto</a>
+    <!-- =========================
+         MENÚ
+    ========================== -->
+
+    <div class="navbar-links">
+
+      <a href="#inicio">
+        <span>01</span>
+        INICIO
+      </a>
+
+      <a href="#historia">
+        <span>02</span>
+        HISTORIA
+      </a>
+
+      <a href="#productos">
+        <span>03</span>
+        PRODUCTOS
+      </a>
+
+      <a href="#categorias">
+        <span>04</span>
+        CATEGORÍAS
+      </a>
+
+      <a href="#tienda">
+        <span>05</span>
+        TIENDA
+      </a>
+
+      <a href="#contacto">
+        <span>06</span>
+        CONTACTO
+      </a>
+
+    </div>
+
+
+    <!-- =========================
+         CARRITO
+    ========================== -->
+
+    <button
+      class="navbar-cart"
+      type="button"
+      (click)="toggleCart()"
+      aria-label="Abrir carrito"
+    >
+
+      <span class="cart-label">
+        CARRITO
+      </span>
+
+      <span class="cart-circle">
+
+        <span class="cart-icon"></span>
+
+        <span class="cart-count">
+          {{ cartService.count() }}
+        </span>
+
+      </span>
+
+    </button>
 
   </div>
 
-  <a
-    href="#productos"
-    class="navbar-cart"
-    aria-label="Ver productos"
-  >
-    🛒
-  </a>
-
 </nav>
+
+
+<!-- =========================
+     OVERLAY CARRITO
+========================== -->
+
+<div
+  class="cart-overlay"
+  [class.active]="cartOpen"
+  (click)="closeCart()"
+></div>
+
+
+<!-- =========================
+     PANEL CARRITO
+========================== -->
+
+<aside
+  class="cart-panel"
+  [class.open]="cartOpen"
+>
+
+
+  <!-- CABECERA -->
+
+  <div class="cart-header">
+
+    <div>
+
+      <span class="cart-label-panel">
+        CAL SARDÀ
+      </span>
+
+      <h2>
+        Tu carrito
+      </h2>
+
+    </div>
+
+
+    <button
+      class="cart-close"
+      type="button"
+      (click)="closeCart()"
+      aria-label="Cerrar carrito"
+    >
+      ×
+    </button>
+
+  </div>
+
+
+  <!-- =========================
+       PRODUCTOS
+  ========================== -->
+
+  <div class="cart-products">
+
+    @if (cartService.products().length === 0) {
+
+      <div class="cart-empty">
+
+        <span class="cart-empty-icon">
+          🛒
+        </span>
+
+        <h3>
+          Tu carrito está vacío
+        </h3>
+
+        <p>
+          Añade alguno de nuestros productos
+          para comenzar.
+        </p>
+
+        <button
+          type="button"
+          (click)="closeCart()"
+        >
+          VER PRODUCTOS →
+        </button>
+
+      </div>
+
+    } @else {
+
+      @for (
+        product of cartService.products();
+        track product.name
+      ) {
+
+        <div class="cart-product">
+
+          <div class="cart-product-info">
+
+            <span class="cart-product-category">
+              PRODUCTO
+            </span>
+
+            <h3>
+              {{ product.name }}
+            </h3>
+
+            <span class="cart-product-price">
+              {{ product.price.toFixed(2) }} €
+            </span>
+
+          </div>
+
+
+          <!-- CANTIDAD -->
+
+          <div class="cart-product-actions">
+
+            <button
+              type="button"
+              (click)="cartService.removeFromCart(product.name)"
+            >
+              −
+            </button>
+
+            <span>
+              {{ product.quantity }}
+            </span>
+
+            <button
+              type="button"
+              (click)="cartService.addToCart(product.name, product.price)"
+            >
+              +
+            </button>
+
+          </div>
+
+
+          <!-- ELIMINAR -->
+
+          <button
+            class="cart-product-delete"
+            type="button"
+            (click)="cartService.deleteProduct(product.name)"
+          >
+            ELIMINAR
+          </button>
+
+        </div>
+
+      }
+
+    }
+
+  </div>
+
+
+  <!-- =========================
+       TOTAL
+  ========================== -->
+
+  @if (cartService.products().length > 0) {
+
+    <div class="cart-footer">
+
+      <div class="cart-total">
+
+        <span>
+          TOTAL
+        </span>
+
+        <strong>
+          {{ cartService.getTotal().toFixed(2) }} €
+        </strong>
+
+      </div>
+
+
+      <button
+        class="cart-checkout"
+        type="button"
+      >
+        FINALIZAR COMPRA →
+      </button>
+
+    </div>
+
+  }
+
+</aside>

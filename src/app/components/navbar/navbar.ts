@@ -1,4 +1,5 @@
 import { Component, HostListener } from '@angular/core';
+import { CartService } from '../../services/cart';
 
 @Component({
   selector: 'app-navbar',
@@ -10,6 +11,9 @@ export class Navbar {
 
   scrolled = false;
   transparentSection = false;
+  cartOpen = false;
+
+  constructor(public cartService: CartService) {}
 
   @HostListener('window:scroll')
   onWindowScroll(): void {
@@ -30,6 +34,14 @@ export class Navbar {
 
     }
 
+  }
+
+  toggleCart(): void {
+    this.cartOpen = !this.cartOpen;
+  }
+
+  closeCart(): void {
+    this.cartOpen = false;
   }
 
 }

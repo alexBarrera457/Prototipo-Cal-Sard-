@@ -1,0 +1,89 @@
+<section class="product-detail">
+
+  <div class="product-detail-image">
+
+    <img
+      [src]="product.image"
+      [alt]="product.name"
+    >
+
+    <span class="product-detail-number">
+      {{ product.number }}
+    </span>
+
+    <span class="product-detail-category">
+      {{ product.category }}
+    </span>
+
+  </div>
+
+
+  <div class="product-detail-content">
+
+    <button
+      type="button"
+      class="product-detail-back"
+      (click)="goBack()"
+    >
+      ← VOLVER A LA TIENDA
+    </button>
+
+
+    <span class="product-detail-label">
+      CAL SARDÀ · PRODUCTO
+    </span>
+
+
+    <h1>
+      {{ product.name }}
+    </h1>
+
+
+    <p class="product-detail-description">
+      {{ product.description }}
+    </p>
+
+
+    <div class="product-detail-price">
+      {{ product.price.toFixed(2) }} €
+    </div>
+
+
+    <div class="product-detail-purchase">
+
+      <div class="quantity">
+
+        <button
+          type="button"
+          (click)="decreaseQuantity()"
+        >
+          −
+        </button>
+
+        <span>
+          {{ quantity }}
+        </span>
+
+        <button
+          type="button"
+          (click)="increaseQuantity()"
+        >
+          +
+        </button>
+
+      </div>
+
+
+      <button
+        type="button"
+        class="product-detail-button"
+        (click)="addToCart()"
+      >
+        AÑADIR AL CARRITO →
+      </button>
+
+    </div>
+
+  </div>
+
+</section>

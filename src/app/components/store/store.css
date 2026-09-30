@@ -1,203 +1,418 @@
-:host {
-  display: block;
-}
+/* =========================
+   STORE
+========================= */
 
 .store {
-  min-height: 750px;
+  padding: 140px 7vw;
+  background: #f5f1e9;
+  color: #302118;
+}
 
+
+/* =========================
+   HEADER
+========================= */
+
+.store-header {
   display: grid;
   grid-template-columns: 1fr 1fr;
-
-  background: #f3eee5;
-  color: #2d211a;
-}
-
-
-/* IMAGEN */
-
-.store-image {
-  height: 100%;
-  min-height: 750px;
-  overflow: hidden;
-}
-
-.store-image img {
-  width: 100%;
-  height: 100%;
-
-  object-fit: cover;
-
-  display: block;
-
-  transition: transform 0.8s ease;
-}
-
-.store:hover .store-image img {
-  transform: scale(1.03);
-}
-
-
-/* CONTENIDO */
-
-.store-content {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-
-  padding: 100px 12%;
+  gap: 80px;
+  align-items: end;
+  margin-bottom: 80px;
 }
 
 .store-label {
-  color: #9b7047;
-
-  font-size: 11px;
-  font-weight: bold;
-
-  letter-spacing: 4px;
-
+  display: block;
   margin-bottom: 25px;
-}
-
-.store h2 {
-  font-family: Georgia, 'Times New Roman', serif;
-
-  font-size: clamp(55px, 5vw, 80px);
-
-  font-weight: 400;
-
-  line-height: 0.92;
-
-  letter-spacing: -3px;
-
-  margin: 0 0 35px;
-}
-
-.store-content > p {
-  max-width: 470px;
-
-  color: #70645b;
-
-  font-size: 16px;
-
-  line-height: 1.7;
-
-  margin: 0 0 50px;
-}
-
-
-/* INFORMACIÓN */
-
-.store-info {
-  display: grid;
-
-  grid-template-columns: 1fr 1fr;
-
-  gap: 40px;
-
-  border-top: 1px solid #cfc4b6;
-
-  padding-top: 30px;
-
-  margin-bottom: 45px;
-}
-
-.store-info span {
-  color: #9b7047;
 
   font-size: 10px;
-
   font-weight: bold;
-
   letter-spacing: 3px;
 }
 
-.store-info p {
-  color: #51463e;
+.store-header h2 {
+  margin: 0;
 
-  font-size: 14px;
+  font-family: Georgia, serif;
+  font-size: clamp(55px, 7vw, 105px);
+  font-weight: normal;
+  line-height: 0.9;
+}
 
-  line-height: 1.7;
+.store-header p {
+  max-width: 430px;
+  margin: 0;
 
-  margin: 12px 0 0;
+  font-size: 15px;
+  line-height: 1.8;
+
+  opacity: 0.7;
 }
 
 
-/* BOTÓN */
+/* =========================
+   GRID
+========================= */
 
-.store-button {
-  width: fit-content;
+.store-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+
+  gap: 70px 35px;
+}
+
+
+/* =========================
+   PRODUCT
+========================= */
+
+.store-product {
+  min-width: 0;
+}
+
+
+/* =========================
+   IMAGE
+========================= */
+
+.store-product-image {
+  position: relative;
+
+  height: 520px;
+
+  overflow: hidden;
+
+  background: #ddd5c8;
+
+  cursor: pointer;
+}
+
+.store-product-image img {
+  width: 100%;
+  height: 100%;
+
+  display: block;
+
+  object-fit: cover;
+
+  transition:
+    transform 0.8s ease,
+    filter 0.8s ease;
+}
+
+
+/* =========================
+   IMAGE HOVER
+========================= */
+
+.store-product-overlay {
+  position: absolute;
+
+  inset: 0;
 
   display: flex;
   align-items: center;
+  justify-content: center;
 
-  gap: 50px;
+  background: rgba(48, 33, 24, 0.35);
 
-  padding: 18px 0;
+  opacity: 0;
 
-  border-bottom: 1px solid #2d211a;
+  transition:
+    opacity 0.4s ease,
+    background 0.4s ease;
 
-  color: #2d211a;
-
-  text-decoration: none;
-
-  font-size: 11px;
-
-  font-weight: bold;
-
-  letter-spacing: 2px;
-
-  transition: gap 0.3s ease;
+  cursor: pointer;
 }
 
-.store-button span {
-  font-size: 20px;
+.store-product-overlay span {
+  padding: 15px 24px;
+
+  border: 1px solid white;
+
+  color: white;
+
+  font-size: 10px;
+  font-weight: bold;
+  letter-spacing: 2px;
+
+  transform: translateY(15px);
+
+  transition:
+    transform 0.4s ease,
+    background 0.3s ease,
+    color 0.3s ease;
+}
+
+
+/* HOVER REAL */
+
+.store-product:hover .store-product-image img {
+  transform: scale(1.07);
+
+  filter: brightness(0.85);
+}
+
+.store-product:hover .store-product-overlay {
+  opacity: 1;
+
+  background: rgba(48, 33, 24, 0.4);
+}
+
+.store-product:hover .store-product-overlay span {
+  transform: translateY(0);
+}
+
+
+/* BOTÓN DEL HOVER */
+
+.store-product-overlay span:hover {
+  background: white;
+  color: #302118;
+}
+
+
+/* =========================
+   NUMBER
+========================= */
+
+.store-product-number {
+  position: absolute;
+
+  top: 25px;
+  left: 25px;
+
+  z-index: 2;
+
+  color: white;
+
+  font-family: Georgia, serif;
+
+  font-size: 18px;
+
+  pointer-events: none;
+}
+
+
+/* =========================
+   CATEGORY
+========================= */
+
+.store-product-category {
+  position: absolute;
+
+  right: 25px;
+  bottom: 25px;
+
+  z-index: 2;
+
+  color: white;
+
+  font-size: 10px;
+  font-weight: bold;
+  letter-spacing: 2px;
+
+  pointer-events: none;
+}
+
+
+/* =========================
+   PRODUCT INFO
+========================= */
+
+.store-product-info {
+  display: flex;
+
+  justify-content: space-between;
+  align-items: flex-start;
+
+  gap: 30px;
+
+  padding: 25px 0 18px;
+}
+
+.store-product-info h3 {
+  margin: 0 0 8px;
+
+  font-family: Georgia, serif;
+
+  font-size: 25px;
+  font-weight: normal;
+
+  transition: transform 0.3s ease;
+}
+
+.store-product:hover .store-product-info h3 {
+  transform: translateX(5px);
+}
+
+.store-product-info p {
+  margin: 0;
+
+  font-size: 13px;
+  line-height: 1.5;
+
+  opacity: 0.6;
+}
+
+.store-price {
+  white-space: nowrap;
+
+  font-size: 12px;
+  font-weight: bold;
+}
+
+
+/* =========================
+   BUTTON
+========================= */
+
+.store-button {
+  width: 100%;
+
+  padding: 18px 20px;
+
+  border: 1px solid #302118;
+
+  background: transparent;
+
+  color: #302118;
+
+  cursor: pointer;
+
+  font-size: 10px;
+  font-weight: bold;
+  letter-spacing: 2px;
+
+  transition:
+    background 0.3s ease,
+    color 0.3s ease,
+    transform 0.3s ease;
 }
 
 .store-button:hover {
-  gap: 65px;
+  background: #302118;
+
+  color: white;
+
+  transform: translateY(-2px);
 }
 
 
-/* TABLET */
+/* =========================
+   FOOTER
+========================= */
+
+.store-footer {
+  display: grid;
+
+  grid-template-columns: 1fr 1fr auto;
+
+  align-items: center;
+
+  gap: 30px;
+
+  margin-top: 120px;
+
+  padding-top: 30px;
+
+  border-top: 1px solid rgba(48, 33, 24, 0.2);
+}
+
+.store-footer span {
+  font-size: 10px;
+  font-weight: bold;
+  letter-spacing: 2px;
+}
+
+.store-footer p {
+  margin: 0;
+
+  font-size: 12px;
+
+  opacity: 0.6;
+}
+
+.store-footer a {
+  color: #302118;
+
+  font-size: 10px;
+  font-weight: bold;
+  letter-spacing: 2px;
+
+  text-decoration: none;
+
+  transition: opacity 0.3s ease;
+}
+
+.store-footer a:hover {
+  opacity: 0.5;
+}
+
+
+/* =========================
+   TABLET
+========================= */
 
 @media (max-width: 900px) {
 
   .store {
+    padding: 100px 5vw;
+  }
+
+  .store-header {
+    grid-template-columns: 1fr;
+
+    gap: 35px;
+  }
+
+  .store-grid {
     grid-template-columns: 1fr;
   }
 
-  .store-image {
-    min-height: 500px;
-    height: 500px;
+  .store-product-image {
+    height: 600px;
   }
 
-  .store-content {
-    padding: 90px 7%;
+  .store-footer {
+    grid-template-columns: 1fr;
+
+    gap: 20px;
   }
 
 }
 
 
-/* MÓVIL */
+/* =========================
+   MOBILE
+========================= */
 
 @media (max-width: 600px) {
 
-  .store-image {
-    min-height: 400px;
-    height: 400px;
+  .store {
+    padding: 80px 20px;
   }
 
-  .store-content {
-    padding: 70px 25px;
+  .store-header h2 {
+    font-size: 55px;
   }
 
-  .store h2 {
-    font-size: 50px;
+  .store-grid {
+    gap: 55px;
   }
 
-  .store-info {
-    grid-template-columns: 1fr;
-    gap: 25px;
+  .store-product-image {
+    height: 430px;
+  }
+
+  .store-product-info {
+    flex-direction: column;
+
+    gap: 15px;
+  }
+
+  .store-price {
+    font-size: 13px;
   }
 
 }

@@ -8,21 +8,47 @@
 ========================= */
 
 .hero {
+
   position: relative;
 
   width: 100%;
+
   height: 100vh;
+
   min-height: 700px;
 
   display: flex;
+
   align-items: center;
 
-  background-image: url('/images/hero.jpg');
+  background-image:
+    url('/images/hero.jpg');
 
   background-size: cover;
+
   background-position: center;
 
   overflow: hidden;
+
+  animation:
+    heroImage 18s ease-out forwards;
+}
+
+
+/* =========================
+   MOVIMIENTO IMAGEN
+========================= */
+
+@keyframes heroImage {
+
+  from {
+    background-size: 105%;
+  }
+
+  to {
+    background-size: 100%;
+  }
+
 }
 
 
@@ -31,11 +57,13 @@
 ========================= */
 
 .hero-overlay {
+
   position: absolute;
 
   inset: 0;
 
   background:
+
     linear-gradient(
       90deg,
       rgba(20, 14, 10, 0.82) 0%,
@@ -44,6 +72,7 @@
     );
 
   z-index: 1;
+
 }
 
 
@@ -52,16 +81,48 @@
 ========================= */
 
 .hero-content {
+
   position: relative;
 
   z-index: 2;
 
   width: 90%;
+
   max-width: 900px;
 
   margin-left: 9%;
 
   color: white;
+
+  animation:
+    heroContent
+    1.4s
+    cubic-bezier(.22, .61, .36, 1)
+    forwards;
+
+}
+
+
+@keyframes heroContent {
+
+  from {
+
+    opacity: 0;
+
+    transform:
+      translateY(35px);
+
+  }
+
+  to {
+
+    opacity: 1;
+
+    transform:
+      translateY(0);
+
+  }
+
 }
 
 
@@ -70,11 +131,14 @@
 ========================= */
 
 .hero-subtitle {
+
   margin: 0 0 28px;
 
   color: white;
 
-  font-family: Arial, sans-serif;
+  font-family:
+    Arial,
+    sans-serif;
 
   font-size: 12px;
 
@@ -83,6 +147,17 @@
   letter-spacing: 6px;
 
   text-transform: uppercase;
+
+  opacity: 0;
+
+  animation:
+    heroFadeUp
+    1s
+    ease
+    forwards;
+
+  animation-delay: 0.2s;
+
 }
 
 
@@ -91,6 +166,7 @@
 ========================= */
 
 .hero h1 {
+
   margin: 0 0 30px;
 
   color: white;
@@ -100,19 +176,60 @@
     'Times New Roman',
     serif;
 
-  font-size: clamp(
-    65px,
-    8vw,
-    115px
-  );
+  font-size:
+    clamp(
+      70px,
+      8.5vw,
+      125px
+    );
 
   font-weight: 400;
 
-  line-height: 0.88;
+  line-height: 0.86;
 
-  letter-spacing: -5px;
+  letter-spacing: -6px;
 
-  max-width: 850px;
+  max-width: 900px;
+
+  opacity: 0;
+
+  animation:
+    heroTitle
+    1.4s
+    cubic-bezier(.22, .61, .36, 1)
+    forwards;
+
+  animation-delay: 0.35s;
+
+}
+
+
+@keyframes heroTitle {
+
+  from {
+
+    opacity: 0;
+
+    transform:
+      translateY(45px);
+
+    filter:
+      blur(5px);
+
+  }
+
+  to {
+
+    opacity: 1;
+
+    transform:
+      translateY(0);
+
+    filter:
+      blur(0);
+
+  }
+
 }
 
 
@@ -121,17 +238,32 @@
 ========================= */
 
 .hero-text {
+
   max-width: 530px;
 
   margin: 0 0 42px;
 
-  color: rgba(255, 255, 255, 0.88);
+  color:
+    rgba(255, 255, 255, 0.88);
 
-  font-family: Arial, sans-serif;
+  font-family:
+    Arial,
+    sans-serif;
 
   font-size: 17px;
 
   line-height: 1.7;
+
+  opacity: 0;
+
+  animation:
+    heroFadeUp
+    1s
+    ease
+    forwards;
+
+  animation-delay: 0.75s;
+
 }
 
 
@@ -140,14 +272,20 @@
 ========================= */
 
 .hero-button {
+
+  position: relative;
+
+  z-index: 1;
+
   display: inline-flex;
 
   align-items: center;
+
   justify-content: space-between;
 
-  min-width: 210px;
+  min-width: 230px;
 
-  padding: 18px 25px;
+  padding: 19px 25px;
 
   border: 1px solid white;
 
@@ -155,7 +293,9 @@
 
   color: #2d251f;
 
-  font-family: Arial, sans-serif;
+  font-family:
+    Arial,
+    sans-serif;
 
   font-size: 11px;
 
@@ -165,34 +305,662 @@
 
   cursor: pointer;
 
+  overflow: hidden;
+
+  opacity: 0;
+
+  animation:
+    heroFadeUp
+    1s
+    ease
+    forwards;
+
+  animation-delay: 1s;
+
   transition:
-    background 0.3s ease,
-    color 0.3s ease,
-    padding 0.3s ease;
+    color 0.4s ease,
+    background 0.4s ease,
+    border-color 0.4s ease,
+    transform 0.4s ease;
+
 }
 
+
 .hero-button span {
+
   margin-left: 30px;
 
   font-size: 20px;
 
   transition:
-    transform 0.3s ease;
+    transform 0.4s ease;
+
 }
 
 
-/* HOVER */
+/* =========================
+   EFECTO DORADO BOTÓN
+========================= */
+
+.hero-button::before {
+
+  content: '';
+
+  position: absolute;
+
+  inset: 0;
+
+  background: #d4b06a;
+
+  transform:
+    translateX(-101%);
+
+  transition:
+    transform 0.45s
+    cubic-bezier(.77, 0, .18, 1);
+
+  z-index: -1;
+
+}
+
+
+.hero-button:hover::before {
+
+  transform:
+    translateX(0);
+
+}
+
 
 .hero-button:hover {
-  background: transparent;
+
+  color: #302118;
+
+  border-color: #d4b06a;
+
+  transform:
+    translateY(-2px);
+
+}
+
+
+.hero-button:hover span {
+
+  transform:
+    translateX(6px);
+
+}
+
+
+/* =========================
+   FILOSOFÍA
+========================= */
+
+.hero-philosophy {
+
+  position: absolute;
+
+  z-index: 3;
+
+  right: 8%;
+
+  top: 48%;
+
+  width: 430px;
 
   color: white;
 
-  padding-left: 30px;
+  opacity: 0;
+
+  animation:
+    philosophyEntrance
+    1.5s
+    cubic-bezier(.22, .61, .36, 1)
+    forwards;
+
+  animation-delay: 0.9s;
+
 }
 
-.hero-button:hover span {
-  transform: translateX(5px);
+
+@keyframes philosophyEntrance {
+
+  from {
+
+    opacity: 0;
+
+    transform:
+      translateX(35px);
+
+  }
+
+  to {
+
+    opacity: 1;
+
+    transform:
+      translateX(0);
+
+  }
+
+}
+
+
+/* =========================
+   LABEL FILOSOFÍA
+========================= */
+
+.philosophy-label {
+
+  position: relative;
+
+  display: inline-block;
+
+  margin-bottom: 25px;
+
+  font-family:
+    Arial,
+    sans-serif;
+
+  font-size: 10px;
+
+  font-weight: 600;
+
+  letter-spacing: 5px;
+
+  color: #d4b06a;
+
+}
+
+
+.philosophy-label::after {
+
+  content: '';
+
+  position: absolute;
+
+  left: 0;
+
+  bottom: -8px;
+
+  width: 0;
+
+  height: 1px;
+
+  background: #d4b06a;
+
+  animation:
+    philosophyLine
+    1.2s
+    ease
+    forwards;
+
+  animation-delay: 1.5s;
+
+}
+
+
+@keyframes philosophyLine {
+
+  to {
+    width: 100%;
+  }
+
+}
+
+
+/* =========================
+   FRASES
+========================= */
+
+.philosophy-text {
+
+  position: relative;
+
+  min-height: 150px;
+
+}
+
+
+.philosophy-text p {
+
+  position: absolute;
+
+  top: 0;
+
+  left: 0;
+
+  width: 100%;
+
+  margin: 0;
+
+  font-family:
+    Georgia,
+    'Times New Roman',
+    serif;
+
+  font-size: 35px;
+
+  line-height: 1.18;
+
+  font-weight: 400;
+
+  letter-spacing: -0.5px;
+
+  color: white;
+
+  opacity: 0;
+
+  transform:
+    translateY(25px);
+
+}
+
+
+/* =========================
+   CAMBIO DE FRASES
+========================= */
+
+.philosophy-text p:nth-child(1) {
+
+  animation:
+    philosophy1 36s infinite;
+
+}
+
+
+.philosophy-text p:nth-child(2) {
+
+  animation:
+    philosophy2 36s infinite;
+
+}
+
+
+.philosophy-text p:nth-child(3) {
+
+  animation:
+    philosophy3 36s infinite;
+
+}
+
+
+.philosophy-text p:nth-child(4) {
+
+  animation:
+    philosophy4 36s infinite;
+
+}
+
+
+.philosophy-text p:nth-child(5) {
+
+  animation:
+    philosophy5 36s infinite;
+
+}
+
+
+.philosophy-text p:nth-child(6) {
+
+  animation:
+    philosophy6 36s infinite;
+
+}
+
+
+.philosophy-text p:nth-child(7) {
+
+  animation:
+    philosophy7 36s infinite;
+
+}
+
+
+.philosophy-text p:nth-child(8) {
+
+  animation:
+    philosophy8 36s infinite;
+
+}
+
+
+.philosophy-text p:nth-child(9) {
+
+  animation:
+    philosophy9 36s infinite;
+
+}
+
+
+/* =========================
+   FRASE 1
+========================= */
+
+@keyframes philosophy1 {
+
+  0%,
+  8% {
+
+    opacity: 0;
+
+    transform:
+      translateY(25px);
+
+  }
+
+  12%,
+  20% {
+
+    opacity: 1;
+
+    transform:
+      translateY(0);
+
+  }
+
+  24%,
+  100% {
+
+    opacity: 0;
+
+    transform:
+      translateY(-20px);
+
+  }
+
+}
+
+
+/* =========================
+   FRASE 2
+========================= */
+
+@keyframes philosophy2 {
+
+  0%,
+  20% {
+
+    opacity: 0;
+
+    transform:
+      translateY(25px);
+
+  }
+
+  24%,
+  32% {
+
+    opacity: 1;
+
+    transform:
+      translateY(0);
+
+  }
+
+  36%,
+  100% {
+
+    opacity: 0;
+
+    transform:
+      translateY(-20px);
+
+  }
+
+}
+
+
+/* =========================
+   FRASE 3
+========================= */
+
+@keyframes philosophy3 {
+
+  0%,
+  32% {
+
+    opacity: 0;
+
+    transform:
+      translateY(25px);
+
+  }
+
+  36%,
+  44% {
+
+    opacity: 1;
+
+    transform:
+      translateY(0);
+
+  }
+
+  48%,
+  100% {
+
+    opacity: 0;
+
+    transform:
+      translateY(-20px);
+
+  }
+
+}
+
+
+/* =========================
+   FRASE 4
+========================= */
+
+@keyframes philosophy4 {
+
+  0%,
+  44% {
+
+    opacity: 0;
+
+    transform:
+      translateY(25px);
+
+  }
+
+  48%,
+  56% {
+
+    opacity: 1;
+
+    transform:
+      translateY(0);
+
+  }
+
+  60%,
+  100% {
+
+    opacity: 0;
+
+    transform:
+      translateY(-20px);
+
+  }
+
+}
+
+
+/* =========================
+   FRASE 5
+========================= */
+
+@keyframes philosophy5 {
+
+  0%,
+  56% {
+
+    opacity: 0;
+
+    transform:
+      translateY(25px);
+
+  }
+
+  60%,
+  68% {
+
+    opacity: 1;
+
+    transform:
+      translateY(0);
+
+  }
+
+  72%,
+  100% {
+
+    opacity: 0;
+
+    transform:
+      translateY(-20px);
+
+  }
+
+}
+
+
+/* =========================
+   FRASE 6
+========================= */
+
+@keyframes philosophy6 {
+
+  0%,
+  68% {
+
+    opacity: 0;
+
+    transform:
+      translateY(25px);
+
+  }
+
+  72%,
+  80% {
+
+    opacity: 1;
+
+    transform:
+      translateY(0);
+
+  }
+
+  84%,
+  100% {
+
+    opacity: 0;
+
+    transform:
+      translateY(-20px);
+
+  }
+
+}
+
+
+/* =========================
+   FRASE 7
+========================= */
+
+@keyframes philosophy7 {
+
+  0%,
+  80% {
+
+    opacity: 0;
+
+    transform:
+      translateY(25px);
+
+  }
+
+  84%,
+  92% {
+
+    opacity: 1;
+
+    transform:
+      translateY(0);
+
+  }
+
+  96%,
+  100% {
+
+    opacity: 0;
+
+    transform:
+      translateY(-20px);
+
+  }
+
+}
+
+
+/* =========================
+   FRASE 8
+========================= */
+
+@keyframes philosophy8 {
+
+  0%,
+  92% {
+
+    opacity: 0;
+
+    transform:
+      translateY(25px);
+
+  }
+
+  96%,
+  100% {
+
+    opacity: 1;
+
+    transform:
+      translateY(0);
+
+  }
+
+}
+
+
+/* =========================
+   FRASE 9
+========================= */
+
+@keyframes philosophy9 {
+
+  0%,
+  92% {
+
+    opacity: 0;
+
+    transform:
+      translateY(25px);
+
+  }
+
+  96%,
+  100% {
+
+    opacity: 1;
+
+    transform:
+      translateY(0);
+
+  }
+
 }
 
 
@@ -201,12 +969,15 @@
 ========================= */
 
 .hero::after {
+
   content: '';
 
   position: absolute;
 
   left: 0;
+
   right: 0;
+
   bottom: 0;
 
   height: 180px;
@@ -221,14 +992,16 @@
   pointer-events: none;
 
   z-index: 1;
+
 }
 
 
 /* =========================
-   INDICADOR SCROLL
+   SCROLL
 ========================= */
 
 .hero-scroll {
+
   position: absolute;
 
   z-index: 3;
@@ -245,7 +1018,9 @@
 
   color: white;
 
-  font-family: Arial, sans-serif;
+  font-family:
+    Arial,
+    sans-serif;
 
   font-size: 9px;
 
@@ -256,47 +1031,127 @@
   text-transform: uppercase;
 
   writing-mode: vertical-rl;
+
+  opacity: 0;
+
+  animation:
+    heroFadeUp
+    1s
+    ease
+    forwards;
+
+  animation-delay: 1.4s;
+
 }
 
+
 .hero-scroll::after {
+
   content: '';
 
   width: 1px;
 
   height: 60px;
 
-  background: rgba(255, 255, 255, 0.6);
+  background:
+    rgba(255, 255, 255, 0.6);
 
-  animation: scrollLine 2s infinite;
+  animation:
+    scrollLine
+    2.5s
+    cubic-bezier(.77, 0, .18, 1)
+    infinite;
+
 }
 
-
-/* =========================
-   ANIMACIÓN SCROLL
-========================= */
 
 @keyframes scrollLine {
 
   0% {
-    transform: scaleY(0);
 
-    transform-origin: top;
+    transform:
+      scaleY(0);
+
+    transform-origin:
+      top;
+
   }
 
   50% {
-    transform: scaleY(1);
 
-    transform-origin: top;
+    transform:
+      scaleY(1);
+
+    transform-origin:
+      top;
+
   }
 
   51% {
-    transform-origin: bottom;
+
+    transform-origin:
+      bottom;
+
   }
 
   100% {
-    transform: scaleY(0);
 
-    transform-origin: bottom;
+    transform:
+      scaleY(0);
+
+    transform-origin:
+      bottom;
+
+  }
+
+}
+
+
+/* =========================
+   ANIMACIÓN GENERAL
+========================= */
+
+@keyframes heroFadeUp {
+
+  from {
+
+    opacity: 0;
+
+    transform:
+      translateY(20px);
+
+  }
+
+  to {
+
+    opacity: 1;
+
+    transform:
+      translateY(0);
+
+  }
+
+}
+
+
+/* =========================
+   TABLET
+========================= */
+
+@media (max-width: 1100px) {
+
+  .hero-philosophy {
+
+    right: 5%;
+
+    width: 350px;
+
+  }
+
+  .philosophy-text p {
+
+    font-size: 29px;
+
   }
 
 }
@@ -309,31 +1164,42 @@
 @media (max-width: 900px) {
 
   .hero {
+
     min-height: 650px;
+
   }
 
   .hero-content {
+
     width: auto;
 
     margin-left: 6%;
 
     margin-right: 6%;
+
   }
 
   .hero h1 {
-    font-size: clamp(
-      60px,
-      10vw,
-      90px
-    );
+
+    font-size:
+      clamp(
+        60px,
+        10vw,
+        95px
+      );
+
   }
 
   .hero-text {
+
     font-size: 16px;
+
   }
 
   .hero-scroll {
+
     right: 4%;
+
   }
 
 }
@@ -343,38 +1209,54 @@
    MÓVIL
 ========================= */
 
-@media (max-width: 650px) {
+@media (max-width: 750px) {
 
   .hero {
-    min-height: 650px;
 
-    background-position: 60% center;
+    min-height: 700px;
+
+    background-position:
+      60% center;
+
   }
+
 
   .hero-overlay {
+
     background:
+
       linear-gradient(
         90deg,
-        rgba(20, 14, 10, 0.82),
+        rgba(20, 14, 10, 0.84),
         rgba(20, 14, 10, 0.45)
       );
+
   }
+
 
   .hero-content {
+
     width: auto;
 
-    margin: 0 25px;
+    margin:
+      0 25px;
+
   }
 
+
   .hero-subtitle {
+
     font-size: 10px;
 
     letter-spacing: 4px;
 
     margin-bottom: 20px;
+
   }
 
+
   .hero h1 {
+
     font-size: 62px;
 
     letter-spacing: -3px;
@@ -382,9 +1264,12 @@
     line-height: 0.9;
 
     margin-bottom: 25px;
+
   }
 
+
   .hero-text {
+
     max-width: 100%;
 
     font-size: 15px;
@@ -392,16 +1277,90 @@
     line-height: 1.6;
 
     margin-bottom: 30px;
+
   }
 
+
   .hero-button {
+
     min-width: 190px;
 
     padding: 16px 20px;
+
   }
 
+
+  .hero-philosophy {
+
+    left: 25px;
+
+    right: 25px;
+
+    top: auto;
+
+    bottom: 80px;
+
+    width: auto;
+
+  }
+
+
+  .philosophy-text {
+
+    min-height: 120px;
+
+  }
+
+
+  .philosophy-text p {
+
+    font-size: 24px;
+
+    line-height: 1.2;
+
+  }
+
+
+  .philosophy-label {
+
+    margin-bottom: 18px;
+
+  }
+
+
   .hero-scroll {
+
     display: none;
+
+  }
+
+}
+
+
+/* =========================
+   REDUCIR ANIMACIONES
+========================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+  .hero,
+  .hero-content,
+  .hero-subtitle,
+  .hero h1,
+  .hero-text,
+  .hero-button,
+  .hero-philosophy,
+  .hero-scroll,
+  .philosophy-label::after {
+
+    animation: none;
+
+    opacity: 1;
+
+    transform: none;
+
+    filter: none;
+
   }
 
 }
