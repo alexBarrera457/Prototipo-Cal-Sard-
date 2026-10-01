@@ -1,5 +1,6 @@
 import { Component, EventEmitter, Output } from '@angular/core';
 import { CartService } from '../../services/cart';
+import { StoreProduct, storeProducts } from '../../services/products';
 
 @Component({
   selector: 'app-store',
@@ -9,39 +10,18 @@ import { CartService } from '../../services/cart';
 })
 export class Store {
 
-  @Output() productSelected = new EventEmitter<{
-    name: string;
-    category: string;
-    description: string;
-    price: number;
-    number: string;
-    image: string;
-  }>();
+  products = storeProducts;
+
+  @Output() productSelected = new EventEmitter<StoreProduct>();
 
   constructor(private cartService: CartService) {}
 
-  addToCart(name: string, price: number): void {
-    this.cartService.addToCart(name, price);
+  addToCart(product: StoreProduct): void {
+    this.cartService.addToCart(product.name, product.price);
   }
 
-  showProduct(
-    name: string,
-    category: string,
-    description: string,
-    price: number,
-    number: string,
-    image: string
-  ): void {
-
-    this.productSelected.emit({
-      name,
-      category,
-      description,
-      price,
-      number,
-      image
-    });
-
+  showProduct(product: StoreProduct): void {
+    this.productSelected.emit(product);
   }
 
 }

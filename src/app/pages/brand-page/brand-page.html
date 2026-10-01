@@ -1,0 +1,117 @@
+<article class="brand-page">
+
+  <header class="brand-page-header">
+    <span class="brand-page-eyebrow">
+      {{ page.eyebrow }}
+    </span>
+
+    <h1>
+      {{ page.title }}
+    </h1>
+
+    <p class="brand-page-intro">
+      {{ page.intro }}
+    </p>
+
+    <div class="brand-page-highlight">
+      {{ page.highlight }}
+    </div>
+
+    @if (page.legalNote) {
+      <p class="brand-page-legal-note">
+        {{ page.legalNote }}
+      </p>
+    }
+  </header>
+
+  @if (page.eyebrow === 'Història' && page.stats.length > 0) {
+    <section class="brand-page-stats" aria-label="Estadísticas">
+      @for (stat of page.stats; track stat.label) {
+        <div class="stat-item">
+          <strong>{{ stat.value }}</strong>
+          <span>{{ stat.label }}</span>
+        </div>
+      }
+    </section>
+  }
+
+  @if (page.cards.length > 0) {
+    <section class="brand-page-grid">
+      @for (card of page.cards; track card.title) {
+        <article class="brand-card">
+          <span class="brand-card-number">
+            {{ ($index + 1).toString().padStart(2, '0') }}
+          </span>
+
+          <h2>{{ card.title }}</h2>
+          <p>{{ card.text }}</p>
+        </article>
+      }
+    </section>
+  }
+
+  @if (page.faqItems?.length) {
+    <section class="faq-list" aria-label="Preguntes freqüents">
+      @for (item of page.faqItems; track item.question) {
+        <details class="faq-item">
+          <summary>{{ item.question }}</summary>
+          <p>{{ item.answer }}</p>
+        </details>
+      }
+    </section>
+  }
+
+  @if (page.newsletter) {
+    <form class="newsletter-form" (submit)="prepareNewsletterRequest($event)">
+      <label for="newsletter-email">La teva adreça electrònica</label>
+      <div class="newsletter-form-row">
+        <input
+          id="newsletter-email"
+          name="email"
+          type="email"
+          autocomplete="email"
+          placeholder="nom@exemple.com"
+          required
+        >
+        <button type="submit">Demanar l’alta <span>→</span></button>
+      </div>
+      <p>
+        S’obrirà el teu programa de correu amb la sol·licitud preparada. La inscripció
+        no es farà fins que es connecti el servei de newsletter.
+      </p>
+    </form>
+  }
+
+  @if (page.galleryImages?.length) {
+    <section class="brand-gallery" aria-label="Galeria de Cal Sardà">
+      @for (image of page.galleryImages; track image.src) {
+        <figure>
+          <img [src]="image.src" [alt]="image.alt">
+          <figcaption>{{ image.caption }}</figcaption>
+        </figure>
+      }
+    </section>
+  }
+
+  @if (page.siteLinks?.length) {
+    <nav class="site-map" aria-label="Mapa del lloc">
+      @for (link of page.siteLinks; track link.route) {
+        <a [routerLink]="link.route">{{ link.label }} <span>→</span></a>
+      }
+    </nav>
+  }
+
+  @if (page.emptyMessage) {
+    <p class="brand-page-empty">{{ page.emptyMessage }}</p>
+  }
+
+  @if (page.cta) {
+    <div class="brand-page-cta">
+      <a [routerLink]="page.cta.route" [fragment]="page.cta.fragment">
+        {{ page.cta.label }}
+        <span>→</span>
+      </a>
+    </div>
+  }
+
+</article>

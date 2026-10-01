@@ -1,0 +1,24 @@
+@if (!productDetail) {
+
+  <app-hero></app-hero>
+
+  <app-history></app-history>
+
+  <app-products></app-products>
+
+  <app-categories></app-categories>
+
+  <app-store
+    (productSelected)="showProduct($event)"
+  ></app-store>
+
+  <app-contact></app-contact>
+
+} @else {
+
+  <app-product-detail
+    [product]="selectedProduct"
+    (backToStore)="hideProduct()"
+  ></app-product-detail>
+
+}

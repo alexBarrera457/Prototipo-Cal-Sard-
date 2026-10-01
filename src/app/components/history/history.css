@@ -1,253 +1,129 @@
-:host {
-  display: block;
-}
-
-
-/* ================================
-   HISTORY SECTION
-================================ */
+:host { display: block; }
 
 .history {
   position: relative;
-
   display: grid;
-  grid-template-columns: 48% 52%;
+  grid-template-columns: 46% 54%;
   align-items: center;
-
-  min-height: 850px;
-
-  padding: 140px 9%;
-
-  background: #f3eee5;
-
+  min-height: 820px;
+  padding: 120px 9%;
+  background: #f7f1eb;
   overflow: hidden;
 }
-
-
-/* ================================
-   BIG 1930
-================================ */
 
 .history-number {
   position: absolute;
-
-  top: 35px;
+  top: 30px;
   right: 6%;
-
-  color: rgba(55, 43, 32, 0.08);
-
+  color: rgba(33, 25, 18, 0.06);
   font-family: Georgia, 'Times New Roman', serif;
-
   font-size: clamp(160px, 20vw, 300px);
   font-weight: 400;
-
   line-height: 1;
-
   pointer-events: none;
 }
 
-
-/* ================================
-   IMAGE
-================================ */
-
 .history-image {
   position: relative;
-
   width: 100%;
-  height: 620px;
-
+  height: 660px;
   overflow: hidden;
+  border-radius: 0;
+  box-shadow: 0 32px 60px rgba(25, 18, 14, 0.1);
 }
 
 .history-image::after {
   content: '';
-
   position: absolute;
   inset: 0;
-
-  background: rgba(40, 25, 15, 0.08);
+  background: linear-gradient(180deg, rgba(25, 18, 14, 0.02), rgba(25, 18, 14, 0.08));
 }
 
 .history-image img {
   width: 100%;
   height: 100%;
-
   display: block;
-
   object-fit: cover;
-
   transition: transform 0.8s ease;
 }
 
-.history-image:hover img {
-  transform: scale(1.03);
-}
-
-
-/* ================================
-   CONTENT
-================================ */
+.history-image:hover img { transform: scale(1.03); }
 
 .history-content {
   position: relative;
-
   z-index: 2;
-
   padding-left: 12%;
   padding-right: 5%;
 }
 
-
-/* LABEL */
-
 .history-label {
   margin: 0 0 25px;
-
-  color: #76563f;
-
-  font-family: Arial, sans-serif;
-
+  color: #8b6a47;
   font-size: 11px;
-  font-weight: 600;
-
+  font-weight: 700;
   letter-spacing: 5px;
+  text-transform: uppercase;
 }
 
-
-/* TITLE */
-
 .history-content h2 {
-  margin: 0 0 35px;
-
-  color: #2d251f;
-
+  margin: 0 0 26px;
+  color: #1f1712;
   font-family: Georgia, 'Times New Roman', serif;
-
-  font-size: clamp(55px, 6vw, 85px);
+  font-size: clamp(50px, 5.6vw, 80px);
   font-weight: 400;
-
-  line-height: 0.95;
-
+  line-height: 0.92;
   letter-spacing: -3px;
 }
 
-
-/* TEXT */
-
 .history-text {
-  max-width: 480px;
-
-  margin: 0 0 40px;
-
-  color: #5d5148;
-
-  font-family: Arial, sans-serif;
-
+  max-width: 500px;
+  margin: 0 0 34px;
+  color: #5d4d43;
   font-size: 16px;
-
   line-height: 1.8;
 }
-
-
-/* LINK */
 
 .history-link {
   display: inline-flex;
   align-items: center;
-
   padding-bottom: 10px;
-
-  border-bottom: 1px solid #76563f;
-
-  color: #2d251f;
-
-  font-family: Arial, sans-serif;
-
+  border-bottom: 1px solid #7a5d44;
+  color: #1f1712;
   font-size: 11px;
-  font-weight: 600;
-
+  font-weight: 700;
   letter-spacing: 2px;
-
   text-decoration: none;
-
+  text-transform: uppercase;
   cursor: pointer;
 }
 
 .history-link span {
-  margin-left: 25px;
-
+  margin-left: 22px;
   font-size: 18px;
-
   transition: transform 0.3s ease;
 }
 
-.history-link:hover span {
-  transform: translateX(7px);
-}
-
-
-/* ================================
-   TABLET
-================================ */
+.history-link:hover span { transform: translateX(7px); }
 
 @media (max-width: 900px) {
-
   .history {
     grid-template-columns: 1fr;
-
     gap: 70px;
-
     padding: 100px 7%;
   }
-
-  .history-image {
-    height: 550px;
-  }
-
-  .history-content {
-    padding: 0;
-  }
-
-  .history-number {
-    top: 20px;
-    right: 4%;
-  }
+  .history-image { height: 540px; }
+  .history-content { padding: 0; }
+  .history-number { top: 20px; right: 4%; }
 }
 
-
-/* ================================
-   MOBILE
-================================ */
-
 @media (max-width: 600px) {
-
   .history {
     gap: 50px;
-
     min-height: auto;
-
     padding: 90px 6%;
   }
-
-  .history-number {
-    top: 30px;
-
-    font-size: 130px;
-  }
-
-  .history-image {
-    height: 430px;
-  }
-
-  .history-content h2 {
-    font-size: 55px;
-
-    letter-spacing: -2px;
-  }
-
-  .history-text {
-    font-size: 15px;
-  }
-
+  .history-number { top: 30px; font-size: 130px; }
+  .history-image { height: 430px; }
+  .history-content h2 { font-size: 55px; letter-spacing: -2px; }
+  .history-text { font-size: 15px; }
 }

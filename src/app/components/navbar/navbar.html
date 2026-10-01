@@ -11,7 +11,8 @@
     ========================== -->
 
     <a
-      href="#inicio"
+      [routerLink]="['/']"
+      [fragment]="'inicio'"
       class="navbar-logo"
     >
 
@@ -32,34 +33,34 @@
 
     <div class="navbar-links">
 
-      <a href="#inicio">
+      <a [routerLink]="['/']" [fragment]="'inicio'">
         <span>01</span>
         INICIO
       </a>
 
-      <a href="#historia">
+      <a [routerLink]="['/historia']">
         <span>02</span>
         HISTORIA
       </a>
 
-      <a href="#productos">
+      <a [routerLink]="['/botiga-en-linia']">
         <span>03</span>
-        PRODUCTOS
+        BOTIGA
       </a>
 
-      <a href="#categorias">
+      <a [routerLink]="['/galeria']">
         <span>04</span>
-        CATEGORÍAS
+        GALERIA
       </a>
 
-      <a href="#tienda">
+      <a [routerLink]="['/contacte']">
         <span>05</span>
-        TIENDA
+        CONTACTO
       </a>
 
-      <a href="#contacto">
+      <a [routerLink]="['/faq']">
         <span>06</span>
-        CONTACTO
+        FAQ
       </a>
 
     </div>
@@ -68,6 +69,18 @@
     <!-- =========================
          CARRITO
     ========================== -->
+
+    <button
+      class="mobile-menu-toggle"
+      type="button"
+      (click)="toggleMobileMenu()"
+      aria-label="Abrir menú"
+      [attr.aria-expanded]="mobileMenuOpen"
+    >
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
 
     <button
       class="navbar-cart"
@@ -91,6 +104,43 @@
       </span>
 
     </button>
+
+  </div>
+
+  <div
+    class="mobile-menu"
+    [class.open]="mobileMenuOpen"
+  >
+
+    <a [routerLink]="['/']" [fragment]="'inicio'" (click)="closeMobileMenu()">
+      <span>01</span>
+      INICIO
+    </a>
+
+    <a [routerLink]="['/historia']" (click)="closeMobileMenu()">
+      <span>02</span>
+      HISTORIA
+    </a>
+
+    <a [routerLink]="['/botiga-en-linia']" (click)="closeMobileMenu()">
+      <span>03</span>
+      BOTIGA
+    </a>
+
+    <a [routerLink]="['/galeria']" (click)="closeMobileMenu()">
+      <span>04</span>
+      GALERIA
+    </a>
+
+    <a [routerLink]="['/contacte']" (click)="closeMobileMenu()">
+      <span>05</span>
+      CONTACTO
+    </a>
+
+    <a [routerLink]="['/faq']" (click)="closeMobileMenu()">
+      <span>06</span>
+      FAQ
+    </a>
 
   </div>
 

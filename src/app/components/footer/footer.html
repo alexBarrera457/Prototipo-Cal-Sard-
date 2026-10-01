@@ -14,8 +14,8 @@
       </h2>
 
       <p>
-        Tradición, producto y pasión
-        por la gastronomía.
+        Productes de sempre, selecció acurada
+        i tracte proper des de 1930.
       </p>
 
     </div>
@@ -25,11 +25,17 @@
 
       <span>NAVEGACIÓN</span>
 
-      <a href="#inicio">Inicio</a>
-      <a href="#historia">Historia</a>
-      <a href="#productos">Productos</a>
-      <a href="#tienda">Tienda</a>
-      <a href="#contacto">Contacto</a>
+      <a [routerLink]="['/']" [fragment]="'inicio'">Inici</a>
+      <a [routerLink]="['/historia']">Història</a>
+      <a [routerLink]="['/botiga-en-linia']">Botiga en línia</a>
+      <a [routerLink]="['/galeria']">Galeria</a>
+      <a [routerLink]="['/contacte']">Contacte</a>
+      <a [routerLink]="['/faq']">Preguntes freqüents</a>
+      <a [routerLink]="['/blog']">Blog</a>
+      <a [routerLink]="['/newsletter-184400']">Newsletter</a>
+      <a [routerLink]="['/descobreix-el-territori']">Descobreix el territori</a>
+      <a [routerLink]="['/lots-per-a-empreses']">Lots per a empreses</a>
+      <a [routerLink]="['/lots-i-cistelles-gurmet']">Lots i cistelles gurmet</a>
 
     </div>
 
@@ -56,10 +62,15 @@
 
     <div class="footer-column">
 
-      <span>SÍGUENOS</span>
+      <span>INFORMACIÓ</span>
 
-      <a href="#">Instagram ↗</a>
-      <a href="#">Facebook ↗</a>
+      <a [routerLink]="['/avis-legal']">Avís legal</a>
+      <a [routerLink]="['/politica-de-privacitat']">Privacitat</a>
+      <a [routerLink]="['/politica-de-cookies']">Cookies</a>
+      <a [routerLink]="['/condicions-generals']">Condicions generals</a>
+      <a [routerLink]="['/mapa-web']">Mapa web</a>
+      <a href="https://www.instagram.com/sardabcn/" target="_blank" rel="noopener noreferrer">Instagram ↗</a>
+      <a href="https://www.facebook.com/sardabcn/" target="_blank" rel="noopener noreferrer">Facebook ↗</a>
 
     </div>
 
@@ -76,7 +87,7 @@
       BARCELONA · CATALUNYA
     </span>
 
-    <a href="#">
+    <a [routerLink]="['/']" [fragment]="'inicio'">
       VOLVER ARRIBA ↑
     </a>
 

@@ -26,292 +26,66 @@
 
   <div class="store-grid">
 
+    @for (product of products; track product.number) {
+      <article class="store-product">
 
-    <!-- PRODUCTO 01 -->
+        <div class="store-product-image">
 
-    <article class="store-product">
+          <img
+            [src]="product.image"
+            [alt]="product.name"
+          >
 
-      <div class="store-product-image">
+          <button
+            type="button"
+            class="store-product-overlay"
+            (click)="showProduct(product)"
+          >
+            <span>
+              VER PRODUCTO →
+            </span>
+          </button>
 
-        <img
-          src="assets/images/products/conservas.jpg"
-          alt="Conservas del mar"
-        >
-
-        <button
-          type="button"
-          class="store-product-overlay"
-          (click)="showProduct(
-            'Conservas del mar',
-            'CONSERVAS',
-            'Una selección de conservas del mar escogidas por Cal Sardà.',
-            4.50,
-            '01',
-            'assets/images/products/conservas.jpg'
-          )"
-        >
-          <span>
-            VER PRODUCTO →
+          <span class="store-product-number">
+            {{ product.number }}
           </span>
-        </button>
 
-        <span class="store-product-number">
-          01
-        </span>
-
-        <span class="store-product-category">
-          CONSERVAS
-        </span>
-
-      </div>
-
-
-      <div class="store-product-info">
-
-        <div>
-
-          <h3>
-            Conservas del mar
-          </h3>
-
-          <p>
-            Selección de productos del mar.
-          </p>
+          <span class="store-product-category">
+            {{ product.category }}
+          </span>
 
         </div>
 
-        <span class="store-price">
-          4,50 €
-        </span>
+        <div class="store-product-info">
 
-      </div>
+          <div>
 
+            <h3>
+              {{ product.name }}
+            </h3>
 
-      <button
-        class="store-button"
-        type="button"
-        (click)="addToCart('Conservas del mar', 4.50)"
-      >
-        AÑADIR AL CARRITO +
-      </button>
+            <p>
+              {{ product.shortDescription }}
+            </p>
 
-    </article>
+          </div>
 
-
-
-    <!-- PRODUCTO 02 -->
-
-    <article class="store-product">
-
-      <div class="store-product-image">
-
-        <img
-          src="assets/images/products/cafe.jpg"
-          alt="Café Sardà"
-        >
-
-        <button
-          type="button"
-          class="store-product-overlay"
-          (click)="showProduct(
-            'Café Sardà',
-            'CAFÉ',
-            'El café que forma parte de nuestra historia.',
-            6.90,
-            '02',
-            'assets/images/products/cafe.jpg'
-          )"
-        >
-          <span>
-            VER PRODUCTO →
+          <span class="store-price">
+            {{ product.price.toFixed(2) }} €
           </span>
-        </button>
-
-        <span class="store-product-number">
-          02
-        </span>
-
-        <span class="store-product-category">
-          CAFÉ
-        </span>
-
-      </div>
-
-
-      <div class="store-product-info">
-
-        <div>
-
-          <h3>
-            Café Sardà
-          </h3>
-
-          <p>
-            El café que forma parte de nuestra historia.
-          </p>
 
         </div>
 
-        <span class="store-price">
-          6,90 €
-        </span>
-
-      </div>
-
-
-      <button
-        class="store-button"
-        type="button"
-        (click)="addToCart('Café Sardà', 6.90)"
-      >
-        AÑADIR AL CARRITO +
-      </button>
-
-    </article>
-
-
-
-    <!-- PRODUCTO 03 -->
-
-    <article class="store-product">
-
-      <div class="store-product-image">
-
-        <img
-          src="assets/images/products/frutos-secos.jpg"
-          alt="Frutos secos"
-        >
-
         <button
+          class="store-button"
           type="button"
-          class="store-product-overlay"
-          (click)="showProduct(
-            'Frutos secos',
-            'FRUTOS SECOS',
-            'Una selección de frutos secos de calidad.',
-            3.90,
-            '03',
-            'assets/images/products/frutos-secos.jpg'
-          )"
+          (click)="addToCart(product)"
         >
-          <span>
-            VER PRODUCTO →
-          </span>
+          AÑADIR AL CARRITO +
         </button>
 
-        <span class="store-product-number">
-          03
-        </span>
-
-        <span class="store-product-category">
-          FRUTOS SECOS
-        </span>
-
-      </div>
-
-
-      <div class="store-product-info">
-
-        <div>
-
-          <h3>
-            Frutos secos
-          </h3>
-
-          <p>
-            Una selección de frutos secos de calidad.
-          </p>
-
-        </div>
-
-        <span class="store-price">
-          3,90 €
-        </span>
-
-      </div>
-
-
-      <button
-        class="store-button"
-        type="button"
-        (click)="addToCart('Frutos secos', 3.90)"
-      >
-        AÑADIR AL CARRITO +
-      </button>
-
-    </article>
-
-
-
-    <!-- PRODUCTO 04 -->
-
-    <article class="store-product">
-
-      <div class="store-product-image">
-
-        <img
-          src="assets/images/products/dulces.jpg"
-          alt="Turrones y dulces"
-        >
-
-        <button
-          type="button"
-          class="store-product-overlay"
-          (click)="showProduct(
-            'Turrones y dulces',
-            'DULCES',
-            'Dulces tradicionales para cualquier ocasión.',
-            5.50,
-            '04',
-            'assets/images/products/dulces.jpg'
-          )"
-        >
-          <span>
-            VER PRODUCTO →
-          </span>
-        </button>
-
-        <span class="store-product-number">
-          04
-        </span>
-
-        <span class="store-product-category">
-          DULCES
-        </span>
-
-      </div>
-
-
-      <div class="store-product-info">
-
-        <div>
-
-          <h3>
-            Turrones y dulces
-          </h3>
-
-          <p>
-            Dulces tradicionales para cualquier ocasión.
-          </p>
-
-        </div>
-
-        <span class="store-price">
-          5,50 €
-        </span>
-
-      </div>
-
-
-      <button
-        class="store-button"
-        type="button"
-        (click)="addToCart('Turrones y dulces', 5.50)"
-      >
-        AÑADIR AL CARRITO +
-      </button>
-
-    </article>
+      </article>
+    }
 
   </div>
 

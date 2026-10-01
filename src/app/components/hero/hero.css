@@ -2,1347 +2,396 @@
   display: block;
 }
 
-
-/* =========================
-   HERO
-========================= */
-
 .hero {
-
   position: relative;
-
-  width: 100%;
-
-  height: 100vh;
-
-  min-height: 700px;
-
   display: flex;
-
   align-items: center;
-
-  background-image:
-    url('/images/hero.jpg');
-
+  width: 100%;
+  min-height: 760px;
+  height: 100vh;
+  background-image: url('/images/hero.jpg');
   background-size: cover;
-
   background-position: center;
-
   overflow: hidden;
-
-  animation:
-    heroImage 18s ease-out forwards;
+  animation: heroImage 18s ease-out forwards;
+  box-shadow: inset 0 -60px 80px rgba(11, 8, 6, 0.18);
 }
-
-
-/* =========================
-   MOVIMIENTO IMAGEN
-========================= */
-
-@keyframes heroImage {
-
-  from {
-    background-size: 105%;
-  }
-
-  to {
-    background-size: 100%;
-  }
-
-}
-
-
-/* =========================
-   OVERLAY
-========================= */
 
 .hero-overlay {
-
   position: absolute;
-
   inset: 0;
-
-  background:
-
-    linear-gradient(
-      90deg,
-      rgba(20, 14, 10, 0.82) 0%,
-      rgba(20, 14, 10, 0.55) 42%,
-      rgba(20, 14, 10, 0.20) 100%
-    );
-
+  background: linear-gradient(90deg, rgba(17, 12, 9, 0.74), rgba(17, 12, 9, 0.44) 42%, rgba(17, 12, 9, 0.18));
   z-index: 1;
-
 }
-
-
-/* =========================
-   CONTENIDO
-========================= */
 
 .hero-content {
-
   position: relative;
-
   z-index: 2;
-
   width: 90%;
-
-  max-width: 900px;
-
-  margin-left: 9%;
-
-  color: white;
-
-  animation:
-    heroContent
-    1.4s
-    cubic-bezier(.22, .61, .36, 1)
-    forwards;
-
+  max-width: 960px;
+  margin-left: 6%;
+  color: #fff;
+  animation: heroContent 1.4s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
 }
 
-
-@keyframes heroContent {
-
-  from {
-
-    opacity: 0;
-
-    transform:
-      translateY(35px);
-
-  }
-
-  to {
-
-    opacity: 1;
-
-    transform:
-      translateY(0);
-
-  }
-
+.hero-subtitle,
+.hero-text,
+.hero-button,
+.hero-scroll,
+.hero-philosophy,
+.hero h1 {
+  opacity: 0;
+  animation: heroFadeUp 1s ease forwards;
 }
-
-
-/* =========================
-   SUBTÍTULO
-========================= */
 
 .hero-subtitle {
-
-  margin: 0 0 28px;
-
-  color: white;
-
-  font-family:
-    Arial,
-    sans-serif;
-
-  font-size: 12px;
-
-  font-weight: 600;
-
-  letter-spacing: 6px;
-
+  margin: 0 0 22px;
+  color: #e7d3ae;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 5px;
   text-transform: uppercase;
-
-  opacity: 0;
-
-  animation:
-    heroFadeUp
-    1s
-    ease
-    forwards;
-
   animation-delay: 0.2s;
-
 }
-
-
-/* =========================
-   TÍTULO
-========================= */
 
 .hero h1 {
-
-  margin: 0 0 30px;
-
-  color: white;
-
-  font-family:
-    Georgia,
-    'Times New Roman',
-    serif;
-
-  font-size:
-    clamp(
-      70px,
-      8.5vw,
-      125px
-    );
-
-  font-weight: 400;
-
-  line-height: 0.86;
-
-  letter-spacing: -6px;
-
-  max-width: 900px;
-
-  opacity: 0;
-
-  animation:
-    heroTitle
-    1.4s
-    cubic-bezier(.22, .61, .36, 1)
-    forwards;
-
+  max-width: 820px;
+  margin: 0 0 24px;
+  color: #fff;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: clamp(68px, 7.4vw, 118px);
+  font-weight: 500;
+  line-height: 0.9;
+  letter-spacing: -5px;
+  animation: heroTitle 1.4s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
   animation-delay: 0.35s;
-
 }
-
-
-@keyframes heroTitle {
-
-  from {
-
-    opacity: 0;
-
-    transform:
-      translateY(45px);
-
-    filter:
-      blur(5px);
-
-  }
-
-  to {
-
-    opacity: 1;
-
-    transform:
-      translateY(0);
-
-    filter:
-      blur(0);
-
-  }
-
-}
-
-
-/* =========================
-   TEXTO
-========================= */
 
 .hero-text {
-
-  max-width: 530px;
-
-  margin: 0 0 42px;
-
-  color:
-    rgba(255, 255, 255, 0.88);
-
-  font-family:
-    Arial,
-    sans-serif;
-
-  font-size: 17px;
-
+  max-width: 540px;
+  margin: 0 0 32px;
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 16px;
   line-height: 1.7;
-
-  opacity: 0;
-
-  animation:
-    heroFadeUp
-    1s
-    ease
-    forwards;
-
   animation-delay: 0.75s;
-
 }
-
-
-/* =========================
-   BOTÓN
-========================= */
 
 .hero-button {
-
   position: relative;
-
   z-index: 1;
-
   display: inline-flex;
-
   align-items: center;
-
   justify-content: space-between;
-
-  min-width: 230px;
-
-  padding: 19px 25px;
-
-  border: 1px solid white;
-
-  background: white;
-
-  color: #2d251f;
-
-  font-family:
-    Arial,
-    sans-serif;
-
-  font-size: 11px;
-
+  min-width: 210px;
+  padding: 15px 20px;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  background: rgba(247, 240, 233, 0.96);
+  color: #1d160f;
+  font-size: 10px;
   font-weight: 700;
-
-  letter-spacing: 2px;
-
+  letter-spacing: 2.4px;
   cursor: pointer;
-
   overflow: hidden;
-
-  opacity: 0;
-
-  animation:
-    heroFadeUp
-    1s
-    ease
-    forwards;
-
   animation-delay: 1s;
-
-  transition:
-    color 0.4s ease,
-    background 0.4s ease,
-    border-color 0.4s ease,
-    transform 0.4s ease;
-
+  transition: color 0.4s ease, background 0.4s ease, border-color 0.4s ease, transform 0.4s ease, box-shadow 0.4s ease;
+  box-shadow: 0 10px 24px rgba(24, 18, 12, 0.12);
 }
-
 
 .hero-button span {
-
   margin-left: 30px;
-
   font-size: 20px;
-
-  transition:
-    transform 0.4s ease;
-
+  transition: transform 0.4s ease;
 }
-
-
-/* =========================
-   EFECTO DORADO BOTÓN
-========================= */
 
 .hero-button::before {
-
   content: '';
-
   position: absolute;
-
   inset: 0;
-
-  background: #d4b06a;
-
-  transform:
-    translateX(-101%);
-
-  transition:
-    transform 0.45s
-    cubic-bezier(.77, 0, .18, 1);
-
+  background: #d2ad71;
+  transform: translateX(-101%);
+  transition: transform 0.45s cubic-bezier(0.77, 0, 0.18, 1);
   z-index: -1;
-
 }
-
-
-.hero-button:hover::before {
-
-  transform:
-    translateX(0);
-
-}
-
 
 .hero-button:hover {
-
-  color: #302118;
-
-  border-color: #d4b06a;
-
-  transform:
-    translateY(-2px);
-
+  color: #1d160f;
+  border-color: #d2ad71;
+  transform: translateY(-2px);
 }
 
+.hero-button:hover::before { transform: translateX(0); }
 
-.hero-button:hover span {
-
-  transform:
-    translateX(6px);
-
-}
-
-
-/* =========================
-   FILOSOFÍA
-========================= */
+.hero-button:hover span { transform: translateX(6px); }
 
 .hero-philosophy {
-
   position: absolute;
-
-  z-index: 3;
-
-  right: 8%;
-
   top: 48%;
-
-  width: 430px;
-
-  color: white;
-
-  opacity: 0;
-
-  animation:
-    philosophyEntrance
-    1.5s
-    cubic-bezier(.22, .61, .36, 1)
-    forwards;
-
+  right: 7%;
+  z-index: 3;
+  width: 360px;
+  color: #fff;
+  animation: philosophyEntrance 1.5s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
   animation-delay: 0.9s;
-
 }
-
-
-@keyframes philosophyEntrance {
-
-  from {
-
-    opacity: 0;
-
-    transform:
-      translateX(35px);
-
-  }
-
-  to {
-
-    opacity: 1;
-
-    transform:
-      translateX(0);
-
-  }
-
-}
-
-
-/* =========================
-   LABEL FILOSOFÍA
-========================= */
 
 .philosophy-label {
-
   position: relative;
-
   display: inline-block;
-
-  margin-bottom: 25px;
-
-  font-family:
-    Arial,
-    sans-serif;
-
+  margin-bottom: 18px;
   font-size: 10px;
-
-  font-weight: 600;
-
-  letter-spacing: 5px;
-
-  color: #d4b06a;
-
+  font-weight: 700;
+  letter-spacing: 4px;
+  color: #d2ad71;
 }
-
 
 .philosophy-label::after {
-
   content: '';
-
   position: absolute;
-
   left: 0;
-
   bottom: -8px;
-
   width: 0;
-
   height: 1px;
-
-  background: #d4b06a;
-
-  animation:
-    philosophyLine
-    1.2s
-    ease
-    forwards;
-
+  background: #d2ad71;
+  animation: philosophyLine 1.2s ease forwards;
   animation-delay: 1.5s;
-
 }
-
-
-@keyframes philosophyLine {
-
-  to {
-    width: 100%;
-  }
-
-}
-
-
-/* =========================
-   FRASES
-========================= */
 
 .philosophy-text {
-
   position: relative;
-
   min-height: 150px;
-
 }
-
 
 .philosophy-text p {
-
   position: absolute;
-
   top: 0;
-
   left: 0;
-
   width: 100%;
-
   margin: 0;
-
-  font-family:
-    Georgia,
-    'Times New Roman',
-    serif;
-
-  font-size: 35px;
-
-  line-height: 1.18;
-
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 30px;
+  line-height: 1.2;
   font-weight: 400;
-
-  letter-spacing: -0.5px;
-
-  color: white;
-
+  letter-spacing: -0.4px;
+  color: rgba(255, 255, 255, 0.9);
   opacity: 0;
-
-  transform:
-    translateY(25px);
-
+  transform: translateY(25px);
 }
 
-
-/* =========================
-   CAMBIO DE FRASES
-========================= */
-
-.philosophy-text p:nth-child(1) {
-
-  animation:
-    philosophy1 36s infinite;
-
-}
-
-
-.philosophy-text p:nth-child(2) {
-
-  animation:
-    philosophy2 36s infinite;
-
-}
-
-
-.philosophy-text p:nth-child(3) {
-
-  animation:
-    philosophy3 36s infinite;
-
-}
-
-
-.philosophy-text p:nth-child(4) {
-
-  animation:
-    philosophy4 36s infinite;
-
-}
-
-
-.philosophy-text p:nth-child(5) {
-
-  animation:
-    philosophy5 36s infinite;
-
-}
-
-
-.philosophy-text p:nth-child(6) {
-
-  animation:
-    philosophy6 36s infinite;
-
-}
-
-
-.philosophy-text p:nth-child(7) {
-
-  animation:
-    philosophy7 36s infinite;
-
-}
-
-
-.philosophy-text p:nth-child(8) {
-
-  animation:
-    philosophy8 36s infinite;
-
-}
-
-
-.philosophy-text p:nth-child(9) {
-
-  animation:
-    philosophy9 36s infinite;
-
-}
-
-
-/* =========================
-   FRASE 1
-========================= */
-
-@keyframes philosophy1 {
-
-  0%,
-  8% {
-
-    opacity: 0;
-
-    transform:
-      translateY(25px);
-
-  }
-
-  12%,
-  20% {
-
-    opacity: 1;
-
-    transform:
-      translateY(0);
-
-  }
-
-  24%,
-  100% {
-
-    opacity: 0;
-
-    transform:
-      translateY(-20px);
-
-  }
-
-}
-
-
-/* =========================
-   FRASE 2
-========================= */
-
-@keyframes philosophy2 {
-
-  0%,
-  20% {
-
-    opacity: 0;
-
-    transform:
-      translateY(25px);
-
-  }
-
-  24%,
-  32% {
-
-    opacity: 1;
-
-    transform:
-      translateY(0);
-
-  }
-
-  36%,
-  100% {
-
-    opacity: 0;
-
-    transform:
-      translateY(-20px);
-
-  }
-
-}
-
-
-/* =========================
-   FRASE 3
-========================= */
-
-@keyframes philosophy3 {
-
-  0%,
-  32% {
-
-    opacity: 0;
-
-    transform:
-      translateY(25px);
-
-  }
-
-  36%,
-  44% {
-
-    opacity: 1;
-
-    transform:
-      translateY(0);
-
-  }
-
-  48%,
-  100% {
-
-    opacity: 0;
-
-    transform:
-      translateY(-20px);
-
-  }
-
-}
-
-
-/* =========================
-   FRASE 4
-========================= */
-
-@keyframes philosophy4 {
-
-  0%,
-  44% {
-
-    opacity: 0;
-
-    transform:
-      translateY(25px);
-
-  }
-
-  48%,
-  56% {
-
-    opacity: 1;
-
-    transform:
-      translateY(0);
-
-  }
-
-  60%,
-  100% {
-
-    opacity: 0;
-
-    transform:
-      translateY(-20px);
-
-  }
-
-}
-
-
-/* =========================
-   FRASE 5
-========================= */
-
-@keyframes philosophy5 {
-
-  0%,
-  56% {
-
-    opacity: 0;
-
-    transform:
-      translateY(25px);
-
-  }
-
-  60%,
-  68% {
-
-    opacity: 1;
-
-    transform:
-      translateY(0);
-
-  }
-
-  72%,
-  100% {
-
-    opacity: 0;
-
-    transform:
-      translateY(-20px);
-
-  }
-
-}
-
-
-/* =========================
-   FRASE 6
-========================= */
-
-@keyframes philosophy6 {
-
-  0%,
-  68% {
-
-    opacity: 0;
-
-    transform:
-      translateY(25px);
-
-  }
-
-  72%,
-  80% {
-
-    opacity: 1;
-
-    transform:
-      translateY(0);
-
-  }
-
-  84%,
-  100% {
-
-    opacity: 0;
-
-    transform:
-      translateY(-20px);
-
-  }
-
-}
-
-
-/* =========================
-   FRASE 7
-========================= */
-
-@keyframes philosophy7 {
-
-  0%,
-  80% {
-
-    opacity: 0;
-
-    transform:
-      translateY(25px);
-
-  }
-
-  84%,
-  92% {
-
-    opacity: 1;
-
-    transform:
-      translateY(0);
-
-  }
-
-  96%,
-  100% {
-
-    opacity: 0;
-
-    transform:
-      translateY(-20px);
-
-  }
-
-}
-
-
-/* =========================
-   FRASE 8
-========================= */
-
-@keyframes philosophy8 {
-
-  0%,
-  92% {
-
-    opacity: 0;
-
-    transform:
-      translateY(25px);
-
-  }
-
-  96%,
-  100% {
-
-    opacity: 1;
-
-    transform:
-      translateY(0);
-
-  }
-
-}
-
-
-/* =========================
-   FRASE 9
-========================= */
-
-@keyframes philosophy9 {
-
-  0%,
-  92% {
-
-    opacity: 0;
-
-    transform:
-      translateY(25px);
-
-  }
-
-  96%,
-  100% {
-
-    opacity: 1;
-
-    transform:
-      translateY(0);
-
-  }
-
-}
-
-
-/* =========================
-   DETALLE INFERIOR
-========================= */
+.philosophy-text p:nth-child(1) { animation: philosophy1 36s infinite; }
+.philosophy-text p:nth-child(2) { animation: philosophy2 36s infinite; }
+.philosophy-text p:nth-child(3) { animation: philosophy3 36s infinite; }
+.philosophy-text p:nth-child(4) { animation: philosophy4 36s infinite; }
+.philosophy-text p:nth-child(5) { animation: philosophy5 36s infinite; }
+.philosophy-text p:nth-child(6) { animation: philosophy6 36s infinite; }
+.philosophy-text p:nth-child(7) { animation: philosophy7 36s infinite; }
+.philosophy-text p:nth-child(8) { animation: philosophy8 36s infinite; }
+.philosophy-text p:nth-child(9) { animation: philosophy9 36s infinite; }
 
 .hero::after {
-
   content: '';
-
   position: absolute;
-
   left: 0;
-
   right: 0;
-
   bottom: 0;
-
   height: 180px;
-
-  background:
-    linear-gradient(
-      to top,
-      rgba(0, 0, 0, 0.28),
-      transparent
-    );
-
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.28), transparent);
   pointer-events: none;
-
   z-index: 1;
-
 }
-
-
-/* =========================
-   SCROLL
-========================= */
 
 .hero-scroll {
-
   position: absolute;
-
-  z-index: 3;
-
   right: 5%;
-
   bottom: 45px;
-
+  z-index: 3;
   display: flex;
-
   align-items: center;
-
   gap: 15px;
-
-  color: white;
-
-  font-family:
-    Arial,
-    sans-serif;
-
+  color: #fff;
   font-size: 9px;
-
-  font-weight: 600;
-
+  font-weight: 700;
   letter-spacing: 3px;
-
   text-transform: uppercase;
-
   writing-mode: vertical-rl;
-
-  opacity: 0;
-
-  animation:
-    heroFadeUp
-    1s
-    ease
-    forwards;
-
   animation-delay: 1.4s;
-
 }
-
 
 .hero-scroll::after {
-
   content: '';
-
   width: 1px;
-
   height: 60px;
-
-  background:
-    rgba(255, 255, 255, 0.6);
-
-  animation:
-    scrollLine
-    2.5s
-    cubic-bezier(.77, 0, .18, 1)
-    infinite;
-
+  background: rgba(255, 255, 255, 0.65);
+  animation: scrollLine 2.5s cubic-bezier(0.77, 0, 0.18, 1) infinite;
 }
 
+@keyframes heroImage {
+  from { background-size: 105%; }
+  to { background-size: 100%; }
+}
+
+@keyframes heroContent {
+  from { opacity: 0; transform: translateY(35px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes heroTitle {
+  from { opacity: 0; transform: translateY(45px); filter: blur(5px); }
+  to { opacity: 1; transform: translateY(0); filter: blur(0); }
+}
+
+@keyframes philosophyEntrance {
+  from { opacity: 0; transform: translateX(35px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes philosophyLine {
+  to { width: 100%; }
+}
+
+@keyframes philosophy1 {
+  0%, 8% { opacity: 0; transform: translateY(25px); }
+  12%, 20% { opacity: 1; transform: translateY(0); }
+  24%, 100% { opacity: 0; transform: translateY(-20px); }
+}
+
+@keyframes philosophy2 {
+  0%, 20% { opacity: 0; transform: translateY(25px); }
+  24%, 32% { opacity: 1; transform: translateY(0); }
+  36%, 100% { opacity: 0; transform: translateY(-20px); }
+}
+
+@keyframes philosophy3 {
+  0%, 32% { opacity: 0; transform: translateY(25px); }
+  36%, 44% { opacity: 1; transform: translateY(0); }
+  48%, 100% { opacity: 0; transform: translateY(-20px); }
+}
+
+@keyframes philosophy4 {
+  0%, 44% { opacity: 0; transform: translateY(25px); }
+  48%, 56% { opacity: 1; transform: translateY(0); }
+  60%, 100% { opacity: 0; transform: translateY(-20px); }
+}
+
+@keyframes philosophy5 {
+  0%, 56% { opacity: 0; transform: translateY(25px); }
+  60%, 68% { opacity: 1; transform: translateY(0); }
+  72%, 100% { opacity: 0; transform: translateY(-20px); }
+}
+
+@keyframes philosophy6 {
+  0%, 68% { opacity: 0; transform: translateY(25px); }
+  72%, 80% { opacity: 1; transform: translateY(0); }
+  84%, 100% { opacity: 0; transform: translateY(-20px); }
+}
+
+@keyframes philosophy7 {
+  0%, 80% { opacity: 0; transform: translateY(25px); }
+  84%, 92% { opacity: 1; transform: translateY(0); }
+  96%, 100% { opacity: 0; transform: translateY(-20px); }
+}
+
+@keyframes philosophy8 {
+  0%, 92% { opacity: 0; transform: translateY(25px); }
+  96%, 100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes philosophy9 {
+  0%, 92% { opacity: 0; transform: translateY(25px); }
+  96%, 100% { opacity: 1; transform: translateY(0); }
+}
 
 @keyframes scrollLine {
-
-  0% {
-
-    transform:
-      scaleY(0);
-
-    transform-origin:
-      top;
-
-  }
-
-  50% {
-
-    transform:
-      scaleY(1);
-
-    transform-origin:
-      top;
-
-  }
-
-  51% {
-
-    transform-origin:
-      bottom;
-
-  }
-
-  100% {
-
-    transform:
-      scaleY(0);
-
-    transform-origin:
-      bottom;
-
-  }
-
+  0% { transform: scaleY(0); transform-origin: top; }
+  50% { transform: scaleY(1); transform-origin: top; }
+  51% { transform-origin: bottom; }
+  100% { transform: scaleY(0); transform-origin: bottom; }
 }
-
-
-/* =========================
-   ANIMACIÓN GENERAL
-========================= */
 
 @keyframes heroFadeUp {
-
-  from {
-
-    opacity: 0;
-
-    transform:
-      translateY(20px);
-
-  }
-
-  to {
-
-    opacity: 1;
-
-    transform:
-      translateY(0);
-
-  }
-
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
-
-
-/* =========================
-   TABLET
-========================= */
 
 @media (max-width: 1100px) {
-
   .hero-philosophy {
-
     right: 5%;
-
     width: 350px;
-
   }
 
-  .philosophy-text p {
-
-    font-size: 29px;
-
-  }
-
+  .philosophy-text p { font-size: 29px; }
 }
-
-
-/* =========================
-   TABLET
-========================= */
 
 @media (max-width: 900px) {
-
   .hero {
-
     min-height: 650px;
-
   }
 
   .hero-content {
-
     width: auto;
-
     margin-left: 6%;
-
     margin-right: 6%;
-
   }
 
-  .hero h1 {
-
-    font-size:
-      clamp(
-        60px,
-        10vw,
-        95px
-      );
-
-  }
-
-  .hero-text {
-
-    font-size: 16px;
-
-  }
-
-  .hero-scroll {
-
-    right: 4%;
-
-  }
-
+  .hero h1 { font-size: clamp(60px, 10vw, 95px); }
+  .hero-text { font-size: 16px; }
+  .hero-scroll { right: 4%; }
 }
-
-
-/* =========================
-   MÓVIL
-========================= */
 
 @media (max-width: 750px) {
-
   .hero {
-
     min-height: 700px;
-
-    background-position:
-      60% center;
-
+    background-position: 60% center;
   }
-
 
   .hero-overlay {
-
-    background:
-
-      linear-gradient(
-        90deg,
-        rgba(20, 14, 10, 0.84),
-        rgba(20, 14, 10, 0.45)
-      );
-
+    background: linear-gradient(90deg, rgba(20, 14, 10, 0.84), rgba(20, 14, 10, 0.45));
   }
-
 
   .hero-content {
-
     width: auto;
-
-    margin:
-      0 25px;
-
+    margin: 0 25px;
   }
-
 
   .hero-subtitle {
-
-    font-size: 10px;
-
-    letter-spacing: 4px;
-
     margin-bottom: 20px;
-
+    font-size: 10px;
+    letter-spacing: 4px;
   }
-
 
   .hero h1 {
-
-    font-size: 62px;
-
-    letter-spacing: -3px;
-
-    line-height: 0.9;
-
     margin-bottom: 25px;
-
+    font-size: 62px;
+    line-height: 0.9;
+    letter-spacing: -3px;
   }
-
 
   .hero-text {
-
     max-width: 100%;
-
-    font-size: 15px;
-
-    line-height: 1.6;
-
     margin-bottom: 30px;
-
+    font-size: 15px;
+    line-height: 1.6;
   }
-
 
   .hero-button {
-
     min-width: 190px;
-
     padding: 16px 20px;
-
   }
-
 
   .hero-philosophy {
-
-    left: 25px;
-
-    right: 25px;
-
     top: auto;
-
+    right: 25px;
     bottom: 80px;
-
+    left: 25px;
     width: auto;
-
   }
 
-
-  .philosophy-text {
-
-    min-height: 120px;
-
-  }
-
-
-  .philosophy-text p {
-
-    font-size: 24px;
-
-    line-height: 1.2;
-
-  }
-
-
-  .philosophy-label {
-
-    margin-bottom: 18px;
-
-  }
-
-
-  .hero-scroll {
-
-    display: none;
-
-  }
-
+  .philosophy-text { min-height: 120px; }
+  .philosophy-text p { font-size: 24px; line-height: 1.2; }
+  .philosophy-label { margin-bottom: 18px; }
+  .hero-scroll { display: none; }
 }
 
-
-/* =========================
-   REDUCIR ANIMACIONES
-========================= */
-
 @media (prefers-reduced-motion: reduce) {
-
   .hero,
   .hero-content,
   .hero-subtitle,
@@ -1352,15 +401,9 @@
   .hero-philosophy,
   .hero-scroll,
   .philosophy-label::after {
-
     animation: none;
-
     opacity: 1;
-
     transform: none;
-
     filter: none;
-
   }
-
 }

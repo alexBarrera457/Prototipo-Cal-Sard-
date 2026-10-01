@@ -13,9 +13,20 @@ export class ScrollReveal implements AfterViewInit, OnDestroy {
 
   private observer?: IntersectionObserver;
 
-  constructor(private element: ElementRef) {}
+  constructor(private element: ElementRef<HTMLElement>) {}
 
   ngAfterViewInit(): void {
+
+    const nativeElement = this.element?.nativeElement;
+
+    if (!nativeElement) {
+      return;
+    }
+
+    if (typeof IntersectionObserver === 'undefined') {
+      nativeElement.classList.add('visible');
+      return;
+    }
 
     this.observer = new IntersectionObserver(
       (entries) => {
@@ -38,7 +49,7 @@ export class ScrollReveal implements AfterViewInit, OnDestroy {
       }
     );
 
-    this.observer.observe(this.element.nativeElement);
+    this.observer.observe(nativeElement);
   }
 
   ngOnDestroy(): void {

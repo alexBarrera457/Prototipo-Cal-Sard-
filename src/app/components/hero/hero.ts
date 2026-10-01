@@ -58,7 +58,8 @@ export class Hero implements OnInit, OnDestroy {
     document
       .getElementById('tienda')
       ?.scrollIntoView({
-        behavior: 'smooth'
+        behavior: 'smooth',
+        block: 'start'
       });
 
   }
