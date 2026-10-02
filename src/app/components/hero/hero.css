@@ -82,50 +82,50 @@
   display: inline-flex;
   align-items: center;
   justify-content: space-between;
-  gap: 22px;
-  min-width: 228px;
-  padding: 9px 10px 9px 19px;
-  border: 1px solid rgba(231, 211, 174, 0.78);
-  border-radius: 2px;
-  background: rgba(31, 23, 17, 0.72);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  color: #fffaf3;
+  min-width: 210px;
+  padding: 15px 20px;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  background: rgba(247, 240, 233, 0.96);
+  color: #1d160f;
   font-size: 10px;
   font-weight: 700;
-  letter-spacing: 1.8px;
+  letter-spacing: 2.4px;
   cursor: pointer;
   overflow: hidden;
   animation-delay: 1s;
-  transition: color 0.3s ease, background 0.3s ease, border-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
-  box-shadow: 0 8px 22px rgba(10, 7, 5, 0.22);
+  transition: color 0.4s ease, background 0.4s ease, border-color 0.4s ease, transform 0.4s ease, box-shadow 0.4s ease;
+  box-shadow: 0 10px 24px rgba(24, 18, 12, 0.12);
 }
 
 .hero-button span {
-  width: 32px;
-  height: 32px;
-  flex: 0 0 32px;
-  display: grid;
-  place-items: center;
-  border: 1px solid rgba(231, 211, 174, 0.7);
-  border-radius: 50%;
-  color: #e7d3ae;
-  font-size: 18px;
-  transition: transform 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+  margin-left: 30px;
+  font-size: 20px;
+  transition: transform 0.4s ease;
+}
+
+.hero-button::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: #d2ad71;
+  transform: translateX(-101%);
+  transition: transform 0.45s cubic-bezier(0.77, 0, 0.18, 1);
+  z-index: -1;
 }
 
 .hero-button:hover {
   color: #1d160f;
   border-color: #d2ad71;
-  background: #d2ad71;
   transform: translateY(-2px);
-  box-shadow: 0 12px 28px rgba(10, 7, 5, 0.28);
 }
 
-.hero-button:hover span {
-  color: #1d160f;
-  border-color: rgba(29, 22, 15, 0.42);
-  transform: translateX(3px);
+.hero-button:hover::before { transform: translateX(0); }
+
+.hero-button:hover span { transform: translateX(6px); }
+
+.hero-button:focus-visible {
+  outline: 3px solid #fffaf3;
+  outline-offset: 4px;
 }
 
 .hero-button:focus-visible {
@@ -386,13 +386,7 @@
 
   .hero-button {
     min-width: 190px;
-    padding: 8px 9px 8px 14px;
-  }
-
-  .hero-button span {
-    width: 30px;
-    height: 30px;
-    flex-basis: 30px;
+    padding: 16px 20px;
   }
 
   .hero-philosophy {
