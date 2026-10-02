@@ -295,6 +295,11 @@
   object-fit: cover;
 }
 
+.brand-gallery img[src*="mapa-gastronomic"] {
+  object-fit: contain;
+  background: #eee5d9;
+}
+
 .brand-gallery figure:nth-child(2) {
   margin-top: 70px;
 }

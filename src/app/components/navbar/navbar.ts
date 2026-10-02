@@ -1,12 +1,14 @@
-import { Component, HostListener } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Component, DestroyRef, ElementRef, inject, HostListener } from '@angular/core';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CartService } from '../../services/cart';
+import { searchStoreProducts, StoreProduct } from '../../services/products';
 
 @Component({
   selector: 'app-navbar',
   imports: [RouterLink],
   templateUrl: './navbar.html',
-  styleUrl: './navbar.css'
+  styleUrls: ['./navbar.css', './navbar-menu.css', './navbar-cart.css', './navbar-search.css']
 })
 export class Navbar {
 
@@ -14,8 +16,169 @@ export class Navbar {
   transparentSection = false;
   cartOpen = false;
   mobileMenuOpen = false;
+  searchTerm = '';
+  searchOpen = false;
+  activeSearchResultIndex = -1;
+  selectedLanguage = 'es';
+  languageNotice = '';
 
-  constructor(public cartService: CartService) {}
+  private readonly route = inject(ActivatedRoute);
+  private readonly destroyRef = inject(DestroyRef);
+
+  constructor(
+    public cartService: CartService,
+    private router: Router,
+    private elementRef: ElementRef<HTMLElement>
+  ) {
+    this.route.queryParamMap
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((params) => {
+        this.searchTerm = params.get('buscar') ?? '';
+      });
+  }
+
+  get searchResults(): StoreProduct[] {
+    return searchStoreProducts(this.searchTerm).slice(0, 5);
+  }
+
+  get activeSearchResultId(): string | null {
+    const activeProduct = this.searchResults[this.activeSearchResultIndex];
+    return activeProduct ? `header-search-result-${activeProduct.number}` : null;
+  }
+
+  onSearchInput(value: string): void {
+    this.searchTerm = value;
+    this.searchOpen = Boolean(value.trim());
+    this.activeSearchResultIndex = -1;
+  }
+
+  openSearch(): void {
+    this.searchOpen = Boolean(this.searchTerm.trim());
+  }
+
+  closeSearch(): void {
+    this.searchOpen = false;
+    this.activeSearchResultIndex = -1;
+  }
+
+  clearSearch(input: HTMLInputElement): void {
+    this.searchTerm = '';
+    this.closeSearch();
+    input.focus();
+    void this.router.navigate([], {
+      queryParams: { buscar: null },
+      queryParamsHandling: 'merge',
+      replaceUrl: true
+    });
+  }
+
+  onSearchKeydown(event: KeyboardEvent): void {
+    const results = this.searchResults;
+
+    if (event.key === 'ArrowDown' && results.length) {
+      event.preventDefault();
+      this.searchOpen = true;
+      this.activeSearchResultIndex = (this.activeSearchResultIndex + 1) % results.length;
+      this.scrollActiveSearchResultIntoView();
+      return;
+    }
+
+    if (event.key === 'ArrowUp' && results.length) {
+      event.preventDefault();
+      this.searchOpen = true;
+      this.activeSearchResultIndex = this.activeSearchResultIndex < 0
+        ? results.length - 1
+        : (this.activeSearchResultIndex - 1 + results.length) % results.length;
+      this.scrollActiveSearchResultIntoView();
+      return;
+    }
+
+    if (event.key === 'Enter' && this.searchOpen && this.activeSearchResultIndex >= 0) {
+      const product = results[this.activeSearchResultIndex];
+
+      if (product) {
+        event.preventDefault();
+        this.closeSearch();
+        void this.router.navigate(['/tienda-online'], {
+          queryParams: { producto: product.number, buscar: this.searchTerm.trim() }
+        });
+      }
+
+      return;
+    }
+
+    if (event.key === 'Escape' && this.searchOpen) {
+      event.preventDefault();
+      event.stopPropagation();
+      this.closeSearch();
+      return;
+    }
+
+    if (event.key === 'Tab') {
+      this.closeSearch();
+    }
+  }
+
+  setActiveSearchResult(index: number): void {
+    this.activeSearchResultIndex = index;
+  }
+
+  onLanguageChange(event: Event): void {
+    const select = event.target as HTMLSelectElement;
+    const languageNames: Record<string, string> = {
+      ca: 'catalán',
+      en: 'inglés',
+      fr: 'francés'
+    };
+    const requestedLanguage = select.value;
+
+    if (requestedLanguage === 'es') {
+      this.languageNotice = '';
+      this.selectedLanguage = 'es';
+      return;
+    }
+
+    this.languageNotice = `La versión en ${languageNames[requestedLanguage] ?? 'ese idioma'} todavía no está traducida. Mantenemos la web en español.`;
+    this.selectedLanguage = 'es';
+    select.value = 'es';
+  }
+
+  private scrollActiveSearchResultIntoView(): void {
+    const activeResultId = this.activeSearchResultId;
+
+    if (!activeResultId || typeof requestAnimationFrame === 'undefined') {
+      return;
+    }
+
+    requestAnimationFrame(() => {
+      const activeResult = document.getElementById(activeResultId);
+
+      if (activeResult && typeof activeResult.scrollIntoView === 'function') {
+        activeResult.scrollIntoView({ block: 'nearest' });
+      }
+    });
+  }
+
+  submitSearch(event: Event): void {
+    event.preventDefault();
+    const query = this.searchTerm.trim();
+
+    if (!query) {
+      return;
+    }
+
+    this.closeSearch();
+    void this.router.navigate(['/tienda-online'], { queryParams: { buscar: query } });
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    const searchForm = this.elementRef.nativeElement.querySelector('.header-search-form');
+
+    if (searchForm && !searchForm.contains(event.target as Node)) {
+      this.closeSearch();
+    }
+  }
 
   @HostListener('window:scroll')
   onWindowScroll(): void {
@@ -40,6 +203,8 @@ export class Navbar {
 
   @HostListener('document:keydown.escape')
   onEscape(): void {
+    this.closeSearch();
+
     if (this.cartOpen) {
       this.closeCart();
     }

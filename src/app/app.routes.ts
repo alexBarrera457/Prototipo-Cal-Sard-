@@ -3,67 +3,91 @@ import { Routes } from '@angular/router';
 import { BrandPage } from './pages/brand-page/brand-page';
 import { ContactPage } from './pages/contact-page/contact-page';
 import { HomePage } from './pages/home-page/home-page';
+import { ShopPage } from './pages/shop-page/shop-page';
+import { CheckoutPage } from './pages/checkout-page/checkout-page';
+import { AccountPage } from './pages/account-page/account-page';
+import { CreateAccountPage } from './pages/create-account-page/create-account-page';
 
 export const routes: Routes = [
   {
     path: '',
-    title: 'Cal Sardà | Els productes de sempre des de 1930',
+    title: 'Cal Sardà | Productos de siempre desde 1930',
     component: HomePage
   },
   {
     path: 'historia',
-    title: 'La història de Cal Sardà | Cal Sardà',
+    title: 'Historia de Cal Sardà | Cal Sardà',
     component: BrandPage,
     data: { page: 'historia' }
   },
   {
-    path: 'botiga-en-linia',
-    title: 'Botiga en línia | Cal Sardà',
-    component: BrandPage,
-    data: { page: 'botiga-en-linia' }
+    path: 'tienda-online',
+    title: 'Tienda online | Cal Sardà',
+    component: ShopPage
+  },
+  {
+    path: 'preparar-pedido',
+    title: 'Preparar pedido | Cal Sardà',
+    component: CheckoutPage
+  },
+  {
+    path: 'cuenta',
+    title: 'Iniciar sesión | Cal Sardà',
+    component: AccountPage
+  },
+  {
+    path: 'iniciar-sesion',
+    redirectTo: 'cuenta',
+    pathMatch: 'full'
+  },
+  {
+    path: 'crear-cuenta',
+    title: 'Crear cuenta | Cal Sardà',
+    component: CreateAccountPage
+  },
+  {
+    path: 'account/register',
+    redirectTo: 'crear-cuenta',
+    pathMatch: 'full'
   },
   {
     path: 'galeria',
-    title: 'Galeria | Cal Sardà',
+    title: 'Galería | Cal Sardà',
     component: BrandPage,
     data: { page: 'galeria' }
   },
   {
-    path: 'contacte',
-    title: 'Contacte | Cal Sardà',
+    path: 'contacto',
+    title: 'Contacto | Cal Sardà',
     component: ContactPage
   },
   {
-    path: 'newsletter-184400',
-    title: 'Newsletter | Cal Sardà',
+    path: 'boletin',
+    title: 'Boletín | Cal Sardà',
     component: BrandPage,
     data: { page: 'newsletter' }
   },
   {
-    path: 'newsletter',
-    redirectTo: 'newsletter-184400'
-  },
-  {
-    path: 'descobreix-el-territori',
-    title: 'Descobreix el territori | Cal Sardà',
+    path: 'descubre-el-territorio',
+    title: 'Descubre el territorio | Cal Sardà',
     component: BrandPage,
     data: { page: 'descobreix-el-territori' }
   },
   {
-    path: 'lots-per-a-empreses',
-    title: 'Lots per a empreses | Cal Sardà',
+    path: 'lotes-para-empresas',
+    title: 'Lotes para empresas | Cal Sardà',
     component: BrandPage,
     data: { page: 'lots-per-a-empreses' }
   },
   {
-    path: 'lots-i-cistelles-gurmet',
-    title: 'Lots i cistelles gurmet | Cal Sardà',
+    path: 'lotes-y-cestas-gourmet',
+    title: 'Lotes y cestas gourmet | Cal Sardà',
     component: BrandPage,
     data: { page: 'lots-i-cistelles-gurmet' }
   },
   {
     path: 'faq',
-    title: 'Preguntes freqüents | Cal Sardà',
+    title: 'Preguntas frecuentes | Cal Sardà',
     component: BrandPage,
     data: { page: 'faq' }
   },
@@ -74,14 +98,14 @@ export const routes: Routes = [
     data: { page: 'blog' }
   },
   {
-    path: 'avis-legal',
-    title: 'Avís legal | Cal Sardà',
+    path: 'aviso-legal',
+    title: 'Aviso legal | Cal Sardà',
     component: BrandPage,
     data: { page: 'avis-legal' }
   },
   {
-    path: 'politica-de-privacitat',
-    title: 'Política de privacitat | Cal Sardà',
+    path: 'politica-de-privacidad',
+    title: 'Política de privacidad | Cal Sardà',
     component: BrandPage,
     data: { page: 'politica-de-privacitat' }
   },
@@ -92,8 +116,8 @@ export const routes: Routes = [
     data: { page: 'politica-de-cookies' }
   },
   {
-    path: 'condicions-generals',
-    title: 'Condicions generals | Cal Sardà',
+    path: 'condiciones-generales',
+    title: 'Condiciones generales | Cal Sardà',
     component: BrandPage,
     data: { page: 'condicions-generals' }
   },
@@ -104,12 +128,68 @@ export const routes: Routes = [
     data: { page: 'mapa-web' }
   },
   {
+    path: 'botiga-en-linia',
+    redirectTo: 'tienda-online',
+    pathMatch: 'full'
+  },
+  {
+    path: 'checkout',
+    redirectTo: 'preparar-pedido',
+    pathMatch: 'full'
+  },
+  {
+    path: 'contacte',
+    redirectTo: 'contacto',
+    pathMatch: 'full'
+  },
+  {
+    path: 'newsletter-184400',
+    redirectTo: 'boletin',
+    pathMatch: 'full'
+  },
+  {
+    path: 'newsletter',
+    redirectTo: 'boletin',
+    pathMatch: 'full'
+  },
+  {
+    path: 'descobreix-el-territori',
+    redirectTo: 'descubre-el-territorio',
+    pathMatch: 'full'
+  },
+  {
+    path: 'lots-per-a-empreses',
+    redirectTo: 'lotes-para-empresas',
+    pathMatch: 'full'
+  },
+  {
+    path: 'lots-i-cistelles-gurmet',
+    redirectTo: 'lotes-y-cestas-gourmet',
+    pathMatch: 'full'
+  },
+  {
+    path: 'avis-legal',
+    redirectTo: 'aviso-legal',
+    pathMatch: 'full'
+  },
+  {
+    path: 'politica-de-privacitat',
+    redirectTo: 'politica-de-privacidad',
+    pathMatch: 'full'
+  },
+  {
+    path: 'condicions-generals',
+    redirectTo: 'condiciones-generales',
+    pathMatch: 'full'
+  },
+  {
     path: 'account/login',
-    redirectTo: 'contacte'
+    redirectTo: '/cuenta',
+    pathMatch: 'full'
   },
   {
     path: 'proces-de-compra/step1',
-    redirectTo: 'botiga-en-linia'
+    redirectTo: 'tienda-online'
   },
   {
     path: '**',

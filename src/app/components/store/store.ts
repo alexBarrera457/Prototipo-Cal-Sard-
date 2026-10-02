@@ -1,20 +1,26 @@
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { CartService } from '../../services/cart';
-import { StoreProduct, storeProducts } from '../../services/products';
+import { searchStoreProducts, StoreProduct, storeProducts } from '../../services/products';
 
 @Component({
   selector: 'app-store',
-  imports: [],
+  imports: [RouterLink],
   templateUrl: './store.html',
   styleUrl: './store.css'
 })
 export class Store {
 
   products = storeProducts;
+  @Input() searchTerm = '';
 
   @Output() productSelected = new EventEmitter<StoreProduct>();
 
   constructor(private cartService: CartService) {}
+
+  get filteredProducts(): StoreProduct[] {
+    return this.searchTerm.trim() ? searchStoreProducts(this.searchTerm) : this.products;
+  }
 
   addToCart(product: StoreProduct): void {
     this.cartService.addToCart(product.name, product.price);

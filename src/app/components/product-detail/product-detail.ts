@@ -9,7 +9,15 @@ import { CartService } from '../../services/cart';
 })
 export class ProductDetail {
 
-  @Input() product = {
+  @Input() product: {
+    name: string;
+    category: string;
+    description: string;
+    price: number;
+    number: string;
+    image: string;
+    imageFit?: 'cover' | 'contain';
+  } = {
     name: '',
     category: '',
     description: '',

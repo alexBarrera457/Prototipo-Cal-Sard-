@@ -28,6 +28,12 @@
   transition: transform 0.8s ease;
 }
 
+.product-detail-image img.contain {
+  padding: 32px;
+  object-fit: contain;
+  background: #e9dfd2;
+}
+
 .product-detail-image:hover img {
   transform: scale(1.04);
 }

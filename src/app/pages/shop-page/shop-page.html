@@ -1,0 +1,21 @@
+@if (selectedProduct) {
+  <app-product-detail
+    [product]="selectedProduct"
+    (backToStore)="hideProduct()"
+  />
+} @else {
+  <header class="shop-intro">
+    <span>CAL SARDÀ · TIENDA ONLINE</span>
+    <h1>Una selección<br>para disfrutar en casa.</h1>
+    <p>Productos de la tienda, con fotos reales de Cal Sardà. Añádelos al carrito y prepara un pedido de prueba.</p>
+    <a [routerLink]="['/preparar-pedido']">IR A LA COMPRA <span>→</span></a>
+    @if (searchTerm) {
+      <p class="shop-search-summary">
+        Resultados para <strong>“{{ searchTerm }}”</strong>
+        <button type="button" (click)="clearSearch()">Ver todo el catálogo</button>
+      </p>
+    }
+  </header>
+
+  <app-store [searchTerm]="searchTerm" (productSelected)="showProduct($event)" />
+}

@@ -1,0 +1,107 @@
+<section class="checkout-page" aria-labelledby="checkout-title">
+  <header class="checkout-heading">
+    <a [routerLink]="['/tienda-online']" class="checkout-back">← VOLVER A LA TIENDA</a>
+    <span>CAL SARDÀ · COMPRA</span>
+    <h1 id="checkout-title">Prepara tu<br>pedido.</h1>
+    <p>Completa tus datos para revisar una vista previa. Esta demo no envía la información ni realiza ningún cobro.</p>
+  </header>
+
+  @if (cartService.products().length === 0) {
+    <section class="checkout-empty">
+      <h2>Tu carrito está vacío</h2>
+      <p>Vuelve a la tienda y añade los productos que quieras incluir.</p>
+      <a [routerLink]="['/tienda-online']">VER LA TIENDA →</a>
+    </section>
+  } @else {
+    <div class="checkout-layout">
+      <section class="checkout-form-panel">
+        <div class="checkout-step"><span>01</span><h2>Tus datos</h2></div>
+
+        @if (!previewReady) {
+          <form #orderForm="ngForm" (ngSubmit)="preparePreview()">
+            <div class="checkout-fields">
+              <label>
+                Nombre y apellidos
+                <input name="name" [(ngModel)]="customer.name" autocomplete="name" required>
+              </label>
+              <label>
+                Correo electrónico
+                <input name="email" [(ngModel)]="customer.email" type="email" autocomplete="email" required>
+              </label>
+              <label>
+                Teléfono
+                <input name="phone" [(ngModel)]="customer.phone" type="tel" autocomplete="tel" required>
+              </label>
+            </div>
+
+            <fieldset class="fulfillment-options">
+              <legend>¿Cómo quieres recibirlo?</legend>
+              <label class="fulfillment-choice">
+                <input type="radio" name="fulfillment" [(ngModel)]="fulfillment" value="pickup" required>
+                <span><strong>Recogida en tienda</strong><small>C/ Marina, 237 · Barcelona</small></span>
+              </label>
+              <label class="fulfillment-choice">
+                <input type="radio" name="fulfillment" [(ngModel)]="fulfillment" value="delivery" required>
+                <span><strong>Envío a domicilio</strong><small>El coste se confirmará al conectar la tienda.</small></span>
+              </label>
+            </fieldset>
+
+            @if (fulfillment === 'delivery') {
+              <div class="checkout-fields delivery-fields">
+                <label class="field-wide">
+                  Dirección
+                  <input name="address" [(ngModel)]="customer.address" autocomplete="street-address" required>
+                </label>
+                <label>
+                  Código postal
+                  <input name="postalCode" [(ngModel)]="customer.postalCode" autocomplete="postal-code" required>
+                </label>
+                <label>
+                  Ciudad
+                  <input name="city" [(ngModel)]="customer.city" autocomplete="address-level2" required>
+                </label>
+              </div>
+            }
+
+            <button class="checkout-submit" type="submit">PREPARAR VISTA PREVIA <span>→</span></button>
+          </form>
+        } @else {
+          <section class="order-preview" aria-live="polite">
+            <span class="preview-kicker">VISTA PREVIA LISTA</span>
+            <h2>Gracias, {{ customer.name }}.</h2>
+            <p>La selección está preparada para {{ fulfillment === 'pickup' ? 'recogida en tienda' : 'envío a domicilio' }}.</p>
+            <p class="preview-contact">{{ customer.email }} · {{ customer.phone }}</p>
+            @if (fulfillment === 'delivery') {
+              <p class="preview-contact">{{ customer.address }}, {{ customer.postalCode }} {{ customer.city }}</p>
+            }
+            <div class="preview-notice">Esta es una vista previa. El pedido no se ha enviado y no se ha efectuado ningún cobro.</div>
+            <button class="edit-details" type="button" (click)="editDetails()">EDITAR DATOS</button>
+          </section>
+        }
+      </section>
+
+      <aside class="checkout-summary">
+        <div class="checkout-step"><span>02</span><h2>Tu selección</h2></div>
+        <div class="summary-products">
+          @for (product of cartService.products(); track product.name) {
+            <article class="summary-product">
+              <img [src]="productImage(product.name)" [alt]="product.name">
+              <div>
+                <h3>{{ product.name }}</h3>
+                <span>{{ product.quantity }} × {{ product.price.toFixed(2) }} €</span>
+              </div>
+              <strong>{{ (product.quantity * product.price).toFixed(2) }} €</strong>
+            </article>
+          }
+        </div>
+        <div class="summary-total"><span>Subtotal</span><strong>{{ cartService.getTotal().toFixed(2) }} €</strong></div>
+        @if (fulfillment === 'delivery') {
+          <p class="shipping-note">Envío: coste pendiente de definir. El importe final se confirmará cuando se conecte la tienda.</p>
+        } @else {
+          <div class="summary-total final-total"><span>Total de recogida</span><strong>{{ cartService.getTotal().toFixed(2) }} €</strong></div>
+        }
+        <p class="demo-note">Precios orientativos de prototipo. No hay pasarela de pago ni se transmiten datos personales.</p>
+      </aside>
+    </div>
+  }
+</section>

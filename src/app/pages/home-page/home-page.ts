@@ -28,7 +28,7 @@ export class HomePage {
   constructor(meta: Meta) {
     meta.updateTag({
       name: 'description',
-      content: 'Des de 1930, Cal Sardà selecciona productes gurmet, torrons, vins, xocolates, conserves i fruits secs al cor de Barcelona.'
+      content: 'Desde 1930, Cal Sardà selecciona productos gourmet, turrones, vinos, chocolates, conservas y frutos secos en el corazón de Barcelona.'
     });
   }
 

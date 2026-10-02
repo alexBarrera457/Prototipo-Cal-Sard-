@@ -14,7 +14,7 @@ export class ContactPage {
   constructor(meta: Meta) {
     meta.updateTag({
       name: 'description',
-      content: 'Contacta amb Cal Sardà, botiga de productes gurmet al carrer Marina, 237, Barcelona. Telèfon 932 32 55 08.'
+      content: 'Contacta con Cal Sardà, tienda de productos gourmet en la calle Marina, 237, Barcelona. Teléfono 932 32 55 08.'
     });
   }
 

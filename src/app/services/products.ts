@@ -5,18 +5,20 @@ export interface StoreProduct {
   price: number;
   number: string;
   image: string;
+  imageFit?: 'cover' | 'contain';
   shortDescription: string;
 }
 
 export const storeProducts: StoreProduct[] = [
   {
-    name: 'Conservas del mar',
+    name: 'Anchoas del Cantábrico',
     category: 'CONSERVAS',
-    description: 'Una selección de conservas del mar escogidas por Cal Sardà.',
+    description: 'Anchoas Ortiz en aceite de oliva, una conserva clásica de la selección de Cal Sardà.',
     price: 4.5,
     number: '01',
-    image: 'assets/images/products/conservas.jpg',
-    shortDescription: 'Selección de productos del mar.'
+    image: '/images/products/conservas.png',
+    imageFit: 'contain',
+    shortDescription: 'Anchoas Ortiz en aceite de oliva.'
   },
   {
     name: 'Café Sardà',
@@ -24,8 +26,8 @@ export const storeProducts: StoreProduct[] = [
     description: 'El café que forma parte de nuestra historia.',
     price: 6.9,
     number: '02',
-    image: 'assets/images/products/cafe.jpg',
-    shortDescription: 'El café que forma parte de nuestra historia.'
+    image: '/images/products/cafe.jpg',
+    shortDescription: 'Café en grano de la casa, 250 g.'
   },
   {
     name: 'Frutos secos',
@@ -33,16 +35,44 @@ export const storeProducts: StoreProduct[] = [
     description: 'Una selección de frutos secos de calidad.',
     price: 3.9,
     number: '03',
-    image: 'assets/images/products/frutos-secos.jpg',
-    shortDescription: 'Una selección de frutos secos de calidad.'
+    image: '/images/products/frutos-secos.jpg',
+    shortDescription: 'Almendras seleccionadas.'
   },
   {
-    name: 'Turrones y dulces',
+    name: 'Arrugats de chocolate',
     category: 'DULCES',
-    description: 'Dulces tradicionales para cualquier ocasión.',
+    description: 'Galletas Arrugats de chocolate de El Rosal, un dulce tradicional para compartir.',
     price: 5.5,
     number: '04',
-    image: 'assets/images/products/dulces.jpg',
-    shortDescription: 'Dulces tradicionales para cualquier ocasión.'
+    image: '/images/products/dulces.jpg',
+    imageFit: 'contain',
+    shortDescription: 'Galletas de chocolate El Rosal.'
   }
 ];
+
+function normalizeSearchText(value: string): string {
+  return value
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLocaleLowerCase('es')
+    .trim();
+}
+
+export function searchStoreProducts(query: string): StoreProduct[] {
+  const terms = normalizeSearchText(query).split(/\s+/).filter(Boolean);
+
+  if (!terms.length) {
+    return [];
+  }
+
+  return storeProducts.filter((product) => {
+    const searchableText = normalizeSearchText([
+      product.name,
+      product.category,
+      product.description,
+      product.shortDescription
+    ].join(' '));
+
+    return terms.every((term) => searchableText.includes(term));
+  });
+}

@@ -1,0 +1,73 @@
+<main class="account-page" aria-labelledby="account-title">
+  <div class="account-layout">
+    <section class="account-copy">
+      <span class="eyebrow">CAL SARDÀ · CLIENTES</span>
+      <h1 id="account-title">Bienvenido de nuevo</h1>
+      <p>Inicia sesión para consultar tu cuenta y tener tus pedidos siempre a mano.</p>
+      <div class="preview-note">
+        <span aria-hidden="true">✳</span>
+        <p>Acceso de demostración. La autenticación todavía no está conectada; no se enviarán ni guardarán tus credenciales.</p>
+      </div>
+    </section>
+
+    <section class="login-card" aria-label="Formulario de inicio de sesión">
+      @if (loginDemoCompleted) {
+        <div class="login-result" role="status" aria-live="polite">
+          <span class="result-mark" aria-hidden="true">✓</span>
+          <h2>Formulario completado</h2>
+          <p>El acceso aún no está conectado. No se ha iniciado sesión ni se han enviado o guardado tus datos.</p>
+          <button type="button" class="submit-button" (click)="returnToLogin()">VOLVER A INICIAR SESIÓN <span aria-hidden="true">→</span></button>
+        </div>
+      } @else {
+        <div class="form-heading">
+          <span>ÁREA DE CLIENTES</span>
+          <h2>Iniciar sesión</h2>
+          <p>Introduce los datos de tu cuenta.</p>
+        </div>
+
+        <form #loginForm="ngForm" (ngSubmit)="signIn(loginForm)" novalidate>
+          <div class="field">
+            <label for="login-email">Correo electrónico <span aria-hidden="true">*</span></label>
+            <input id="login-email" name="email" type="email" autocomplete="email"
+              placeholder="nombre@ejemplo.com" required email [(ngModel)]="email"
+              #emailField="ngModel" (ngModelChange)="recoveryNotice = false">
+            @if (emailField.invalid && (emailField.touched || loginForm.submitted)) {
+              <span class="field-error" role="alert">
+                @if (emailField.errors?.['required']) { Escribe tu correo electrónico. }
+                @else { Introduce un correo electrónico válido. }
+              </span>
+            }
+          </div>
+
+          <div class="field">
+            <label for="login-password">Contraseña <span aria-hidden="true">*</span></label>
+            <div class="password-input">
+              <input id="login-password" name="password" [type]="showPassword ? 'text' : 'password'"
+                autocomplete="current-password" required [(ngModel)]="password" #passwordField="ngModel">
+              <button type="button" class="visibility-toggle" (click)="showPassword = !showPassword"
+                [attr.aria-pressed]="showPassword" [attr.aria-label]="showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'">
+                {{ showPassword ? 'Ocultar' : 'Mostrar' }}
+              </button>
+            </div>
+            @if (passwordField.invalid && (passwordField.touched || loginForm.submitted)) {
+              <span class="field-error" role="alert">Escribe tu contraseña.</span>
+            }
+          </div>
+
+          <div class="account-actions">
+            <button type="button" class="text-action" (click)="recoveryNotice = !recoveryNotice">
+              ¿Olvidaste tu contraseña?
+            </button>
+            <a [routerLink]="['/crear-cuenta']">Crear una cuenta</a>
+          </div>
+          @if (recoveryNotice) {
+            <p class="recovery-notice" role="status">La recuperación de contraseña todavía no está conectada. No se ha enviado ningún correo.</p>
+          }
+
+          <button class="submit-button" type="submit">INICIAR SESIÓN <span aria-hidden="true">→</span></button>
+          <p class="required-note"><span aria-hidden="true">*</span> Campo obligatorio</p>
+        </form>
+      }
+    </section>
+  </div>
+</main>

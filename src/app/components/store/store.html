@@ -23,10 +23,14 @@
 
   </div>
 
+  <p class="store-prototype-note">
+    Prototipo de tienda: precios orientativos. El pedido todavía no se envía ni se cobra.
+  </p>
 
-  <div class="store-grid">
+  @if (filteredProducts.length) {
+    <div class="store-grid">
 
-    @for (product of products; track product.number) {
+    @for (product of filteredProducts; track product.number) {
       <article class="store-product">
 
         <div class="store-product-image">
@@ -34,6 +38,7 @@
           <img
             [src]="product.image"
             [alt]="product.name"
+            [class.contain]="product.imageFit === 'contain'"
           >
 
           <button
@@ -87,7 +92,10 @@
       </article>
     }
 
-  </div>
+    </div>
+  } @else {
+    <p class="store-empty-search" role="status">No encontramos productos para “{{ searchTerm }}”. Prueba otra búsqueda.</p>
+  }
 
 
   <div class="store-footer">
@@ -100,7 +108,7 @@
       Productos escogidos con tradición y criterio.
     </p>
 
-    <a href="#contacto">
+    <a [routerLink]="['/contacto']">
       MÁS INFORMACIÓN →
     </a>
 

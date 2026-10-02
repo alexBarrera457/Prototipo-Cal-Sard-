@@ -35,393 +35,410 @@ export class BrandPage {
 
   private readonly pages: Record<string, PageDefinition> = {
     historia: {
-      eyebrow: 'Història',
-      title: 'Una història familiar al cor de la Sagrada Família.',
-      intro: 'Des de 1930, Cal Sardà forma part de la vida del barri. Els fills de Jaume i Flora van fer créixer el negoci i, el 1958, Jaume va impulsar la primera reforma del local per convertir-lo en el colmado que el veïnat coneixia.',
-      highlight: 'Quatre generacions de productes de qualitat i tracte proper.',
+      eyebrow: 'Historia',
+      title: 'Una historia familiar en el corazón de la Sagrada Familia.',
+      intro: 'Desde 1930, Cal Sardà forma parte de la vida del barrio. Los hijos de Jaume y Flora hicieron crecer el negocio y, en 1958, Jaume impulsó la primera reforma del local para convertirlo en el colmado que conocían los vecinos.',
+      highlight: 'Cuatro generaciones de productos de calidad y trato cercano.',
       stats: [
-        { label: 'Al barri des de', value: '1930' },
-        { label: 'Generacions', value: '4' },
-        { label: 'Lloc', value: 'Sagrada Família' }
+        { label: 'En el barrio desde', value: '1930' },
+        { label: 'Generaciones', value: '4' },
+        { label: 'Lugar', value: 'Sagrada Familia' }
       ],
       cards: [
         {
           title: 'La primera reforma',
-          text: 'Cap als anys cinquanta, la botiga va arribar a tenir catorze treballadors, molts d’ells familiars i amics de Belianes, el poble natal de Jaume Sardà Güell. El 1958 el local es va transformar en el colmado del barri.'
+          text: 'Hacia los años cincuenta, la tienda llegó a tener catorce trabajadores, muchos de ellos familiares y amigos de Belianes, el pueblo natal de Jaume Sardà Güell. En 1958, el local se transformó en el colmado del barrio.'
         },
         {
           title: 'El colmado gourmet',
-          text: 'La botiga va deixar enrere la venda de verdura i bacallà per centrar-se en el cafè i en queviures de qualitat i proximitat, com les galetes, els torrons i els fruits secs a granel.'
+          text: 'La tienda dejó atrás la venta de verduras y bacalao para centrarse en el café y en productos de calidad y proximidad, como galletas, turrones y frutos secos a granel.'
         },
         {
-          title: 'Una història que continua',
-          text: 'Maria Sardà Sardà, filla de Jaume, va començar a treballar al negoci i n’és avui la propietària. Continua atenent els clients i coneixent els seus gustos i preferències.'
+          title: 'Una historia que continúa',
+          text: 'Maria Sardà Sardà, hija de Jaume, empezó a trabajar en el negocio y hoy es su propietaria. Sigue atendiendo a los clientes y conociendo sus gustos y preferencias.'
         }
       ],
       cta: {
-        label: 'Visita la botiga',
-        route: '/botiga-en-linia'
+        label: 'Visita la tienda',
+        route: '/tienda-online'
       }
     },
     'botiga-en-linia': {
-      eyebrow: 'Botiga en línia',
-      title: 'Productes de sempre, seleccionats amb cura.',
-      intro: 'A Cal Sardà trobaràs productes gurmet com torrons, vins, xocolates, conserves i fruits secs. Una selecció per gaudir a casa, completar la taula o preparar un regal.',
-      highlight: 'Compra en línia i tria enviament o recollida a la botiga.',
+      eyebrow: 'Tienda online',
+      title: 'Productos de siempre, seleccionados con cuidado.',
+      intro: 'En Cal Sardà encontrarás productos gourmet como turrones, vinos, chocolates, conservas y frutos secos. Una selección para disfrutar en casa, completar la mesa o preparar un regalo.',
+      highlight: 'Elige entre envío a domicilio o recogida en tienda.',
       stats: [],
       cards: [
         {
-          title: 'Torrons i xocolates',
-          text: 'Dolços tradicionals i xocolates gurmet per compartir i celebrar.'
+          title: 'Turrones y chocolates',
+          text: 'Dulces tradicionales y chocolates gourmet para compartir y celebrar.'
         },
         {
-          title: 'Vins i licors',
-          text: 'Una selecció per acompanyar àpats, trobades i ocasions especials.'
+          title: 'Vinos y licores',
+          text: 'Una selección para acompañar comidas, reuniones y ocasiones especiales.'
         },
         {
-          title: 'Conserves i fruits secs',
-          text: 'Conserves i fruits secs de qualitat, també disponibles a granel.'
+          title: 'Conservas y frutos secos',
+          text: 'Conservas y frutos secos de calidad, también disponibles a granel.'
         }
       ],
       cta: {
-        label: 'Veure productes',
+        label: 'Ver productos',
         route: '/',
         fragment: 'tienda'
       }
     },
     galeria: {
-      eyebrow: 'Galeria',
-      title: 'Un espai que captura el nostre dia a dia.',
-      intro: 'Darrere de Cal Sardà hi ha un ambient de botiga de barri, de trobada i de cura. La galeria recull moments, productes i detalls que expliquen la nostra identitat i el nostre tarannà.',
-      highlight: 'Sabor, història i autenticitat en cada instant.',
+      eyebrow: 'Galería',
+      title: 'Un espacio que recoge nuestro día a día.',
+      intro: 'Cal Sardà es una tienda de barrio, un lugar de encuentro y cuidado. Esta galería reúne momentos, productos y detalles que reflejan nuestra identidad y nuestro carácter.',
+      highlight: 'Sabor, historia y autenticidad en cada momento.',
       stats: [],
       cards: [],
       galleryImages: [
         {
-          src: '/images/history.jpg',
-          alt: 'Un detall de la història de Cal Sardà',
-          caption: 'Una història familiar al barri de la Sagrada Família.'
+          src: '/images/gallery/passi-01.jpg',
+          alt: 'Fachada de la tienda Cal Sardà',
+          caption: 'La tienda en la calle Marina, en el barrio de la Sagrada Familia.'
         },
         {
-          src: '/images/hero.jpg',
-          alt: 'Imatge de benvinguda de Cal Sardà',
-          caption: 'Els productes de sempre, des de 1930.'
+          src: '/images/gallery/passi-02.jpg',
+          alt: 'Interior de Cal Sardà con estantes llenos de productos',
+          caption: 'Un colmado de barrio con una selección gourmet.'
+        },
+        {
+          src: '/images/gallery/passi-04.jpg',
+          alt: 'Estantes con productos de Cal Sardà',
+          caption: 'Productos por descubrir en cada rincón de la tienda.'
+        },
+        {
+          src: '/images/gallery/passi-05.jpg',
+          alt: 'Atención en la tienda Cal Sardà',
+          caption: 'El trato cercano forma parte de nuestra historia.'
         }
       ],
       cta: {
-        label: 'Contacta amb nosaltres',
-        route: '/contacte'
+        label: 'Contacta con nosotros',
+        route: '/contacto'
       }
     },
     newsletter: {
-      eyebrow: 'Newsletter',
-      title: 'Les novetats de Cal Sardà, directament al teu correu.',
-      intro: 'Deixa’ns la teva adreça i s’obrirà un correu preparat per demanar que t’afegim a la newsletter. No t’hi subscriurem automàticament: la gestió encara s’ha de connectar amb el servei de correu del negoci.',
-      highlight: 'Subscripció pendent de confirmació per correu.',
+      eyebrow: 'Boletín',
+      title: 'Las novedades de Cal Sardà, directamente en tu correo.',
+      intro: 'Déjanos tu dirección y se abrirá un correo preparado para solicitar que te añadamos al boletín. No te suscribiremos automáticamente: aún hay que conectar el servicio de correo del negocio.',
+      highlight: 'La suscripción requiere confirmación por correo.',
       stats: [],
       cards: [],
       newsletter: true,
       cta: {
-        label: 'Anar a la home',
+        label: 'Ir al inicio',
         route: '/'
       }
     },
     'descobreix-el-territori': {
-      eyebrow: 'Descobreix el territori',
-      title: 'Sabors de la terra, amb identitat pròpia.',
-      intro: 'Cal Sardà selecciona productes gurmet i especialitats de diferents procedències. Consulta’ns a la botiga per conèixer l’origen i la disponibilitat de cada producte.',
-      highlight: 'Origen i disponibilitat: demana’ns informació sobre cada producte.',
+      eyebrow: 'Descubre el territorio',
+      title: 'Sabores de la tierra con identidad propia.',
+      intro: 'Cal Sardà selecciona productos gourmet y especialidades de distintos lugares. Pregúntanos en la tienda por el origen y la disponibilidad de cada producto.',
+      highlight: 'Consulta el origen y la disponibilidad de cada producto.',
       stats: [],
       cards: [
         {
-          title: 'Qualitat per origen',
-          text: 'Triem proveïdors i elaboracions amb història, rigor i un vincle real amb el territori.'
+          title: 'Calidad de origen',
+          text: 'Elegimos proveedores y elaboraciones con historia, rigor y un vínculo real con el territorio.'
         },
         {
-          title: 'Temporada i autenticitat',
-          text: 'La millor selecció arriba en el moment adequat, amb sabor i frescor.'
+          title: 'Temporada y autenticidad',
+          text: 'La mejor selección llega en el momento adecuado, con sabor y frescura.'
         },
         {
-          title: 'La taula com a ritual',
-          text: 'Cada producte és una invitació a crear moments de convivència, gaudi i cultura gastronòmica.'
+          title: 'La mesa como ritual',
+          text: 'Cada producto invita a crear momentos de convivencia, disfrute y cultura gastronómica.'
+        }
+      ],
+      galleryImages: [
+        {
+          src: '/images/gallery/mapa-gastronomic-catala-optimizado.jpg',
+          alt: 'Mapa gastronómico de Cataluña',
+          caption: 'Un mapa para descubrir sabores y productos del territorio.'
         }
       ],
       cta: {
-        label: 'Veure lots',
-        route: '/lots-i-cistelles-gurmet'
+        label: 'Ver lotes',
+        route: '/lotes-y-cestas-gourmet'
       }
     },
     'lots-per-a-empreses': {
-      eyebrow: 'Lots per a empreses',
-      title: 'Regals i solucions gourmet per a la teva empresa.',
-      intro: 'Preparem lots personalitzats amb una selecció de productes gurmet, com conserves de mar, vins, xocolates i dolços tradicionals de Nadal.',
-      highlight: 'Personalitzem el lot i el preparem llest per regalar.',
+      eyebrow: 'Lotes para empresas',
+      title: 'Regalos y soluciones gourmet para tu empresa.',
+      intro: 'Preparamos lotes personalizados con una selección de productos gourmet, como conservas del mar, vinos, chocolates y dulces tradicionales de Navidad.',
+      highlight: 'Personalizamos el lote y lo preparamos para regalar.',
       stats: [],
       cards: [
         {
-          title: 'A mida',
-          text: 'T’ajudem a crear una combinació de productes ajustada a l’ocasió i a les necessitats de la teva empresa.'
+          title: 'A medida',
+          text: 'Te ayudamos a crear una combinación de productos adecuada para la ocasión y las necesidades de tu empresa.'
         },
         {
-          title: 'Selecció gurmet',
-          text: 'Pots triar entre conserves, vins, xocolates gurmet i dolços tradicionals nadalencs.'
+          title: 'Selección gourmet',
+          text: 'Puedes elegir entre conservas, vinos, chocolates gourmet y dulces tradicionales de Navidad.'
         },
         {
-          title: 'Recollida o enviament',
-          text: 'Recull els lots al nostre establiment o demana que els enviem directament a la teva empresa.'
+          title: 'Recogida o envío',
+          text: 'Recoge los lotes en nuestro establecimiento o pide que los enviemos directamente a tu empresa.'
         }
       ],
       cta: {
-        label: 'Parlem del teu encàrrec',
-        route: '/contacte'
+        label: 'Hablemos de tu pedido',
+        route: '/contacto'
       }
     },
     'lots-i-cistelles-gurmet': {
-      eyebrow: 'Lots i cistelles gourmet',
-      title: 'Les millors combinacions per compartir i regalar.',
-      intro: 'Preparem lots personalitzats amb la combinació de productes que tens al cap i ajustats al teu pressupost.',
-      highlight: 'Explica’ns si el vols dolç, salat o combinat, què no hi pot faltar i com t’agradaria presentar-lo.',
+      eyebrow: 'Lotes y cestas gourmet',
+      title: 'Las mejores combinaciones para compartir y regalar.',
+      intro: 'Preparamos lotes personalizados con la combinación de productos que tienes en mente y ajustados a tu presupuesto.',
+      highlight: 'Cuéntanos si lo prefieres dulce, salado o combinado, qué no puede faltar y cómo quieres presentarlo.',
       stats: [],
       cards: [
         {
-          title: 'Tria el tipus de lot',
-          text: 'Pensa si prefereixes un lot dolç, salat o combinat i indica’ns quins productes t’agradaria incloure.'
+          title: 'Elige el tipo de lote',
+          text: 'Piensa si prefieres un lote dulce, salado o combinado e indícanos qué productos te gustaría incluir.'
         },
         {
-          title: 'Indica el pressupost',
-          text: 'Ens adaptem al pressupost que tinguis en ment i et proposem diferents combinacions de productes.'
+          title: 'Indica tu presupuesto',
+          text: 'Nos adaptamos al presupuesto que tengas en mente y te proponemos distintas combinaciones de productos.'
         },
         {
-          title: 'Escull la presentació',
-          text: 'Pots demanar una caixa o un conjunt d’articles embolicats amb paper transparent perquè es vegin els productes.'
+          title: 'Elige la presentación',
+          text: 'Puedes pedir una caja o un conjunto de artículos envueltos en papel transparente para que se vean los productos.'
         }
       ],
       cta: {
-        label: 'Demana un pressupost sense compromís',
-        route: '/contacte'
+        label: 'Pide presupuesto sin compromiso',
+        route: '/contacto'
       }
     },
     faq: {
-      eyebrow: 'FAQ',
-      title: 'Resolem els teus dubtes sobre comandes i enviaments.',
-      intro: 'Informació pràctica sobre recollida, enviament a domicili, pagament i incidències.',
-      highlight: 'Si necessites més informació, escriu-nos a sarda@calsarda.com.',
+      eyebrow: 'Preguntas frecuentes',
+      title: 'Resolvemos tus dudas sobre pedidos y envíos.',
+      intro: 'Información práctica sobre recogida, envío a domicilio, pago e incidencias.',
+      highlight: 'Si necesitas más información, escríbenos a sarda@calsarda.com.',
       stats: [],
       cards: [],
       faqItems: [
         {
-          question: 'Puc recollir la meva comanda a la botiga?',
-          answer: 'Sí. Fes el pagament en línia i recull la comanda a la botiga sense cap cost addicional.'
+          question: '¿Puedo recoger mi pedido en la tienda?',
+          answer: 'La tienda online está en preparación. Este prototipo solo permite preparar una vista previa: no envía pedidos ni realiza cobros.'
         },
         {
-          question: 'Hi ha una comanda mínima?',
-          answer: 'No hi ha una comanda mínima, tant si tries la recollida a la botiga com si demanes l’enviament.'
+          question: '¿Hay un pedido mínimo?',
+          answer: 'No hay un pedido mínimo, tanto si eliges recogerlo en la tienda como si solicitas el envío.'
         },
         {
-          question: 'Quant costa el servei a domicili?',
-          answer: 'El cost indicat per Barcelona, Lleida, Tarragona i Girona és de 7,99 €. Per a la resta de la península és de 8,99 €. Per consultar les tarifes d’enviament a Europa, contacta amb nosaltres.'
+          question: '¿Cuánto cuesta el envío a domicilio?',
+          answer: 'El coste indicado para Barcelona, Lleida, Tarragona y Girona es de 7,99 €. Para el resto de la península es de 8,99 €. Para consultar las tarifas de envío a Europa, contacta con nosotros.'
         },
         {
-          question: 'On puc rebre la meva comanda?',
-          answer: 'Enviem productes a tota la península. Els gelats i l’orxata només es reparteixen a Barcelona, perquè cal garantir que arribin en bones condicions. També fem enviaments a Europa; consulta’ns les tarifes.'
+          question: '¿Dónde puedo recibir mi pedido?',
+          answer: 'Enviamos productos a toda la península. Los helados y la horchata solo se reparten en Barcelona para garantizar que lleguen en buenas condiciones. También hacemos envíos a Europa; consúltanos las tarifas.'
         },
         {
-          question: 'Puc demanar orxata o gelats si visc fora de Barcelona?',
-          answer: 'De moment, no. El servei a domicili d’aquests productes està limitat a Barcelona per garantir-ne la qualitat durant el transport.'
+          question: '¿Puedo pedir horchata o helados si vivo fuera de Barcelona?',
+          answer: 'De momento, no. El servicio a domicilio de estos productos está limitado a Barcelona para garantizar su calidad durante el transporte.'
         },
         {
-          question: 'Puc fer una comanda per WhatsApp?',
-          answer: 'Sí. Escriu-nos al 93 232 55 08. Les comandes per WhatsApp es paguen a la botiga en recollir-les o amb targeta en el moment del lliurament a domicili.'
+          question: '¿Puedo hacer un pedido por WhatsApp?',
+          answer: 'Sí. Escríbenos al 93 232 55 08. Los pedidos por WhatsApp se pagan en la tienda al recogerlos o con tarjeta en el momento de la entrega a domicilio.'
         },
         {
-          question: 'Com puc pagar una comanda en línia?',
-          answer: 'Les comandes web es paguen amb targeta bancària. A la botiga pots pagar en efectiu, amb targeta o amb Apple Pay.'
+          question: '¿Cómo puedo pagar un pedido online?',
+          answer: 'Este prototipo todavía no procesa pagos. En la tienda física puedes pagar en efectivo, con tarjeta o con Apple Pay.'
         },
         {
-          question: 'Quan rebré la comanda?',
-          answer: 'El termini orientatiu d’entrega és d’unes 48 hores.'
+          question: '¿Cuándo recibiré mi pedido?',
+          answer: 'El plazo orientativo de entrega es de unas 48 horas.'
         },
         {
-          question: 'Què faig si hi ha un error en la comanda?',
-          answer: 'Si reps una comanda incorrecta, posa’t en contacte amb nosaltres tan aviat com sigui possible perquè puguem gestionar la incidència.'
+          question: '¿Qué hago si hay un error en mi pedido?',
+          answer: 'Si recibes un pedido incorrecto, ponte en contacto con nosotros lo antes posible para que podamos gestionar la incidencia.'
         },
         {
-          question: 'Puc retornar un producte?',
-          answer: 'Les devolucions s’accepten si un article arriba en mal estat, per exemple, si s’ha trencat. Cal comprovar-ho en el moment de l’entrega.'
+          question: '¿Puedo devolver un producto?',
+          answer: 'Se aceptan devoluciones si un artículo llega en mal estado, por ejemplo, si se ha roto. Hay que comprobarlo en el momento de la entrega.'
         },
         {
-          question: 'Qui farà el lliurament?',
-          answer: 'A Barcelona, el lliurament el fa un repartidor contractat per Cal Sardà. A la resta de la península, els enviaments es gestionen amb GLS.'
+          question: '¿Quién realizará la entrega?',
+          answer: 'En Barcelona, la entrega la realiza un repartidor contratado por Cal Sardà. En el resto de la península, los envíos se gestionan con GLS.'
         },
         {
-          question: 'Quines opcions tinc per fer una comanda?',
-          answer: 'Pots comprar en línia i recollir la comanda a la botiga, comprar en línia i rebre-la a casa, o fer la comanda per WhatsApp o telèfon i triar entre recollida o lliurament.'
+          question: '¿Qué opciones tengo para hacer un pedido?',
+          answer: 'Puedes comprar online y recoger el pedido en la tienda, recibirlo en casa o hacer el pedido por WhatsApp o teléfono y elegir entre recogida y entrega.'
         }
       ],
       cta: {
         label: 'Contactar',
-        route: '/contacte'
+        route: '/contacto'
       }
     },
     blog: {
       eyebrow: 'Blog',
-      title: 'Històries i novetats de Cal Sardà.',
-      intro: 'Aquest espai està preparat per compartir novetats, històries de producte i propostes gastronòmiques.',
-      highlight: 'Els articles es publicaran aquí quan estiguin disponibles.',
+      title: 'Historias y novedades de Cal Sardà.',
+      intro: 'Este espacio está preparado para compartir novedades, historias de productos y propuestas gastronómicas.',
+      highlight: 'Los artículos se publicarán aquí cuando estén disponibles.',
       stats: [],
       cards: [],
-      emptyMessage: 'Encara no hi ha articles publicats. Mentrestant, descobreix la història de la botiga o contacta amb nosaltres.',
+      emptyMessage: 'Todavía no hay artículos publicados. Mientras tanto, descubre la historia de la tienda o contacta con nosotros.',
       cta: {
-        label: 'Descobreix la història',
+        label: 'Descubre la historia',
         route: '/historia'
       }
     },
     'avis-legal': {
-      eyebrow: 'Avís legal',
-      title: 'Informació legal i condicions de la nostra web.',
-      intro: 'Titular del lloc web: Cal Sardà. NIF 47912103K. Domicili: carrer Marina, 237, 08013 Barcelona. Correu electrònic: sarda@calsarda.com.',
-      highlight: 'L’ús d’aquest lloc web implica l’acceptació dels termes de l’avís legal, sense perjudici dels drets que corresponguin a les persones consumidores.',
-      legalNote: 'Resum informatiu. Abans de publicar, cal revisar i completar el text legal vigent amb assessorament adequat.',
+      eyebrow: 'Aviso legal',
+      title: 'Información legal y condiciones de nuestra web.',
+      intro: 'Titular del sitio web: Cal Sardà. NIF 47912103K. Domicilio: calle Marina, 237, 08013 Barcelona. Correo electrónico: sarda@calsarda.com.',
+      highlight: 'El uso de este sitio web implica la aceptación de los términos del aviso legal, sin perjuicio de los derechos que correspondan a las personas consumidoras.',
+      legalNote: 'Resumen informativo. Antes de publicar, hay que revisar y completar el texto legal vigente con asesoramiento adecuado.',
       stats: [
-        { label: 'Dades', value: 'Públiques' },
-        { label: 'Ús', value: 'Lícit' },
-        { label: 'Responsabilitat', value: 'Informativa' }
+        { label: 'Datos', value: 'Públicos' },
+        { label: 'Uso', value: 'Lícito' },
+        { label: 'Responsabilidad', value: 'Informativa' }
       ],
       cards: [
         {
-          title: 'Propietat del portal',
-          text: 'Els textos, imatges i dissenys són titularitat de Cal Sardà o de tercers que n’han autoritzat l’ús. La seva utilització requereix respectar els drets corresponents.'
+          title: 'Propiedad del portal',
+          text: 'Los textos, imágenes y diseños son propiedad de Cal Sardà o de terceros que han autorizado su uso. Su utilización debe respetar los derechos correspondientes.'
         },
         {
-          title: 'Informació del web',
-          text: 'Cal Sardà procura mantenir la informació actualitzada i es reserva el dret de modificar els continguts. No assumeix responsabilitat pel contingut dels enllaços externs.'
+          title: 'Información de la web',
+          text: 'Cal Sardà procura mantener la información actualizada y se reserva el derecho a modificar los contenidos. No asume responsabilidad por el contenido de los enlaces externos.'
         },
         {
           title: 'Normativa aplicable',
-          text: 'Els possibles conflictes relatius al web es regeixen pel dret de l’Estat espanyol, respectant els drets que legalment corresponguin a les persones consumidores.'
+          text: 'Los posibles conflictos relativos a la web se rigen por el derecho del Estado español, respetando los derechos que correspondan legalmente a las personas consumidoras.'
         }
       ],
       cta: {
         label: 'Contactar',
-        route: '/contacte'
+        route: '/contacto'
       }
     },
     'politica-de-privacitat': {
-      eyebrow: 'Política de privacitat',
-      title: 'Protecció de dades i ús responsable de la informació.',
-      intro: 'Cal Sardà tracta les dades personals per oferir i gestionar els seus productes i serveis. La base del tractament és el consentiment i, quan correspongui, l’execució del servei o contracte.',
-      highlight: 'Pots exercir els drets d’accés, rectificació, supressió, limitació, oposició i portabilitat contactant amb Cal Sardà.',
-      legalNote: 'Resum informatiu. Abans de publicar, cal revisar i completar el text legal vigent amb assessorament adequat.',
+      eyebrow: 'Política de privacidad',
+      title: 'Protección de datos y uso responsable de la información.',
+      intro: 'Cal Sardà trata los datos personales para ofrecer y gestionar sus productos y servicios. La base del tratamiento es el consentimiento y, cuando corresponda, la ejecución del servicio o contrato.',
+      highlight: 'Puedes ejercer tus derechos de acceso, rectificación, supresión, limitación, oposición y portabilidad contactando con Cal Sardà.',
+      legalNote: 'Resumen informativo. Antes de publicar, hay que revisar y completar el texto legal vigente con asesoramiento adecuado.',
       stats: [
-        { label: 'Tractament', value: 'Lícit' },
-        { label: 'Seguretat', value: 'Prioritat' },
-        { label: 'Consulta', value: 'Disponible' }
+        { label: 'Tratamiento', value: 'Lícito' },
+        { label: 'Seguridad', value: 'Prioritaria' },
+        { label: 'Consultas', value: 'Disponibles' }
       ],
       cards: [
         {
-          title: 'Finalitat i conservació',
-          text: 'Les dades es fan servir per prestar i facturar productes i serveis, i per enviar informació comercial quan hi ha consentiment. Es conserven mentre duri la relació o durant els terminis legals aplicables.'
+          title: 'Finalidad y conservación',
+          text: 'Los datos se utilizan para prestar y facturar productos y servicios, y para enviar información comercial cuando existe consentimiento. Se conservan mientras dure la relación o durante los plazos legales aplicables.'
         },
         {
-          title: 'Destinataris',
-          text: 'Les dades no es comuniquen a tercers, excepte quan ho exigeixi la llei o sigui necessari per a la finalitat del tractament.'
+          title: 'Destinatarios',
+          text: 'Los datos no se comunican a terceros, salvo cuando lo exija la ley o sea necesario para la finalidad del tratamiento.'
         },
         {
-          title: 'Exercici de drets',
-          text: 'Per exercir els teus drets o demanar més informació, escriu a sarda@calsarda.com. També pots presentar una reclamació davant l’Agència Espanyola de Protecció de Dades.'
+          title: 'Ejercicio de derechos',
+          text: 'Para ejercer tus derechos o pedir más información, escribe a sarda@calsarda.com. También puedes presentar una reclamación ante la Agencia Española de Protección de Datos.'
         }
       ],
       cta: {
-        label: 'Consultar contactes',
-        route: '/contacte'
+        label: 'Consultar contacto',
+        route: '/contacto'
       }
     },
     'politica-de-cookies': {
       eyebrow: 'Política de cookies',
-      title: 'Informació sobre l’ús de cookies i perfils de navegació.',
-      intro: 'Les cookies són petits fitxers que s’emmagatzemen al navegador. Aquest lloc utilitza cookies tècniques pròpies i cookies de tercers per analitzar la interacció amb el web.',
-      highlight: 'Pots retirar el consentiment o restringir i esborrar les cookies des de la configuració del navegador.',
-      legalNote: 'Resum informatiu. La política definitiva ha de reflectir les cookies realment instal·lades i les opcions de consentiment actives al lloc.',
+      title: 'Información sobre el uso de cookies y perfiles de navegación.',
+      intro: 'Las cookies son pequeños archivos que se almacenan en el navegador. Este sitio utiliza cookies técnicas propias y de terceros para analizar la interacción con la web.',
+      highlight: 'Puedes retirar el consentimiento o restringir y borrar las cookies desde la configuración del navegador.',
+      legalNote: 'Resumen informativo. La política definitiva debe reflejar las cookies realmente instaladas y las opciones de consentimiento activas en el sitio.',
       stats: [
-        { label: 'Cookies', value: 'Necessàries' },
+        { label: 'Cookies', value: 'Necesarias' },
         { label: 'Analítica', value: 'Opcional' },
         { label: 'Control', value: 'Total' }
       ],
       cards: [
         {
-          title: 'Cookies tècniques',
-          text: 'Les cookies tècniques pròpies permeten el funcionament bàsic del lloc web i de les seves opcions.'
+          title: 'Cookies técnicas',
+          text: 'Las cookies técnicas propias permiten el funcionamiento básico del sitio web y sus opciones.'
         },
         {
-          title: 'Cookies d’anàlisi',
-          text: 'Les cookies de tercers poden aportar informació sobre la interacció amb el web per ajudar a millorar la navegació.'
+          title: 'Cookies de análisis',
+          text: 'Las cookies de terceros pueden aportar información sobre la interacción con la web para ayudar a mejorar la navegación.'
         },
         {
-          title: 'Consentiment i retirada',
-          text: 'El consentiment s’obté mitjançant l’avís de cookies del web. Pots retirar-lo en qualsevol moment o gestionar les cookies des del navegador.'
+          title: 'Consentimiento y retirada',
+          text: 'El consentimiento se obtiene mediante el aviso de cookies de la web. Puedes retirarlo en cualquier momento o gestionar las cookies desde el navegador.'
         }
       ],
       cta: {
-        label: 'Inici',
+        label: 'Inicio',
         route: '/'
       }
     },
     'condicions-generals': {
-      eyebrow: 'Condicions generals',
-      title: 'Condicions de compra, ús i servei que regeixen la nostra activitat.',
-      intro: 'Les condicions publicades al web regulen la compra de productes a Cal Sardà, titularitat de Marta Izquierdo Sardà, NIF 47912103K, amb domicili al carrer Marina, 237, 08013 Barcelona.',
-      highlight: 'Abans de comprar, revisa les condicions completes i la informació de cada producte al web oficial.',
-      legalNote: 'Resum informatiu. Abans de publicar, cal revisar i completar les condicions de compra vigents amb assessorament adequat.',
+      eyebrow: 'Condiciones generales',
+      title: 'Condiciones de compra, uso y servicio que rigen nuestra actividad.',
+      intro: 'Las condiciones publicadas en la web regulan la compra de productos a Cal Sardà, titularidad de Marta Izquierdo Sardà, NIF 47912103K, con domicilio en la calle Marina, 237, 08013 Barcelona.',
+      highlight: 'Antes de comprar, revisa las condiciones completas y la información de cada producto en la web oficial.',
+      legalNote: 'Resumen informativo. Antes de publicar, hay que revisar y completar las condiciones de compra vigentes con asesoramiento adecuado.',
       stats: [
         { label: 'Compra', value: 'Segura' },
-        { label: 'Servei', value: 'Proper' },
-        { label: 'Comunicació', value: 'Clara' }
+        { label: 'Servicio', value: 'Cercano' },
+        { label: 'Comunicación', value: 'Clara' }
       ],
       cards: [
         {
-          title: 'Procés de compra',
-          text: 'Abans de confirmar una comanda, l’usuari pot revisar els productes, les quantitats, els preus, els impostos, les despeses d’enviament i el termini previst.'
+          title: 'Proceso de compra',
+          text: 'Antes de confirmar un pedido, el usuario puede revisar los productos, las cantidades, los precios, los impuestos, los gastos de envío y el plazo previsto.'
         },
         {
-          title: 'Pagament i confirmació',
-          text: 'La comanda es confirma quan Cal Sardà rep el pagament. La informació de preus i enviaments s’ha de comprovar durant el procés de compra.'
+          title: 'Pago y confirmación',
+          text: 'El pedido se confirma cuando Cal Sardà recibe el pago. La información sobre precios y envíos debe comprobarse durante el proceso de compra.'
         },
         {
-          title: 'Ajuda',
-          text: 'Per consultar condicions de lliurament, incidències o devolucions, contacta amb Cal Sardà abans de fer la compra.'
+          title: 'Ayuda',
+          text: 'Para consultar las condiciones de entrega, incidencias o devoluciones, contacta con Cal Sardà antes de comprar.'
         }
       ],
       cta: {
         label: 'Contacta',
-        route: '/contacte'
+        route: '/contacto'
       }
     },
     'mapa-web': {
       eyebrow: 'Mapa web',
-      title: 'Tots els racons del nostre web, ordenats i accessibles.',
-      intro: 'Aquí tens una visió clara de les seccions principals i complementàries del web, per trobar amb agilitat la informació que busques.',
-      highlight: 'Navegació clara i ràpida per a la informació essencial.',
+      title: 'Todas las secciones de nuestra web, ordenadas y accesibles.',
+      intro: 'Aquí tienes una visión clara de las secciones principales y complementarias de la web para encontrar rápidamente la información que buscas.',
+      highlight: 'Navegación clara y rápida para acceder a la información esencial.',
       stats: [],
       cards: [],
       siteLinks: [
-        { label: 'Inici', route: '/' },
-        { label: 'Història', route: '/historia' },
-        { label: 'Botiga en línia', route: '/botiga-en-linia' },
-        { label: 'Galeria', route: '/galeria' },
-        { label: 'Contacte', route: '/contacte' },
-        { label: 'Newsletter', route: '/newsletter-184400' },
-        { label: 'Descobreix el territori', route: '/descobreix-el-territori' },
-        { label: 'Lots per a empreses', route: '/lots-per-a-empreses' },
-        { label: 'Lots i cistelles gurmet', route: '/lots-i-cistelles-gurmet' },
-        { label: 'Preguntes freqüents', route: '/faq' },
+        { label: 'Inicio', route: '/' },
+        { label: 'Historia', route: '/historia' },
+        { label: 'Tienda online', route: '/tienda-online' },
+        { label: 'Galería', route: '/galeria' },
+        { label: 'Contacto', route: '/contacto' },
+        { label: 'Boletín', route: '/boletin' },
+        { label: 'Descubre el territorio', route: '/descubre-el-territorio' },
+        { label: 'Lotes para empresas', route: '/lotes-para-empresas' },
+        { label: 'Lotes y cestas gourmet', route: '/lotes-y-cestas-gourmet' },
+        { label: 'Preguntas frecuentes', route: '/faq' },
         { label: 'Blog', route: '/blog' },
-        { label: 'Avís legal', route: '/avis-legal' },
-        { label: 'Política de privacitat', route: '/politica-de-privacitat' },
+        { label: 'Aviso legal', route: '/aviso-legal' },
+        { label: 'Política de privacidad', route: '/politica-de-privacidad' },
         { label: 'Política de cookies', route: '/politica-de-cookies' },
-        { label: 'Condicions generals', route: '/condicions-generals' }
+        { label: 'Condiciones generales', route: '/condiciones-generales' }
       ],
       cta: {
-        label: 'Inici',
+        label: 'Inicio',
         route: '/'
       }
     }
@@ -455,8 +472,8 @@ export class BrandPage {
     }
 
     const email = String(new FormData(form).get('email'));
-    const subject = 'Sol·licitud d’alta a la newsletter de Cal Sardà';
-    const body = `Si us plau, afegiu aquesta adreça a la newsletter: ${email}`;
+    const subject = 'Solicitud de alta en el boletín de Cal Sardà';
+    const body = `Por favor, añade esta dirección al boletín: ${email}`;
 
     window.location.href = `mailto:sarda@calsarda.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
   }

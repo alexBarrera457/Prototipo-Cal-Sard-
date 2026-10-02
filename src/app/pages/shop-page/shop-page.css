@@ -1,0 +1,87 @@
+:host {
+  display: block;
+}
+
+.shop-intro {
+  padding: 150px 7vw 82px;
+  background: #2d241e;
+  color: #fff;
+}
+
+.shop-intro > span {
+  color: #d5b98e;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 3px;
+}
+
+.shop-intro h1 {
+  margin: 25px 0 20px;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: clamp(48px, 7vw, 88px);
+  font-weight: 400;
+  line-height: .98;
+  letter-spacing: -2px;
+}
+
+.shop-intro p {
+  max-width: 590px;
+  color: rgba(255, 255, 255, .72);
+  font-size: 16px;
+  line-height: 1.7;
+}
+
+.shop-intro a {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 26px;
+  padding: 15px 18px;
+  border: 1px solid rgba(255, 255, 255, .55);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.6px;
+}
+
+.shop-intro a:hover {
+  background: #d5b98e;
+  color: #211912;
+}
+
+.shop-intro .shop-search-summary {
+  max-width: none;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 30px 0 0;
+  color: rgba(255, 255, 255, .82);
+  font-size: 13px;
+}
+
+.shop-search-summary strong {
+  color: #e4c995;
+}
+
+.shop-search-summary button {
+  padding: 7px 10px;
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, .35);
+  background: transparent;
+  cursor: pointer;
+  font: inherit;
+  font-size: 11px;
+  transition: background .2s ease, color .2s ease;
+}
+
+.shop-search-summary button:hover {
+  color: #211912;
+  background: #d5b98e;
+}
+
+@media (max-width: 650px) {
+  .shop-intro {
+    padding: 120px 24px 64px;
+  }
+}

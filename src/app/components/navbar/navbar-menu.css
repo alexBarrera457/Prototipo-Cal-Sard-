@@ -1,0 +1,228 @@
+﻿.mega-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 1000;
+  width: 100%;
+  max-height: calc(100vh - 124px);
+  display: none;
+  overflow-y: auto;
+  padding: 28px 5vw 36px;
+  border-top: 1px solid rgba(226, 201, 149, 0.22);
+  background: rgba(25, 18, 13, 0.985);
+  box-shadow: 0 24px 42px rgba(0, 0, 0, 0.26);
+}
+
+.mega-menu.open {
+  display: block;
+  animation: menu-enter 0.22s ease both;
+}
+
+@keyframes menu-enter {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.mega-menu-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.mega-menu-heading > div > span {
+  color: #d9b77b;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 2.5px;
+}
+
+.mega-menu-heading h2 {
+  margin: 7px 0 0;
+  color: #f7f0e6;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 28px;
+  font-weight: 400;
+}
+
+.mega-menu-close {
+  width: 36px;
+  height: 36px;
+  color: #f7f0e6;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+  font-size: 24px;
+  line-height: 1;
+}
+
+.mega-menu-content {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(250px, 300px);
+  align-items: stretch;
+  gap: clamp(24px, 4vw, 56px);
+}
+
+.mega-menu-links {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0 28px;
+}
+
+.mega-menu-links a {
+  min-height: 52px;
+  display: grid;
+  grid-template-columns: 28px 1fr auto;
+  align-items: center;
+  gap: 9px;
+  color: #f7f0e6;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  font-size: 13px;
+  text-decoration: none;
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+.mega-menu-links a:hover {
+  color: #e2c995;
+  border-color: rgba(226, 201, 149, 0.65);
+}
+
+.mega-menu-links a span {
+  color: #d9b77b;
+  font-size: 9px;
+  letter-spacing: 1px;
+}
+
+.mega-menu-links a em {
+  color: #d9b77b;
+  font-size: 15px;
+  font-style: normal;
+  opacity: 0.7;
+}
+
+.menu-feature {
+  position: relative;
+  min-height: 260px;
+  display: block;
+  overflow: hidden;
+  color: #fff;
+  background: #392b20;
+  text-decoration: none;
+}
+
+.menu-feature::after {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(20, 14, 9, 0.02) 15%, rgba(20, 14, 9, 0.82) 100%);
+  content: "";
+}
+
+.menu-feature img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.45s ease;
+}
+
+.menu-feature:hover img {
+  transform: scale(1.04);
+}
+
+.menu-feature-overlay {
+  position: absolute;
+  z-index: 1;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 9px;
+  padding: 22px;
+}
+
+.menu-feature-overlay > span:first-child {
+  color: #e2c995;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 2px;
+}
+
+.menu-feature-overlay strong {
+  max-width: 230px;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 1.12;
+}
+
+.menu-feature-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 3px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.3px;
+  text-transform: uppercase;
+}
+
+.menu-feature-link b {
+  color: #e2c995;
+  font-size: 15px;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  clip-path: inset(50%);
+}
+
+@media (max-width: 760px) {
+  .mega-menu {
+    max-height: calc(100dvh - 150px);
+    padding: 22px 16px 26px;
+  }
+
+  .mega-menu-heading h2 {
+    font-size: 24px;
+  }
+
+  .mega-menu-links {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0 16px;
+  }
+
+  .mega-menu-content {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .menu-feature {
+    min-height: 175px;
+  }
+
+  .mega-menu-links a {
+    min-height: 50px;
+    grid-template-columns: 23px 1fr auto;
+    gap: 6px;
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 390px) {
+  .mega-menu-links {
+    grid-template-columns: 1fr;
+  }
+
+  .menu-feature {
+    min-height: 150px;
+  }
+}

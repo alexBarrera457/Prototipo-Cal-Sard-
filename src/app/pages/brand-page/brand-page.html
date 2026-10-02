@@ -24,7 +24,7 @@
     }
   </header>
 
-  @if (page.eyebrow === 'Història' && page.stats.length > 0) {
+  @if (page.eyebrow === 'Historia' && page.stats.length > 0) {
     <section class="brand-page-stats" aria-label="Estadísticas">
       @for (stat of page.stats; track stat.label) {
         <div class="stat-item">
@@ -51,7 +51,7 @@
   }
 
   @if (page.faqItems?.length) {
-    <section class="faq-list" aria-label="Preguntes freqüents">
+    <section class="faq-list" aria-label="Preguntas frecuentes">
       @for (item of page.faqItems; track item.question) {
         <details class="faq-item">
           <summary>{{ item.question }}</summary>
@@ -63,30 +63,30 @@
 
   @if (page.newsletter) {
     <form class="newsletter-form" (submit)="prepareNewsletterRequest($event)">
-      <label for="newsletter-email">La teva adreça electrònica</label>
+      <label for="newsletter-email">Tu correo electrónico</label>
       <div class="newsletter-form-row">
         <input
           id="newsletter-email"
           name="email"
           type="email"
           autocomplete="email"
-          placeholder="nom@exemple.com"
+          placeholder="nombre@ejemplo.com"
           required
         >
-        <button type="submit">Demanar l’alta <span>→</span></button>
+        <button type="submit">Solicitar el alta <span>→</span></button>
       </div>
       <p>
-        S’obrirà el teu programa de correu amb la sol·licitud preparada. La inscripció
-        no es farà fins que es connecti el servei de newsletter.
+        Se abrirá tu programa de correo con la solicitud preparada. No quedarás suscrito
+        hasta que se conecte el servicio de correo.
       </p>
     </form>
   }
 
   @if (page.galleryImages?.length) {
-    <section class="brand-gallery" aria-label="Galeria de Cal Sardà">
+    <section class="brand-gallery" aria-label="Galería de Cal Sardà">
       @for (image of page.galleryImages; track image.src) {
         <figure>
-          <img [src]="image.src" [alt]="image.alt">
+          <img [src]="image.src" [alt]="image.alt" loading="lazy" decoding="async">
           <figcaption>{{ image.caption }}</figcaption>
         </figure>
       }
@@ -94,7 +94,7 @@
   }
 
   @if (page.siteLinks?.length) {
-    <nav class="site-map" aria-label="Mapa del lloc">
+    <nav class="site-map" aria-label="Mapa del sitio">
       @for (link of page.siteLinks; track link.route) {
         <a [routerLink]="link.route">{{ link.label }} <span>→</span></a>
       }

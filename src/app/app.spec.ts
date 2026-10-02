@@ -31,7 +31,7 @@ describe('App', () => {
     expect(compiled.querySelector('app-hero h1')?.textContent).toContain('El sabor de');
   });
 
-  it('should show the newsletter page for the live site route', async () => {
+  it('should show the bulletin page for the live site route', async () => {
     const fixture = TestBed.createComponent(App);
     const router = TestBed.inject(Router);
 
@@ -41,8 +41,8 @@ describe('App', () => {
 
     const compiled = fixture.nativeElement as HTMLElement;
 
-    expect(compiled.querySelector('h1')?.textContent).toContain('novetats de Cal Sardà');
-    expect(document.title).toBe('Newsletter | Cal Sardà');
+    expect(compiled.querySelector('h1')?.textContent).toContain('novedades de Cal Sardà');
+    expect(document.title).toBe('Boletín | Cal Sardà');
   });
 
   it('should update the content when navigating between shared page routes', async () => {
@@ -53,7 +53,7 @@ describe('App', () => {
     fixture.detectChanges();
     await fixture.whenStable();
     expect((fixture.nativeElement as HTMLElement).querySelector('h1')?.textContent)
-      .toContain('història familiar');
+      .toContain('historia familiar');
 
     await router.navigateByUrl('/faq');
     fixture.detectChanges();
@@ -61,8 +61,8 @@ describe('App', () => {
 
     const compiled = fixture.nativeElement as HTMLElement;
 
-    expect(compiled.querySelector('h1')?.textContent).toContain('dubtes sobre comandes');
+    expect(compiled.querySelector('h1')?.textContent).toContain('dudas sobre pedidos');
     expect(compiled.querySelector('.faq-list details')).toBeTruthy();
-    expect(document.title).toBe('Preguntes freqüents | Cal Sardà');
+    expect(document.title).toBe('Preguntas frecuentes | Cal Sardà');
   });
 });

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 
 @Component({
   selector: 'app-contact',
@@ -7,6 +7,8 @@ import { Component } from '@angular/core';
   styleUrl: './contact.css'
 })
 export class Contact {
+
+  @Input() showPageTitle = false;
 
   prepareEmail(event: SubmitEvent): void {
     event.preventDefault();
@@ -19,8 +21,8 @@ export class Contact {
     const formData = new FormData(form);
     const subject = String(formData.get('subject'));
     const body = [
-      `Nom: ${String(formData.get('name'))}`,
-      `Correu: ${String(formData.get('email'))}`,
+      `Nombre: ${String(formData.get('name'))}`,
+      `Correo: ${String(formData.get('email'))}`,
       '',
       String(formData.get('message'))
     ].join('\n');

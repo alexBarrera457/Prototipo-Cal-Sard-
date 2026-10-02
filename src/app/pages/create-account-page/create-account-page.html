@@ -1,0 +1,129 @@
+<main class="create-account-page" aria-labelledby="create-account-title">
+  <div class="account-layout">
+    <section class="account-copy">
+      <a class="back-link" [routerLink]="['/cuenta']"><span aria-hidden="true">←</span> VOLVER A MI CUENTA</a>
+      <span class="eyebrow">CAL SARDÀ · CLIENTES</span>
+      <h1 id="create-account-title">Crea tu cuenta</h1>
+      <p>Ten a mano tus productos favoritos y prepara tus próximos pedidos con más comodidad.</p>
+      <div class="preview-note">
+        <span aria-hidden="true">✳</span>
+        <p>Formulario de demostración. Todavía no crea cuentas reales ni envía o guarda tus datos.</p>
+      </div>
+    </section>
+
+    <section class="form-card" aria-label="Formulario para crear una cuenta">
+      @if (accountCreated) {
+        <div class="success-message" role="status" aria-live="polite">
+          <span class="success-mark" aria-hidden="true">✓</span>
+          <h2>Formulario completado</h2>
+          <p>Esta demostración no ha creado una cuenta. Tus datos no se han enviado ni guardado.</p>
+          <a [routerLink]="['/tienda-online']">VOLVER A LA TIENDA <span aria-hidden="true">→</span></a>
+        </div>
+      } @else {
+        <div class="form-heading">
+          <span>EMPIEZA AQUÍ</span>
+          <h2>Regístrate</h2>
+          <p>Los campos marcados con <span aria-hidden="true">*</span> son obligatorios.</p>
+        </div>
+
+        <form #registrationForm="ngForm" (ngSubmit)="createAccount(registrationForm)" novalidate>
+          <div class="field">
+            <label for="account-name">Nombre completo <span aria-hidden="true">*</span></label>
+            <input id="account-name" name="name" type="text" autocomplete="name" required
+              [(ngModel)]="name" #nameField="ngModel" (ngModelChange)="accountCreated = false">
+            @if (nameField.invalid && (nameField.touched || registrationForm.submitted)) {
+              <span class="field-error" role="alert">Escribe tu nombre.</span>
+            }
+          </div>
+
+          <div class="field">
+            <label for="account-email">Correo electrónico (Gmail, Outlook u otro) <span aria-hidden="true">*</span></label>
+            <input id="account-email" name="email" type="email" autocomplete="email" placeholder="nombre@ejemplo.com" required email
+              [(ngModel)]="email" #emailField="ngModel" (ngModelChange)="accountCreated = false">
+            @if (emailField.invalid && (emailField.touched || registrationForm.submitted)) {
+              <span class="field-error" role="alert">Introduce un correo electrónico válido.</span>
+            }
+          </div>
+
+          <fieldset class="contact-fields">
+            <legend id="contact-details-title">Datos de contacto <span>OPCIONALES</span></legend>
+            <p class="section-hint">Puedes añadirlos para agilizar la preparación de tus pedidos.</p>
+            <div class="field-grid">
+              <div class="field field-full">
+                <label for="account-phone">Teléfono móvil</label>
+                <input id="account-phone" name="phone" type="tel" autocomplete="tel" placeholder="600 000 000"
+                  [(ngModel)]="phone" (ngModelChange)="accountCreated = false">
+              </div>
+              <div class="field field-full">
+                <label for="account-address">Dirección</label>
+                <input id="account-address" name="address" type="text" autocomplete="street-address"
+                  placeholder="Calle, número, piso" [(ngModel)]="address" (ngModelChange)="accountCreated = false">
+              </div>
+              <div class="field">
+                <label for="account-postal-code">Código postal</label>
+                <input id="account-postal-code" name="postalCode" type="text" autocomplete="postal-code"
+                  [(ngModel)]="postalCode" (ngModelChange)="accountCreated = false">
+              </div>
+              <div class="field">
+                <label for="account-city">Población</label>
+                <input id="account-city" name="city" type="text" autocomplete="address-level2"
+                  [(ngModel)]="city" (ngModelChange)="accountCreated = false">
+              </div>
+              <div class="field">
+                <label for="account-province">Provincia</label>
+                <input id="account-province" name="province" type="text" autocomplete="address-level1"
+                  [(ngModel)]="province" (ngModelChange)="accountCreated = false">
+              </div>
+              <div class="field">
+                <label for="account-country">País</label>
+                <input id="account-country" name="country" type="text" autocomplete="country-name"
+                  [(ngModel)]="country" (ngModelChange)="accountCreated = false">
+              </div>
+            </div>
+          </fieldset>
+
+          <div class="field">
+            <label for="account-password">Contraseña <span aria-hidden="true">*</span></label>
+            <div class="password-input">
+              <input id="account-password" name="password" [type]="showPassword ? 'text' : 'password'"
+                autocomplete="new-password" required minlength="8" [(ngModel)]="password"
+                #passwordField="ngModel" (ngModelChange)="accountCreated = false">
+              <button type="button" class="visibility-toggle" (click)="showPassword = !showPassword"
+                [attr.aria-pressed]="showPassword" [attr.aria-label]="showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'">
+                {{ showPassword ? 'Ocultar' : 'Mostrar' }}
+              </button>
+            </div>
+            @if (passwordField.invalid && (passwordField.touched || registrationForm.submitted)) {
+              <span class="field-error" role="alert">La contraseña debe tener al menos 8 caracteres.</span>
+            }
+          </div>
+
+          <div class="field">
+            <label for="account-confirm-password">Repite la contraseña <span aria-hidden="true">*</span></label>
+            <input id="account-confirm-password" name="confirmPassword"
+              [type]="showPassword ? 'text' : 'password'" autocomplete="new-password" required
+              [(ngModel)]="confirmPassword" #confirmPasswordField="ngModel"
+              (ngModelChange)="accountCreated = false">
+            @if (confirmPasswordField.touched && passwordsMismatch) {
+              <span class="field-error" role="alert">Las contraseñas no coinciden.</span>
+            }
+          </div>
+
+          <div class="privacy-field">
+            <input id="account-privacy" name="acceptedPrivacy" type="checkbox" required
+              [(ngModel)]="acceptedPrivacy" #privacyField="ngModel" (ngModelChange)="accountCreated = false">
+            <label for="account-privacy">He leído la <a [routerLink]="['/politica-de-privacidad']">política de privacidad</a> <span aria-hidden="true">*</span></label>
+          </div>
+          @if (privacyField.invalid && (privacyField.touched || registrationForm.submitted)) {
+            <span class="field-error privacy-error" role="alert">Debes aceptar la política de privacidad.</span>
+          }
+
+          <button class="submit-button" type="submit" [disabled]="registrationForm.invalid || passwordsMismatch">
+            CREAR CUENTA <span aria-hidden="true">→</span>
+          </button>
+          <p class="login-prompt">¿Ya tienes una cuenta? <a [routerLink]="['/cuenta']">Inicia sesión</a></p>
+        </form>
+      }
+    </section>
+  </div>
+</main>

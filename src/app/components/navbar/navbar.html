@@ -2,148 +2,184 @@
   class="navbar"
   [class.scrolled]="scrolled"
   [class.transparent-section]="transparentSection"
+  aria-label="Navegación principal"
 >
+  <div class="navbar-shell">
+    <div class="navbar-utility" aria-label="Contacto y redes sociales">
+      <div class="utility-links">
+        <a class="utility-link utility-contact-link" href="tel:932325508" aria-label="Llamar al 932 32 55 08" title="Teléfono">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.6 10.8a15.5 15.5 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.24c1.1.36 2.3.55 3.6.55a1 1 0 0 1 1 1V20a1 1 0 0 1-1 1C10.6 21 3 13.4 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.3.19 2.5.55 3.6a1 1 0 0 1-.25 1z"/></svg>
+          <span>932 32 55 08</span>
+        </a>
+        <a class="utility-link utility-contact-link" href="https://wa.me/34932325508" target="_blank" rel="noopener noreferrer" aria-label="Contactar por WhatsApp" title="WhatsApp">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a9.8 9.8 0 0 0-8.4 14.84L2.4 22l5.3-1.18A10 10 0 1 0 12 2m0 18a8 8 0 0 1-4.08-1.12l-.3-.18-3.14.7.7-3.06-.2-.32A8 8 0 1 1 12 20m4.4-5.98c-.24-.12-1.42-.7-1.64-.78s-.38-.12-.54.12-.62.78-.76.94-.28.18-.52.06a6.55 6.55 0 0 1-1.93-1.19 7.25 7.25 0 0 1-1.33-1.65c-.14-.24 0-.37.1-.49.11-.1.24-.28.36-.42.12-.14.16-.24.24-.4.08-.16.04-.3-.02-.42-.06-.12-.54-1.3-.74-1.78-.2-.47-.4-.4-.54-.4h-.46c-.16 0-.42.06-.64.3s-.84.82-.84 2 .86 2.3.98 2.46c.12.16 1.7 2.6 4.12 3.64.58.25 1.03.4 1.39.5.58.19 1.1.16 1.52.1.47-.08 1.42-.58 1.62-1.14.2-.56.2-1.04.14-1.14-.06-.1-.22-.16-.46-.28"/></svg>
+          <span>WhatsApp</span>
+        </a>
+      </div>
 
-  <div class="navbar-inner">
-
-    <!-- =========================
-         LOGO
-    ========================== -->
-
-    <a
-      [routerLink]="['/']"
-      [fragment]="'inicio'"
-      class="navbar-logo"
-    >
-
-      <span class="logo-small">
-        DESDE 1930
-      </span>
-
-      <span class="logo-main">
-        CAL SARDÀ
-      </span>
-
-    </a>
-
-
-    <!-- =========================
-         MENÚ
-    ========================== -->
-
-    <div class="navbar-links">
-
-      <a [routerLink]="['/']" [fragment]="'inicio'">
-        <span>01</span>
-        INICIO
-      </a>
-
-      <a [routerLink]="['/historia']">
-        <span>02</span>
-        HISTORIA
-      </a>
-
-      <a [routerLink]="['/botiga-en-linia']">
-        <span>03</span>
-        BOTIGA
-      </a>
-
-      <a [routerLink]="['/galeria']">
-        <span>04</span>
-        GALERIA
-      </a>
-
-      <a [routerLink]="['/contacte']">
-        <span>05</span>
-        CONTACTO
-      </a>
-
-      <a [routerLink]="['/faq']">
-        <span>06</span>
-        FAQ
-      </a>
-
+      <div class="utility-links utility-socials">
+        <a class="utility-link utility-social-link" href="https://www.google.com/maps/search/?api=1&amp;query=Calle%20Marina%2C%20237%2C%2008013%20Barcelona" target="_blank" rel="noopener noreferrer" aria-label="Ver Cal Sardà en Google Maps" title="Google Maps">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a8 8 0 0 0-8 8c0 5.5 8 12 8 12s8-6.5 8-12a8 8 0 0 0-8-8m0 11a3 3 0 1 1 0-6 3 3 0 0 1 0 6"/></svg>
+          <span>Google Maps</span>
+        </a>
+        <a class="utility-link utility-social-link" href="https://www.facebook.com/sardabcn/" target="_blank" rel="noopener noreferrer" aria-label="Cal Sardà en Facebook" title="Facebook">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.5 21v-8h2.7l.4-3.1h-3.1v-2c0-.9.3-1.5 1.6-1.5h1.7V3.6c-.3 0-1.3-.1-2.4-.1-2.4 0-4.1 1.5-4.1 4.2v2.2H7.6V13h2.7v8z"/></svg>
+          <span>Facebook</span>
+        </a>
+        <a class="utility-link utility-social-link" href="https://www.instagram.com/sardabcn/" target="_blank" rel="noopener noreferrer" aria-label="Cal Sardà en Instagram" title="Instagram">
+          <svg class="instagram-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle class="instagram-dot" cx="17.5" cy="6.8" r="1"/></svg>
+          <span>Instagram</span>
+        </a>
+      </div>
     </div>
 
+    <div class="navbar-inner">
+      <a [routerLink]="['/']" [fragment]="'inicio'" class="navbar-logo" aria-label="Cal Sardà, inicio">
+        <span class="logo-small">DESDE 1930</span>
+        <span class="logo-main">CAL SARDÀ</span>
+      </a>
 
-    <!-- =========================
-         CARRITO
-    ========================== -->
+      <button
+        class="menu-toggle"
+        type="button"
+        (click)="toggleMobileMenu()"
+        [attr.aria-label]="mobileMenuOpen ? 'Cerrar menú' : 'Abrir menú'"
+        aria-controls="site-menu"
+        [attr.aria-expanded]="mobileMenuOpen"
+      >
+        <span class="menu-toggle-icon"><span></span><span></span></span>
+        <span class="menu-toggle-label">MENÚ</span>
+      </button>
 
-    <button
-      class="mobile-menu-toggle"
-      type="button"
-      (click)="toggleMobileMenu()"
-      aria-label="Abrir menú"
-      [attr.aria-expanded]="mobileMenuOpen"
-    >
-      <span></span>
-      <span></span>
-      <span></span>
-    </button>
+      <div class="navbar-tools">
+        <form class="header-search-form" role="search" (submit)="submitSearch($event)" autocomplete="off">
+          <div class="header-search">
+            <input
+              #searchInput
+              type="search"
+              role="combobox"
+              placeholder="Buscar productos..."
+              aria-label="Buscar productos"
+              aria-autocomplete="list"
+              aria-haspopup="listbox"
+              aria-controls="header-search-results"
+              [attr.aria-expanded]="searchOpen && !!searchTerm.trim()"
+              [attr.aria-activedescendant]="activeSearchResultId"
+              [value]="searchTerm"
+              (input)="onSearchInput(searchInput.value)"
+              (focus)="openSearch()"
+              (keydown)="onSearchKeydown($event)"
+            >
+            @if (searchTerm) {
+              <button class="search-clear" type="button" aria-label="Borrar búsqueda" (click)="clearSearch(searchInput)">×</button>
+            }
+            <button type="submit" aria-label="Buscar">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 5 5"/></svg>
+            </button>
+          </div>
 
-    <button
-      class="navbar-cart"
-      type="button"
-      (click)="toggleCart()"
-      aria-label="Abrir carrito"
-    >
+          @if (searchOpen && searchTerm.trim()) {
+            <div class="search-results" id="header-search-results" role="region" aria-label="Resultados de búsqueda">
+              <div class="search-results-heading">
+                <span>Productos</span>
+                <span>{{ searchResults.length }} {{ searchResults.length === 1 ? 'resultado' : 'resultados' }}</span>
+              </div>
 
-      <span class="cart-label">
-        CARRITO
-      </span>
+              @if (searchResults.length) {
+                <div class="search-result-list" role="listbox" aria-label="Productos encontrados">
+                  @for (product of searchResults; track product.number; let index = $index) {
+                    <a
+                      class="search-result"
+                      [class.active]="activeSearchResultIndex === index"
+                      [id]="'header-search-result-' + product.number"
+                      role="option"
+                      [attr.aria-selected]="activeSearchResultIndex === index"
+                      [routerLink]="['/tienda-online']"
+                      [queryParams]="{ producto: product.number, buscar: searchTerm.trim() }"
+                      (mouseenter)="setActiveSearchResult(index)"
+                      (click)="closeSearch()"
+                    >
+                      <img [src]="product.image" alt="">
+                      <span class="search-result-info">
+                        <strong>{{ product.name }}</strong>
+                        <small>{{ product.category }}</small>
+                      </span>
+                      <strong class="search-result-price">{{ product.price.toFixed(2) }} €</strong>
+                    </a>
+                  }
+                </div>
+                <button class="search-view-all" type="submit">Ver todos los resultados <span>→</span></button>
+              } @else {
+                <p class="search-no-results">No encontramos productos. Prueba con otra búsqueda.</p>
+              }
+            </div>
+          }
+        </form>
 
-      <span class="cart-circle">
+        <label class="language-control">
+          <span class="visually-hidden">Seleccionar idioma</span>
+          <select aria-label="Seleccionar idioma" [value]="selectedLanguage" (change)="onLanguageChange($event)">
+            <option value="ca">Català</option>
+            <option value="es">Español</option>
+            <option value="en">English</option>
+            <option value="fr">Français</option>
+          </select>
+          <svg viewBox="0 0 16 16" aria-hidden="true"><path d="m3 6 5 5 5-5"/></svg>
+        </label>
+        @if (languageNotice) {
+          <p class="language-notice" role="status" aria-live="polite">{{ languageNotice }}</p>
+        }
 
-        <span class="cart-icon"></span>
+        <a class="account-button" [routerLink]="['/cuenta']" aria-label="Mi cuenta" title="Mi cuenta">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.5"/><path d="M4.5 21a7.5 7.5 0 0 1 15 0"/></svg>
+          <span>Mi cuenta</span>
+        </a>
 
-        <span class="cart-count">
-          {{ cartService.count() }}
-        </span>
+        <button class="navbar-cart" type="button" (click)="toggleCart()" aria-label="Abrir carrito">
+          <span class="cart-label">CARRITO</span>
+          <span class="cart-circle">
+            <span class="cart-icon"></span>
+            <span class="cart-count">{{ cartService.count() }}</span>
+          </span>
+        </button>
+      </div>
+    </div>
 
-      </span>
+    <div id="site-menu" class="mega-menu" [class.open]="mobileMenuOpen" [attr.aria-hidden]="!mobileMenuOpen">
+      <div class="mega-menu-heading">
+        <div>
+          <span>CAL SARDÀ · DESDE 1930</span>
+          <h2>Descubre nuestra tienda</h2>
+        </div>
+        <button class="mega-menu-close" type="button" aria-label="Cerrar menú" (click)="closeMobileMenu()">×</button>
+      </div>
 
-    </button>
+      <div class="mega-menu-content">
+       <div class="mega-menu-links">
+        <a [routerLink]="['/']" [fragment]="'inicio'" (click)="closeMobileMenu()"><span>01</span>Inicio<em>→</em></a>
+        <a [routerLink]="['/tienda-online']" (click)="closeMobileMenu()"><span>02</span>Tienda en línea<em>→</em></a>
+        <a [routerLink]="['/galeria']" (click)="closeMobileMenu()"><span>03</span>Galería<em>→</em></a>
+        <a [routerLink]="['/contacto']" (click)="closeMobileMenu()"><span>04</span>Contacto<em>→</em></a>
+        <a [routerLink]="['/boletin']" (click)="closeMobileMenu()"><span>05</span>Boletín<em>→</em></a>
+        <a [routerLink]="['/descubre-el-territorio']" (click)="closeMobileMenu()"><span>06</span>Descubre el territorio<em>→</em></a>
+        <a [routerLink]="['/lotes-para-empresas']" (click)="closeMobileMenu()"><span>07</span>Lotes para empresas<em>→</em></a>
+        <a [routerLink]="['/lotes-y-cestas-gourmet']" (click)="closeMobileMenu()"><span>08</span>Lotes y cestas gourmet<em>→</em></a>
+        <a [routerLink]="['/historia']" (click)="closeMobileMenu()"><span>09</span>Historia<em>→</em></a>
+        <a [routerLink]="['/faq']" (click)="closeMobileMenu()"><span>10</span>Preguntas frecuentes<em>→</em></a>
+        <a [routerLink]="['/blog']" (click)="closeMobileMenu()"><span>11</span>Blog<em>→</em></a>
+       </div>
 
+       <a class="menu-feature" [routerLink]="['/historia']" (click)="closeMobileMenu()">
+         <img src="/images/gallery/passi-02.jpg" alt="Interior de Cal Sardà con mostrador y estanterías de productos">
+         <span class="menu-feature-overlay">
+           <span>UN COLMADO CON HISTORIA</span>
+           <strong>Tradición de barrio desde 1930</strong>
+           <span class="menu-feature-link">Conoce Cal Sardà <b>→</b></span>
+         </span>
+       </a>
+      </div>
+    </div>
   </div>
-
-  <div
-    class="mobile-menu"
-    [class.open]="mobileMenuOpen"
-  >
-
-    <a [routerLink]="['/']" [fragment]="'inicio'" (click)="closeMobileMenu()">
-      <span>01</span>
-      INICIO
-    </a>
-
-    <a [routerLink]="['/historia']" (click)="closeMobileMenu()">
-      <span>02</span>
-      HISTORIA
-    </a>
-
-    <a [routerLink]="['/botiga-en-linia']" (click)="closeMobileMenu()">
-      <span>03</span>
-      BOTIGA
-    </a>
-
-    <a [routerLink]="['/galeria']" (click)="closeMobileMenu()">
-      <span>04</span>
-      GALERIA
-    </a>
-
-    <a [routerLink]="['/contacte']" (click)="closeMobileMenu()">
-      <span>05</span>
-      CONTACTO
-    </a>
-
-    <a [routerLink]="['/faq']" (click)="closeMobileMenu()">
-      <span>06</span>
-      FAQ
-    </a>
-
-  </div>
-
 </nav>
 
 
@@ -220,12 +256,13 @@
           para comenzar.
         </p>
 
-        <button
-          type="button"
+        <a
+          [routerLink]="['/tienda-online']"
+          class="cart-shop-link"
           (click)="closeCart()"
         >
           VER PRODUCTOS →
-        </button>
+        </a>
 
       </div>
 
@@ -320,12 +357,14 @@
       </div>
 
 
-      <button
+      <a
+        [routerLink]="['/preparar-pedido']"
         class="cart-checkout"
-        type="button"
+        (click)="closeCart()"
       >
         FINALIZAR COMPRA →
-      </button>
+      </a>
+      <p class="cart-demo-note">Compra de prueba · No se enviará ni cobrará el pedido.</p>
 
     </div>
 

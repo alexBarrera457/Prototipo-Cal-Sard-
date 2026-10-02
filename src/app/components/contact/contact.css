@@ -27,6 +27,7 @@
   letter-spacing: 4px;
 }
 
+.contact-header h1,
 .contact-header h2 {
   font-family: Georgia, 'Times New Roman', serif;
 
@@ -245,7 +246,7 @@
 @media (max-width: 900px) {
 
   .contact {
-    padding: 100px 6%;
+    padding: 150px 6% 100px;
   }
 
   .contact-layout {
@@ -262,9 +263,10 @@
 @media (max-width: 600px) {
 
   .contact {
-    padding: 80px 25px;
+    padding: 180px 25px 80px;
   }
 
+  .contact-header h1,
   .contact-header h2 {
     font-size: 70px;
 

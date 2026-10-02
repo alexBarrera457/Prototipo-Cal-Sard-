@@ -82,46 +82,56 @@
   display: inline-flex;
   align-items: center;
   justify-content: space-between;
-  min-width: 210px;
-  padding: 15px 20px;
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  background: rgba(247, 240, 233, 0.96);
-  color: #1d160f;
+  gap: 22px;
+  min-width: 228px;
+  padding: 9px 10px 9px 19px;
+  border: 1px solid rgba(231, 211, 174, 0.78);
+  border-radius: 2px;
+  background: rgba(31, 23, 17, 0.72);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: #fffaf3;
   font-size: 10px;
   font-weight: 700;
-  letter-spacing: 2.4px;
+  letter-spacing: 1.8px;
   cursor: pointer;
   overflow: hidden;
   animation-delay: 1s;
-  transition: color 0.4s ease, background 0.4s ease, border-color 0.4s ease, transform 0.4s ease, box-shadow 0.4s ease;
-  box-shadow: 0 10px 24px rgba(24, 18, 12, 0.12);
+  transition: color 0.3s ease, background 0.3s ease, border-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 8px 22px rgba(10, 7, 5, 0.22);
 }
 
 .hero-button span {
-  margin-left: 30px;
-  font-size: 20px;
-  transition: transform 0.4s ease;
-}
-
-.hero-button::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: #d2ad71;
-  transform: translateX(-101%);
-  transition: transform 0.45s cubic-bezier(0.77, 0, 0.18, 1);
-  z-index: -1;
+  width: 32px;
+  height: 32px;
+  flex: 0 0 32px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(231, 211, 174, 0.7);
+  border-radius: 50%;
+  color: #e7d3ae;
+  font-size: 18px;
+  transition: transform 0.3s ease, border-color 0.3s ease, color 0.3s ease;
 }
 
 .hero-button:hover {
   color: #1d160f;
   border-color: #d2ad71;
+  background: #d2ad71;
   transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(10, 7, 5, 0.28);
 }
 
-.hero-button:hover::before { transform: translateX(0); }
+.hero-button:hover span {
+  color: #1d160f;
+  border-color: rgba(29, 22, 15, 0.42);
+  transform: translateX(3px);
+}
 
-.hero-button:hover span { transform: translateX(6px); }
+.hero-button:focus-visible {
+  outline: 3px solid #fffaf3;
+  outline-offset: 4px;
+}
 
 .hero-philosophy {
   position: absolute;
@@ -249,55 +259,57 @@
 }
 
 @keyframes philosophy1 {
-  0%, 8% { opacity: 0; transform: translateY(25px); }
-  12%, 20% { opacity: 1; transform: translateY(0); }
-  24%, 100% { opacity: 0; transform: translateY(-20px); }
+  0% { opacity: 0; transform: translateY(8px); }
+  1.1%, 10% { opacity: 1; transform: translateY(0); }
+  11.1%, 100% { opacity: 0; transform: translateY(-8px); }
 }
 
 @keyframes philosophy2 {
-  0%, 20% { opacity: 0; transform: translateY(25px); }
-  24%, 32% { opacity: 1; transform: translateY(0); }
-  36%, 100% { opacity: 0; transform: translateY(-20px); }
+  0%, 11.1% { opacity: 0; transform: translateY(8px); }
+  12.2%, 21.1% { opacity: 1; transform: translateY(0); }
+  22.2%, 100% { opacity: 0; transform: translateY(-8px); }
 }
 
 @keyframes philosophy3 {
-  0%, 32% { opacity: 0; transform: translateY(25px); }
-  36%, 44% { opacity: 1; transform: translateY(0); }
-  48%, 100% { opacity: 0; transform: translateY(-20px); }
+  0%, 22.2% { opacity: 0; transform: translateY(8px); }
+  23.3%, 32.2% { opacity: 1; transform: translateY(0); }
+  33.3%, 100% { opacity: 0; transform: translateY(-8px); }
 }
 
 @keyframes philosophy4 {
-  0%, 44% { opacity: 0; transform: translateY(25px); }
-  48%, 56% { opacity: 1; transform: translateY(0); }
-  60%, 100% { opacity: 0; transform: translateY(-20px); }
+  0%, 33.3% { opacity: 0; transform: translateY(8px); }
+  34.4%, 43.3% { opacity: 1; transform: translateY(0); }
+  44.4%, 100% { opacity: 0; transform: translateY(-8px); }
 }
 
 @keyframes philosophy5 {
-  0%, 56% { opacity: 0; transform: translateY(25px); }
-  60%, 68% { opacity: 1; transform: translateY(0); }
-  72%, 100% { opacity: 0; transform: translateY(-20px); }
+  0%, 44.4% { opacity: 0; transform: translateY(8px); }
+  45.6%, 54.4% { opacity: 1; transform: translateY(0); }
+  55.6%, 100% { opacity: 0; transform: translateY(-8px); }
 }
 
 @keyframes philosophy6 {
-  0%, 68% { opacity: 0; transform: translateY(25px); }
-  72%, 80% { opacity: 1; transform: translateY(0); }
-  84%, 100% { opacity: 0; transform: translateY(-20px); }
+  0%, 55.6% { opacity: 0; transform: translateY(8px); }
+  56.7%, 65.6% { opacity: 1; transform: translateY(0); }
+  66.7%, 100% { opacity: 0; transform: translateY(-8px); }
 }
 
 @keyframes philosophy7 {
-  0%, 80% { opacity: 0; transform: translateY(25px); }
-  84%, 92% { opacity: 1; transform: translateY(0); }
-  96%, 100% { opacity: 0; transform: translateY(-20px); }
+  0%, 66.7% { opacity: 0; transform: translateY(8px); }
+  67.8%, 76.7% { opacity: 1; transform: translateY(0); }
+  77.8%, 100% { opacity: 0; transform: translateY(-8px); }
 }
 
 @keyframes philosophy8 {
-  0%, 92% { opacity: 0; transform: translateY(25px); }
-  96%, 100% { opacity: 1; transform: translateY(0); }
+  0%, 77.8% { opacity: 0; transform: translateY(8px); }
+  78.9%, 87.8% { opacity: 1; transform: translateY(0); }
+  88.9%, 100% { opacity: 0; transform: translateY(-8px); }
 }
 
 @keyframes philosophy9 {
-  0%, 92% { opacity: 0; transform: translateY(25px); }
-  96%, 100% { opacity: 1; transform: translateY(0); }
+  0%, 88.9% { opacity: 0; transform: translateY(8px); }
+  90%, 98.9% { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(-8px); }
 }
 
 @keyframes scrollLine {
@@ -374,7 +386,13 @@
 
   .hero-button {
     min-width: 190px;
-    padding: 16px 20px;
+    padding: 8px 9px 8px 14px;
+  }
+
+  .hero-button span {
+    width: 30px;
+    height: 30px;
+    flex-basis: 30px;
   }
 
   .hero-philosophy {
@@ -400,10 +418,20 @@
   .hero-button,
   .hero-philosophy,
   .hero-scroll,
+  .philosophy-text p,
   .philosophy-label::after {
     animation: none;
     opacity: 1;
     transform: none;
     filter: none;
+  }
+
+  .philosophy-text p {
+    display: none;
+  }
+
+  .philosophy-text p:first-child {
+    display: block;
+    opacity: 1;
   }
 }
