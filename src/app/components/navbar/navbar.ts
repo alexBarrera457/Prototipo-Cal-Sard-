@@ -2,16 +2,15 @@ import { Component, DestroyRef, ElementRef, inject, HostListener, signal } from 
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CartService } from '../../services/cart';
-import { loadStoreProducts, searchStoreProducts, StoreProduct } from '../../services/products';
+import { ProductsService, StoreProduct } from '../../services/products';
 
 @Component({
   selector: 'app-navbar',
   imports: [RouterLink],
   templateUrl: './navbar.html',
-  styleUrls: ['./navbar.css', './navbar-menu.css', './navbar-cart.css', './navbar-search.css']
+  styleUrls: ['./navbar.css', './navbar-menu.css', './navbar-cart.css', './navbar-search.css'],
 })
 export class Navbar {
-
   scrolled = false;
   transparentSection = false;
   cartOpen = false;
@@ -28,18 +27,17 @@ export class Navbar {
 
   private readonly route = inject(ActivatedRoute);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly productsService = inject(ProductsService);
 
   constructor(
     public cartService: CartService,
     private router: Router,
-    private elementRef: ElementRef<HTMLElement>
+    private elementRef: ElementRef<HTMLElement>,
   ) {
-    this.route.queryParamMap
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((params) => {
-        this.searchTerm = params.get('buscar') ?? '';
-        void this.refreshSearchResults(this.searchTerm);
-      });
+    this.route.queryParamMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
+      this.searchTerm = params.get('buscar') ?? '';
+      void this.refreshSearchResults(this.searchTerm);
+    });
   }
 
   get searchResults(): StoreProduct[] {
@@ -79,7 +77,7 @@ export class Navbar {
     void this.router.navigate([], {
       queryParams: { buscar: null },
       queryParamsHandling: 'merge',
-      replaceUrl: true
+      replaceUrl: true,
     });
   }
 
@@ -97,9 +95,10 @@ export class Navbar {
     if (event.key === 'ArrowUp' && results.length) {
       event.preventDefault();
       this.searchOpen = true;
-      this.activeSearchResultIndex = this.activeSearchResultIndex < 0
-        ? results.length - 1
-        : (this.activeSearchResultIndex - 1 + results.length) % results.length;
+      this.activeSearchResultIndex =
+        this.activeSearchResultIndex < 0
+          ? results.length - 1
+          : (this.activeSearchResultIndex - 1 + results.length) % results.length;
       this.scrollActiveSearchResultIntoView();
       return;
     }
@@ -111,7 +110,7 @@ export class Navbar {
         event.preventDefault();
         this.closeSearch();
         void this.router.navigate(['/tienda-online'], {
-          queryParams: { producto: product.number, buscar: this.searchTerm.trim() }
+          queryParams: { producto: product.number, buscar: this.searchTerm.trim() },
         });
       }
 
@@ -139,7 +138,7 @@ export class Navbar {
     const languageNames: Record<string, string> = {
       ca: 'catalán',
       en: 'inglés',
-      fr: 'francés'
+      fr: 'francés',
     };
     const requestedLanguage = select.value;
 
@@ -199,9 +198,9 @@ export class Navbar {
 
     this.searchLoading.set(true);
     try {
-      const products = await loadStoreProducts();
+      const results = await this.productsService.search(normalizedQuery, 5);
       if (request !== this.searchRequest) return;
-      this.searchResultProducts.set(searchStoreProducts(normalizedQuery, products).slice(0, 5));
+      this.searchResultProducts.set(results);
       this.loadedSearchQuery = normalizedQuery;
     } catch {
       if (request === this.searchRequest) {
@@ -224,7 +223,6 @@ export class Navbar {
 
   @HostListener('window:scroll')
   onWindowScroll(): void {
-
     const scrollPosition = window.scrollY;
 
     const categories = document.getElementById('categorias');
@@ -232,15 +230,10 @@ export class Navbar {
     this.scrolled = scrollPosition > 80;
 
     if (categories) {
-
       const rect = categories.getBoundingClientRect();
 
-      this.transparentSection =
-        rect.top <= 100 &&
-        rect.bottom >= 100;
-
+      this.transparentSection = rect.top <= 100 && rect.bottom >= 100;
     }
-
   }
 
   @HostListener('document:keydown.escape')
@@ -296,5 +289,4 @@ export class Navbar {
 
     body.style.overflow = shouldLock ? 'hidden' : '';
   }
-
 }

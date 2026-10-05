@@ -1,15 +1,14 @@
 import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
 import { CartService } from '../../services/cart';
-import { formatStorePrice, StoreProduct } from '../../services/products';
+import { ProductsService, StoreProduct } from '../../services/products';
 
 @Component({
   selector: 'app-product-detail',
   imports: [],
   templateUrl: './product-detail.html',
-  styleUrl: './product-detail.css'
+  styleUrl: './product-detail.css',
 })
 export class ProductDetail implements OnChanges {
-
   @Input() product: StoreProduct = {
     name: '',
     category: '',
@@ -17,7 +16,7 @@ export class ProductDetail implements OnChanges {
     price: 0,
     number: '',
     image: '',
-    shortDescription: ''
+    shortDescription: '',
   };
 
   @Output() backToStore = new EventEmitter<void>();
@@ -26,7 +25,10 @@ export class ProductDetail implements OnChanges {
   quantity = 1;
   addedToCartMessage = '';
 
-  constructor(private cartService: CartService) {}
+  constructor(
+    private cartService: CartService,
+    private productsService: ProductsService,
+  ) {}
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['product']) {
@@ -49,7 +51,8 @@ export class ProductDetail implements OnChanges {
   }
 
   showPreviousImage(): void {
-    this.activeImageIndex = (this.activeImageIndex - 1 + this.galleryImages.length) % this.galleryImages.length;
+    this.activeImageIndex =
+      (this.activeImageIndex - 1 + this.galleryImages.length) % this.galleryImages.length;
   }
 
   showNextImage(): void {
@@ -57,7 +60,7 @@ export class ProductDetail implements OnChanges {
   }
 
   formatPrice(): string {
-    return this.product.priceLabel ?? formatStorePrice(this.product.price);
+    return this.product.priceLabel ?? this.productsService.formatPrice(this.product.price);
   }
 
   hideUnavailableProductImage(event: Event): void {
@@ -77,25 +80,15 @@ export class ProductDetail implements OnChanges {
   }
 
   addToCart(): void {
-
     for (let i = 0; i < this.quantity; i++) {
-
-      this.cartService.addToCart(
-        this.product.name,
-        this.product.price
-      );
-
+      this.cartService.addToCart(this.product.name, this.product.price);
     }
 
     const unitLabel = this.quantity === 1 ? 'unidad añadida' : 'unidades añadidas';
     this.addedToCartMessage = `${this.quantity} ${unitLabel} al carrito.`;
-
   }
 
   goBack(): void {
-
     this.backToStore.emit();
-
   }
-
 }

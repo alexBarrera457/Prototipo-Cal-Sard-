@@ -3,7 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 
 import { CartService } from '../../services/cart';
-import { loadStoreProducts, StoreProduct } from '../../services/products';
+import { ProductsService, StoreProduct } from '../../services/products';
 
 type FulfillmentMethod = 'pickup' | 'delivery';
 
@@ -11,7 +11,7 @@ type FulfillmentMethod = 'pickup' | 'delivery';
   selector: 'app-checkout-page',
   imports: [FormsModule, RouterLink],
   templateUrl: './checkout-page.html',
-  styleUrl: './checkout-page.css'
+  styleUrl: './checkout-page.css',
 })
 export class CheckoutPage {
   readonly products = signal<StoreProduct[]>([]);
@@ -23,15 +23,18 @@ export class CheckoutPage {
     phone: '',
     address: '',
     postalCode: '',
-    city: ''
+    city: '',
   };
 
-  constructor(public cartService: CartService) {
-    void loadStoreProducts().then((products) => this.products.set(products));
+  constructor(
+    public cartService: CartService,
+    private productsService: ProductsService,
+  ) {
+    void this.productsService.getProducts().then((products) => this.products.set(products));
   }
 
   productImage(name: string): string {
-    return this.products().find(product => product.name === name)?.image ?? '/images/history.jpg';
+    return this.products().find((product) => product.name === name)?.image ?? '/images/history.jpg';
   }
 
   preparePreview(): void {

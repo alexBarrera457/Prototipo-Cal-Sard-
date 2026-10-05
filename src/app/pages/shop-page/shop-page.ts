@@ -4,13 +4,13 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { ProductDetail } from '../../components/product-detail/product-detail';
 import { Store } from '../../components/store/store';
-import { loadStoreProducts, StoreProduct } from '../../services/products';
+import { ProductsService, StoreProduct } from '../../services/products';
 
 @Component({
   selector: 'app-shop-page',
   imports: [ProductDetail, RouterLink, Store],
   templateUrl: './shop-page.html',
-  styleUrl: './shop-page.css'
+  styleUrl: './shop-page.css',
 })
 export class ShopPage {
   selectedProduct = signal<StoreProduct | null>(null);
@@ -19,25 +19,24 @@ export class ShopPage {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly productsService = inject(ProductsService);
   private productRequest = 0;
 
   constructor() {
-    this.route.queryParamMap
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((params) => {
-        this.searchTerm = params.get('buscar') ?? '';
-        const productNumber = params.get('producto');
-        const request = ++this.productRequest;
-        this.selectedProduct.set(null);
+    this.route.queryParamMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
+      this.searchTerm = params.get('buscar') ?? '';
+      const productNumber = params.get('producto');
+      const request = ++this.productRequest;
+      this.selectedProduct.set(null);
 
-        if (productNumber) {
-          void loadStoreProducts().then((products) => {
-            if (request === this.productRequest) {
-              this.selectedProduct.set(products.find((product) => product.number === productNumber) ?? null);
-            }
-          });
-        }
-      });
+      if (productNumber) {
+        void this.productsService.getProductByNumber(productNumber).then((product) => {
+          if (request === this.productRequest) {
+            this.selectedProduct.set(product);
+          }
+        });
+      }
+    });
   }
 
   showProduct(product: StoreProduct): void {
@@ -45,7 +44,7 @@ export class ShopPage {
     void this.router.navigate([], {
       relativeTo: this.route,
       queryParams: { producto: product.number },
-      queryParamsHandling: 'merge'
+      queryParamsHandling: 'merge',
     });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
@@ -55,7 +54,7 @@ export class ShopPage {
     void this.router.navigate([], {
       relativeTo: this.route,
       queryParams: { producto: null },
-      queryParamsHandling: 'merge'
+      queryParamsHandling: 'merge',
     });
   }
 
@@ -63,7 +62,7 @@ export class ShopPage {
     void this.router.navigate([], {
       relativeTo: this.route,
       queryParams: { buscar: null, producto: null },
-      queryParamsHandling: 'merge'
+      queryParamsHandling: 'merge',
     });
   }
 }
