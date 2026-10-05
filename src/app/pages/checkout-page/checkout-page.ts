@@ -1,9 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 
 import { CartService } from '../../services/cart';
-import { storeProducts } from '../../services/products';
+import { loadStoreProducts, StoreProduct } from '../../services/products';
 
 type FulfillmentMethod = 'pickup' | 'delivery';
 
@@ -14,6 +14,7 @@ type FulfillmentMethod = 'pickup' | 'delivery';
   styleUrl: './checkout-page.css'
 })
 export class CheckoutPage {
+  readonly products = signal<StoreProduct[]>([]);
   fulfillment: FulfillmentMethod = 'pickup';
   previewReady = false;
   customer = {
@@ -25,12 +26,12 @@ export class CheckoutPage {
     city: ''
   };
 
-  constructor(public cartService: CartService) {}
-
-  readonly products = storeProducts;
+  constructor(public cartService: CartService) {
+    void loadStoreProducts().then((products) => this.products.set(products));
+  }
 
   productImage(name: string): string {
-    return this.products.find(product => product.name === name)?.image ?? '/images/history.jpg';
+    return this.products().find(product => product.name === name)?.image ?? '/images/history.jpg';
   }
 
   preparePreview(): void {

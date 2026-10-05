@@ -1,5 +1,6 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
 import { CartService } from '../../services/cart';
+import { formatStorePrice, StoreProduct } from '../../services/products';
 
 @Component({
   selector: 'app-product-detail',
@@ -7,38 +8,71 @@ import { CartService } from '../../services/cart';
   templateUrl: './product-detail.html',
   styleUrl: './product-detail.css'
 })
-export class ProductDetail {
+export class ProductDetail implements OnChanges {
 
-  @Input() product: {
-    name: string;
-    category: string;
-    description: string;
-    price: number;
-    number: string;
-    image: string;
-    imageFit?: 'cover' | 'contain';
-  } = {
+  @Input() product: StoreProduct = {
     name: '',
     category: '',
     description: '',
     price: 0,
     number: '',
-    image: ''
+    image: '',
+    shortDescription: ''
   };
 
   @Output() backToStore = new EventEmitter<void>();
 
+  activeImageIndex = 0;
   quantity = 1;
+  addedToCartMessage = '';
 
   constructor(private cartService: CartService) {}
 
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['product']) {
+      this.activeImageIndex = 0;
+    }
+  }
+
+  get galleryImages(): string[] {
+    return this.product.images?.length ? this.product.images : [this.product.image];
+  }
+
+  get activeImage(): string {
+    return this.galleryImages[this.activeImageIndex] ?? this.product.image;
+  }
+
+  selectImage(index: number): void {
+    if (index >= 0 && index < this.galleryImages.length) {
+      this.activeImageIndex = index;
+    }
+  }
+
+  showPreviousImage(): void {
+    this.activeImageIndex = (this.activeImageIndex - 1 + this.galleryImages.length) % this.galleryImages.length;
+  }
+
+  showNextImage(): void {
+    this.activeImageIndex = (this.activeImageIndex + 1) % this.galleryImages.length;
+  }
+
+  formatPrice(): string {
+    return this.product.priceLabel ?? formatStorePrice(this.product.price);
+  }
+
+  hideUnavailableProductImage(event: Event): void {
+    (event.currentTarget as HTMLImageElement).hidden = true;
+  }
+
   increaseQuantity(): void {
     this.quantity++;
+    this.addedToCartMessage = '';
   }
 
   decreaseQuantity(): void {
     if (this.quantity > 1) {
       this.quantity--;
+      this.addedToCartMessage = '';
     }
   }
 
@@ -52,6 +86,9 @@ export class ProductDetail {
       );
 
     }
+
+    const unitLabel = this.quantity === 1 ? 'unidad añadida' : 'unidades añadidas';
+    this.addedToCartMessage = `${this.quantity} ${unitLabel} al carrito.`;
 
   }
 

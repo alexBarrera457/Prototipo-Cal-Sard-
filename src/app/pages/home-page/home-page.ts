@@ -1,67 +1,60 @@
 import { Component } from '@angular/core';
 import { Meta } from '@angular/platform-browser';
+import { RouterLink } from '@angular/router';
 
 import { Hero } from '../../components/hero/hero';
-import { History } from '../../components/history/history';
-import { Products } from '../../components/products/products';
-import { Categories } from '../../components/categories/categories';
-import { Store } from '../../components/store/store';
-import { ProductDetail } from '../../components/product-detail/product-detail';
-import { Contact } from '../../components/contact/contact';
+
+type HomeCategory = {
+  label: string;
+  title: string;
+  search: string;
+  image: string;
+  alt: string;
+};
 
 @Component({
   selector: 'app-home-page',
-  imports: [
-    Hero,
-    History,
-    Products,
-    Categories,
-    Store,
-    ProductDetail,
-    Contact
-  ],
+  imports: [Hero, RouterLink],
   templateUrl: './home-page.html',
   styleUrl: './home-page.css'
 })
 export class HomePage {
 
+  readonly categories: HomeCategory[] = [
+    {
+      label: 'Café de siempre',
+      title: 'Café Sardà',
+      search: 'CAFÉ GOURMET',
+      image: '/images/products/cafe.jpg',
+      alt: 'Café Sardà seleccionado en la tienda'
+    },
+    {
+      label: 'Para abrir el apetito',
+      title: 'Conservas del mar',
+      search: 'CONSERVAS DE MAR',
+      image: '/images/products/conservas.png',
+      alt: 'Conservas gourmet del mar'
+    },
+    {
+      label: 'A granel',
+      title: 'Frutos secos',
+      search: 'FRUTOS SECOS',
+      image: '/images/products/frutos-secos.jpg',
+      alt: 'Selección de frutos secos a granel'
+    },
+    {
+      label: 'Para compartir',
+      title: 'Dulces y turrones',
+      search: 'DULCES DE FIESTAS',
+      image: '/images/products/dulces-navidad.jpg',
+      alt: 'Dulces tradicionales y turrones'
+    }
+  ];
+
   constructor(meta: Meta) {
     meta.updateTag({
       name: 'description',
-      content: 'Desde 1930, Cal Sardà selecciona productos gourmet, turrones, vinos, chocolates, conservas y frutos secos en el corazón de Barcelona.'
+      content: 'Desde 1930, Cal Sardà selecciona productos gourmet, dulces tradicionales, conservas y frutos secos en el barrio de la Sagrada Familia, Barcelona.'
     });
   }
-
-  productDetail = false;
-
-  selectedProduct = {
-    name: '',
-    category: '',
-    description: '',
-    price: 0,
-    number: '',
-    image: ''
-  };
-
-  showProduct(product: {
-    name: string;
-    category: string;
-    description: string;
-    price: number;
-    number: string;
-    image: string;
-  }): void {
-    this.selectedProduct = product;
-    this.productDetail = true;
-
-    window.scrollTo({
-      top: 0,
-      behavior: 'smooth'
-    });
-  }
-
-  hideProduct(): void {
-    this.productDetail = false;
-  }
-
 }

@@ -1,6 +1,6 @@
-@if (selectedProduct) {
+@if (selectedProduct(); as product) {
   <app-product-detail
-    [product]="selectedProduct"
+    [product]="product"
     (backToStore)="hideProduct()"
   />
 } @else {

@@ -128,11 +128,6 @@
   outline-offset: 4px;
 }
 
-.hero-button:focus-visible {
-  outline: 3px solid #fffaf3;
-  outline-offset: 4px;
-}
-
 .hero-philosophy {
   position: absolute;
   top: 48%;
@@ -351,7 +346,13 @@
 
 @media (max-width: 750px) {
   .hero {
-    min-height: 700px;
+    box-sizing: border-box;
+    height: auto;
+    min-height: max(100svh, 780px);
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: space-between;
+    padding: clamp(170px, 23svh, 205px) 25px 42px;
     background-position: 60% center;
   }
 
@@ -361,7 +362,7 @@
 
   .hero-content {
     width: auto;
-    margin: 0 25px;
+    margin: 0;
   }
 
   .hero-subtitle {
@@ -372,9 +373,9 @@
 
   .hero h1 {
     margin-bottom: 25px;
-    font-size: 62px;
-    line-height: 0.9;
-    letter-spacing: -3px;
+    font-size: clamp(48px, 15.5vw, 62px);
+    line-height: 0.94;
+    letter-spacing: -2.5px;
   }
 
   .hero-text {
@@ -390,14 +391,13 @@
   }
 
   .hero-philosophy {
-    top: auto;
-    right: 25px;
-    bottom: 80px;
-    left: 25px;
+    position: relative;
+    inset: auto;
     width: auto;
+    margin: 0;
   }
 
-  .philosophy-text { min-height: 120px; }
+  .philosophy-text { min-height: 150px; }
   .philosophy-text p { font-size: 24px; line-height: 1.2; }
   .philosophy-label { margin-bottom: 18px; }
   .hero-scroll { display: none; }

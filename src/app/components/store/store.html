@@ -24,13 +24,51 @@
   </div>
 
   <p class="store-prototype-note">
-    Prototipo de tienda: precios orientativos. El pedido todavía no se envía ni se cobra.
+      Catálogo frontend basado en la tienda oficial. Los precios y la disponibilidad pueden variar; el checkout es solo una vista previa.
   </p>
 
-  @if (filteredProducts.length) {
+  <div class="store-toolbar">
+    <div class="store-categories" role="group" aria-label="Filtrar productos por categoría">
+      @for (category of categoryFilters; track category.value) {
+        <button
+          type="button"
+          [class.active]="selectedCategory === category.value"
+          [attr.aria-pressed]="selectedCategory === category.value"
+          (click)="selectCategory(category.value)"
+        >
+          {{ category.label }}
+        </button>
+      }
+    </div>
+
+    <div class="store-results-row">
+      <span class="store-result-count" aria-live="polite">
+        {{ filteredProducts.length }} {{ filteredProducts.length === 1 ? 'producto' : 'productos' }}
+        @if (filteredProducts.length > pageSize) {
+          · mostrando {{ firstVisibleProduct }}–{{ lastVisibleProduct }}
+        }
+      </span>
+
+      <label class="store-sort">
+        <span>Ordenar por</span>
+        <select [value]="sortOrder" (change)="updateSortOrder($event)">
+          <option value="featured">Destacados</option>
+          <option value="name-asc">Nombre: A-Z</option>
+          <option value="price-asc">Precio: menor a mayor</option>
+          <option value="price-desc">Precio: mayor a menor</option>
+        </select>
+      </label>
+    </div>
+  </div>
+
+  @if (catalogLoading()) {
+    <p class="store-loading" role="status" aria-live="polite">Cargando el catálogo completo…</p>
+  } @else if (catalogError()) {
+    <p class="store-empty-search" role="alert">No se pudo cargar el catálogo. Actualiza la página para intentarlo de nuevo.</p>
+  } @else if (filteredProducts.length) {
     <div class="store-grid">
 
-    @for (product of filteredProducts; track product.number) {
+    @for (product of visibleProducts; track product.number) {
       <article class="store-product">
 
         <div class="store-product-image">
@@ -39,12 +77,16 @@
             [src]="product.image"
             [alt]="product.name"
             [class.contain]="product.imageFit === 'contain'"
+            loading="lazy"
+            decoding="async"
+            (error)="hideUnavailableProductImage($event)"
           >
 
           <button
             type="button"
             class="store-product-overlay"
             (click)="showProduct(product)"
+            [attr.aria-label]="'Ver producto: ' + product.name"
           >
             <span>
               VER PRODUCTO →
@@ -76,7 +118,7 @@
           </div>
 
           <span class="store-price">
-            {{ product.price.toFixed(2) }} €
+            {{ formatProductPrice(product) }}
           </span>
 
         </div>
@@ -85,14 +127,31 @@
           class="store-button"
           type="button"
           (click)="addToCart(product)"
+          [attr.aria-label]="'Añadir ' + product.name + ' al carrito'"
         >
           AÑADIR AL CARRITO +
         </button>
+
+        @if (addedProductNumber === product.number) {
+          <p class="store-added-message" role="status" aria-live="polite">{{ addedProductMessage }}</p>
+        }
 
       </article>
     }
 
     </div>
+
+    @if (pageCount > 1) {
+      <nav class="store-pagination" aria-label="Páginas de productos">
+        <button type="button" (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 1" aria-label="Página anterior">
+          ← Anterior
+        </button>
+        <span aria-live="polite">Página {{ currentPage }} de {{ pageCount }}</span>
+        <button type="button" (click)="goToPage(currentPage + 1)" [disabled]="currentPage === pageCount" aria-label="Página siguiente">
+          Siguiente →
+        </button>
+      </nav>
+    }
   } @else {
     <p class="store-empty-search" role="status">No encontramos productos para “{{ searchTerm }}”. Prueba otra búsqueda.</p>
   }

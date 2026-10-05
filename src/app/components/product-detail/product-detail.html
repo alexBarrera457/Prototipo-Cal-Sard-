@@ -3,10 +3,45 @@
   <div class="product-detail-image">
 
     <img
-      [src]="product.image"
-      [alt]="product.name"
+      [src]="activeImage"
+      [alt]="product.name + ' · foto ' + (activeImageIndex + 1)"
       [class.contain]="product.imageFit === 'contain'"
+      (error)="hideUnavailableProductImage($event)"
     >
+
+    @if (galleryImages.length > 1) {
+      <button
+        class="product-gallery-arrow product-gallery-previous"
+        type="button"
+        (click)="showPreviousImage()"
+        aria-label="Foto anterior"
+      >
+        ‹
+      </button>
+
+      <button
+        class="product-gallery-arrow product-gallery-next"
+        type="button"
+        (click)="showNextImage()"
+        aria-label="Foto siguiente"
+      >
+        ›
+      </button>
+
+      <div class="product-gallery-thumbnails" role="group" [attr.aria-label]="'Fotos de ' + product.name">
+        @for (image of galleryImages; track image; let index = $index) {
+          <button
+            type="button"
+            [class.active]="activeImageIndex === index"
+            (click)="selectImage(index)"
+            [attr.aria-label]="'Ver foto ' + (index + 1) + ' de ' + galleryImages.length"
+            [attr.aria-pressed]="activeImageIndex === index"
+          >
+            <img [src]="image" [alt]="product.name + ' · miniatura ' + (index + 1)" loading="lazy" decoding="async">
+          </button>
+        }
+      </div>
+    }
 
     <span class="product-detail-number">
       {{ product.number }}
@@ -46,7 +81,7 @@
 
 
     <div class="product-detail-price">
-      {{ product.price.toFixed(2) }} €
+      {{ formatPrice() }}
     </div>
 
 
@@ -57,6 +92,7 @@
         <button
           type="button"
           (click)="decreaseQuantity()"
+          [attr.aria-label]="'Restar una unidad de ' + product.name"
         >
           −
         </button>
@@ -68,6 +104,7 @@
         <button
           type="button"
           (click)="increaseQuantity()"
+          [attr.aria-label]="'Añadir una unidad de ' + product.name"
         >
           +
         </button>
@@ -79,11 +116,16 @@
         type="button"
         class="product-detail-button"
         (click)="addToCart()"
+        [attr.aria-label]="'Añadir ' + quantity + ' ' + (quantity === 1 ? 'unidad' : 'unidades') + ' de ' + product.name + ' al carrito'"
       >
         AÑADIR AL CARRITO →
       </button>
 
     </div>
+
+    @if (addedToCartMessage) {
+      <p class="product-cart-feedback" role="status" aria-live="polite">{{ product.name }}: {{ addedToCartMessage }}</p>
+    }
 
   </div>
 

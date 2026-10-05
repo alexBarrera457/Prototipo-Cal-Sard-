@@ -1,24 +1,92 @@
-@if (!productDetail) {
+<app-hero></app-hero>
 
-  <app-hero></app-hero>
+<main class="home-page-content">
+  <section class="home-story" aria-labelledby="home-story-title">
+    <div class="home-story-top">
+      <div class="home-story-copy">
+        <span class="home-section-label">SAGRADA FAMILIA · DESDE 1930</span>
+        <span class="home-story-mark">Una historia de barrio</span>
+        <h2 id="home-story-title">Un colmado que ha crecido con el barrio.</h2>
+        <p>En 1930, Jaume Sardà y Flora Güell abrieron una lechería en la Sagrada Familia. Cuatro generaciones después, Cal Sardà sigue reuniendo productos escogidos, sabores de siempre y el trato cercano de una tienda familiar.</p>
+        <a class="home-story-link" [routerLink]="['/historia']">Conoce nuestra historia <span aria-hidden="true">→</span></a>
+      </div>
+      <figure class="home-story-image">
+        <img src="/images/gallery/passi-05.jpg" alt="Una de las generaciones de Cal Sardà en el interior de la tienda" loading="lazy" decoding="async">
+        <figcaption>El día a día en la tienda familiar</figcaption>
+      </figure>
+    </div>
+    <ol class="home-story-timeline" aria-label="Momentos de la historia de Cal Sardà">
+      <li><strong>1930</strong><span>Una lechería familiar</span></li>
+      <li><strong>1958</strong><span>El colmado del barrio</span></li>
+      <li><strong>Hoy</strong><span>Una tradición que continúa</span></li>
+    </ol>
+  </section>
 
-  <app-history></app-history>
+  <section class="home-categories" id="tienda" aria-labelledby="home-categories-title">
+    <header class="home-section-heading">
+      <div>
+        <span class="home-section-label">SELECCIÓN CAL SARDÀ</span>
+        <h2 id="home-categories-title">Sabores para<br>descubrir.</h2>
+      </div>
+      <div class="home-section-heading-aside">
+        <p>Los productos de siempre y pequeños hallazgos gourmet, escogidos para disfrutar y compartir.</p>
+        <a class="home-text-link" [routerLink]="['/tienda-online']">Ver toda la tienda <span aria-hidden="true">↗</span></a>
+      </div>
+    </header>
 
-  <app-products></app-products>
+    <div class="home-category-grid">
+      @for (category of categories; track category.title; let index = $index) {
+        <a
+          class="home-category-card"
+          [routerLink]="['/tienda-online']"
+          [queryParams]="{ buscar: category.search }"
+          [attr.aria-label]="'Descubre ' + category.title"
+        >
+          <img [src]="category.image" [alt]="category.alt" [attr.fetchpriority]="index === 0 ? 'high' : null" loading="lazy" decoding="async">
+          <span class="home-category-index">0{{ index + 1 }}</span>
+          <span class="home-category-copy">
+            <small>{{ category.label }}</small>
+            <strong>{{ category.title }}</strong>
+          </span>
+          <span class="home-category-arrow" aria-hidden="true">↗</span>
+        </a>
+      }
+    </div>
+  </section>
 
-  <app-categories></app-categories>
+  <section class="home-gifts" aria-labelledby="home-gifts-title">
+    <div class="home-gifts-copy">
+      <span class="home-section-label">PARA REGALAR, PARA COMPARTIR</span>
+      <h2 id="home-gifts-title">Hay regalos que empiezan alrededor de una mesa.</h2>
+      <p>Preparamos lotes gourmet a medida, con productos escogidos y una presentación lista para sorprender.</p>
+      <div class="home-gifts-actions">
+        <a class="home-button-dark" [routerLink]="['/lotes-y-cestas-gourmet']">Descubre los lotes <span aria-hidden="true">→</span></a>
+        <a class="home-gifts-secondary" [routerLink]="['/lotes-para-empresas']">Soluciones para empresas</a>
+      </div>
+    </div>
+    <a class="home-gifts-image" [routerLink]="['/lotes-y-cestas-gourmet']" aria-label="Descubre los lotes gourmet de Cal Sardà">
+      <img src="/images/gift-lots/lote-gourmet-clasico.jpg" alt="Lote gourmet preparado con dulces y productos selectos" loading="lazy" decoding="async">
+      <span>Una combinación para cada ocasión <b aria-hidden="true">↗</b></span>
+    </a>
+  </section>
 
-  <app-store
-    (productSelected)="showProduct($event)"
-  ></app-store>
-
-  <app-contact></app-contact>
-
-} @else {
-
-  <app-product-detail
-    [product]="selectedProduct"
-    (backToStore)="hideProduct()"
-  ></app-product-detail>
-
-}
+  <section class="home-visit" aria-labelledby="home-visit-title">
+    <div class="home-visit-heading">
+      <span class="home-section-label">TE ESPERAMOS EN BARCELONA</span>
+      <h2 id="home-visit-title">El placer de elegirlo en persona.</h2>
+    </div>
+    <div class="home-visit-details">
+      <div>
+        <span>VEN A VERNOS</span>
+        <p>Calle Marina, 237<br>08013 Barcelona</p>
+      </div>
+      <div>
+        <span>HORARIO</span>
+        <p>Lunes a viernes<br>09:30–14:30 · 16:30–20:30</p>
+      </div>
+      <a class="home-map-link" href="https://maps.google.com/?q=Carrer+de+Marina,+237,+08013+Barcelona" target="_blank" rel="noopener noreferrer">
+        Cómo llegar <span aria-hidden="true">↗</span>
+      </a>
+    </div>
+  </section>
+</main>

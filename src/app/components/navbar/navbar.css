@@ -550,3 +550,40 @@
   }
 
 }
+
+@media (max-width: 340px) {
+  .navbar-utility {
+    padding-inline: 8px;
+  }
+
+  .utility-links {
+    gap: 2px;
+  }
+
+  .utility-contact-link {
+    gap: 3px;
+    padding-inline: 1px;
+    font-size: 7.5px;
+    letter-spacing: 0;
+  }
+
+  .utility-contact-link svg {
+    width: 11px;
+    height: 11px;
+  }
+
+  .utility-socials {
+    gap: 0;
+  }
+
+  .utility-social-link {
+    gap: 2px;
+    padding-inline: 1px;
+    font-size: 7.5px;
+  }
+
+  .utility-social-link svg {
+    width: 10px;
+    height: 10px;
+  }
+}

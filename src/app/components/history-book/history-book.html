@@ -1,0 +1,76 @@
+<section class="history-book" aria-label="Libro interactivo: historia de Cal Sardà">
+  <div class="history-book-topline" aria-hidden="true">
+    <span>Cal Sardà</span>
+  </div>
+
+  <article
+    class="history-book-leaf"
+    [class.turn-forward]="isTurning() && pageDirection === 'forward'"
+    [class.turn-backward]="isTurning() && pageDirection === 'backward'"
+    [attr.aria-label]="'Página ' + (currentPage + 1) + ' de ' + pages.length"
+  >
+    <figure class="history-book-photo">
+      <img
+        [src]="currentPhotoContent.src"
+        [alt]="currentPhotoContent.alt"
+        [class.photo-entering]="isPhotoChanging()"
+        decoding="async"
+      >
+    </figure>
+
+    <div class="history-book-copy" aria-live="polite" aria-atomic="true">
+      <span class="history-book-rule" aria-hidden="true"></span>
+      <h2>{{ currentPageContent.title }}</h2>
+      @for (paragraph of currentPageContent.paragraphs; track $index) {
+        <p>{{ paragraph }}</p>
+      }
+      <span class="history-book-folio" aria-hidden="true">
+        {{ (currentPage + 1).toString().padStart(2, '0') }}
+      </span>
+    </div>
+  </article>
+
+  <nav class="history-book-controls" aria-label="Navegación del libro">
+    <button
+      class="history-book-arrow"
+      type="button"
+      (click)="showPage(currentPage - 1)"
+      [disabled]="currentPage === 0"
+      aria-label="Ver página anterior"
+    >
+      <span aria-hidden="true">←</span>
+      <span class="history-book-arrow-label">Anterior</span>
+    </button>
+
+    <div class="history-book-index" aria-label="Elegir una página">
+      @for (bookPage of pages; track $index) {
+        <button
+          type="button"
+          [class.is-active]="currentPage === $index"
+          [attr.aria-current]="currentPage === $index ? 'page' : null"
+          [attr.aria-label]="'Ir a la página ' + ($index + 1) + ': ' + bookPage.title"
+          (click)="showPage($index)"
+        >
+          <span></span>
+        </button>
+      }
+    </div>
+
+    <span class="history-book-count" aria-live="polite">
+      {{ (currentPage + 1).toString().padStart(2, '0') }}
+      <span aria-hidden="true">/</span>
+      {{ pages.length.toString().padStart(2, '0') }}
+    </span>
+
+    <button
+      class="history-book-arrow history-book-next"
+      type="button"
+      (click)="showPage(currentPage + 1)"
+      [disabled]="currentPage === pages.length - 1"
+      aria-label="Ver página siguiente"
+    >
+      <span class="history-book-arrow-label">Siguiente</span>
+      <span aria-hidden="true">→</span>
+    </button>
+  </nav>
+</section>

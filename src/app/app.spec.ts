@@ -53,7 +53,7 @@ describe('App', () => {
     fixture.detectChanges();
     await fixture.whenStable();
     expect((fixture.nativeElement as HTMLElement).querySelector('h1')?.textContent)
-      .toContain('historia familiar');
+      .toContain('Nuestra historia');
 
     await router.navigateByUrl('/faq');
     fixture.detectChanges();

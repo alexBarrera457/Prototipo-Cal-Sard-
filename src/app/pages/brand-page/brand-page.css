@@ -9,6 +9,16 @@
   color: #1f1712;
 }
 
+.brand-page.business-page {
+  max-width: 1380px;
+  padding-top: 150px;
+}
+
+.brand-page.gift-lots-page {
+  max-width: 1380px;
+  padding-top: 150px;
+}
+
 .brand-page-header {
   max-width: 840px;
   margin-bottom: 56px;
@@ -278,42 +288,70 @@
   line-height: 1.8;
 }
 
-.brand-gallery {
+.history-page {
+  max-width: 1240px;
+  padding-top: 158px;
+}
+
+.history-page .brand-page-header {
   display: grid;
-  grid-template-columns: 1.1fr 0.9fr;
-  gap: 28px;
-  align-items: start;
+  grid-template-columns: minmax(0, 1.05fr) minmax(320px, 0.8fr);
+  align-items: end;
+  gap: clamp(36px, 6vw, 90px);
+  max-width: none;
+  margin-bottom: 46px;
 }
 
-.brand-gallery figure {
+.history-intro-heading {
+  max-width: 700px;
+}
+
+.history-intro-summary {
+  max-width: 420px;
+  padding: 5px 0 4px 25px;
+  border-left: 1px solid rgba(147, 109, 66, 0.42);
+}
+
+.history-intro-summary p {
   margin: 0;
-}
-
-.brand-gallery img {
-  width: 100%;
-  height: clamp(280px, 42vw, 520px);
-  object-fit: cover;
-}
-
-.brand-gallery img[src*="mapa-gastronomic"] {
-  object-fit: contain;
-  background: #eee5d9;
-}
-
-.brand-gallery figure:nth-child(2) {
-  margin-top: 70px;
-}
-
-.brand-gallery figcaption {
-  margin-top: 14px;
-  color: #685a4f;
+  color: #564c45;
   font-family: Georgia, 'Times New Roman', serif;
-  font-size: 18px;
+  font-size: clamp(18px, 1.7vw, 22px);
+  line-height: 1.65;
+}
+
+.history-intro-years {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 24px;
+  color: #8c6840;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 14px;
+  letter-spacing: 1px;
+}
+
+.history-intro-years i {
+  width: 24px;
+  height: 1px;
+  background: rgba(147, 109, 66, 0.42);
 }
 
 @media (max-width: 900px) {
   .brand-page {
     padding-top: 90px;
+  }
+
+  .brand-page.business-page {
+    padding-top: 142px;
+  }
+
+  .brand-page.gift-lots-page {
+    padding-top: 142px;
+  }
+
+  .history-page {
+    padding-top: 176px;
   }
 
   .brand-page-grid,
@@ -332,10 +370,132 @@
   .brand-gallery figure:nth-child(2) {
     margin-top: 0;
   }
+
+  .history-page .brand-page-header {
+    grid-template-columns: 1fr;
+    gap: 26px;
+  }
+
+  .business-hero {
+    grid-template-columns: 1fr;
+  }
+
+  .business-hero-copy {
+    padding: 42px;
+  }
+
+  .business-hero-visual,
+  .business-hero-visual img {
+    min-height: 470px;
+  }
+
+  .business-contact-callout {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .history-intro-summary {
+    max-width: 620px;
+  }
 }
 
 @media (max-width: 600px) {
   .faq-item summary {
     font-size: 18px;
+  }
+
+  .history-page .brand-page-header {
+    margin-bottom: 36px;
+  }
+
+  .history-intro-summary {
+    padding-left: 18px;
+  }
+
+  .history-intro-summary p {
+    font-size: 18px;
+  }
+
+  .history-intro-years {
+    gap: 9px;
+    margin-top: 18px;
+  }
+
+  .business-page {
+    padding-top: 126px;
+  }
+
+  .brand-page.gift-lots-page {
+    padding-top: 126px;
+  }
+
+  .business-hero {
+    margin-bottom: 76px;
+  }
+
+  .business-hero-copy {
+    padding: 30px 22px;
+  }
+
+  .business-hero h1 {
+    font-size: 50px;
+    letter-spacing: -2px;
+  }
+
+  .business-hero-intro {
+    font-size: 14px;
+  }
+
+  .business-hero-actions {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 17px;
+  }
+
+  .business-hero-benefits {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .business-hero-visual,
+  .business-hero-visual img {
+    min-height: 360px;
+  }
+
+  .business-process,
+  .business-examples {
+    margin-bottom: 76px;
+  }
+
+  .business-steps,
+  .business-gallery {
+    grid-template-columns: 1fr;
+  }
+
+  .business-step,
+  .business-step + .business-step {
+    min-height: auto;
+    padding: 24px 0;
+    border-left: 0;
+  }
+
+  .business-step + .business-step {
+    border-top: 1px solid rgba(31, 23, 18, 0.16);
+  }
+
+  .business-step-number {
+    margin-bottom: 18px;
+  }
+
+  .business-gallery {
+    gap: 28px;
+  }
+
+  .business-gallery figure:nth-child(2) {
+    margin-top: 0;
+  }
+
+  .business-contact-callout {
+    padding: 30px 22px;
   }
 }

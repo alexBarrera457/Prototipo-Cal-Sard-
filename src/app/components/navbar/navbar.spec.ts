@@ -22,8 +22,8 @@ describe('Navbar', () => {
     expect(component).toBeTruthy();
   });
 
-  it('moves through search results with the arrow keys', () => {
-    component.onSearchInput('a');
+  it('moves through search results with the arrow keys', async () => {
+    await component.onSearchInput('a');
 
     const down = new KeyboardEvent('keydown', { key: 'ArrowDown', cancelable: true });
     component.onSearchKeydown(down);
@@ -37,20 +37,20 @@ describe('Navbar', () => {
     expect(component.activeSearchResultIndex).toBe(0);
   });
 
-  it('opens the active search result with Enter and closes on Escape', () => {
+  it('opens the active search result with Enter and closes on Escape', async () => {
     const router = TestBed.inject(Router);
     const navigate = vi.spyOn(router, 'navigate').mockResolvedValue(true);
 
-    component.onSearchInput('cafe');
+    await component.onSearchInput('cafe');
     component.onSearchKeydown(new KeyboardEvent('keydown', { key: 'ArrowDown', cancelable: true }));
     component.onSearchKeydown(new KeyboardEvent('keydown', { key: 'Enter', cancelable: true }));
 
     expect(navigate).toHaveBeenCalledWith(['/tienda-online'], {
-      queryParams: { producto: '02', buscar: 'cafe' }
+      queryParams: { producto: '01', buscar: 'cafe' }
     });
     expect(component.searchOpen).toBe(false);
 
-    component.onSearchInput('chocolate');
+    await component.onSearchInput('chocolate');
     const escape = new KeyboardEvent('keydown', { key: 'Escape', cancelable: true });
     component.onSearchKeydown(escape);
 

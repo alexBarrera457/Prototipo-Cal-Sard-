@@ -2,8 +2,21 @@ import { Component, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Meta } from '@angular/platform-browser';
+import { HistoryBookComponent } from '../../components/history-book/history-book';
+import { CartService } from '../../services/cart';
 
-type PageDefinition = {
+export type GiftLotProduct = {
+  slug: string;
+  name: string;
+  description: string;
+  category: string;
+  price: number;
+  priceLabel: string;
+  image: string;
+  imageFit?: 'cover' | 'contain';
+};
+
+export type PageDefinition = {
   eyebrow: string;
   title: string;
   intro: string;
@@ -12,6 +25,7 @@ type PageDefinition = {
   cards: Array<{ title: string; text: string }>;
   faqItems?: Array<{ question: string; answer: string }>;
   galleryImages?: Array<{ src: string; alt: string; caption: string }>;
+  giftLots?: GiftLotProduct[];
   siteLinks?: Array<{ label: string; route: string }>;
   newsletter?: boolean;
   emptyMessage?: string;
@@ -25,39 +39,23 @@ type PageDefinition = {
 
 @Component({
   selector: 'app-brand-page',
-  imports: [RouterLink],
+  imports: [RouterLink, HistoryBookComponent],
   templateUrl: './brand-page.html',
   styleUrl: './brand-page.css'
 })
 export class BrandPage {
 
   page!: PageDefinition;
+  lastAddedGiftLotSlug: string | null = null;
 
   private readonly pages: Record<string, PageDefinition> = {
     historia: {
       eyebrow: 'Historia',
-      title: 'Una historia familiar en el corazón de la Sagrada Familia.',
-      intro: 'Desde 1930, Cal Sardà forma parte de la vida del barrio. Los hijos de Jaume y Flora hicieron crecer el negocio y, en 1958, Jaume impulsó la primera reforma del local para convertirlo en el colmado que conocían los vecinos.',
-      highlight: 'Cuatro generaciones de productos de calidad y trato cercano.',
-      stats: [
-        { label: 'En el barrio desde', value: '1930' },
-        { label: 'Generaciones', value: '4' },
-        { label: 'Lugar', value: 'Sagrada Familia' }
-      ],
-      cards: [
-        {
-          title: 'La primera reforma',
-          text: 'Hacia los años cincuenta, la tienda llegó a tener catorce trabajadores, muchos de ellos familiares y amigos de Belianes, el pueblo natal de Jaume Sardà Güell. En 1958, el local se transformó en el colmado del barrio.'
-        },
-        {
-          title: 'El colmado gourmet',
-          text: 'La tienda dejó atrás la venta de verduras y bacalao para centrarse en el café y en productos de calidad y proximidad, como galletas, turrones y frutos secos a granel.'
-        },
-        {
-          title: 'Una historia que continúa',
-          text: 'Maria Sardà Sardà, hija de Jaume, empezó a trabajar en el negocio y hoy es su propietaria. Sigue atendiendo a los clientes y conociendo sus gustos y preferencias.'
-        }
-      ],
+      title: 'Nuestra historia',
+      intro: 'Más de 90 años al servicio del barrio',
+      highlight: '',
+      stats: [],
+      cards: [],
       cta: {
         label: 'Visita la tienda',
         route: '/tienda-online'
@@ -170,47 +168,220 @@ export class BrandPage {
     },
     'lots-per-a-empreses': {
       eyebrow: 'Lotes para empresas',
-      title: 'Regalos y soluciones gourmet para tu empresa.',
-      intro: 'Preparamos lotes personalizados con una selección de productos gourmet, como conservas del mar, vinos, chocolates y dulces tradicionales de Navidad.',
-      highlight: 'Personalizamos el lote y lo preparamos para regalar.',
+      title: 'Lotes para empresas',
+      intro: 'En Cal Sardà contamos con un servicio totalmente a medida de preparación de lotes personalizados, elaborados a partir de los mejores productos gourmet. Entre la amplia selección encontrarás conservas de mar, vinos, chocolates gourmet y dulces tradicionales navideños.',
+      highlight: 'Creamos un lote a medida, listo para regalar y adaptado a tu presupuesto.',
       stats: [],
       cards: [
         {
-          title: 'A medida',
-          text: 'Te ayudamos a crear una combinación de productos adecuada para la ocasión y las necesidades de tu empresa.'
+          title: 'Cuéntanos tu idea',
+          text: '¿Lo prefieres dulce, salado o combinado? Dinos qué productos no pueden faltar y para qué ocasión es.'
         },
         {
-          title: 'Selección gourmet',
-          text: 'Puedes elegir entre conservas, vinos, chocolates gourmet y dulces tradicionales de Navidad.'
+          title: 'Ajustamos el presupuesto',
+          text: 'Nos adaptamos al precio que te vaya mejor y te enviaremos una propuesta detallada sin compromiso.'
         },
         {
-          title: 'Recogida o envío',
-          text: 'Recoge los lotes en nuestro establecimiento o pide que los enviemos directamente a tu empresa.'
+          title: 'Elige cómo presentarlo',
+          text: 'Puedes escoger una caja o presentar los productos envueltos en papel transparente. Recoge el lote en la tienda o recíbelo en tu empresa.'
+        }
+      ],
+      galleryImages: [
+        {
+          src: '/images/business-gifts/lotes-empresas-cestas.jpg',
+          alt: 'Lote gourmet con cava Sardà, chocolates, embutidos y dulces',
+          caption: 'Una selección variada para compartir.'
+        },
+        {
+          src: '/images/business-gifts/lotes-empresas-detalle.jpg',
+          alt: 'Detalle de productos gourmet reunidos en una cesta para regalar',
+          caption: 'Combinaciones personalizadas según cada ocasión.'
+        },
+        {
+          src: '/images/business-gifts/lotes-empresas-regalo.jpg',
+          alt: 'Cesta gourmet preparada con productos dulces y salados',
+          caption: 'Una presentación cuidada, lista para regalar.'
         }
       ],
       cta: {
-        label: 'Hablemos de tu pedido',
+        label: 'Solicita tu presupuesto',
         route: '/contacto'
       }
     },
     'lots-i-cistelles-gurmet': {
       eyebrow: 'Lotes y cestas gourmet',
-      title: 'Las mejores combinaciones para compartir y regalar.',
-      intro: 'Preparamos lotes personalizados con la combinación de productos que tienes en mente y ajustados a tu presupuesto.',
-      highlight: 'Cuéntanos si lo prefieres dulce, salado o combinado, qué no puede faltar y cómo quieres presentarlo.',
+      title: 'Lotes y cestas gourmet',
+      intro: 'Elige los productos y personalizamos un lote a medida según tu presupuesto. Aquí encontrarás varias propuestas con un precio cerrado.',
+      highlight: 'Los estampados de las cajas decoradas pueden variar en cada campaña de Navidad.',
       stats: [],
       cards: [
         {
-          title: 'Elige el tipo de lote',
-          text: 'Piensa si prefieres un lote dulce, salado o combinado e indícanos qué productos te gustaría incluir.'
+          title: 'Dulce, salado o combinado',
+          text: 'Cuéntanos qué tipo de lote te apetece y qué productos no pueden faltar.'
         },
         {
-          title: 'Indica tu presupuesto',
-          text: 'Nos adaptamos al presupuesto que tengas en mente y te proponemos distintas combinaciones de productos.'
+          title: 'A tu presupuesto',
+          text: 'Nos adaptamos al precio que te vaya mejor: hay muchas combinaciones posibles.'
         },
         {
-          title: 'Elige la presentación',
-          text: 'Puedes pedir una caja o un conjunto de artículos envueltos en papel transparente para que se vean los productos.'
+          title: 'La presentación que prefieras',
+          text: 'Elige una caja o un conjunto de artículos envueltos en papel transparente para que se vean los productos.'
+        }
+      ],
+      giftLots: [
+        {
+          slug: 'caja-lote-llenala-con-lo-que-quieras',
+          name: 'Caja lote: llénala con lo que quieras',
+          description: 'Caja Sardà vacía para llenar con lo que quieras de la página web.',
+          category: 'Personalizable',
+          price: 2.05,
+          priceLabel: '2,05 €',
+          image: '/images/gift-lots/caja-lote-llenala-con-lo-que-quieras.jpg',
+          imageFit: 'contain'
+        },
+        {
+          slug: 'lote-de-embutidos-catalanes',
+          name: 'Lote de embutidos catalanes',
+          description: 'Lote de embutidos catalanes gourmet.',
+          category: 'Salado',
+          price: 45,
+          priceLabel: '45 €',
+          image: '/images/gift-lots/lote-de-embutidos-catalanes.jpg'
+        },
+        {
+          slug: 'lote-de-productos-catalanes',
+          name: 'Lote de productos catalanes',
+          description: 'Lote de productos catalanes y sobrasada de Mallorca.',
+          category: 'Dulce y salado',
+          price: 40,
+          priceLabel: '40 €',
+          image: '/images/gift-lots/lote-de-productos-catalanes.jpg'
+        },
+        {
+          slug: 'lote-de-productos-catalanes-artesanos',
+          name: 'Lote de productos catalanes artesanos',
+          description: 'Lote de productos catalanes mixto.',
+          category: 'Dulce y salado',
+          price: 40,
+          priceLabel: '40 €',
+          image: '/images/gift-lots/lote-de-productos-catalanes-artesanos.jpg'
+        },
+        {
+          slug: 'lote-dulces-catalanes-merce-2026',
+          name: 'Lote dulces catalanes Mercè 2026',
+          description: 'Lote de productos catalanes Mercè.',
+          category: 'Dulce',
+          price: 29.85,
+          priceLabel: '29,85 €',
+          image: '/images/gift-lots/lote-dulces-catalanes-merce-2026.jpg'
+        },
+        {
+          slug: 'lote-especial-chocolate-gourmet',
+          name: 'Lote especial chocolate gourmet',
+          description: 'Un lote para los amantes del chocolate en todos sus formatos.',
+          category: 'Dulce',
+          price: 47,
+          priceLabel: '47 €',
+          image: '/images/gift-lots/lote-especial-chocolate-gourmet.jpg'
+        },
+        {
+          slug: 'lote-gourmet-clasico',
+          name: 'Lote gourmet clásico',
+          description: 'Surtido selecto de dulces con nuestro cava Sardà.',
+          category: 'Dulce',
+          price: 84,
+          priceLabel: '84 €',
+          image: '/images/gift-lots/lote-gourmet-clasico.jpg'
+        },
+        {
+          slug: 'lote-gourmet-dulce-con-cava',
+          name: 'Lote gourmet dulce con cava',
+          description: 'Surtido selecto de dulces con nuestro cava Sardà.',
+          category: 'Dulce',
+          price: 70,
+          priceLabel: '70 €',
+          image: '/images/gift-lots/lote-gourmet-dulce-con-cava.jpg'
+        },
+        {
+          slug: 'lote-gourmet-navidad',
+          name: 'Lote gourmet Navidad',
+          description: 'Surtido selecto de dulces navideños.',
+          category: 'Navidad',
+          price: 45,
+          priceLabel: '45 €',
+          image: '/images/gift-lots/lote-gourmet-navidad.jpg'
+        },
+        {
+          slug: 'lote-gourmet-tradicional',
+          name: 'Lote gourmet tradicional',
+          description: 'Productos dulces y salados: una opción perfecta para hacer un detalle en cualquier momento del año.',
+          category: 'Dulce y salado',
+          price: 60,
+          priceLabel: '60 €',
+          image: '/images/gift-lots/lote-gourmet-tradicional.jpg'
+        },
+        {
+          slug: 'lote-gourmet-variado',
+          name: 'Lote gourmet variado',
+          description: 'Surtido selecto.',
+          category: 'Dulce y salado',
+          price: 74,
+          priceLabel: '74 €',
+          image: '/images/gift-lots/lote-gourmet-variado.jpg'
+        },
+        {
+          slug: 'lote-navidad-gourmet',
+          name: 'Lote Navidad gourmet',
+          description: 'Los básicos de la Navidad con conservas para el aperitivo.',
+          category: 'Navidad',
+          price: 80,
+          priceLabel: '80 €',
+          image: '/images/gift-lots/lote-navidad-gourmet.jpg'
+        },
+        {
+          slug: 'lote-productos-tradicionales-de-navidad',
+          name: 'Lote productos tradicionales de Navidad',
+          description: 'Dulces y salados: panettone, barquillos tradicionales y turrón de quicos y praliné.',
+          category: 'Navidad',
+          price: 85,
+          priceLabel: '85 €',
+          image: '/images/gift-lots/lote-productos-tradicionales-de-navidad.jpg'
+        },
+        {
+          slug: 'lote-salado-para-regalo',
+          name: 'Lote salado para regalo',
+          description: 'Sobrasada, foie, olivas arbequinas y torradetes.',
+          category: 'Salado',
+          price: 37,
+          priceLabel: '37 €',
+          image: '/images/gift-lots/lote-salado-para-regalo.jpg'
+        },
+        {
+          slug: 'lote-selecto-productos-artesanos',
+          name: 'Lote selecto de productos artesanos',
+          description: 'Surtido de productos artesanales.',
+          category: 'Dulce y salado',
+          price: 79,
+          priceLabel: '79 €',
+          image: '/images/gift-lots/lote-selecto-productos-artesanos.jpg'
+        },
+        {
+          slug: 'lote-turron-y-cava-rosado',
+          name: 'Lote turrón y cava rosado',
+          description: 'Turrón acompañado de cava rosado.',
+          category: 'Dulce',
+          price: 47,
+          priceLabel: '47 €',
+          image: '/images/gift-lots/lote-turron-y-cava-rosado.jpg'
+        },
+        {
+          slug: 'lote-vino-blanco-para-regalar',
+          name: 'Lote vino blanco para regalar',
+          description: 'Vino blanco Albariño Lagar de Cervera.',
+          category: 'Bodega',
+          price: 24.5,
+          priceLabel: '24,50 €',
+          image: '/images/gift-lots/lote-vino-blanco-para-regalar.jpg'
         }
       ],
       cta: {
@@ -447,6 +618,7 @@ export class BrandPage {
   constructor(
     private readonly route: ActivatedRoute,
     private readonly meta: Meta,
+    private readonly cartService: CartService,
     destroyRef: DestroyRef
   ) {
     this.route.data
@@ -461,6 +633,19 @@ export class BrandPage {
           content: this.page.intro
         });
       });
+  }
+
+  scrollToBusinessProcess(event: MouseEvent): void {
+    event.preventDefault();
+    document.getElementById('como-funciona')?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start'
+    });
+  }
+
+  addGiftLotToCart(product: GiftLotProduct): void {
+    this.cartService.addToCart(product.name, product.price);
+    this.lastAddedGiftLotSlug = product.slug;
   }
 
   prepareNewsletterRequest(event: SubmitEvent): void {

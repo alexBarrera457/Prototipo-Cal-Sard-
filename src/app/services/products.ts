@@ -1,3 +1,21 @@
+export interface StoreCategory {
+  label: string;
+  value: string;
+}
+
+export const storeCategories: StoreCategory[] = [
+  { label: 'Café gourmet', value: 'CAFÉ GOURMET' },
+  { label: 'Conservas de mar', value: 'CONSERVAS DE MAR' },
+  { label: 'Dulces tradicionales de fiestas', value: 'DULCES DE FIESTAS' },
+  { label: 'Frutos secos a granel', value: 'FRUTOS SECOS' },
+  { label: 'Galletas y pastas', value: 'GALLETAS Y PASTAS' },
+  { label: 'Bodega gourmet', value: 'BODEGA GOURMET' },
+  { label: 'Chocolate gourmet', value: 'CHOCOLATE GOURMET' },
+  { label: 'Víveres gourmet', value: 'VÍVERES GOURMET' },
+  { label: 'Helados y horchata (solo Barcelona)', value: 'HELADOS Y HORCHATA' },
+  { label: 'Embutidos', value: 'EMBUTIDOS' }
+];
+
 export interface StoreProduct {
   name: string;
   category: string;
@@ -5,74 +23,33 @@ export interface StoreProduct {
   price: number;
   number: string;
   image: string;
+  images?: string[];
   imageFit?: 'cover' | 'contain';
   shortDescription: string;
+  priceLabel?: string;
+  sourceUrl?: string;
 }
 
-export const storeProducts: StoreProduct[] = [
-  {
-    name: 'Anchoas del Cantábrico',
-    category: 'CONSERVAS',
-    description: 'Anchoas Ortiz en aceite de oliva, una conserva clásica de la selección de Cal Sardà.',
-    price: 4.5,
-    number: '01',
-    image: '/images/products/conservas.png',
-    imageFit: 'contain',
-    shortDescription: 'Anchoas Ortiz en aceite de oliva.'
-  },
-  {
-    name: 'Café Sardà',
-    category: 'CAFÉ',
-    description: 'El café que forma parte de nuestra historia.',
-    price: 6.9,
-    number: '02',
-    image: '/images/products/cafe.jpg',
-    shortDescription: 'Café en grano de la casa, 250 g.'
-  },
-  {
-    name: 'Frutos secos',
-    category: 'FRUTOS SECOS',
-    description: 'Una selección de frutos secos de calidad.',
-    price: 3.9,
-    number: '03',
-    image: '/images/products/frutos-secos.jpg',
-    shortDescription: 'Almendras seleccionadas.'
-  },
-  {
-    name: 'Arrugats de chocolate',
-    category: 'DULCES',
-    description: 'Galletas Arrugats de chocolate de El Rosal, un dulce tradicional para compartir.',
-    price: 5.5,
-    number: '04',
-    image: '/images/products/dulces.jpg',
-    imageFit: 'contain',
-    shortDescription: 'Galletas de chocolate El Rosal.'
-  }
-];
+let storeProductsPromise: Promise<StoreProduct[]> | null = null;
+
+export function loadStoreProducts(): Promise<StoreProduct[]> {
+  storeProductsPromise ??= import('./products-catalog').then((catalog) => catalog.storeProducts);
+  return storeProductsPromise;
+}
 
 function normalizeSearchText(value: string): string {
-  return value
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .toLocaleLowerCase('es')
-    .trim();
+  return value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase('es').trim();
 }
 
-export function searchStoreProducts(query: string): StoreProduct[] {
+export function searchStoreProducts(query: string, products: readonly StoreProduct[]): StoreProduct[] {
   const terms = normalizeSearchText(query).split(/\s+/).filter(Boolean);
-
-  if (!terms.length) {
-    return [];
-  }
-
-  return storeProducts.filter((product) => {
-    const searchableText = normalizeSearchText([
-      product.name,
-      product.category,
-      product.description,
-      product.shortDescription
-    ].join(' '));
-
+  if (!terms.length) return [];
+  return products.filter((item) => {
+    const searchableText = normalizeSearchText([item.name, item.category, item.description, item.shortDescription].join(' '));
     return terms.every((term) => searchableText.includes(term));
   });
+}
+
+export function formatStorePrice(price: number): string {
+  return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(price);
 }

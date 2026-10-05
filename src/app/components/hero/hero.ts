@@ -9,13 +9,12 @@ import { Component } from '@angular/core';
 export class Hero {
 
   goToStore(): void {
+    const store = document.getElementById('tienda');
 
-    document
-      .getElementById('tienda')
-      ?.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start'
-      });
+    store?.scrollIntoView({
+      behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+      block: 'start'
+    });
 
   }
 

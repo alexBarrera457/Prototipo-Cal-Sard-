@@ -1,8 +1,8 @@
-import { Component, DestroyRef, ElementRef, inject, HostListener } from '@angular/core';
+import { Component, DestroyRef, ElementRef, inject, HostListener, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CartService } from '../../services/cart';
-import { searchStoreProducts, StoreProduct } from '../../services/products';
+import { loadStoreProducts, searchStoreProducts, StoreProduct } from '../../services/products';
 
 @Component({
   selector: 'app-navbar',
@@ -19,6 +19,10 @@ export class Navbar {
   searchTerm = '';
   searchOpen = false;
   activeSearchResultIndex = -1;
+  searchLoading = signal(false);
+  private readonly searchResultProducts = signal<StoreProduct[]>([]);
+  private searchRequest = 0;
+  private loadedSearchQuery = '';
   selectedLanguage = 'es';
   languageNotice = '';
 
@@ -34,11 +38,12 @@ export class Navbar {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((params) => {
         this.searchTerm = params.get('buscar') ?? '';
+        void this.refreshSearchResults(this.searchTerm);
       });
   }
 
   get searchResults(): StoreProduct[] {
-    return searchStoreProducts(this.searchTerm).slice(0, 5);
+    return this.searchResultProducts();
   }
 
   get activeSearchResultId(): string | null {
@@ -46,14 +51,16 @@ export class Navbar {
     return activeProduct ? `header-search-result-${activeProduct.number}` : null;
   }
 
-  onSearchInput(value: string): void {
+  async onSearchInput(value: string): Promise<void> {
     this.searchTerm = value;
     this.searchOpen = Boolean(value.trim());
     this.activeSearchResultIndex = -1;
+    await this.refreshSearchResults(value);
   }
 
   openSearch(): void {
     this.searchOpen = Boolean(this.searchTerm.trim());
+    void this.refreshSearchResults(this.searchTerm);
   }
 
   closeSearch(): void {
@@ -63,6 +70,10 @@ export class Navbar {
 
   clearSearch(input: HTMLInputElement): void {
     this.searchTerm = '';
+    this.searchRequest++;
+    this.loadedSearchQuery = '';
+    this.searchResultProducts.set([]);
+    this.searchLoading.set(false);
     this.closeSearch();
     input.focus();
     void this.router.navigate([], {
@@ -169,6 +180,37 @@ export class Navbar {
 
     this.closeSearch();
     void this.router.navigate(['/tienda-online'], { queryParams: { buscar: query } });
+  }
+
+  private async refreshSearchResults(query: string): Promise<void> {
+    const normalizedQuery = query.trim();
+    const request = ++this.searchRequest;
+
+    if (!normalizedQuery) {
+      this.loadedSearchQuery = '';
+      this.searchResultProducts.set([]);
+      this.searchLoading.set(false);
+      return;
+    }
+
+    if (this.loadedSearchQuery === normalizedQuery) {
+      return;
+    }
+
+    this.searchLoading.set(true);
+    try {
+      const products = await loadStoreProducts();
+      if (request !== this.searchRequest) return;
+      this.searchResultProducts.set(searchStoreProducts(normalizedQuery, products).slice(0, 5));
+      this.loadedSearchQuery = normalizedQuery;
+    } catch {
+      if (request === this.searchRequest) {
+        this.searchResultProducts.set([]);
+        this.loadedSearchQuery = normalizedQuery;
+      }
+    } finally {
+      if (request === this.searchRequest) this.searchLoading.set(false);
+    }
   }
 
   @HostListener('document:click', ['$event'])

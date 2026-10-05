@@ -1,10 +1,10 @@
-import { Component, DestroyRef, inject } from '@angular/core';
+import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { ProductDetail } from '../../components/product-detail/product-detail';
 import { Store } from '../../components/store/store';
-import { StoreProduct, storeProducts } from '../../services/products';
+import { loadStoreProducts, StoreProduct } from '../../services/products';
 
 @Component({
   selector: 'app-shop-page',
@@ -13,12 +13,13 @@ import { StoreProduct, storeProducts } from '../../services/products';
   styleUrl: './shop-page.css'
 })
 export class ShopPage {
-  selectedProduct: StoreProduct | null = null;
+  selectedProduct = signal<StoreProduct | null>(null);
   searchTerm = '';
 
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
+  private productRequest = 0;
 
   constructor() {
     this.route.queryParamMap
@@ -26,14 +27,21 @@ export class ShopPage {
       .subscribe((params) => {
         this.searchTerm = params.get('buscar') ?? '';
         const productNumber = params.get('producto');
-        this.selectedProduct = productNumber
-          ? storeProducts.find((product) => product.number === productNumber) ?? null
-          : null;
+        const request = ++this.productRequest;
+        this.selectedProduct.set(null);
+
+        if (productNumber) {
+          void loadStoreProducts().then((products) => {
+            if (request === this.productRequest) {
+              this.selectedProduct.set(products.find((product) => product.number === productNumber) ?? null);
+            }
+          });
+        }
       });
   }
 
   showProduct(product: StoreProduct): void {
-    this.selectedProduct = product;
+    this.selectedProduct.set(product);
     void this.router.navigate([], {
       relativeTo: this.route,
       queryParams: { producto: product.number },
@@ -43,7 +51,7 @@ export class ShopPage {
   }
 
   hideProduct(): void {
-    this.selectedProduct = null;
+    this.selectedProduct.set(null);
     void this.router.navigate([], {
       relativeTo: this.route,
       queryParams: { producto: null },

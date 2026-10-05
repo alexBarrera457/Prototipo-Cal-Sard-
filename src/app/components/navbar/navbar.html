@@ -82,10 +82,12 @@
             <div class="search-results" id="header-search-results" role="region" aria-label="Resultados de búsqueda">
               <div class="search-results-heading">
                 <span>Productos</span>
-                <span>{{ searchResults.length }} {{ searchResults.length === 1 ? 'resultado' : 'resultados' }}</span>
+                <span>{{ searchLoading() ? 'Buscando…' : searchResults.length + (searchResults.length === 1 ? ' resultado' : ' resultados') }}</span>
               </div>
 
-              @if (searchResults.length) {
+              @if (searchLoading()) {
+                <p class="search-no-results" role="status">Cargando productos…</p>
+              } @else if (searchResults.length) {
                 <div class="search-result-list" role="listbox" aria-label="Productos encontrados">
                   @for (product of searchResults; track product.number; let index = $index) {
                     <a
@@ -135,7 +137,9 @@
           <span>Mi cuenta</span>
         </a>
 
-        <button class="navbar-cart" type="button" (click)="toggleCart()" aria-label="Abrir carrito">
+        <button class="navbar-cart" type="button" (click)="toggleCart()"
+          [attr.aria-label]="'Abrir carrito, ' + cartService.count() + ' productos'"
+          [attr.aria-expanded]="cartOpen" aria-controls="cart-panel">
           <span class="cart-label">CARRITO</span>
           <span class="cart-circle">
             <span class="cart-icon"></span>
@@ -199,8 +203,11 @@
 ========================== -->
 
 <aside
+  id="cart-panel"
   class="cart-panel"
   [class.open]="cartOpen"
+  [attr.aria-hidden]="!cartOpen"
+  [attr.inert]="cartOpen ? null : ''"
 >
 
 
@@ -299,6 +306,7 @@
             <button
               type="button"
               (click)="cartService.removeFromCart(product.name)"
+              [attr.aria-label]="'Restar una unidad de ' + product.name"
             >
               −
             </button>
@@ -310,6 +318,7 @@
             <button
               type="button"
               (click)="cartService.addToCart(product.name, product.price)"
+              [attr.aria-label]="'Añadir una unidad de ' + product.name"
             >
               +
             </button>
@@ -323,6 +332,7 @@
             class="cart-product-delete"
             type="button"
             (click)="cartService.deleteProduct(product.name)"
+            [attr.aria-label]="'Eliminar ' + product.name + ' del carrito'"
           >
             ELIMINAR
           </button>

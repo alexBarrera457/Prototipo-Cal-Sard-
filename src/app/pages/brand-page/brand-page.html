@@ -1,3 +1,235 @@
+@if (page.eyebrow === 'Lotes y cestas gourmet') {
+  <article class="brand-page gift-lots-page">
+    <header class="gift-lots-hero">
+      <div class="gift-lots-hero-copy">
+        <span class="brand-page-eyebrow">Regalos gourmet · Cal Sardà</span>
+        <h1>{{ page.title }}</h1>
+        <p>{{ page.intro }}</p>
+        <small>{{ page.highlight }}</small>
+        @if (page.cta) {
+          <a class="business-button-primary" [routerLink]="page.cta.route">
+            {{ page.cta.label }} <span aria-hidden="true">→</span>
+          </a>
+        }
+      </div>
+      <figure class="gift-lots-hero-image">
+        <img
+          src="/images/gift-lots/lote-gourmet-clasico.jpg"
+          alt="Lote gourmet surtido con productos dulces y salados de Cal Sardà"
+          fetchpriority="high"
+        >
+        <figcaption>Una selección para cada ocasión</figcaption>
+      </figure>
+    </header>
+
+    <section class="gift-lot-personalization" aria-labelledby="gift-lot-personalization-title">
+      <div class="gift-lot-personalization-heading">
+        <span class="brand-page-eyebrow">También a medida</span>
+        <h2 id="gift-lot-personalization-title">¿Cómo hacer un lote personalizado?</h2>
+        <p>Si quieres que montemos un lote a medida, <a href="mailto:sarda@calsarda.com">escríbenos a sarda&#64;calsarda.com</a> e indícanos qué idea tienes. Con esta información te enviaremos un presupuesto detallado sin compromiso.</p>
+      </div>
+      <div class="gift-lot-steps">
+        @for (card of page.cards; track card.title) {
+          <article>
+            <span>0{{ $index + 1 }}</span>
+            <h3>{{ card.title }}</h3>
+            <p>{{ card.text }}</p>
+          </article>
+        }
+      </div>
+    </section>
+
+    @if (page.giftLots?.length) {
+      <section class="gift-lot-catalog" aria-labelledby="gift-lot-catalog-title">
+        <header class="gift-lot-catalog-heading">
+          <div>
+            <span class="brand-page-eyebrow">Propuestas con precio cerrado</span>
+            <h2 id="gift-lot-catalog-title">Encuentra tu lote</h2>
+          </div>
+          <p>Regalos dulces, salados y combinados, preparados con una selección de productos gourmet.</p>
+        </header>
+
+        <div class="gift-lot-grid">
+          @for (product of page.giftLots; track product.slug) {
+            <article class="gift-lot-card">
+              <div class="gift-lot-card-image">
+                <img
+                  [src]="product.image"
+                  [alt]="product.name"
+                  [class.contain]="product.imageFit === 'contain'"
+                  loading="lazy"
+                  decoding="async"
+                >
+                <span>{{ product.category }}</span>
+              </div>
+              <div class="gift-lot-card-content">
+                <h3>{{ product.name }}</h3>
+                @if (product.description) {
+                  <p>{{ product.description }}</p>
+                }
+                <div class="gift-lot-card-purchase">
+                  <strong>{{ product.priceLabel }}</strong>
+                  <button type="button" (click)="addGiftLotToCart(product)" [attr.aria-label]="'Añadir ' + product.name + ' al carrito'">
+                    Añadir al carrito <span aria-hidden="true">+</span>
+                  </button>
+                </div>
+                @if (lastAddedGiftLotSlug === product.slug) {
+                  <p class="gift-lot-added" role="status" aria-live="polite">Añadido al carrito.</p>
+                }
+              </div>
+            </article>
+          }
+        </div>
+      </section>
+    }
+
+    <section class="gift-lot-contact" aria-labelledby="gift-lot-contact-title">
+      <div>
+        <span class="brand-page-eyebrow">¿No encuentras lo que buscas?</span>
+        <h2 id="gift-lot-contact-title">Creamos una combinación a tu gusto.</h2>
+        <p>Cuéntanos qué productos quieres incluir y el presupuesto que tienes en mente. Te ayudaremos a preparar un lote único.</p>
+      </div>
+      @if (page.cta) {
+        <a class="business-button-light" [routerLink]="page.cta.route">
+          Pide tu lote a medida <span aria-hidden="true">→</span>
+        </a>
+      }
+    </section>
+  </article>
+} @else if (page.eyebrow === 'Lotes para empresas') {
+  <article class="brand-page business-page">
+    <header class="business-hero">
+      <div class="business-hero-copy">
+        <span class="brand-page-eyebrow">{{ page.eyebrow }} · regalos gourmet</span>
+        <h1>{{ page.title }}</h1>
+        <p class="business-hero-intro">{{ page.intro }}</p>
+        <p class="business-hero-highlight">{{ page.highlight }}</p>
+        <div class="business-hero-actions">
+          @if (page.cta) {
+            <a class="business-button-primary" [routerLink]="page.cta.route">
+              {{ page.cta.label }} <span aria-hidden="true">→</span>
+            </a>
+          }
+          <a class="business-button-secondary" href="#como-funciona" (click)="scrollToBusinessProcess($event)">Descubre cómo funciona <span aria-hidden="true">↓</span></a>
+        </div>
+        <ul class="business-hero-benefits" aria-label="Características del servicio">
+          <li>A medida</li>
+          <li>Presupuesto sin compromiso</li>
+          <li>Recogida o entrega en empresa</li>
+        </ul>
+      </div>
+
+      <figure class="business-hero-visual">
+        <img
+          src="/images/business-gifts/lotes-empresas.jpg"
+          alt="Lote gourmet de Cal Sardà con chocolates, aceite, embutidos y productos seleccionados"
+          fetchpriority="high"
+        >
+        <figcaption><span>Cal Sardà · desde 1930</span><strong>Un detalle para compartir</strong></figcaption>
+      </figure>
+    </header>
+
+    <section class="business-offers" aria-label="Descuentos en lotes para empresas">
+      <article class="business-offer">
+        <span class="business-offer-value">3%</span>
+        <div>
+          <p>Encargos de lotes de Navidad antes del 31 d'octubre</p>
+          <strong>de descuento</strong>
+        </div>
+      </article>
+      <article class="business-offer">
+        <span class="business-offer-value">2%</span>
+        <div>
+          <p>Pedidos de más de 1.800 €</p>
+          <strong>de descuento</strong>
+        </div>
+      </article>
+    </section>
+
+    <section class="business-process" id="como-funciona" aria-labelledby="business-process-title">
+      <div class="business-section-heading">
+        <span class="brand-page-eyebrow">Un lote personalizado</span>
+        <h2 id="business-process-title">¿Cómo hacemos tu lote?</h2>
+        <p>Elige los productos: prepararemos una propuesta a medida y adaptada a tu presupuesto.</p>
+      </div>
+
+      <div class="business-steps">
+        @for (card of page.cards; track card.title) {
+          <article class="business-step">
+            <span class="business-step-number">0{{ $index + 1 }}</span>
+            <h3>{{ card.title }}</h3>
+            <p>{{ card.text }}</p>
+          </article>
+        }
+      </div>
+    </section>
+
+    @if (page.galleryImages?.length) {
+      <section class="business-examples" aria-labelledby="business-examples-title">
+        <div class="business-section-heading business-examples-heading">
+          <span class="brand-page-eyebrow">Selección gourmet</span>
+          <h2 id="business-examples-title">Ideas para regalar</h2>
+          <p>Conservas, vinos, chocolates y dulces tradicionales: combinamos los productos para crear un regalo único.</p>
+        </div>
+        <div class="business-gallery">
+          @for (image of page.galleryImages; track image.src) {
+            <figure>
+              <img [src]="image.src" [alt]="image.alt" loading="lazy" decoding="async">
+              <figcaption>{{ image.caption }}</figcaption>
+            </figure>
+          }
+        </div>
+      </section>
+    }
+
+    <section class="business-contact-callout" aria-labelledby="business-contact-title">
+      <div>
+        <span class="brand-page-eyebrow">Lo preparamos contigo</span>
+        <h2 id="business-contact-title">¿Tienes una idea para tu equipo?</h2>
+        <p>Cuéntanos qué tienes en mente. Te ayudaremos a crear un lote listo para regalar y te enviaremos un presupuesto detallado sin compromiso.</p>
+        <small>Puedes recogerlo en nuestro establecimiento o recibirlo directamente en tu empresa.</small>
+      </div>
+      @if (page.cta) {
+        <a class="business-button-light" [routerLink]="page.cta.route">
+          {{ page.cta.label }} <span aria-hidden="true">→</span>
+        </a>
+      }
+    </section>
+  </article>
+} @else if (page.eyebrow === 'Historia') {
+  <article class="brand-page history-page">
+    <header class="brand-page-header history-intro">
+      <div class="history-intro-heading">
+        <span class="brand-page-eyebrow">{{ page.eyebrow }}</span>
+        <h1>{{ page.title }}</h1>
+        <p class="brand-page-intro">{{ page.intro }}</p>
+      </div>
+      <aside class="history-intro-summary" aria-label="Resumen de la historia de Cal Sardà">
+        <p>Desde una lechería abierta en 1930 hasta el colmado actual, cuatro generaciones han conservado el trato cercano y la confianza del barrio.</p>
+        <div class="history-intro-years" aria-label="Años destacados">
+          <span>1930</span>
+          <i aria-hidden="true"></i>
+          <span>1958</span>
+          <i aria-hidden="true"></i>
+          <span>2016</span>
+          <i aria-hidden="true"></i>
+          <span>Hoy</span>
+        </div>
+      </aside>
+    </header>
+
+    <app-history-book />
+
+    @if (page.cta) {
+      <div class="brand-page-cta">
+        <a [routerLink]="page.cta.route" [fragment]="page.cta.fragment">
+          {{ page.cta.label }}
+          <span>→</span>
+        </a>
+      </div>
+    }
+  </article>
+} @else {
 <article class="brand-page">
 
   <header class="brand-page-header">
@@ -115,3 +347,4 @@
   }
 
 </article>
+}
