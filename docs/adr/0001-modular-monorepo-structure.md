@@ -22,3 +22,8 @@ Adoptamos una estructura monorepo modular ligera basada en carpetas raíz y paqu
 
 - Mantenemos los scripts nativos de Angular CLI (`npm start`, `npm test`) sin fricción ni capas adicionales de configuración.
 - Los dominios y contratos quedan desacoplados de los componentes de la interfaz de usuario.
+
+## Referencias
+
+- Issue [#4](https://github.com/alexBarrera457/Prototipo-Cal-Sard-/issues/4): Organizar estructura modular
+- Issue [#6](https://github.com/alexBarrera457/Prototipo-Cal-Sard-/issues/6): Consolidación de estructura modular monorepo
