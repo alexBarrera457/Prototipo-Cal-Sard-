@@ -40,6 +40,38 @@ export interface FilterProductsOptions {
   sortOrder?: StoreSortOrder;
 }
 
+export interface PaginatedResult<T> {
+  items: T[];
+  total: number;
+  page: number;
+  pageSize: number;
+  pageCount: number;
+  firstItemIndex: number;
+  lastItemIndex: number;
+}
+
+export function paginate<T>(
+  items: readonly T[],
+  page: number,
+  pageSize: number,
+): PaginatedResult<T> {
+  const total = items.length;
+  const pageCount = Math.max(1, Math.ceil(total / pageSize));
+  const safePage = Math.min(Math.max(1, page), pageCount);
+  const start = (safePage - 1) * pageSize;
+  const visible = items.slice(start, start + pageSize);
+
+  return {
+    items: visible,
+    total,
+    page: safePage,
+    pageSize,
+    pageCount,
+    firstItemIndex: total ? start + 1 : 0,
+    lastItemIndex: Math.min(safePage * pageSize, total),
+  };
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -132,6 +164,13 @@ export class ProductsService {
    */
   formatPrice(price: number): string {
     return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(price);
+  }
+
+  /**
+   * Divide un listado de elementos en páginas con metadatos de navegación.
+   */
+  paginate<T>(items: readonly T[], page: number, pageSize: number): PaginatedResult<T> {
+    return paginate(items, page, pageSize);
   }
 }
 

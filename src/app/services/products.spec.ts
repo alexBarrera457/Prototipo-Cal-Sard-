@@ -118,4 +118,44 @@ describe('ProductsService', () => {
       expect(formatted).toContain('€');
     });
   });
+
+  describe('paginate', () => {
+    const list = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+
+    it('slices page items correctly', () => {
+      const page1 = service.paginate(list, 1, 4);
+      expect(page1.items).toEqual([1, 2, 3, 4]);
+      expect(page1.page).toBe(1);
+      expect(page1.pageCount).toBe(3);
+      expect(page1.firstItemIndex).toBe(1);
+      expect(page1.lastItemIndex).toBe(4);
+
+      const page2 = service.paginate(list, 2, 4);
+      expect(page2.items).toEqual([5, 6, 7, 8]);
+      expect(page2.firstItemIndex).toBe(5);
+      expect(page2.lastItemIndex).toBe(8);
+
+      const page3 = service.paginate(list, 3, 4);
+      expect(page3.items).toEqual([9, 10]);
+      expect(page3.firstItemIndex).toBe(9);
+      expect(page3.lastItemIndex).toBe(10);
+    });
+
+    it('clamps page numbers to valid bounds', () => {
+      const pageLow = service.paginate(list, 0, 4);
+      expect(pageLow.page).toBe(1);
+
+      const pageHigh = service.paginate(list, 999, 4);
+      expect(pageHigh.page).toBe(3);
+      expect(pageHigh.items).toEqual([9, 10]);
+    });
+
+    it('handles empty lists gracefully', () => {
+      const empty = service.paginate([], 1, 10);
+      expect(empty.items).toEqual([]);
+      expect(empty.pageCount).toBe(1);
+      expect(empty.firstItemIndex).toBe(0);
+      expect(empty.lastItemIndex).toBe(0);
+    });
+  });
 });

@@ -13,7 +13,12 @@ import {
 import { isPlatformBrowser } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { CartService } from '../../services/cart';
-import { ProductsService, StoreProduct, StoreSortOrder } from '../../services/products';
+import {
+  PaginatedResult,
+  ProductsService,
+  StoreProduct,
+  StoreSortOrder,
+} from '../../services/products';
 
 @Component({
   selector: 'app-store',
@@ -107,21 +112,24 @@ export class Store implements AfterViewInit, OnDestroy {
     });
   }
 
+  get pagination(): PaginatedResult<StoreProduct> {
+    return this.productsService.paginate(this.filteredProducts, this.currentPage, this.pageSize);
+  }
+
   get pageCount(): number {
-    return Math.max(1, Math.ceil(this.filteredProducts.length / this.pageSize));
+    return this.pagination.pageCount;
   }
 
   get visibleProducts(): StoreProduct[] {
-    const start = (this.currentPage - 1) * this.pageSize;
-    return this.filteredProducts.slice(start, start + this.pageSize);
+    return this.pagination.items;
   }
 
   get firstVisibleProduct(): number {
-    return this.filteredProducts.length ? (this.currentPage - 1) * this.pageSize + 1 : 0;
+    return this.pagination.firstItemIndex;
   }
 
   get lastVisibleProduct(): number {
-    return Math.min(this.currentPage * this.pageSize, this.filteredProducts.length);
+    return this.pagination.lastItemIndex;
   }
 
   selectCategory(category: string): void {
