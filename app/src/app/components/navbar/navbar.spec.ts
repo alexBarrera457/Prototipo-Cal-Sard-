@@ -46,7 +46,7 @@ describe('Navbar', () => {
     component.onSearchKeydown(new KeyboardEvent('keydown', { key: 'Enter', cancelable: true }));
 
     expect(navigate).toHaveBeenCalledWith(['/tienda-online'], {
-      queryParams: { producto: '01', buscar: 'cafe' }
+      queryParams: { producto: '04', buscar: 'cafe' },
     });
     expect(component.searchOpen).toBe(false);
 

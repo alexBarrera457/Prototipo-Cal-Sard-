@@ -72,6 +72,38 @@ export function paginate<T>(
   };
 }
 
+/**
+ * Obtiene variantes de un término para contemplar flexiones singulares y plurales.
+ */
+export function getSearchVariants(term: string): string[] {
+  const normalized = term
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9\s]/gi, ' ')
+    .replace(/\s+/g, ' ')
+    .toLocaleLowerCase('es')
+    .trim();
+  if (!normalized) {
+    return [];
+  }
+
+  const variants = new Set<string>([normalized]);
+  const singularCandidates = [
+    normalized.replace(/es$/, ''),
+    normalized.replace(/s$/, ''),
+    normalized.replace(/as$/, 'a'),
+    normalized.replace(/os$/, 'o'),
+  ];
+
+  singularCandidates.forEach((candidate) => {
+    if (candidate && candidate !== normalized) {
+      variants.add(candidate);
+    }
+  });
+
+  return [...variants].filter(Boolean);
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -107,17 +139,66 @@ export class ProductsService {
   }
 
   /**
-   * Búsqueda sincrónica sobre un listado ya disponible en memoria.
+   * Obtiene variantes de un término para contemplar flexiones singulares y plurales.
+   */
+  getSearchVariants(term: string): string[] {
+    return getSearchVariants(term);
+  }
+
+  /**
+   * Búsqueda sincrónica sobre un listado ya disponible en memoria,
+   * calculando puntuación ponderada y variantes morfológicas.
    */
   searchInList(query: string, products: readonly StoreProduct[]): StoreProduct[] {
     const terms = this.normalizeText(query).split(/\s+/).filter(Boolean);
-    if (!terms.length) return [];
-    return products.filter((item) => {
-      const searchableText = this.normalizeText(
-        [item.name, item.category, item.description, item.shortDescription].join(' '),
-      );
-      return terms.every((term) => searchableText.includes(term));
-    });
+    if (!terms.length) {
+      return [];
+    }
+
+    return [...products]
+      .map((item) => {
+        const searchableText = this.normalizeText(
+          [item.name, item.category, item.description, item.shortDescription, item.number].join(
+            ' ',
+          ),
+        );
+
+        let score = 0;
+
+        for (const term of terms) {
+          const variants = getSearchVariants(term);
+
+          if (!variants.some((variant) => searchableText.includes(variant))) {
+            return { product: item, score: Number.NEGATIVE_INFINITY };
+          }
+
+          const nameText = this.normalizeText(item.name);
+          const categoryText = this.normalizeText(item.category);
+          const shortDescriptionText = this.normalizeText(item.shortDescription);
+          const descriptionText = this.normalizeText(item.description);
+
+          if (variants.some((variant) => nameText.includes(variant))) {
+            score += 60;
+          }
+          if (variants.some((variant) => categoryText.includes(variant))) {
+            score += 25;
+          }
+          if (variants.some((variant) => shortDescriptionText.includes(variant))) {
+            score += 15;
+          }
+          if (variants.some((variant) => descriptionText.includes(variant))) {
+            score += 8;
+          }
+          if (variants.some((variant) => item.number.includes(variant))) {
+            score += 10;
+          }
+        }
+
+        return { product: item, score };
+      })
+      .filter(({ score }) => Number.isFinite(score))
+      .sort((first, second) => second.score - first.score)
+      .map(({ product }) => product);
   }
 
   /**
@@ -128,10 +209,15 @@ export class ProductsService {
     options: FilterProductsOptions = {},
   ): StoreProduct[] {
     const { searchTerm = '', category = 'TODOS', sortOrder = 'featured' } = options;
-    let results = searchTerm.trim() ? this.searchInList(searchTerm, products) : products;
+    const hasSearch = searchTerm.trim().length > 0;
+    let results = hasSearch ? this.searchInList(searchTerm, products) : [...products];
 
     if (category && category !== 'TODOS') {
       results = results.filter((product) => product.category === category);
+    }
+
+    if (hasSearch && sortOrder === 'featured') {
+      return results;
     }
 
     return [...results].sort((first, second) => {
@@ -155,6 +241,8 @@ export class ProductsService {
     return value
       .normalize('NFD')
       .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9\s]/gi, ' ')
+      .replace(/\s+/g, ' ')
       .toLocaleLowerCase('es')
       .trim();
   }
