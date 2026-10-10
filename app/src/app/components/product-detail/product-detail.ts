@@ -84,7 +84,7 @@ export class ProductDetail implements OnChanges {
     this.cartService.addToCart(this.product.name, this.product.price, this.quantity);
 
     const unitLabel = this.quantity === 1 ? 'unidad añadida' : 'unidades añadidas';
-    this.addedToCartMessage = `${this.quantity} ${unitLabel} al carrito.`;
+    this.addedToCartMessage = `${this.quantity} ${unitLabel} a la cesta.`;
   }
 
   goBack(): void {

@@ -238,11 +238,11 @@
           class="navbar-cart"
           type="button"
           (click)="toggleCart()"
-          [attr.aria-label]="'Abrir carrito, ' + cartService.count() + ' productos'"
+          [attr.aria-label]="'Abrir cesta, ' + cartService.count() + ' productos'"
           [attr.aria-expanded]="cartOpen"
           aria-controls="cart-panel"
         >
-          <span class="cart-label">CARRITO</span>
+          <span class="cart-label">CESTA</span>
           <span class="cart-circle">
             <span class="cart-icon"></span>
             <span class="cart-count">{{ cartService.count() }}</span>
@@ -326,13 +326,13 @@
 </nav>
 
 <!-- =========================
-     OVERLAY CARRITO
+     OVERLAY CESTA
 ========================== -->
 
 <div class="cart-overlay" [class.active]="cartOpen" (click)="closeCart()"></div>
 
 <!-- =========================
-     PANEL CARRITO
+     PANEL CESTA
 ========================== -->
 
 <aside
@@ -348,10 +348,10 @@
     <div>
       <span class="cart-label-panel"> CAL SARDÀ </span>
 
-      <h2>Tu carrito</h2>
+      <h2>Tu cesta</h2>
     </div>
 
-    <button class="cart-close" type="button" (click)="closeCart()" aria-label="Cerrar carrito">
+    <button class="cart-close" type="button" (click)="closeCart()" aria-label="Cerrar cesta">
       ×
     </button>
   </div>
@@ -365,7 +365,7 @@
       <div class="cart-empty">
         <span class="cart-empty-icon"> 🛒 </span>
 
-        <h3>Tu carrito está vacío</h3>
+        <h3>Tu cesta está vacía</h3>
 
         <p>Añade alguno de nuestros productos para comenzar.</p>
 
@@ -416,7 +416,7 @@
             class="cart-product-delete"
             type="button"
             (click)="cartService.deleteProduct(product.name)"
-            [attr.aria-label]="'Eliminar ' + product.name + ' del carrito'"
+            [attr.aria-label]="'Eliminar ' + product.name + ' de la cesta'"
           >
             ELIMINAR
           </button>

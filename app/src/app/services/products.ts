@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
+import type { Category, Product } from '@cal-sarda/domain';
 
-export interface StoreCategory {
-  label: string;
-  value: string;
-}
+export type StoreCategory = Category;
+export type StoreProduct = Product;
+export type { Category, Product };
 
-export const storeCategories: StoreCategory[] = [
+export const storeCategories: Category[] = [
   { label: 'Café gourmet', value: 'CAFÉ GOURMET' },
   { label: 'Conservas de mar', value: 'CONSERVAS DE MAR' },
   { label: 'Dulces tradicionales de fiestas', value: 'DULCES DE FIESTAS' },
@@ -17,20 +17,6 @@ export const storeCategories: StoreCategory[] = [
   { label: 'Helados y horchata (solo Barcelona)', value: 'HELADOS Y HORCHATA' },
   { label: 'Embutidos', value: 'EMBUTIDOS' },
 ];
-
-export interface StoreProduct {
-  name: string;
-  category: string;
-  description: string;
-  price: number;
-  number: string;
-  image: string;
-  images?: string[];
-  imageFit?: 'cover' | 'contain';
-  shortDescription: string;
-  priceLabel?: string;
-  sourceUrl?: string;
-}
 
 export type StoreSortOrder = 'featured' | 'name-asc' | 'price-asc' | 'price-desc';
 

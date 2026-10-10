@@ -10,15 +10,13 @@ import {
   PLATFORM_ID,
   signal,
 } from '@angular/core';
+import type { CartItem } from '@cal-sarda/domain';
 
-export interface CartProduct {
-  name: string;
-  price: number;
-  quantity: number;
-}
+export type CartProduct = CartItem;
+export type { CartItem };
 
 /**
- * Seam (Costura): Interfaz que desacopla la persistencia del carrito de la lógica de negocio.
+ * Seam (Costura): Interfaz que desacopla la persistencia de la cesta de la lógica de negocio.
  */
 export interface CartStorageAdapter {
   load(): CartProduct[];
