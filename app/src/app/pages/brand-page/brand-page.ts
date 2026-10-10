@@ -671,7 +671,7 @@ export class BrandPage {
   }
 
   addGiftLotToCart(product: GiftLotProduct): void {
-    this.cartService.addToCart(product.name, product.price);
+    this.cartService.addToCart(product.name, product.price, 1, product.slug, product.image);
     this.lastAddedGiftLotSlug = product.slug;
   }
 

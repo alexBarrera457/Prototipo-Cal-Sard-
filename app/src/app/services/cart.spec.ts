@@ -5,6 +5,7 @@ import {
   CartService,
   CartStorageAdapter,
   InMemoryCartAdapter,
+  LocalStorageCartAdapter,
 } from './cart';
 
 describe('CartService', () => {
@@ -105,5 +106,76 @@ describe('CartService', () => {
 
     expect(saved.length).toBe(1);
     expect(saved[0].name).toBe('Vino Cava');
+  });
+
+  it('stores and preserves productNumber and image when adding items', () => {
+    service.addToCart('Almejas', 7.15, 1, 'ALM-01', '/images/almejas.jpg');
+
+    const item = service.products().find((p) => p.name === 'Almejas');
+    expect(item).toBeDefined();
+    expect(item?.productNumber).toBe('ALM-01');
+    expect(item?.image).toBe('/images/almejas.jpg');
+
+    // Adding more quantity without re-specifying number/image preserves them
+    service.addToCart('Almejas', 7.15, 2);
+    const updated = service.products().find((p) => p.name === 'Almejas');
+    expect(updated?.quantity).toBe(3);
+    expect(updated?.productNumber).toBe('ALM-01');
+    expect(updated?.image).toBe('/images/almejas.jpg');
+  });
+});
+
+describe('LocalStorageCartAdapter', () => {
+  let adapter: LocalStorageCartAdapter;
+
+  beforeEach(() => {
+    localStorage.clear();
+    adapter = new LocalStorageCartAdapter('browser' as unknown as object);
+  });
+
+  afterEach(() => {
+    localStorage.clear();
+  });
+
+  it('deserializes legacy items without productNumber and image for backwards compatibility', () => {
+    const legacyData = [{ name: 'Queso Manchego', price: 12.5, quantity: 2 }];
+    localStorage.setItem('cal-sarda-cart', JSON.stringify(legacyData));
+
+    const loaded = adapter.load();
+    expect(loaded).toEqual(legacyData);
+  });
+
+  it('deserializes enriched items with productNumber and image', () => {
+    const enrichedData = [
+      {
+        name: 'Jamón Ibérico',
+        price: 25.0,
+        quantity: 1,
+        productNumber: 'JAM-01',
+        image: '/images/jamon.jpg',
+      },
+    ];
+    localStorage.setItem('cal-sarda-cart', JSON.stringify(enrichedData));
+
+    const loaded = adapter.load();
+    expect(loaded).toEqual(enrichedData);
+  });
+
+  it('filters out corrupted or invalid cart items', () => {
+    const mixedData = [
+      { name: 'Válido', price: 10, quantity: 1, productNumber: 'V-01', image: '/img.jpg' },
+      { name: 'Sin precio', quantity: 1 },
+      { name: 'Precio negativo', price: -5, quantity: 1 },
+      { name: 'Cantidad cero', price: 10, quantity: 0 },
+      { name: 'ProductNumber no string', price: 10, quantity: 1, productNumber: 123 },
+      { name: 'Image no string', price: 10, quantity: 1, image: false },
+      null,
+      'cadena inválida',
+    ];
+    localStorage.setItem('cal-sarda-cart', JSON.stringify(mixedData));
+
+    const loaded = adapter.load();
+    expect(loaded.length).toBe(1);
+    expect(loaded[0].name).toBe('Válido');
   });
 });

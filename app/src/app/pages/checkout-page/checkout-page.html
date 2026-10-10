@@ -149,7 +149,7 @@
         <div class="summary-products">
           @for (product of cartService.products(); track product.name) {
             <article class="summary-product">
-              <img [src]="productImage(product.name)" [alt]="product.name" />
+              <img [src]="product.image ?? '/images/history.jpg'" [alt]="product.name" />
               <div>
                 <h3>{{ product.name }}</h3>
                 <span>{{ product.quantity }} × {{ product.price.toFixed(2) }} €</span>

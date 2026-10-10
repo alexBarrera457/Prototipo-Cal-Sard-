@@ -157,7 +157,7 @@ export class Store implements AfterViewInit, OnDestroy {
   }
 
   addToCart(product: StoreProduct): void {
-    this.cartService.addToCart(product.name, product.price);
+    this.cartService.addToCart(product.name, product.price, 1, product.number, product.image);
     const quantity =
       this.cartService.products().find((item) => item.name === product.name)?.quantity ?? 1;
     this.addedProductNumber = product.number;

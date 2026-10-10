@@ -126,7 +126,9 @@ export class LocalStorageCartAdapter implements CartStorageAdapter {
       item.price >= 0 &&
       typeof item.quantity === 'number' &&
       Number.isInteger(item.quantity) &&
-      item.quantity > 0
+      item.quantity > 0 &&
+      (item.productNumber === undefined || typeof item.productNumber === 'string') &&
+      (item.image === undefined || typeof item.image === 'string')
     );
   }
 }
@@ -165,20 +167,33 @@ export class CartService {
     }
   }
 
-  addToCart(name: string, price: number, quantity = 1): void {
+  addToCart(
+    name: string,
+    price: number,
+    quantity = 1,
+    productNumber?: string,
+    image?: string,
+  ): void {
     const currentProducts = this.products();
     const existingProduct = currentProducts.find((product) => product.name === name);
 
     if (existingProduct) {
       this.setProducts(
         currentProducts.map((product) =>
-          product.name === name ? { ...product, quantity: product.quantity + quantity } : product,
+          product.name === name
+            ? {
+                ...product,
+                quantity: product.quantity + quantity,
+                productNumber: productNumber ?? product.productNumber,
+                image: image ?? product.image,
+              }
+            : product,
         ),
       );
       return;
     }
 
-    this.setProducts([...currentProducts, { name, price, quantity }]);
+    this.setProducts([...currentProducts, { name, price, quantity, productNumber, image }]);
   }
 
   removeFromCart(name: string): void {

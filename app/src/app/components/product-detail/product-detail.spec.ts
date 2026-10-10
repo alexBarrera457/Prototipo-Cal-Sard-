@@ -41,7 +41,7 @@ describe('ProductDetail', () => {
     component.addToCart();
 
     expect(addToCartSpy).toHaveBeenCalledTimes(1);
-    expect(addToCartSpy).toHaveBeenCalledWith('Fuet artesano', 5.5, 3);
+    expect(addToCartSpy).toHaveBeenCalledWith('Fuet artesano', 5.5, 3, '01', 'fuet.jpg');
     expect(component.addedToCartMessage).toBe('3 unidades añadidas a la cesta.');
   });
 });

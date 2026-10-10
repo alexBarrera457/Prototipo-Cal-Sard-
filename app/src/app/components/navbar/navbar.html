@@ -403,7 +403,15 @@
 
             <button
               type="button"
-              (click)="cartService.addToCart(product.name, product.price)"
+              (click)="
+                cartService.addToCart(
+                  product.name,
+                  product.price,
+                  1,
+                  product.productNumber,
+                  product.image
+                )
+              "
               [attr.aria-label]="'Añadir una unidad de ' + product.name"
             >
               +
