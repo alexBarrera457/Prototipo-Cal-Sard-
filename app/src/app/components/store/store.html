@@ -1,30 +1,20 @@
 <section class="store" id="tienda">
-
   <div class="store-header">
-
     <div>
-
-      <span class="store-label">
-        CAL SARDÀ · TIENDA
-      </span>
+      <span class="store-label"> CAL SARDÀ · TIENDA </span>
 
       <h2>
-        Nuestra<br>
+        Nuestra<br />
         selección.
       </h2>
-
     </div>
 
-    <p>
-      Descubre una selección de productos
-      tradicionales y gourmet escogidos por
-      Cal Sardà.
-    </p>
-
+    <p>Descubre una selección de productos tradicionales y gourmet escogidos por Cal Sardà.</p>
   </div>
 
   <p class="store-prototype-note">
-      Catálogo frontend basado en la tienda oficial. Los precios y la disponibilidad pueden variar; el checkout es solo una vista previa.
+    Catálogo frontend basado en la tienda oficial. Los precios y la disponibilidad pueden variar; el
+    checkout es solo una vista previa.
   </p>
 
   <div class="store-toolbar">
@@ -32,8 +22,8 @@
       @for (category of categoryFilters; track category.value) {
         <button
           type="button"
-          [class.active]="selectedCategory === category.value"
-          [attr.aria-pressed]="selectedCategory === category.value"
+          [class.active]="selectedCategory() === category.value"
+          [attr.aria-pressed]="selectedCategory() === category.value"
           (click)="selectCategory(category.value)"
         >
           {{ category.label }}
@@ -43,15 +33,16 @@
 
     <div class="store-results-row">
       <span class="store-result-count" aria-live="polite">
-        {{ filteredProducts.length }} {{ filteredProducts.length === 1 ? 'producto' : 'productos' }}
-        @if (filteredProducts.length > pageSize) {
-          · mostrando {{ firstVisibleProduct }}–{{ lastVisibleProduct }}
+        {{ filteredProducts().length }}
+        {{ filteredProducts().length === 1 ? 'producto' : 'productos' }}
+        @if (filteredProducts().length > pageSize) {
+          · mostrando {{ firstVisibleProduct() }}–{{ lastVisibleProduct() }}
         }
       </span>
 
       <label class="store-sort">
         <span>Ordenar por</span>
-        <select [value]="sortOrder" (change)="updateSortOrder($event)">
+        <select [value]="sortOrder()" (change)="updateSortOrder($event)">
           <option value="featured">Destacados</option>
           <option value="name-asc">Nombre: A-Z</option>
           <option value="price-asc">Precio: menor a mayor</option>
@@ -64,113 +55,107 @@
   @if (catalogLoading()) {
     <p class="store-loading" role="status" aria-live="polite">Cargando el catálogo completo…</p>
   } @else if (catalogError()) {
-    <p class="store-empty-search" role="alert">No se pudo cargar el catálogo. Actualiza la página para intentarlo de nuevo.</p>
-  } @else if (filteredProducts.length) {
+    <p class="store-empty-search" role="alert">
+      No se pudo cargar el catálogo. Actualiza la página para intentarlo de nuevo.
+    </p>
+  } @else if (filteredProducts().length) {
     <div class="store-grid">
+      @for (product of visibleProducts(); track product.number) {
+        <article class="store-product">
+          <div class="store-product-image">
+            <img
+              [src]="product.image"
+              [alt]="product.name"
+              [class.contain]="product.imageFit === 'contain'"
+              loading="lazy"
+              decoding="async"
+              (error)="hideUnavailableProductImage($event)"
+            />
 
-    @for (product of visibleProducts; track product.number) {
-      <article class="store-product">
+            <button
+              type="button"
+              class="store-product-overlay"
+              (click)="showProduct(product)"
+              [attr.aria-label]="'Ver producto: ' + product.name"
+            >
+              <span> VER PRODUCTO → </span>
+            </button>
 
-        <div class="store-product-image">
-
-          <img
-            [src]="product.image"
-            [alt]="product.name"
-            [class.contain]="product.imageFit === 'contain'"
-            loading="lazy"
-            decoding="async"
-            (error)="hideUnavailableProductImage($event)"
-          >
-
-          <button
-            type="button"
-            class="store-product-overlay"
-            (click)="showProduct(product)"
-            [attr.aria-label]="'Ver producto: ' + product.name"
-          >
-            <span>
-              VER PRODUCTO →
+            <span class="store-product-number">
+              {{ product.number }}
             </span>
-          </button>
 
-          <span class="store-product-number">
-            {{ product.number }}
-          </span>
-
-          <span class="store-product-category">
-            {{ product.category }}
-          </span>
-
-        </div>
-
-        <div class="store-product-info">
-
-          <div>
-
-            <h3>
-              {{ product.name }}
-            </h3>
-
-            <p>
-              {{ product.shortDescription }}
-            </p>
-
+            <span class="store-product-category">
+              {{ product.category }}
+            </span>
           </div>
 
-          <span class="store-price">
-            {{ formatProductPrice(product) }}
-          </span>
+          <div class="store-product-info">
+            <div>
+              <h3>
+                {{ product.name }}
+              </h3>
 
-        </div>
+              <p>
+                {{ product.shortDescription }}
+              </p>
+            </div>
 
-        <button
-          class="store-button"
-          type="button"
-          (click)="addToCart(product)"
-          [attr.aria-label]="'Añadir ' + product.name + ' al carrito'"
-        >
-          AÑADIR AL CARRITO +
-        </button>
+            <span class="store-price">
+              {{ formatProductPrice(product) }}
+            </span>
+          </div>
 
-        @if (addedProductNumber === product.number) {
-          <p class="store-added-message" role="status" aria-live="polite">{{ addedProductMessage }}</p>
-        }
+          <button
+            class="store-button"
+            type="button"
+            (click)="addToCart(product)"
+            [attr.aria-label]="'Añadir ' + product.name + ' al carrito'"
+          >
+            AÑADIR AL CARRITO +
+          </button>
 
-      </article>
-    }
-
+          @if (addedProductNumber === product.number) {
+            <p class="store-added-message" role="status" aria-live="polite">
+              {{ addedProductMessage }}
+            </p>
+          }
+        </article>
+      }
     </div>
 
-    @if (pageCount > 1) {
+    @if (pageCount() > 1) {
       <nav class="store-pagination" aria-label="Páginas de productos">
-        <button type="button" (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 1" aria-label="Página anterior">
+        <button
+          type="button"
+          (click)="goToPage(currentPage() - 1)"
+          [disabled]="currentPage() === 1"
+          aria-label="Página anterior"
+        >
           ← Anterior
         </button>
-        <span aria-live="polite">Página {{ currentPage }} de {{ pageCount }}</span>
-        <button type="button" (click)="goToPage(currentPage + 1)" [disabled]="currentPage === pageCount" aria-label="Página siguiente">
+        <span aria-live="polite">Página {{ currentPage() }} de {{ pageCount() }}</span>
+        <button
+          type="button"
+          (click)="goToPage(currentPage() + 1)"
+          [disabled]="currentPage() === pageCount()"
+          aria-label="Página siguiente"
+        >
           Siguiente →
         </button>
       </nav>
     }
   } @else {
-    <p class="store-empty-search" role="status">No encontramos productos para “{{ searchTerm }}”. Prueba otra búsqueda.</p>
+    <p class="store-empty-search" role="status">
+      No encontramos productos para “{{ searchTerm() }}”. Prueba otra búsqueda.
+    </p>
   }
 
-
   <div class="store-footer">
+    <span> SELECCIÓN CAL SARDÀ </span>
 
-    <span>
-      SELECCIÓN CAL SARDÀ
-    </span>
+    <p>Productos escogidos con tradición y criterio.</p>
 
-    <p>
-      Productos escogidos con tradición y criterio.
-    </p>
-
-    <a [routerLink]="['/contacto']">
-      MÁS INFORMACIÓN →
-    </a>
-
+    <a [routerLink]="['/contacto']"> MÁS INFORMACIÓN → </a>
   </div>
-
 </section>
