@@ -2,6 +2,7 @@ import { Component, DestroyRef, ElementRef, inject, HostListener, signal } from 
 import { NgOptimizedImage } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { debounceTime, distinctUntilChanged, Subject, switchMap } from 'rxjs';
 import { CartService } from '../../services/cart';
 import { ProductsService, StoreProduct } from '../../services/products';
 
@@ -21,6 +22,8 @@ export class Navbar {
   activeSearchResultIndex = -1;
   searchLoading = signal(false);
   private readonly searchResultProducts = signal<StoreProduct[]>([]);
+  private readonly searchSubject$ = new Subject<string>();
+  private pendingSearchResolvers: Array<() => void> = [];
   private searchRequest = 0;
   private loadedSearchQuery = '';
   selectedLanguage = 'es';
@@ -39,6 +42,23 @@ export class Navbar {
       this.searchTerm = params.get('buscar') ?? '';
       void this.refreshSearchResults(this.searchTerm);
     });
+
+    this.searchSubject$
+      .pipe(
+        debounceTime(200),
+        distinctUntilChanged(),
+        switchMap(async (query) => {
+          try {
+            await this.refreshSearchResults(query);
+          } finally {
+            const resolvers = this.pendingSearchResolvers;
+            this.pendingSearchResolvers = [];
+            resolvers.forEach((resolve) => resolve());
+          }
+        }),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe();
   }
 
   get searchResults(): StoreProduct[] {
@@ -54,7 +74,16 @@ export class Navbar {
     this.searchTerm = value;
     this.searchOpen = Boolean(value.trim());
     this.activeSearchResultIndex = -1;
-    await this.refreshSearchResults(value);
+
+    if (!value.trim()) {
+      await this.refreshSearchResults('');
+      return;
+    }
+
+    return new Promise<void>((resolve) => {
+      this.pendingSearchResolvers.push(resolve);
+      this.searchSubject$.next(value.trim());
+    });
   }
 
   openSearch(): void {
@@ -68,6 +97,10 @@ export class Navbar {
   }
 
   clearSearch(input: HTMLInputElement): void {
+    const resolvers = this.pendingSearchResolvers;
+    this.pendingSearchResolvers = [];
+    resolvers.forEach((resolve) => resolve());
+
     this.searchTerm = '';
     this.searchRequest++;
     this.loadedSearchQuery = '';

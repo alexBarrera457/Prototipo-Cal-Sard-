@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { routes } from '../../app.routes';
+import { ProductsService } from '../../services/products';
 import { Navbar } from './navbar';
 
 describe('Navbar', () => {
@@ -56,5 +57,21 @@ describe('Navbar', () => {
 
     expect(escape.defaultPrevented).toBe(true);
     expect(component.searchOpen).toBe(false);
+  });
+
+  it('debounces rapid search input calls and only searches for the last query', async () => {
+    const productsService = TestBed.inject(ProductsService);
+    const searchSpy = vi.spyOn(productsService, 'search');
+
+    component.onSearchInput('c');
+    component.onSearchInput('ca');
+    const finalSearchPromise = component.onSearchInput('cafe');
+
+    expect(searchSpy).not.toHaveBeenCalled();
+
+    await finalSearchPromise;
+
+    expect(searchSpy).toHaveBeenCalledTimes(1);
+    expect(searchSpy).toHaveBeenCalledWith('cafe', 5);
   });
 });
