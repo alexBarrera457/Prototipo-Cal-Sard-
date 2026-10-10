@@ -1,10 +1,10 @@
 import { Component, DestroyRef, inject, signal } from '@angular/core';
-import { Meta, Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { ProductDetail } from '../../components/product-detail/product-detail';
-import { ProductsService, StoreProduct } from '../../services/products';
+import { getProductSlug, ProductsService, StoreProduct } from '../../services/products';
+import { SeoService } from '../../services/seo';
 
 @Component({
   selector: 'app-product-page',
@@ -20,12 +20,15 @@ export class ProductPage {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly productsService = inject(ProductsService);
-  private readonly title = inject(Title);
-  private readonly meta = inject(Meta);
+  private readonly seo = inject(SeoService);
   private readonly destroyRef = inject(DestroyRef);
   private requestIndex = 0;
 
   constructor() {
+    this.destroyRef.onDestroy(() => {
+      this.seo.removeJsonLd('product');
+    });
+
     this.route.paramMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
       const slug = params.get('slug');
       const request = ++this.requestIndex;
@@ -63,26 +66,25 @@ export class ProductPage {
   }
 
   private updateMetaForProduct(product: StoreProduct): void {
-    const pageTitle = `${product.name} | Cal Sardà`;
-    this.title.setTitle(pageTitle);
-
+    const slug = getProductSlug(product);
     const description = product.shortDescription || product.description;
-    this.meta.updateTag({ name: 'description', content: description });
-    this.meta.updateTag({ property: 'og:title', content: pageTitle });
-    this.meta.updateTag({ property: 'og:description', content: description });
-    this.meta.updateTag({ property: 'og:image', content: product.image });
-    this.meta.updateTag({ property: 'og:type', content: 'product' });
-    this.meta.updateTag({ name: 'twitter:card', content: 'summary_large_image' });
-    this.meta.updateTag({ name: 'twitter:title', content: pageTitle });
-    this.meta.updateTag({ name: 'twitter:description', content: description });
-    this.meta.updateTag({ name: 'twitter:image', content: product.image });
+
+    this.seo.setMeta({
+      title: product.name,
+      description,
+      image: product.image,
+      url: `/tienda-online/producto/${slug}`,
+      type: 'product',
+    });
+    this.seo.setProductSchema(product);
   }
 
   private updateMetaForNotFound(): void {
-    this.title.setTitle('Producto no encontrado | Cal Sardà');
-    this.meta.updateTag({
-      name: 'description',
-      content: 'El producto solicitado no existe o no está disponible en la tienda de Cal Sardà.',
+    this.seo.removeJsonLd('product');
+    this.seo.setMeta({
+      title: 'Producto no encontrado | Cal Sardà',
+      description:
+        'El producto solicitado no existe o no está disponible en la tienda de Cal Sardà.',
     });
   }
 }

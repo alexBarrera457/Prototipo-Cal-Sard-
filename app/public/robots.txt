@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /preparar-pedido
+Disallow: /cuenta
+Disallow: /crear-cuenta
+
+Sitemap: https://calsarda.com/sitemap.xml

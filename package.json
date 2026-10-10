@@ -12,6 +12,7 @@
     "build": "npm run build --workspace=@cal-sarda/app",
     "test": "npm test --workspace=@cal-sarda/app -- --watch=false",
     "test:watch": "npm test --workspace=@cal-sarda/app",
+    "generate:seo": "node scripts/generate-seo-files.mjs",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
   },

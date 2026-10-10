@@ -63,8 +63,11 @@ describe('ProductPage', () => {
       'Café 100% Robusta | Cal Sardà',
     );
     expect(metaService.getTag('property="og:image"')?.content).toBe(
-      '/images/products/catalog/cafe-robusta.jpg',
+      'https://calsarda.com/images/products/catalog/cafe-robusta.jpg',
     );
+    const jsonLd = document.getElementById('jsonld-product');
+    expect(jsonLd).not.toBeNull();
+    expect(jsonLd?.textContent).toContain('"@type": "Product"');
   });
 
   it('handles unknown product slugs with not-found state', async () => {
