@@ -1,13 +1,16 @@
 <section class="product-detail">
-
   <div class="product-detail-image">
-
-    <img
-      [src]="activeImage"
-      [alt]="product.name + ' · foto ' + (activeImageIndex + 1)"
-      [class.contain]="product.imageFit === 'contain'"
-      (error)="hideUnavailableProductImage($event)"
-    >
+    @if (activeImage) {
+      <img
+        [ngSrc]="activeImage"
+        fill
+        priority
+        [alt]="product.name + ' · foto ' + (activeImageIndex + 1)"
+        [class.contain]="product.imageFit === 'contain'"
+        sizes="(max-width: 900px) 100vw, 50vw"
+        (error)="hideUnavailableProductImage($event)"
+      />
+    }
 
     @if (galleryImages.length > 1) {
       <button
@@ -28,7 +31,11 @@
         ›
       </button>
 
-      <div class="product-gallery-thumbnails" role="group" [attr.aria-label]="'Fotos de ' + product.name">
+      <div
+        class="product-gallery-thumbnails"
+        role="group"
+        [attr.aria-label]="'Fotos de ' + product.name"
+      >
         @for (image of galleryImages; track image; let index = $index) {
           <button
             type="button"
@@ -37,7 +44,14 @@
             [attr.aria-label]="'Ver foto ' + (index + 1) + ' de ' + galleryImages.length"
             [attr.aria-pressed]="activeImageIndex === index"
           >
-            <img [src]="image" [alt]="product.name + ' · miniatura ' + (index + 1)" loading="lazy" decoding="async">
+            @if (image) {
+              <img
+                [ngSrc]="image"
+                [alt]="product.name + ' · miniatura ' + (index + 1)"
+                width="58"
+                height="58"
+              />
+            }
           </button>
         }
       </div>
@@ -50,45 +64,29 @@
     <span class="product-detail-category">
       {{ product.category }}
     </span>
-
   </div>
 
-
   <div class="product-detail-content">
-
-    <button
-      type="button"
-      class="product-detail-back"
-      (click)="goBack()"
-    >
+    <button type="button" class="product-detail-back" (click)="goBack()">
       ← VOLVER A LA TIENDA
     </button>
 
-
-    <span class="product-detail-label">
-      CAL SARDÀ · PRODUCTO
-    </span>
-
+    <span class="product-detail-label"> CAL SARDÀ · PRODUCTO </span>
 
     <h1>
       {{ product.name }}
     </h1>
 
-
     <p class="product-detail-description">
       {{ product.description }}
     </p>
-
 
     <div class="product-detail-price">
       {{ formatPrice() }}
     </div>
 
-
     <div class="product-detail-purchase">
-
       <div class="quantity">
-
         <button
           type="button"
           (click)="decreaseQuantity()"
@@ -108,25 +106,30 @@
         >
           +
         </button>
-
       </div>
-
 
       <button
         type="button"
         class="product-detail-button"
         (click)="addToCart()"
-        [attr.aria-label]="'Añadir ' + quantity + ' ' + (quantity === 1 ? 'unidad' : 'unidades') + ' de ' + product.name + ' al carrito'"
+        [attr.aria-label]="
+          'Añadir ' +
+          quantity +
+          ' ' +
+          (quantity === 1 ? 'unidad' : 'unidades') +
+          ' de ' +
+          product.name +
+          ' al carrito'
+        "
       >
         AÑADIR AL CARRITO →
       </button>
-
     </div>
 
     @if (addedToCartMessage) {
-      <p class="product-cart-feedback" role="status" aria-live="polite">{{ product.name }}: {{ addedToCartMessage }}</p>
+      <p class="product-cart-feedback" role="status" aria-live="polite">
+        {{ product.name }}: {{ addedToCartMessage }}
+      </p>
     }
-
   </div>
-
 </section>

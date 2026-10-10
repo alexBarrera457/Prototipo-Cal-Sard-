@@ -9,18 +9,30 @@
   width: 100%;
   min-height: 760px;
   height: 100vh;
-  background-image: url('/images/hero.jpg');
-  background-size: cover;
-  background-position: center;
   overflow: hidden;
-  animation: heroImage 18s ease-out forwards;
   box-shadow: inset 0 -60px 80px rgba(11, 8, 6, 0.18);
+}
+
+.hero-bg-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  z-index: 0;
+  animation: heroImage 18s ease-out forwards;
 }
 
 .hero-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(90deg, rgba(17, 12, 9, 0.74), rgba(17, 12, 9, 0.44) 42%, rgba(17, 12, 9, 0.18));
+  background: linear-gradient(
+    90deg,
+    rgba(17, 12, 9, 0.74),
+    rgba(17, 12, 9, 0.44) 42%,
+    rgba(17, 12, 9, 0.18)
+  );
   z-index: 1;
 }
 
@@ -93,7 +105,12 @@
   cursor: pointer;
   overflow: hidden;
   animation-delay: 1s;
-  transition: color 0.4s ease, background 0.4s ease, border-color 0.4s ease, transform 0.4s ease, box-shadow 0.4s ease;
+  transition:
+    color 0.4s ease,
+    background 0.4s ease,
+    border-color 0.4s ease,
+    transform 0.4s ease,
+    box-shadow 0.4s ease;
   box-shadow: 0 10px 24px rgba(24, 18, 12, 0.12);
 }
 
@@ -119,9 +136,13 @@
   transform: translateY(-2px);
 }
 
-.hero-button:hover::before { transform: translateX(0); }
+.hero-button:hover::before {
+  transform: translateX(0);
+}
 
-.hero-button:hover span { transform: translateX(6px); }
+.hero-button:hover span {
+  transform: translateX(6px);
+}
 
 .hero-button:focus-visible {
   outline: 3px solid #fffaf3;
@@ -182,15 +203,33 @@
   transform: translateY(25px);
 }
 
-.philosophy-text p:nth-child(1) { animation: philosophy1 36s infinite; }
-.philosophy-text p:nth-child(2) { animation: philosophy2 36s infinite; }
-.philosophy-text p:nth-child(3) { animation: philosophy3 36s infinite; }
-.philosophy-text p:nth-child(4) { animation: philosophy4 36s infinite; }
-.philosophy-text p:nth-child(5) { animation: philosophy5 36s infinite; }
-.philosophy-text p:nth-child(6) { animation: philosophy6 36s infinite; }
-.philosophy-text p:nth-child(7) { animation: philosophy7 36s infinite; }
-.philosophy-text p:nth-child(8) { animation: philosophy8 36s infinite; }
-.philosophy-text p:nth-child(9) { animation: philosophy9 36s infinite; }
+.philosophy-text p:nth-child(1) {
+  animation: philosophy1 36s infinite;
+}
+.philosophy-text p:nth-child(2) {
+  animation: philosophy2 36s infinite;
+}
+.philosophy-text p:nth-child(3) {
+  animation: philosophy3 36s infinite;
+}
+.philosophy-text p:nth-child(4) {
+  animation: philosophy4 36s infinite;
+}
+.philosophy-text p:nth-child(5) {
+  animation: philosophy5 36s infinite;
+}
+.philosophy-text p:nth-child(6) {
+  animation: philosophy6 36s infinite;
+}
+.philosophy-text p:nth-child(7) {
+  animation: philosophy7 36s infinite;
+}
+.philosophy-text p:nth-child(8) {
+  animation: philosophy8 36s infinite;
+}
+.philosophy-text p:nth-child(9) {
+  animation: philosophy9 36s infinite;
+}
 
 .hero::after {
   content: '';
@@ -230,93 +269,242 @@
 }
 
 @keyframes heroImage {
-  from { background-size: 105%; }
-  to { background-size: 100%; }
+  from {
+    transform: scale(1.05);
+  }
+  to {
+    transform: scale(1);
+  }
 }
 
 @keyframes heroContent {
-  from { opacity: 0; transform: translateY(35px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(35px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes heroTitle {
-  from { opacity: 0; transform: translateY(45px); filter: blur(5px); }
-  to { opacity: 1; transform: translateY(0); filter: blur(0); }
+  from {
+    opacity: 0;
+    transform: translateY(45px);
+    filter: blur(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
 }
 
 @keyframes philosophyEntrance {
-  from { opacity: 0; transform: translateX(35px); }
-  to { opacity: 1; transform: translateX(0); }
+  from {
+    opacity: 0;
+    transform: translateX(35px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 @keyframes philosophyLine {
-  to { width: 100%; }
+  to {
+    width: 100%;
+  }
 }
 
 @keyframes philosophy1 {
-  0% { opacity: 0; transform: translateY(8px); }
-  1.1%, 10% { opacity: 1; transform: translateY(0); }
-  11.1%, 100% { opacity: 0; transform: translateY(-8px); }
+  0% {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  1.1%,
+  10% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  11.1%,
+  100% {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
 }
 
 @keyframes philosophy2 {
-  0%, 11.1% { opacity: 0; transform: translateY(8px); }
-  12.2%, 21.1% { opacity: 1; transform: translateY(0); }
-  22.2%, 100% { opacity: 0; transform: translateY(-8px); }
+  0%,
+  11.1% {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  12.2%,
+  21.1% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  22.2%,
+  100% {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
 }
 
 @keyframes philosophy3 {
-  0%, 22.2% { opacity: 0; transform: translateY(8px); }
-  23.3%, 32.2% { opacity: 1; transform: translateY(0); }
-  33.3%, 100% { opacity: 0; transform: translateY(-8px); }
+  0%,
+  22.2% {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  23.3%,
+  32.2% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  33.3%,
+  100% {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
 }
 
 @keyframes philosophy4 {
-  0%, 33.3% { opacity: 0; transform: translateY(8px); }
-  34.4%, 43.3% { opacity: 1; transform: translateY(0); }
-  44.4%, 100% { opacity: 0; transform: translateY(-8px); }
+  0%,
+  33.3% {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  34.4%,
+  43.3% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  44.4%,
+  100% {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
 }
 
 @keyframes philosophy5 {
-  0%, 44.4% { opacity: 0; transform: translateY(8px); }
-  45.6%, 54.4% { opacity: 1; transform: translateY(0); }
-  55.6%, 100% { opacity: 0; transform: translateY(-8px); }
+  0%,
+  44.4% {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  45.6%,
+  54.4% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  55.6%,
+  100% {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
 }
 
 @keyframes philosophy6 {
-  0%, 55.6% { opacity: 0; transform: translateY(8px); }
-  56.7%, 65.6% { opacity: 1; transform: translateY(0); }
-  66.7%, 100% { opacity: 0; transform: translateY(-8px); }
+  0%,
+  55.6% {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  56.7%,
+  65.6% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  66.7%,
+  100% {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
 }
 
 @keyframes philosophy7 {
-  0%, 66.7% { opacity: 0; transform: translateY(8px); }
-  67.8%, 76.7% { opacity: 1; transform: translateY(0); }
-  77.8%, 100% { opacity: 0; transform: translateY(-8px); }
+  0%,
+  66.7% {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  67.8%,
+  76.7% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  77.8%,
+  100% {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
 }
 
 @keyframes philosophy8 {
-  0%, 77.8% { opacity: 0; transform: translateY(8px); }
-  78.9%, 87.8% { opacity: 1; transform: translateY(0); }
-  88.9%, 100% { opacity: 0; transform: translateY(-8px); }
+  0%,
+  77.8% {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  78.9%,
+  87.8% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  88.9%,
+  100% {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
 }
 
 @keyframes philosophy9 {
-  0%, 88.9% { opacity: 0; transform: translateY(8px); }
-  90%, 98.9% { opacity: 1; transform: translateY(0); }
-  100% { opacity: 0; transform: translateY(-8px); }
+  0%,
+  88.9% {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  90%,
+  98.9% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
 }
 
 @keyframes scrollLine {
-  0% { transform: scaleY(0); transform-origin: top; }
-  50% { transform: scaleY(1); transform-origin: top; }
-  51% { transform-origin: bottom; }
-  100% { transform: scaleY(0); transform-origin: bottom; }
+  0% {
+    transform: scaleY(0);
+    transform-origin: top;
+  }
+  50% {
+    transform: scaleY(1);
+    transform-origin: top;
+  }
+  51% {
+    transform-origin: bottom;
+  }
+  100% {
+    transform: scaleY(0);
+    transform-origin: bottom;
+  }
 }
 
 @keyframes heroFadeUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @media (max-width: 1100px) {
@@ -325,7 +513,9 @@
     width: 350px;
   }
 
-  .philosophy-text p { font-size: 29px; }
+  .philosophy-text p {
+    font-size: 29px;
+  }
 }
 
 @media (max-width: 900px) {
@@ -339,9 +529,15 @@
     margin-right: 6%;
   }
 
-  .hero h1 { font-size: clamp(60px, 10vw, 95px); }
-  .hero-text { font-size: 16px; }
-  .hero-scroll { right: 4%; }
+  .hero h1 {
+    font-size: clamp(60px, 10vw, 95px);
+  }
+  .hero-text {
+    font-size: 16px;
+  }
+  .hero-scroll {
+    right: 4%;
+  }
 }
 
 @media (max-width: 750px) {
@@ -397,10 +593,19 @@
     margin: 0;
   }
 
-  .philosophy-text { min-height: 150px; }
-  .philosophy-text p { font-size: 24px; line-height: 1.2; }
-  .philosophy-label { margin-bottom: 18px; }
-  .hero-scroll { display: none; }
+  .philosophy-text {
+    min-height: 150px;
+  }
+  .philosophy-text p {
+    font-size: 24px;
+    line-height: 1.2;
+  }
+  .philosophy-label {
+    margin-bottom: 18px;
+  }
+  .hero-scroll {
+    display: none;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -64,11 +64,11 @@
         <article class="store-product">
           <div class="store-product-image">
             <img
-              [src]="product.image"
+              [ngSrc]="product.image"
+              fill
               [alt]="product.name"
               [class.contain]="product.imageFit === 'contain'"
-              loading="lazy"
-              decoding="async"
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
               (error)="hideUnavailableProductImage($event)"
             />
 

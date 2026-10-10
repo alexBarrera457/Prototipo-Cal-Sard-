@@ -1,4 +1,5 @@
 import { Component, DestroyRef, ElementRef, inject, HostListener, signal } from '@angular/core';
+import { NgOptimizedImage } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CartService } from '../../services/cart';
@@ -6,7 +7,7 @@ import { ProductsService, StoreProduct } from '../../services/products';
 
 @Component({
   selector: 'app-navbar',
-  imports: [RouterLink],
+  imports: [RouterLink, NgOptimizedImage],
   templateUrl: './navbar.html',
   styleUrls: ['./navbar.css', './navbar-menu.css', './navbar-cart.css', './navbar-search.css'],
 })

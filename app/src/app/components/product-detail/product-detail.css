@@ -6,7 +6,6 @@
   color: #241b15;
 }
 
-
 /* =========================
    IMAGEN
    ========================= */
@@ -46,10 +45,14 @@
   border-radius: 50%;
   background: rgba(36, 27, 21, 0.45);
   color: #fff;
-  font: 30px/1 Georgia, serif;
+  font:
+    30px/1 Georgia,
+    serif;
   cursor: pointer;
   transform: translateY(-50%);
-  transition: background 0.2s ease, transform 0.2s ease;
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
 }
 
 .product-gallery-arrow:hover {
@@ -57,8 +60,12 @@
   transform: translateY(-50%) scale(1.05);
 }
 
-.product-gallery-previous { left: 22px; }
-.product-gallery-next { right: 22px; }
+.product-gallery-previous {
+  left: 22px;
+}
+.product-gallery-next {
+  right: 22px;
+}
 
 .product-gallery-thumbnails {
   position: absolute;
@@ -83,7 +90,9 @@
   background: #e9dfd2;
   opacity: 0.75;
   cursor: pointer;
-  transition: border-color 0.2s ease, opacity 0.2s ease;
+  transition:
+    border-color 0.2s ease,
+    opacity 0.2s ease;
 }
 
 .product-gallery-thumbnails button.active,
@@ -103,24 +112,17 @@
   transform: scale(1.04);
 }
 
-
 /* Capa sutil sobre la imagen */
 
 .product-detail-image::after {
-  content: "";
+  content: '';
   position: absolute;
   inset: 0;
 
-  background: linear-gradient(
-    to bottom,
-    rgba(0, 0, 0, 0.15),
-    transparent 35%,
-    rgba(0, 0, 0, 0.25)
-  );
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.15), transparent 35%, rgba(0, 0, 0, 0.25));
 
   pointer-events: none;
 }
-
 
 /* =========================
    INFORMACIÓN DE IMAGEN
@@ -153,7 +155,6 @@
   letter-spacing: 3px;
 }
 
-
 /* =========================
    CONTENIDO
    ========================= */
@@ -168,11 +169,10 @@
   position: relative;
 }
 
-
 /* Línea decorativa */
 
 .product-detail-content::before {
-  content: "";
+  content: '';
 
   width: 45px;
   height: 1px;
@@ -183,7 +183,6 @@
   top: 70px;
   right: 80px;
 }
-
 
 /* =========================
    VOLVER
@@ -213,7 +212,6 @@
   opacity: 0.45;
 }
 
-
 /* =========================
    ETIQUETA
    ========================= */
@@ -228,7 +226,6 @@
   opacity: 0.55;
 }
 
-
 /* =========================
    TÍTULO
    ========================= */
@@ -238,7 +235,7 @@
 
   margin: 0 0 30px;
 
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: Georgia, 'Times New Roman', serif;
 
   font-size: clamp(55px, 6vw, 105px);
 
@@ -247,7 +244,6 @@
   line-height: 0.88;
   letter-spacing: -3px;
 }
-
 
 /* =========================
    DESCRIPCIÓN
@@ -265,7 +261,6 @@
   opacity: 0.65;
 }
 
-
 /* =========================
    PRECIO
    ========================= */
@@ -273,11 +268,10 @@
 .product-detail-price {
   margin-bottom: 40px;
 
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: Georgia, 'Times New Roman', serif;
 
   font-size: 30px;
 }
-
 
 /* =========================
    COMPRA
@@ -289,7 +283,6 @@
 
   gap: 12px;
 }
-
 
 /* =========================
    CANTIDAD
@@ -333,7 +326,6 @@
   font-size: 13px;
 }
 
-
 /* =========================
    AÑADIR AL CARRITO
    ========================= */
@@ -374,13 +366,11 @@
   line-height: 1.5;
 }
 
-
 /* =========================
    TABLET
    ========================= */
 
 @media (max-width: 1000px) {
-
   .product-detail {
     grid-template-columns: 50% 50%;
   }
@@ -396,16 +386,13 @@
   .product-detail-content h1 {
     font-size: 65px;
   }
-
 }
-
 
 /* =========================
    MÓVIL
    ========================= */
 
 @media (max-width: 800px) {
-
   .product-detail {
     display: block;
   }
@@ -444,24 +431,31 @@
   .product-detail-button {
     min-height: 55px;
   }
-
 }
-
 
 /* =========================
    MÓVIL PEQUEÑO
    ========================= */
 
 @media (max-width: 500px) {
-
   .product-detail-image {
     min-height: 48vh;
   }
 
-  .product-gallery-thumbnails { bottom: 68px; }
-  .product-gallery-thumbnails button { flex-basis: 48px; width: 48px; height: 48px; }
-  .product-gallery-previous { left: 12px; }
-  .product-gallery-next { right: 12px; }
+  .product-gallery-thumbnails {
+    bottom: 68px;
+  }
+  .product-gallery-thumbnails button {
+    flex-basis: 48px;
+    width: 48px;
+    height: 48px;
+  }
+  .product-gallery-previous {
+    left: 12px;
+  }
+  .product-gallery-next {
+    right: 12px;
+  }
 
   .product-detail-number {
     top: 25px;
@@ -488,5 +482,4 @@
   .product-detail-description {
     font-size: 13px;
   }
-
 }

@@ -1,10 +1,11 @@
 import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
+import { NgOptimizedImage } from '@angular/common';
 import { CartService } from '../../services/cart';
 import { ProductsService, StoreProduct } from '../../services/products';
 
 @Component({
   selector: 'app-product-detail',
-  imports: [],
+  imports: [NgOptimizedImage],
   templateUrl: './product-detail.html',
   styleUrl: './product-detail.css',
 })
