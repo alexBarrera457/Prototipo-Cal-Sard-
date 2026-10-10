@@ -72,4 +72,28 @@ describe('Navbar', () => {
     expect(searchSpy).toHaveBeenCalledTimes(1);
     expect(searchSpy).toHaveBeenCalledWith('cafe', 5);
   });
+
+  it('switches dynamically to Catalan without warning messages', () => {
+    const event = {
+      target: { value: 'ca' },
+    } as unknown as Event;
+
+    component.onLanguageChange(event);
+
+    expect(component.selectedLanguage).toBe('ca');
+    expect(component.languageNotice).toBe('');
+    expect(component.i18n.currentLang()).toBe('ca');
+  });
+
+  it('shows notice when selecting unsupported language and preserves current language', () => {
+    component.i18n.setLanguage('es');
+    const mockSelect = { value: 'en' } as HTMLSelectElement;
+    const event = { target: mockSelect } as unknown as Event;
+
+    component.onLanguageChange(event);
+
+    expect(component.languageNotice).toContain('inglés');
+    expect(component.selectedLanguage).toBe('es');
+    expect(mockSelect.value).toBe('es');
+  });
 });

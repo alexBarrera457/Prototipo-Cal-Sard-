@@ -121,8 +121,8 @@
               #searchInput
               type="search"
               role="combobox"
-              placeholder="Buscar productos..."
-              aria-label="Buscar productos"
+              [placeholder]="i18n.t('nav.search_placeholder')"
+              [attr.aria-label]="i18n.t('nav.search_placeholder')"
               aria-autocomplete="list"
               aria-haspopup="listbox"
               aria-controls="header-search-results"
@@ -274,36 +274,38 @@
       <div class="mega-menu-content">
         <div class="mega-menu-links">
           <a [routerLink]="['/']" [fragment]="'inicio'" (click)="closeMobileMenu()"
-            ><span>01</span>Inicio<em>→</em></a
+            ><span>01</span>{{ i18n.t('footer.home') }}<em>→</em></a
           >
           <a [routerLink]="['/tienda-online']" (click)="closeMobileMenu()"
-            ><span>02</span>Tienda en línea<em>→</em></a
+            ><span>02</span>{{ i18n.t('nav.shop') }}<em>→</em></a
           >
           <a [routerLink]="['/galeria']" (click)="closeMobileMenu()"
-            ><span>03</span>Galería<em>→</em></a
+            ><span>03</span>{{ i18n.t('nav.gallery') }}<em>→</em></a
           >
           <a [routerLink]="['/contacto']" (click)="closeMobileMenu()"
-            ><span>04</span>Contacto<em>→</em></a
+            ><span>04</span>{{ i18n.t('nav.contact') }}<em>→</em></a
           >
           <a [routerLink]="['/boletin']" (click)="closeMobileMenu()"
-            ><span>05</span>Boletín<em>→</em></a
+            ><span>05</span>{{ i18n.t('nav.newsletter') }}<em>→</em></a
           >
           <a [routerLink]="['/descubre-el-territorio']" (click)="closeMobileMenu()"
-            ><span>06</span>Descubre el territorio<em>→</em></a
+            ><span>06</span>{{ i18n.t('footer.territory') }}<em>→</em></a
           >
           <a [routerLink]="['/lotes-para-empresas']" (click)="closeMobileMenu()"
-            ><span>07</span>Lotes para empresas<em>→</em></a
+            ><span>07</span>{{ i18n.t('footer.business_lots') }}<em>→</em></a
           >
           <a [routerLink]="['/lotes-y-cestas-gourmet']" (click)="closeMobileMenu()"
-            ><span>08</span>Lotes y cestas gourmet<em>→</em></a
+            ><span>08</span>{{ i18n.t('footer.gourmet_lots') }}<em>→</em></a
           >
           <a [routerLink]="['/historia']" (click)="closeMobileMenu()"
-            ><span>09</span>Historia<em>→</em></a
+            ><span>09</span>{{ i18n.t('nav.history') }}<em>→</em></a
           >
           <a [routerLink]="['/faq']" (click)="closeMobileMenu()"
-            ><span>10</span>Preguntas frecuentes<em>→</em></a
+            ><span>10</span>{{ i18n.t('footer.faq') }}<em>→</em></a
           >
-          <a [routerLink]="['/blog']" (click)="closeMobileMenu()"><span>11</span>Blog<em>→</em></a>
+          <a [routerLink]="['/blog']" (click)="closeMobileMenu()"
+            ><span>11</span>{{ i18n.t('footer.blog') }}<em>→</em></a
+          >
         </div>
 
         <a class="menu-feature" [routerLink]="['/historia']" (click)="closeMobileMenu()">
@@ -347,10 +349,15 @@
     <div>
       <span class="cart-label-panel"> CAL SARDÀ </span>
 
-      <h2>Tu cesta</h2>
+      <h2>{{ i18n.t('nav.cart') }}</h2>
     </div>
 
-    <button class="cart-close" type="button" (click)="closeCart()" aria-label="Cerrar cesta">
+    <button
+      class="cart-close"
+      type="button"
+      (click)="closeCart()"
+      [attr.aria-label]="i18n.t('nav.close_cart')"
+    >
       ×
     </button>
   </div>
@@ -364,12 +371,12 @@
       <div class="cart-empty">
         <span class="cart-empty-icon"> 🛒 </span>
 
-        <h3>Tu cesta está vacía</h3>
+        <h3>{{ i18n.t('nav.cart_empty_title') }}</h3>
 
-        <p>Añade alguno de nuestros productos para comenzar.</p>
+        <p>{{ i18n.t('nav.cart_empty_desc') }}</p>
 
         <a [routerLink]="['/tienda-online']" class="cart-shop-link" (click)="closeCart()">
-          VER PRODUCTOS →
+          {{ i18n.t('nav.view_shop') }} →
         </a>
       </div>
     } @else {
@@ -439,13 +446,13 @@
   @if (cartService.products().length > 0) {
     <div class="cart-footer">
       <div class="cart-total">
-        <span> TOTAL </span>
+        <span> {{ i18n.t('nav.total') }} </span>
 
         <strong> {{ cartService.getTotal().toFixed(2) }} € </strong>
       </div>
 
       <a [routerLink]="['/preparar-pedido']" class="cart-checkout" (click)="closeCart()">
-        FINALIZAR COMPRA →
+        {{ i18n.t('nav.checkout') }} →
       </a>
       <p class="cart-demo-note">Compra de prueba · No se enviará ni cobrará el pedido.</p>
     </div>

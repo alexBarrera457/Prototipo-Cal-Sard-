@@ -4,6 +4,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { ProductDetail } from '../../components/product-detail/product-detail';
 import { Store } from '../../components/store/store';
+import { I18nService } from '../../services/i18n';
 import { getProductSlug, ProductsService, StoreProduct } from '../../services/products';
 
 @Component({
@@ -13,6 +14,7 @@ import { getProductSlug, ProductsService, StoreProduct } from '../../services/pr
   styleUrl: './shop-page.css',
 })
 export class ShopPage {
+  public readonly i18n = inject(I18nService);
   selectedProduct = signal<StoreProduct | null>(null);
   searchTerm = '';
 

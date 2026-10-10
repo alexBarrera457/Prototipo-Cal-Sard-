@@ -2,17 +2,24 @@
   <app-product-detail [product]="product" (backToStore)="hideProduct()" />
 } @else {
   <header class="shop-intro">
-    <span>CAL SARDÀ · TIENDA ONLINE</span>
-    <h1>Una selección<br />para disfrutar en casa.</h1>
+    <span>{{ i18n.t('store.intro_kicker') }}</span>
+    <h1>
+      @if (i18n.currentLang() === 'ca') {
+        Una selecció<br />per gaudir a casa.
+      } @else {
+        Una selección<br />para disfrutar en casa.
+      }
+    </h1>
     <p>
-      Productos de la tienda, con fotos reales de Cal Sardà. Añádelos a la cesta y prepara un pedido
-      de prueba.
+      {{ i18n.t('store.intro_desc') }}
     </p>
-    <a [routerLink]="['/preparar-pedido']">IR A LA COMPRA <span>→</span></a>
+    <a [routerLink]="['/preparar-pedido']">{{ i18n.t('store.go_to_checkout') }} <span>→</span></a>
     @if (searchTerm) {
       <p class="shop-search-summary">
-        Resultados para <strong>“{{ searchTerm }}”</strong>
-        <button type="button" (click)="clearSearch()">Ver todo el catálogo</button>
+        {{ i18n.t('store.search_results_for') }} <strong>“{{ searchTerm }}”</strong>
+        <button type="button" (click)="clearSearch()">
+          {{ i18n.t('store.view_all_catalog') }}
+        </button>
       </p>
     }
   </header>

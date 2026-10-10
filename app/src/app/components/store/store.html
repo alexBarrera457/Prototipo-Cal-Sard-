@@ -26,7 +26,11 @@
           [attr.aria-pressed]="selectedCategory() === category.value"
           (click)="selectCategory(category.value)"
         >
-          {{ category.label }}
+          {{
+            category.value === 'TODOS'
+              ? i18n.t('store.all_categories')
+              : i18n.translateCategory(category.value)
+          }}
         </button>
       }
     </div>
@@ -36,17 +40,17 @@
         {{ filteredProducts().length }}
         {{ filteredProducts().length === 1 ? 'producto' : 'productos' }}
         @if (filteredProducts().length > pageSize) {
-          · mostrando {{ firstVisibleProduct() }}–{{ lastVisibleProduct() }}
+          · {{ i18n.t('store.showing') }} {{ firstVisibleProduct() }}–{{ lastVisibleProduct() }}
         }
       </span>
 
       <label class="store-sort">
         <span>Ordenar por</span>
         <select [value]="sortOrder()" (change)="updateSortOrder($event)">
-          <option value="featured">Destacados</option>
-          <option value="name-asc">Nombre: A-Z</option>
-          <option value="price-asc">Precio: menor a mayor</option>
-          <option value="price-desc">Precio: mayor a menor</option>
+          <option value="featured">{{ i18n.t('store.sort_featured') }}</option>
+          <option value="name-asc">{{ i18n.t('store.sort_name_asc') }}</option>
+          <option value="price-asc">{{ i18n.t('store.sort_price_asc') }}</option>
+          <option value="price-desc">{{ i18n.t('store.sort_price_desc') }}</option>
         </select>
       </label>
     </div>
@@ -75,9 +79,9 @@
             <a
               class="store-product-overlay"
               [routerLink]="['/tienda-online/producto', getProductSlug(product)]"
-              [attr.aria-label]="'Ver producto: ' + product.name"
+              [attr.aria-label]="i18n.t('store.view_product') + ': ' + product.name"
             >
-              <span> VER PRODUCTO → </span>
+              <span> {{ i18n.t('store.view_product') }} </span>
             </a>
 
             <span class="store-product-number">
@@ -85,7 +89,7 @@
             </span>
 
             <span class="store-product-category">
-              {{ product.category }}
+              {{ i18n.translateCategory(product.category) }}
             </span>
           </div>
 
@@ -109,9 +113,9 @@
             class="store-button"
             type="button"
             (click)="addToCart(product)"
-            [attr.aria-label]="'Añadir ' + product.name + ' a la cesta'"
+            [attr.aria-label]="i18n.t('store.add_to_cart') + ' ' + product.name"
           >
-            AÑADIR A LA CESTA +
+            {{ i18n.t('store.add_to_cart') }}
           </button>
 
           @if (addedProductNumber === product.number) {
@@ -133,7 +137,10 @@
         >
           ← Anterior
         </button>
-        <span aria-live="polite">Página {{ currentPage() }} de {{ pageCount() }}</span>
+        <span aria-live="polite"
+          >{{ i18n.t('store.page') }} {{ currentPage() }} {{ i18n.t('store.of') }}
+          {{ pageCount() }}</span
+        >
         <button
           type="button"
           (click)="goToPage(currentPage() + 1)"

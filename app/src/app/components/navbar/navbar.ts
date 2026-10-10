@@ -4,6 +4,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { debounceTime, distinctUntilChanged, Subject, switchMap } from 'rxjs';
 import { CartService } from '../../services/cart';
+import { I18nService } from '../../services/i18n';
 import { getProductSlug, ProductsService, StoreProduct } from '../../services/products';
 
 @Component({
@@ -26,8 +27,13 @@ export class Navbar {
   private pendingSearchResolvers: Array<() => void> = [];
   private searchRequest = 0;
   private loadedSearchQuery = '';
-  selectedLanguage = 'es';
   languageNotice = '';
+
+  public readonly i18n = inject(I18nService);
+
+  get selectedLanguage(): string {
+    return this.i18n.currentLang();
+  }
 
   private readonly route = inject(ActivatedRoute);
   private readonly destroyRef = inject(DestroyRef);
@@ -171,22 +177,23 @@ export class Navbar {
 
   onLanguageChange(event: Event): void {
     const select = event.target as HTMLSelectElement;
-    const languageNames: Record<string, string> = {
-      ca: 'catalán',
-      en: 'inglés',
-      fr: 'francés',
-    };
-    const requestedLanguage = select.value;
+    const requestedLanguage = select.value as 'ca' | 'es' | 'en' | 'fr';
 
-    if (requestedLanguage === 'es') {
+    if (requestedLanguage === 'ca' || requestedLanguage === 'es') {
+      this.i18n.setLanguage(requestedLanguage);
       this.languageNotice = '';
-      this.selectedLanguage = 'es';
       return;
     }
 
-    this.languageNotice = `La versión en ${languageNames[requestedLanguage] ?? 'ese idioma'} todavía no está traducida. Mantenemos la web en español.`;
-    this.selectedLanguage = 'es';
-    select.value = 'es';
+    const isCa = this.i18n.currentLang() === 'ca';
+    const languageNames: Record<string, string> = {
+      en: isCa ? 'anglès' : 'inglés',
+      fr: isCa ? 'francès' : 'francés',
+    };
+    this.languageNotice = isCa
+      ? `La versió en ${languageNames[requestedLanguage] ?? 'aquest idioma'} encara no està disponible. Mantenim el web en català.`
+      : `La versión en ${languageNames[requestedLanguage] ?? 'ese idioma'} todavía no está traducida. Mantenemos la web en español.`;
+    select.value = this.i18n.currentLang();
   }
 
   private scrollActiveSearchResultIntoView(): void {

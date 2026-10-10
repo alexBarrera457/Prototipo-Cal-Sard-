@@ -9,6 +9,7 @@ import {
   PLATFORM_ID,
   computed,
   effect,
+  inject,
   model,
   signal,
   untracked,
@@ -16,6 +17,7 @@ import {
 import { isPlatformBrowser, NgOptimizedImage } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { CartService } from '../../services/cart';
+import { I18nService } from '../../services/i18n';
 import {
   getProductSlug,
   PaginatedResult,
@@ -31,6 +33,7 @@ import {
   styleUrl: './store.css',
 })
 export class Store implements AfterViewInit, OnDestroy {
+  public readonly i18n = inject(I18nService);
   searchTerm = model<string>('');
   products = signal<StoreProduct[]>([]);
   catalogLoading = signal(true);

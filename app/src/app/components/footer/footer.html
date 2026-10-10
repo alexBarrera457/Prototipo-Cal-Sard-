@@ -1,96 +1,75 @@
 <footer class="footer">
-
   <div class="footer-main">
-
     <div class="footer-brand">
-
       <span class="footer-small">
-        DESDE 1930
+        {{ i18n.t('footer.since') }}
       </span>
 
       <h2>
-        CAL<br>
+        CAL<br />
         SARDÀ
       </h2>
 
       <p>
-        Productos de siempre, selección cuidada
-        y trato cercano desde 1930.
+        {{ i18n.t('footer.tagline') }}
       </p>
-
     </div>
 
-
     <div class="footer-column">
+      <span>{{ i18n.t('footer.nav_title') }}</span>
 
-      <span>NAVEGACIÓN</span>
-
-      <a [routerLink]="['/']" [fragment]="'inicio'">Inicio</a>
-      <a [routerLink]="['/historia']">Historia</a>
-      <a [routerLink]="['/tienda-online']">Tienda online</a>
-      <a [routerLink]="['/galeria']">Galería</a>
-      <a [routerLink]="['/contacto']">Contacto</a>
-      <a [routerLink]="['/faq']">Preguntas frecuentes</a>
-      <a [routerLink]="['/blog']">Blog</a>
-      <a [routerLink]="['/boletin']">Boletín</a>
-      <a [routerLink]="['/descubre-el-territorio']">Descubre el territorio</a>
-      <a [routerLink]="['/lotes-para-empresas']">Lotes para empresas</a>
-      <a [routerLink]="['/lotes-y-cestas-gourmet']">Lotes y cestas gourmet</a>
-
+      <a [routerLink]="['/']" [fragment]="'inicio'">{{ i18n.t('footer.home') }}</a>
+      <a [routerLink]="['/historia']">{{ i18n.t('nav.history') }}</a>
+      <a [routerLink]="['/tienda-online']">{{ i18n.t('nav.shop') }}</a>
+      <a [routerLink]="['/galeria']">{{ i18n.t('nav.gallery') }}</a>
+      <a [routerLink]="['/contacto']">{{ i18n.t('nav.contact') }}</a>
+      <a [routerLink]="['/faq']">{{ i18n.t('footer.faq') }}</a>
+      <a [routerLink]="['/blog']">{{ i18n.t('footer.blog') }}</a>
+      <a [routerLink]="['/boletin']">{{ i18n.t('nav.newsletter') }}</a>
+      <a [routerLink]="['/descubre-el-territorio']">{{ i18n.t('footer.territory') }}</a>
+      <a [routerLink]="['/lotes-para-empresas']">{{ i18n.t('footer.business_lots') }}</a>
+      <a [routerLink]="['/lotes-y-cestas-gourmet']">{{ i18n.t('footer.gourmet_lots') }}</a>
     </div>
 
-
     <div class="footer-column">
-
-      <span>CONTACTO</span>
+      <span>{{ i18n.t('footer.contact_title') }}</span>
 
       <p>
-      Calle Marina, 237<br>
+        Calle Marina, 237<br />
         08013 Barcelona
       </p>
 
-      <p>
-        932 32 55 08
-      </p>
+      <p>932 32 55 08</p>
 
-      <p>
-        sarda@calsarda.com
-      </p>
-
+      <p>sarda@calsarda.com</p>
     </div>
-
 
     <div class="footer-column">
+      <span>{{ i18n.t('footer.info_title') }}</span>
 
-      <span>INFORMACIÓ</span>
-
-      <a [routerLink]="['/aviso-legal']">Aviso legal</a>
-      <a [routerLink]="['/politica-de-privacidad']">Privacidad</a>
-      <a [routerLink]="['/politica-de-cookies']">Cookies</a>
-      <a [routerLink]="['/condiciones-generales']">Condiciones generales</a>
-      <a [routerLink]="['/mapa-web']">Mapa web</a>
-      <a href="https://www.instagram.com/sardabcn/" target="_blank" rel="noopener noreferrer">Instagram ↗</a>
-      <a href="https://www.facebook.com/sardabcn/" target="_blank" rel="noopener noreferrer">Facebook ↗</a>
-
+      <a [routerLink]="['/aviso-legal']">{{ i18n.t('footer.legal') }}</a>
+      <a [routerLink]="['/politica-de-privacidad']">{{ i18n.t('footer.privacy') }}</a>
+      <a [routerLink]="['/politica-de-cookies']">{{ i18n.t('footer.cookies') }}</a>
+      <a [routerLink]="['/condiciones-generales']">{{ i18n.t('footer.terms') }}</a>
+      <a [routerLink]="['/mapa-web']">{{ i18n.t('footer.sitemap') }}</a>
+      <a href="https://www.instagram.com/sardabcn/" target="_blank" rel="noopener noreferrer"
+        >Instagram ↗</a
+      >
+      <a href="https://www.facebook.com/sardabcn/" target="_blank" rel="noopener noreferrer"
+        >Facebook ↗</a
+      >
     </div>
-
   </div>
 
-
   <div class="footer-bottom">
+    <span> © 2026 CAL SARDÀ </span>
 
     <span>
-      © 2026 CAL SARDÀ
-    </span>
-
-    <span>
-      BARCELONA · CATALUÑA
+      {{ i18n.t('footer.location') }}
     </span>
 
     <a [routerLink]="['/']" [fragment]="'inicio'">
-      VOLVER ARRIBA ↑
+      {{ i18n.t('footer.back_to_top') }}
     </a>
-
   </div>
-
 </footer>
