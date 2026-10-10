@@ -72,14 +72,13 @@
               (error)="hideUnavailableProductImage($event)"
             />
 
-            <button
-              type="button"
+            <a
               class="store-product-overlay"
-              (click)="showProduct(product)"
+              [routerLink]="['/tienda-online/producto', getProductSlug(product)]"
               [attr.aria-label]="'Ver producto: ' + product.name"
             >
               <span> VER PRODUCTO → </span>
-            </button>
+            </a>
 
             <span class="store-product-number">
               {{ product.number }}

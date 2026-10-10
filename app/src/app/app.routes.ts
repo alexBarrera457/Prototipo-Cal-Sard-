@@ -18,6 +18,15 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/shop-page/shop-page').then((m) => m.ShopPage),
   },
   {
+    path: 'tienda-online/producto',
+    redirectTo: 'tienda-online',
+    pathMatch: 'full',
+  },
+  {
+    path: 'tienda-online/producto/:slug',
+    loadComponent: () => import('./pages/product-page/product-page').then((m) => m.ProductPage),
+  },
+  {
     path: 'preparar-pedido',
     title: 'Preparar pedido | Cal Sardà',
     loadComponent: () => import('./pages/checkout-page/checkout-page').then((m) => m.CheckoutPage),

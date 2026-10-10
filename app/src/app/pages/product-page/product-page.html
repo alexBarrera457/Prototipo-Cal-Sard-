@@ -1,0 +1,18 @@
+@if (loading()) {
+  <section class="product-page-status" aria-busy="true" aria-live="polite">
+    <p>Cargando información del producto…</p>
+  </section>
+} @else if (product(); as prod) {
+  <main class="product-page-content">
+    <app-product-detail [product]="prod" (backToStore)="backToStore()" />
+  </main>
+} @else if (notFound()) {
+  <main class="product-page-status product-not-found" aria-labelledby="not-found-heading">
+    <span class="not-found-kicker">CAL SARDÀ · CATÁLOGO</span>
+    <h1 id="not-found-heading">Producto no encontrado</h1>
+    <p>
+      El producto que estás buscando no existe o ya no se encuentra disponible en nuestro catálogo.
+    </p>
+    <a [routerLink]="['/tienda-online']" class="not-found-link"> ← VOLVER A LA TIENDA ONLINE </a>
+  </main>
+}

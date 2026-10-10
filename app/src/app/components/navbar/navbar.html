@@ -179,8 +179,7 @@
                       [id]="'header-search-result-' + product.number"
                       role="option"
                       [attr.aria-selected]="activeSearchResultIndex === index"
-                      [routerLink]="['/tienda-online']"
-                      [queryParams]="{ producto: product.number, buscar: searchTerm.trim() }"
+                      [routerLink]="['/tienda-online/producto', getProductSlug(product)]"
                       (mouseenter)="setActiveSearchResult(index)"
                       (click)="closeSearch()"
                     >

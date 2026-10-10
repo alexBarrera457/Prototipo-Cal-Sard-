@@ -35,6 +35,19 @@ describe('ProductsService', () => {
     expect(notFound).toBeNull();
   });
 
+  it('generates semantic slugs and retrieves products by slug or number', async () => {
+    const productByNumber = await service.getProductBySlugOrNumber('01');
+    expect(productByNumber).not.toBeNull();
+    expect(productByNumber?.number).toBe('01');
+
+    const productBySlug = await service.getProductBySlugOrNumber('cafe-100-robusta');
+    expect(productBySlug).not.toBeNull();
+    expect(productBySlug?.number).toBe('01');
+
+    const notFound = await service.getProductBySlugOrNumber('producto-que-no-existe-xyz');
+    expect(notFound).toBeNull();
+  });
+
   describe('search and normalization', () => {
     const mockProducts: StoreProduct[] = [
       {

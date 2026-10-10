@@ -4,7 +4,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { debounceTime, distinctUntilChanged, Subject, switchMap } from 'rxjs';
 import { CartService } from '../../services/cart';
-import { ProductsService, StoreProduct } from '../../services/products';
+import { getProductSlug, ProductsService, StoreProduct } from '../../services/products';
 
 @Component({
   selector: 'app-navbar',
@@ -63,6 +63,10 @@ export class Navbar {
 
   get searchResults(): StoreProduct[] {
     return this.searchResultProducts();
+  }
+
+  getProductSlug(product: StoreProduct): string {
+    return getProductSlug(product);
   }
 
   get activeSearchResultId(): string | null {
@@ -143,9 +147,7 @@ export class Navbar {
       if (product) {
         event.preventDefault();
         this.closeSearch();
-        void this.router.navigate(['/tienda-online'], {
-          queryParams: { producto: product.number, buscar: this.searchTerm.trim() },
-        });
+        void this.router.navigate(['/tienda-online/producto', getProductSlug(product)]);
       }
 
       return;

@@ -4,7 +4,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { ProductDetail } from '../../components/product-detail/product-detail';
 import { Store } from '../../components/store/store';
-import { ProductsService, StoreProduct } from '../../services/products';
+import { getProductSlug, ProductsService, StoreProduct } from '../../services/products';
 
 @Component({
   selector: 'app-shop-page',
@@ -27,12 +27,13 @@ export class ShopPage {
       this.searchTerm = params.get('buscar') ?? '';
       const productNumber = params.get('producto');
       const request = ++this.productRequest;
-      this.selectedProduct.set(null);
 
       if (productNumber) {
         void this.productsService.getProductByNumber(productNumber).then((product) => {
-          if (request === this.productRequest) {
-            this.selectedProduct.set(product);
+          if (request === this.productRequest && product) {
+            void this.router.navigate(['/tienda-online/producto', getProductSlug(product)], {
+              replaceUrl: true,
+            });
           }
         });
       }
@@ -40,22 +41,12 @@ export class ShopPage {
   }
 
   showProduct(product: StoreProduct): void {
-    this.selectedProduct.set(product);
-    void this.router.navigate([], {
-      relativeTo: this.route,
-      queryParams: { producto: product.number },
-      queryParamsHandling: 'merge',
-    });
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    void this.router.navigate(['/tienda-online/producto', getProductSlug(product)]);
   }
 
   hideProduct(): void {
     this.selectedProduct.set(null);
-    void this.router.navigate([], {
-      relativeTo: this.route,
-      queryParams: { producto: null },
-      queryParamsHandling: 'merge',
-    });
+    void this.router.navigate(['/tienda-online']);
   }
 
   clearSearch(): void {

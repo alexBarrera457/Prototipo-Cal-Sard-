@@ -17,6 +17,7 @@ import { isPlatformBrowser, NgOptimizedImage } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { CartService } from '../../services/cart';
 import {
+  getProductSlug,
   PaginatedResult,
   ProductsService,
   StoreProduct,
@@ -162,6 +163,10 @@ export class Store implements AfterViewInit, OnDestroy {
       this.cartService.products().find((item) => item.name === product.name)?.quantity ?? 1;
     this.addedProductNumber = product.number;
     this.addedProductMessage = `${product.name} añadido a la cesta. Cantidad: ${quantity}.`;
+  }
+
+  getProductSlug(product: StoreProduct): string {
+    return getProductSlug(product);
   }
 
   showProduct(product: StoreProduct): void {

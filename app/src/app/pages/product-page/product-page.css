@@ -1,0 +1,53 @@
+.product-page-status {
+  max-width: 800px;
+  margin: 80px auto;
+  padding: 60px 24px;
+  text-align: center;
+  background: #fcf9f2;
+  border: 1px solid rgba(43, 33, 26, 0.08);
+}
+
+.product-page-status p {
+  color: #5d5148;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+.product-not-found .not-found-kicker {
+  display: block;
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #8c7b6f;
+  margin-bottom: 12px;
+}
+
+.product-not-found h1 {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 32px;
+  font-weight: 500;
+  color: #2b211a;
+  margin: 0 0 16px;
+}
+
+.product-not-found .not-found-link {
+  display: inline-block;
+  margin-top: 24px;
+  padding: 14px 28px;
+  background: #2b211a;
+  color: #fffaf2;
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  transition: background 0.2s ease;
+}
+
+.product-not-found .not-found-link:hover {
+  background: #46372c;
+}
+
+.product-page-content {
+  min-height: 80vh;
+}

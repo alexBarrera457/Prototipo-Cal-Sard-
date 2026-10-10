@@ -90,6 +90,30 @@ export function getSearchVariants(term: string): string[] {
   return [...variants].filter(Boolean);
 }
 
+/**
+ * Convierte un texto en un slug URL amigable.
+ */
+export function slugify(text: string): string {
+  return text
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
+/**
+ * Obtiene el slug canónico de un producto para su ruta semántica.
+ */
+export function getProductSlug(product: {
+  number: string;
+  name: string;
+  slug?: string;
+}): string {
+  return product.slug ?? (slugify(product.name) || product.number);
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -113,6 +137,27 @@ export class ProductsService {
   async getProductByNumber(productNumber: string): Promise<StoreProduct | null> {
     const products = await this.getProducts();
     return products.find((product) => product.number === productNumber) ?? null;
+  }
+
+  /**
+   * Obtiene un producto por su slug semántico o número único.
+   */
+  async getProductBySlugOrNumber(identifier: string): Promise<StoreProduct | null> {
+    if (!identifier) {
+      return null;
+    }
+    const cleanId = identifier.trim().toLowerCase();
+    const products = await this.getProducts();
+
+    return (
+      products.find(
+        (product) =>
+          product.number.toLowerCase() === cleanId ||
+          (product.slug && product.slug.toLowerCase() === cleanId) ||
+          slugify(product.name) === cleanId ||
+          `${product.number}-${slugify(product.name)}` === cleanId,
+      ) ?? null
+    );
   }
 
   /**
