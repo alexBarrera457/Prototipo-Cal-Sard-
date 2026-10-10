@@ -23,32 +23,55 @@
           <h2>Tus datos</h2>
         </div>
 
-        @if (!previewReady) {
-          <form #orderForm="ngForm" (ngSubmit)="preparePreview()">
+        @if (!previewReady()) {
+          <form #orderForm="ngForm" (ngSubmit)="preparePreview()" novalidate>
             <div class="checkout-fields">
               <label>
                 Nombre y apellidos
-                <input name="name" [(ngModel)]="customer.name" autocomplete="name" required />
+                <input
+                  name="name"
+                  [(ngModel)]="customer.name"
+                  (input)="onFieldInput('name')"
+                  autocomplete="name"
+                  [attr.aria-invalid]="errors().name ? 'true' : null"
+                  [attr.aria-describedby]="errors().name ? 'name-error' : null"
+                  required
+                />
+                @if (errors().name) {
+                  <p class="field-error" id="name-error" role="alert">{{ errors().name }}</p>
+                }
               </label>
               <label>
                 Correo electrónico
                 <input
                   name="email"
                   [(ngModel)]="customer.email"
+                  (input)="onFieldInput('email')"
                   type="email"
                   autocomplete="email"
+                  [attr.aria-invalid]="errors().email ? 'true' : null"
+                  [attr.aria-describedby]="errors().email ? 'email-error' : null"
                   required
                 />
+                @if (errors().email) {
+                  <p class="field-error" id="email-error" role="alert">{{ errors().email }}</p>
+                }
               </label>
               <label>
                 Teléfono
                 <input
                   name="phone"
                   [(ngModel)]="customer.phone"
+                  (input)="onFieldInput('phone')"
                   type="tel"
                   autocomplete="tel"
+                  [attr.aria-invalid]="errors().phone ? 'true' : null"
+                  [attr.aria-describedby]="errors().phone ? 'phone-error' : null"
                   required
                 />
+                @if (errors().phone) {
+                  <p class="field-error" id="phone-error" role="alert">{{ errors().phone }}</p>
+                }
               </label>
             </div>
 
@@ -59,12 +82,13 @@
                   type="radio"
                   name="fulfillment"
                   [(ngModel)]="fulfillment"
+                  (change)="onFulfillmentChange()"
                   value="pickup"
                   required
                 />
                 <span
                   ><strong>Recogida en tienda</strong
-                  ><small>C/ Marina, 237 · Barcelona</small></span
+                  ><small>C/ Marina, 237 · Barcelona (Gratis)</small></span
                 >
               </label>
               <label class="fulfillment-choice">
@@ -72,12 +96,13 @@
                   type="radio"
                   name="fulfillment"
                   [(ngModel)]="fulfillment"
+                  (change)="onFulfillmentChange()"
                   value="delivery"
                   required
                 />
                 <span
                   ><strong>Envío a domicilio</strong
-                  ><small>El coste se confirmará al conectar la tienda.</small></span
+                  ><small>7,99 € Cataluña · 8,99 € resto de la península</small></span
                 >
               </label>
             </fieldset>
@@ -89,27 +114,49 @@
                   <input
                     name="address"
                     [(ngModel)]="customer.address"
+                    (input)="onFieldInput('address')"
                     autocomplete="street-address"
+                    [attr.aria-invalid]="errors().address ? 'true' : null"
+                    [attr.aria-describedby]="errors().address ? 'address-error' : null"
                     required
                   />
+                  @if (errors().address) {
+                    <p class="field-error" id="address-error" role="alert">
+                      {{ errors().address }}
+                    </p>
+                  }
                 </label>
                 <label>
                   Código postal
                   <input
                     name="postalCode"
                     [(ngModel)]="customer.postalCode"
+                    (input)="onFieldInput('postalCode')"
                     autocomplete="postal-code"
+                    [attr.aria-invalid]="errors().postalCode ? 'true' : null"
+                    [attr.aria-describedby]="errors().postalCode ? 'postalCode-error' : null"
                     required
                   />
+                  @if (errors().postalCode) {
+                    <p class="field-error" id="postalCode-error" role="alert">
+                      {{ errors().postalCode }}
+                    </p>
+                  }
                 </label>
                 <label>
                   Ciudad
                   <input
                     name="city"
                     [(ngModel)]="customer.city"
+                    (input)="onFieldInput('city')"
                     autocomplete="address-level2"
+                    [attr.aria-invalid]="errors().city ? 'true' : null"
+                    [attr.aria-describedby]="errors().city ? 'city-error' : null"
                     required
                   />
+                  @if (errors().city) {
+                    <p class="field-error" id="city-error" role="alert">{{ errors().city }}</p>
+                  }
                 </label>
               </div>
             }
@@ -129,7 +176,9 @@
             <p class="preview-contact">{{ customer.email }} · {{ customer.phone }}</p>
             @if (fulfillment === 'delivery') {
               <p class="preview-contact">
-                {{ customer.address }}, {{ customer.postalCode }} {{ customer.city }}
+                {{ customer.address }}, {{ customer.postalCode }} {{ customer.city }} ({{
+                  shippingZoneLabel
+                }})
               </p>
             }
             <div class="preview-notice">
@@ -161,16 +210,13 @@
         <div class="summary-total">
           <span>Subtotal</span><strong>{{ cartService.getTotal().toFixed(2) }} €</strong>
         </div>
-        @if (fulfillment === 'delivery') {
-          <p class="shipping-note">
-            Envío: coste pendiente de definir. El importe final se confirmará cuando se conecte la
-            tienda.
-          </p>
-        } @else {
-          <div class="summary-total final-total">
-            <span>Total de recogida</span><strong>{{ cartService.getTotal().toFixed(2) }} €</strong>
-          </div>
-        }
+        <div class="summary-total shipping-total">
+          <span>Gastos de envío ({{ shippingZoneLabel }})</span>
+          <strong>{{ shippingCost === 0 ? '0,00 €' : shippingCost.toFixed(2) + ' €' }}</strong>
+        </div>
+        <div class="summary-total final-total">
+          <span>Total estimado</span><strong>{{ finalTotal.toFixed(2) }} €</strong>
+        </div>
         <p class="demo-note">
           Precios orientativos de prototipo. No hay pasarela de pago ni se transmiten datos
           personales.

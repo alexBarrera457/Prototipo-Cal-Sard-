@@ -13,7 +13,7 @@
   position: relative;
   margin-bottom: 58px;
   padding-bottom: 36px;
-  border-bottom: 1px solid rgba(34, 26, 20, .14);
+  border-bottom: 1px solid rgba(34, 26, 20, 0.14);
 }
 
 .checkout-back {
@@ -39,7 +39,7 @@
   font-family: Georgia, 'Times New Roman', serif;
   font-size: clamp(48px, 6vw, 78px);
   font-weight: 400;
-  line-height: .96;
+  line-height: 0.96;
   letter-spacing: -2px;
 }
 
@@ -52,7 +52,7 @@
 
 .checkout-layout {
   display: grid;
-  grid-template-columns: minmax(0, 1.15fr) minmax(320px, .85fr);
+  grid-template-columns: minmax(0, 1.15fr) minmax(320px, 0.85fr);
   gap: 7vw;
   align-items: start;
 }
@@ -96,17 +96,17 @@
   width: 100%;
   min-height: 48px;
   padding: 12px 13px;
-  border: 1px solid rgba(34, 26, 20, .19);
+  border: 1px solid rgba(34, 26, 20, 0.19);
   border-radius: 0;
   outline: none;
-  background: rgba(255, 255, 255, .52);
+  background: rgba(255, 255, 255, 0.52);
   color: #221a14;
   font-size: 15px;
 }
 
 .checkout-fields input:focus {
   border-color: #9e774e;
-  box-shadow: 0 0 0 2px rgba(158, 119, 78, .12);
+  box-shadow: 0 0 0 2px rgba(158, 119, 78, 0.12);
 }
 
 .fulfillment-options {
@@ -129,8 +129,8 @@
   align-items: flex-start;
   gap: 12px;
   padding: 16px;
-  border: 1px solid rgba(34, 26, 20, .17);
-  background: rgba(255, 255, 255, .38);
+  border: 1px solid rgba(34, 26, 20, 0.17);
+  background: rgba(255, 255, 255, 0.38);
   cursor: pointer;
 }
 
@@ -194,7 +194,7 @@
 }
 
 .summary-products {
-  border-top: 1px solid rgba(34, 26, 20, .14);
+  border-top: 1px solid rgba(34, 26, 20, 0.14);
 }
 
 .summary-product {
@@ -203,7 +203,7 @@
   gap: 12px;
   align-items: center;
   padding: 14px 0;
-  border-bottom: 1px solid rgba(34, 26, 20, .12);
+  border-bottom: 1px solid rgba(34, 26, 20, 0.12);
 }
 
 .summary-product img {
@@ -245,7 +245,7 @@
 .final-total {
   padding-top: 12px;
   margin-top: 12px;
-  border-top: 1px solid rgba(34, 26, 20, .14);
+  border-top: 1px solid rgba(34, 26, 20, 0.14);
 }
 
 .shipping-note,
@@ -262,7 +262,7 @@
 .demo-note {
   margin: 22px 0 0;
   padding-top: 16px;
-  border-top: 1px solid rgba(34, 26, 20, .14);
+  border-top: 1px solid rgba(34, 26, 20, 0.14);
 }
 
 .checkout-empty {
@@ -299,8 +299,8 @@
 
 .order-preview {
   padding: 26px;
-  border: 1px solid rgba(34, 26, 20, .14);
-  background: rgba(255, 255, 255, .38);
+  border: 1px solid rgba(34, 26, 20, 0.14);
+  background: rgba(255, 255, 255, 0.38);
 }
 
 .order-preview h2 {
@@ -325,6 +325,26 @@
   width: auto;
   min-height: 46px;
   padding: 0 16px;
+}
+
+.checkout-fields input[aria-invalid='true'] {
+  border-color: #b33927;
+  background: rgba(254, 242, 242, 0.6);
+}
+
+.field-error {
+  margin: -2px 0 0;
+  color: #b33927;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.shipping-total {
+  font-size: 14px;
+  color: #55493f;
+  border-top: 1px dashed rgba(34, 26, 20, 0.15);
+  padding-top: 10px;
 }
 
 @media (max-width: 900px) {
