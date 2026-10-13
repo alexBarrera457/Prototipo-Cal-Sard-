@@ -12,11 +12,13 @@
     "build": "npm run build --workspace=@cal-sarda/app",
     "test": "npm test --workspace=@cal-sarda/app -- --watch=false",
     "test:watch": "npm test --workspace=@cal-sarda/app",
+    "test:e2e": "playwright test",
     "generate:seo": "node scripts/generate-seo-files.mjs",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
   },
   "devDependencies": {
+    "@playwright/test": "^1.64.0",
     "prettier": "^3.8.1"
   }
 }
