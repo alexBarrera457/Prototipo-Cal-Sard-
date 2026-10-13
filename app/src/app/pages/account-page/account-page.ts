@@ -6,7 +6,7 @@ import { RouterLink } from '@angular/router';
   selector: 'app-account-page',
   imports: [FormsModule, RouterLink],
   templateUrl: './account-page.html',
-  styleUrl: './account-page.css'
+  styleUrl: './account-page.css',
 })
 export class AccountPage {
   email = '';

@@ -92,7 +92,9 @@
   transition: 0.3s ease;
 }
 
-.footer-bottom a:hover { color: #fff; }
+.footer-bottom a:hover {
+  color: #fff;
+}
 
 @media (max-width: 900px) {
   .footer {
@@ -116,7 +118,9 @@
     padding-bottom: 70px;
   }
 
-  .footer-brand h2 { font-size: 85px; }
+  .footer-brand h2 {
+    font-size: 85px;
+  }
 
   .footer-bottom {
     flex-direction: column;

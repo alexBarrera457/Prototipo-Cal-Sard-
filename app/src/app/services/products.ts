@@ -106,11 +106,7 @@ export function slugify(text: string): string {
 /**
  * Obtiene el slug canónico de un producto para su ruta semántica.
  */
-export function getProductSlug(product: {
-  number: string;
-  name: string;
-  slug?: string;
-}): string {
+export function getProductSlug(product: { number: string; name: string; slug?: string }): string {
   return product.slug ?? (slugify(product.name) || product.number);
 }
 

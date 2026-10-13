@@ -2,7 +2,6 @@
   display: block;
 }
 
-
 /* =========================
    CATEGORÍAS
 ========================= */
@@ -21,7 +20,6 @@
   overflow: hidden;
 }
 
-
 /* =========================
    DECORACIÓN
 ========================= */
@@ -37,7 +35,7 @@
   top: -250px;
   right: -150px;
 
-  border: 1px solid rgba(255,255,255,0.08);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 
   border-radius: 50%;
 }
@@ -53,11 +51,10 @@
   bottom: -150px;
   left: -100px;
 
-  border: 1px solid rgba(255,255,255,0.06);
+  border: 1px solid rgba(255, 255, 255, 0.06);
 
   border-radius: 50%;
 }
-
 
 /* =========================
    INTRO
@@ -92,16 +89,9 @@
 .categories-intro h2 {
   margin: 25px 0 0;
 
-  font-family:
-    Georgia,
-    'Times New Roman',
-    serif;
+  font-family: Georgia, 'Times New Roman', serif;
 
-  font-size: clamp(
-    70px,
-    9vw,
-    130px
-  );
+  font-size: clamp(70px, 9vw, 130px);
 
   font-weight: 400;
 
@@ -115,13 +105,12 @@
 
   margin-bottom: 8px;
 
-  color: rgba(255,255,255,0.65);
+  color: rgba(255, 255, 255, 0.65);
 
   font-size: 16px;
 
   line-height: 1.8;
 }
-
 
 /* =========================
    LISTA
@@ -132,9 +121,8 @@
 
   z-index: 2;
 
-  border-top: 1px solid rgba(255,255,255,0.2);
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
 }
-
 
 /* =========================
    CATEGORÍA
@@ -153,7 +141,7 @@
 
   padding: 0 20px;
 
-  border-bottom: 1px solid rgba(255,255,255,0.2);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
 
   color: white;
 
@@ -165,7 +153,6 @@
     padding 0.4s ease,
     color 0.4s ease;
 }
-
 
 /* =========================
    IMAGEN DE FONDO
@@ -179,12 +166,7 @@
   inset: 0;
 
   background-image:
-    linear-gradient(
-      90deg,
-      rgba(20,14,10,0.82),
-      rgba(20,14,10,0.35)
-    ),
-    var(--category-image);
+    linear-gradient(90deg, rgba(20, 14, 10, 0.82), rgba(20, 14, 10, 0.35)), var(--category-image);
 
   background-size: cover;
 
@@ -201,7 +183,6 @@
   z-index: -2;
 }
 
-
 /* OSCURECER IMAGEN */
 
 .category-item::after {
@@ -211,12 +192,7 @@
 
   inset: 0;
 
-  background:
-    linear-gradient(
-      90deg,
-      rgba(20,14,10,0.65),
-      rgba(20,14,10,0.15)
-    );
+  background: linear-gradient(90deg, rgba(20, 14, 10, 0.65), rgba(20, 14, 10, 0.15));
 
   opacity: 0;
 
@@ -224,7 +200,6 @@
 
   z-index: -1;
 }
-
 
 /* =========================
    HOVER
@@ -246,16 +221,12 @@
   opacity: 1;
 }
 
-
 /* =========================
    NÚMERO
 ========================= */
 
 .category-number {
-  font-family:
-    Georgia,
-    'Times New Roman',
-    serif;
+  font-family: Georgia, 'Times New Roman', serif;
 
   font-size: 18px;
 
@@ -263,14 +234,12 @@
 
   color: #c7a275;
 
-  transition:
-    color 0.3s ease;
+  transition: color 0.3s ease;
 }
 
 .category-item:hover .category-number {
   color: white;
 }
-
 
 /* =========================
    CONTENIDO
@@ -289,22 +258,14 @@
 .category-content h3 {
   margin: 10px 0 0;
 
-  font-family:
-    Georgia,
-    'Times New Roman',
-    serif;
+  font-family: Georgia, 'Times New Roman', serif;
 
-  font-size: clamp(
-    38px,
-    4vw,
-    62px
-  );
+  font-size: clamp(38px, 4vw, 62px);
 
   font-weight: 400;
 
   line-height: 1;
 }
-
 
 /* =========================
    FLECHA
@@ -319,7 +280,7 @@
   width: 50px;
   height: 50px;
 
-  border: 1px solid rgba(255,255,255,0.4);
+  border: 1px solid rgba(255, 255, 255, 0.4);
 
   border-radius: 50%;
 
@@ -341,7 +302,6 @@
   transform: rotate(45deg);
 }
 
-
 /* =========================
    FOOTER
 ========================= */
@@ -359,7 +319,7 @@
 
   padding-top: 45px;
 
-  color: rgba(255,255,255,0.5);
+  color: rgba(255, 255, 255, 0.5);
 
   font-size: 10px;
 
@@ -389,18 +349,16 @@
 
   font-weight: bold;
 
-  border-bottom: 1px solid rgba(255,255,255,0.6);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.6);
 
   padding-bottom: 7px;
 }
-
 
 /* =========================
    TABLET
 ========================= */
 
 @media (max-width: 900px) {
-
   .categories {
     padding: 110px 6% 80px;
   }
@@ -412,16 +370,13 @@
 
     margin-bottom: 70px;
   }
-
 }
-
 
 /* =========================
    MÓVIL
 ========================= */
 
 @media (max-width: 650px) {
-
   .categories {
     padding: 90px 25px 70px;
   }
@@ -466,5 +421,4 @@
   .categories-footer a {
     justify-self: start;
   }
-
 }

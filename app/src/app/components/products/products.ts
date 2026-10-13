@@ -5,6 +5,6 @@ import { ScrollReveal } from '../../shared/scroll-reveal';
   selector: 'app-products',
   imports: [ScrollReveal],
   templateUrl: './products.html',
-  styleUrl: './products.css'
+  styleUrl: './products.css',
 })
 export class Products {}

@@ -1,7 +1,5 @@
 <section class="contact" id="contacto">
-    
   <div class="contact-header">
-
     <span>CAL SARDÀ · BARCELONA</span>
 
     @if (showPageTitle) {
@@ -11,26 +9,21 @@
     }
 
     <p>
-      Escríbenos, te escuchamos. Si tienes dudas sobre los productos,
-      un pedido o quieres visitarnos, estamos aquí para ayudarte.
+      Escríbenos, te escuchamos. Si tienes dudas sobre los productos, un pedido o quieres
+      visitarnos, estamos aquí para ayudarte.
     </p>
-
   </div>
 
-
   <div class="contact-layout">
-
     <div class="contact-info">
-
       <div class="contact-item">
         <span>DIRECCIÓN</span>
 
         <p>
-        Calle Marina, 237<br>
+          Calle Marina, 237<br />
           08013 Barcelona
         </p>
       </div>
-
 
       <div class="contact-item">
         <span>TELÉFONO</span>
@@ -40,7 +33,6 @@
         </p>
       </div>
 
-
       <div class="contact-item">
         <span>CORREO</span>
 
@@ -49,42 +41,46 @@
         </p>
       </div>
 
-
       <div class="contact-item">
         <span>HORARIO</span>
 
         <p>
-          Lunes — Viernes<br>
-          09:30 — 14:30<br>
+          Lunes — Viernes<br />
+          09:30 — 14:30<br />
           16:30 — 20:30
         </p>
       </div>
-
     </div>
 
-
     <form class="contact-form" (submit)="prepareEmail($event)">
-
       <div class="form-row">
-
         <div class="form-group">
           <label for="contact-name">Nombre y apellidos</label>
-          <input id="contact-name" name="name" type="text" placeholder="Tu nombre" required>
+          <input id="contact-name" name="name" type="text" placeholder="Tu nombre" required />
         </div>
 
         <div class="form-group">
           <label for="contact-email">Correo electrónico</label>
-          <input id="contact-email" name="email" type="email" placeholder="tu@correo.com" required>
+          <input
+            id="contact-email"
+            name="email"
+            type="email"
+            placeholder="tu@correo.com"
+            required
+          />
         </div>
-
       </div>
-
 
       <div class="form-group">
         <label for="contact-subject">Asunto</label>
-        <input id="contact-subject" name="subject" type="text" placeholder="¿En qué podemos ayudarte?" required>
+        <input
+          id="contact-subject"
+          name="subject"
+          type="text"
+          placeholder="¿En qué podemos ayudarte?"
+          required
+        />
       </div>
-
 
       <div class="form-group">
         <label for="contact-message">Mensaje</label>
@@ -98,7 +94,7 @@
       </div>
 
       <label class="contact-privacy">
-        <input name="privacyConsent" type="checkbox" required>
+        <input name="privacyConsent" type="checkbox" required />
         <span>
           He leído y acepto la
           <a href="/politica-de-privacidad">política de privacidad</a>.
@@ -109,9 +105,6 @@
         PREPARAR CORREO
         <span>→</span>
       </button>
-
     </form>
-
   </div>
-
 </section>

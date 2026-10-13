@@ -3,10 +3,8 @@ import { ScrollReveal } from '../../shared/scroll-reveal';
 
 @Component({
   selector: 'app-history',
-  imports: [
-    ScrollReveal
-  ],
+  imports: [ScrollReveal],
   templateUrl: './history.html',
-  styleUrl: './history.css'
+  styleUrl: './history.css',
 })
 export class History {}

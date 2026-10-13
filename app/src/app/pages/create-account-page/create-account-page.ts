@@ -6,7 +6,7 @@ import { RouterLink } from '@angular/router';
   selector: 'app-create-account-page',
   imports: [FormsModule, RouterLink],
   templateUrl: './create-account-page.html',
-  styleUrl: './create-account-page.css'
+  styleUrl: './create-account-page.css',
 })
 export class CreateAccountPage {
   name = '';

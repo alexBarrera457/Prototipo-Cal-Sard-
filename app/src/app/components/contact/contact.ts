@@ -4,10 +4,9 @@ import { Component, Input } from '@angular/core';
   selector: 'app-contact',
   imports: [],
   templateUrl: './contact.html',
-  styleUrl: './contact.css'
+  styleUrl: './contact.css',
 })
 export class Contact {
-
   @Input() showPageTitle = false;
 
   prepareEmail(event: SubmitEvent): void {
@@ -24,11 +23,10 @@ export class Contact {
       `Nombre: ${String(formData.get('name'))}`,
       `Correo: ${String(formData.get('email'))}`,
       '',
-      String(formData.get('message'))
+      String(formData.get('message')),
     ].join('\n');
     const mailto = `mailto:sarda@calsarda.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 
     window.location.href = mailto;
   }
-
 }
