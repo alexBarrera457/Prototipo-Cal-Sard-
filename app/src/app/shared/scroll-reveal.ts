@@ -1,22 +1,15 @@
-import {
-  Directive,
-  ElementRef,
-  AfterViewInit,
-  OnDestroy
-} from '@angular/core';
+import { Directive, ElementRef, AfterViewInit, OnDestroy } from '@angular/core';
 
 @Directive({
   selector: '[appScrollReveal]',
-  standalone: true
+  standalone: true,
 })
 export class ScrollReveal implements AfterViewInit, OnDestroy {
-
   private observer?: IntersectionObserver;
 
   constructor(private element: ElementRef<HTMLElement>) {}
 
   ngAfterViewInit(): void {
-
     const nativeElement = this.element?.nativeElement;
 
     if (!nativeElement) {
@@ -30,23 +23,17 @@ export class ScrollReveal implements AfterViewInit, OnDestroy {
 
     this.observer = new IntersectionObserver(
       (entries) => {
-
         entries.forEach((entry) => {
-
           if (entry.isIntersecting) {
-
             entry.target.classList.add('visible');
 
             this.observer?.unobserve(entry.target);
-
           }
-
         });
-
       },
       {
-        threshold: 0.15
-      }
+        threshold: 0.15,
+      },
     );
 
     this.observer.observe(nativeElement);

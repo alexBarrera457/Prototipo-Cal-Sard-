@@ -231,7 +231,9 @@
   font-weight: 700;
   letter-spacing: 2px;
   text-transform: uppercase;
-  transition: transform 0.25s ease, background 0.25s ease;
+  transition:
+    transform 0.25s ease,
+    background 0.25s ease;
 }
 
 .brand-page-cta a:hover {

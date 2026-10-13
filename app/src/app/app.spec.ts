@@ -52,8 +52,9 @@ describe('App', () => {
     await router.navigateByUrl('/historia');
     fixture.detectChanges();
     await fixture.whenStable();
-    expect((fixture.nativeElement as HTMLElement).querySelector('h1')?.textContent)
-      .toContain('Nuestra historia');
+    expect((fixture.nativeElement as HTMLElement).querySelector('h1')?.textContent).toContain(
+      'Nuestra historia',
+    );
 
     await router.navigateByUrl('/faq');
     fixture.detectChanges();

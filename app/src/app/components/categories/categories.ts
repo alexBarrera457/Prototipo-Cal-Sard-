@@ -5,6 +5,6 @@ import { ScrollReveal } from '../../shared/scroll-reveal';
   selector: 'app-categories',
   imports: [ScrollReveal],
   templateUrl: './categories.html',
-  styleUrl: './categories.css'
+  styleUrl: './categories.css',
 })
 export class Categories {}

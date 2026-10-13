@@ -7,11 +7,22 @@
         <span class="home-section-label">SAGRADA FAMILIA · DESDE 1930</span>
         <span class="home-story-mark">Una historia de barrio</span>
         <h2 id="home-story-title">Un colmado que ha crecido con el barrio.</h2>
-        <p>En 1930, Jaume Sardà y Flora Güell abrieron una lechería en la Sagrada Familia. Cuatro generaciones después, Cal Sardà sigue reuniendo productos escogidos, sabores de siempre y el trato cercano de una tienda familiar.</p>
-        <a class="home-story-link" [routerLink]="['/historia']">Conoce nuestra historia <span aria-hidden="true">→</span></a>
+        <p>
+          En 1930, Jaume Sardà y Flora Güell abrieron una lechería en la Sagrada Familia. Cuatro
+          generaciones después, Cal Sardà sigue reuniendo productos escogidos, sabores de siempre y
+          el trato cercano de una tienda familiar.
+        </p>
+        <a class="home-story-link" [routerLink]="['/historia']"
+          >Conoce nuestra historia <span aria-hidden="true">→</span></a
+        >
       </div>
       <figure class="home-story-image">
-        <img src="/images/gallery/passi-05.jpg" alt="Una de las generaciones de Cal Sardà en el interior de la tienda" loading="lazy" decoding="async">
+        <img
+          src="/images/gallery/passi-05.jpg"
+          alt="Una de las generaciones de Cal Sardà en el interior de la tienda"
+          loading="lazy"
+          decoding="async"
+        />
         <figcaption>El día a día en la tienda familiar</figcaption>
       </figure>
     </div>
@@ -26,11 +37,16 @@
     <header class="home-section-heading">
       <div>
         <span class="home-section-label">SELECCIÓN CAL SARDÀ</span>
-        <h2 id="home-categories-title">Sabores para<br>descubrir.</h2>
+        <h2 id="home-categories-title">Sabores para<br />descubrir.</h2>
       </div>
       <div class="home-section-heading-aside">
-        <p>Los productos de siempre y pequeños hallazgos gourmet, escogidos para disfrutar y compartir.</p>
-        <a class="home-text-link" [routerLink]="['/tienda-online']">Ver toda la tienda <span aria-hidden="true">↗</span></a>
+        <p>
+          Los productos de siempre y pequeños hallazgos gourmet, escogidos para disfrutar y
+          compartir.
+        </p>
+        <a class="home-text-link" [routerLink]="['/tienda-online']"
+          >Ver toda la tienda <span aria-hidden="true">↗</span></a
+        >
       </div>
     </header>
 
@@ -42,7 +58,13 @@
           [queryParams]="{ buscar: category.search }"
           [attr.aria-label]="'Descubre ' + category.title"
         >
-          <img [src]="category.image" [alt]="category.alt" [attr.fetchpriority]="index === 0 ? 'high' : null" loading="lazy" decoding="async">
+          <img
+            [src]="category.image"
+            [alt]="category.alt"
+            [attr.fetchpriority]="index === 0 ? 'high' : null"
+            loading="lazy"
+            decoding="async"
+          />
           <span class="home-category-index">0{{ index + 1 }}</span>
           <span class="home-category-copy">
             <small>{{ category.label }}</small>
@@ -58,14 +80,30 @@
     <div class="home-gifts-copy">
       <span class="home-section-label">PARA REGALAR, PARA COMPARTIR</span>
       <h2 id="home-gifts-title">Hay regalos que empiezan alrededor de una mesa.</h2>
-      <p>Preparamos lotes gourmet a medida, con productos escogidos y una presentación lista para sorprender.</p>
+      <p>
+        Preparamos lotes gourmet a medida, con productos escogidos y una presentación lista para
+        sorprender.
+      </p>
       <div class="home-gifts-actions">
-        <a class="home-button-dark" [routerLink]="['/lotes-y-cestas-gourmet']">Descubre los lotes <span aria-hidden="true">→</span></a>
-        <a class="home-gifts-secondary" [routerLink]="['/lotes-para-empresas']">Soluciones para empresas</a>
+        <a class="home-button-dark" [routerLink]="['/lotes-y-cestas-gourmet']"
+          >Descubre los lotes <span aria-hidden="true">→</span></a
+        >
+        <a class="home-gifts-secondary" [routerLink]="['/lotes-para-empresas']"
+          >Soluciones para empresas</a
+        >
       </div>
     </div>
-    <a class="home-gifts-image" [routerLink]="['/lotes-y-cestas-gourmet']" aria-label="Descubre los lotes gourmet de Cal Sardà">
-      <img src="/images/gift-lots/lote-gourmet-clasico.jpg" alt="Lote gourmet preparado con dulces y productos selectos" loading="lazy" decoding="async">
+    <a
+      class="home-gifts-image"
+      [routerLink]="['/lotes-y-cestas-gourmet']"
+      aria-label="Descubre los lotes gourmet de Cal Sardà"
+    >
+      <img
+        src="/images/gift-lots/lote-gourmet-clasico.jpg"
+        alt="Lote gourmet preparado con dulces y productos selectos"
+        loading="lazy"
+        decoding="async"
+      />
       <span>Una combinación para cada ocasión <b aria-hidden="true">↗</b></span>
     </a>
   </section>
@@ -78,13 +116,18 @@
     <div class="home-visit-details">
       <div>
         <span>VEN A VERNOS</span>
-        <p>Calle Marina, 237<br>08013 Barcelona</p>
+        <p>Calle Marina, 237<br />08013 Barcelona</p>
       </div>
       <div>
         <span>HORARIO</span>
-        <p>Lunes a viernes<br>09:30–14:30 · 16:30–20:30</p>
+        <p>Lunes a viernes<br />09:30–14:30 · 16:30–20:30</p>
       </div>
-      <a class="home-map-link" href="https://maps.google.com/?q=Carrer+de+Marina,+237,+08013+Barcelona" target="_blank" rel="noopener noreferrer">
+      <a
+        class="home-map-link"
+        href="https://maps.google.com/?q=Carrer+de+Marina,+237,+08013+Barcelona"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
         Cómo llegar <span aria-hidden="true">↗</span>
       </a>
     </div>

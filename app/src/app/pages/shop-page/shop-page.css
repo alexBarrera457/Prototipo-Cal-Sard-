@@ -20,13 +20,13 @@
   font-family: Georgia, 'Times New Roman', serif;
   font-size: clamp(48px, 7vw, 88px);
   font-weight: 400;
-  line-height: .98;
+  line-height: 0.98;
   letter-spacing: -2px;
 }
 
 .shop-intro p {
   max-width: 590px;
-  color: rgba(255, 255, 255, .72);
+  color: rgba(255, 255, 255, 0.72);
   font-size: 16px;
   line-height: 1.7;
 }
@@ -37,7 +37,7 @@
   gap: 14px;
   margin-top: 26px;
   padding: 15px 18px;
-  border: 1px solid rgba(255, 255, 255, .55);
+  border: 1px solid rgba(255, 255, 255, 0.55);
   color: #fff;
   font-size: 10px;
   font-weight: 700;
@@ -56,7 +56,7 @@
   flex-wrap: wrap;
   gap: 10px;
   margin: 30px 0 0;
-  color: rgba(255, 255, 255, .82);
+  color: rgba(255, 255, 255, 0.82);
   font-size: 13px;
 }
 
@@ -67,12 +67,14 @@
 .shop-search-summary button {
   padding: 7px 10px;
   color: #fff;
-  border: 1px solid rgba(255, 255, 255, .35);
+  border: 1px solid rgba(255, 255, 255, 0.35);
   background: transparent;
   cursor: pointer;
   font: inherit;
   font-size: 11px;
-  transition: background .2s ease, color .2s ease;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
 }
 
 .shop-search-summary button:hover {

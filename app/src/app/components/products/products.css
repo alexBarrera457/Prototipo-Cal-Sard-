@@ -2,7 +2,6 @@
   display: block;
 }
 
-
 /* =========================
    PRODUCTOS
 ========================= */
@@ -14,7 +13,6 @@
 
   padding: 140px 9% 120px;
 }
-
 
 /* =========================
    HEADER
@@ -45,16 +43,9 @@
 .products-header h2 {
   margin: 25px 0 0;
 
-  font-family:
-    Georgia,
-    'Times New Roman',
-    serif;
+  font-family: Georgia, 'Times New Roman', serif;
 
-  font-size: clamp(
-    65px,
-    8vw,
-    115px
-  );
+  font-size: clamp(65px, 8vw, 115px);
 
   font-weight: 400;
 
@@ -73,7 +64,6 @@
   line-height: 1.8;
 }
 
-
 /* =========================
    GRID
 ========================= */
@@ -88,7 +78,6 @@
   background: #cfc4b7;
 }
 
-
 /* =========================
    CARD
 ========================= */
@@ -99,7 +88,6 @@
   overflow: hidden;
 }
 
-
 /* =========================
    IMAGEN
 ========================= */
@@ -109,17 +97,11 @@
 
   height: 430px;
 
-  background:
-    linear-gradient(
-      135deg,
-      #c8b39a,
-      #8d745c
-    );
+  background: linear-gradient(135deg, #c8b39a, #8d745c);
 
   overflow: hidden;
 
-  transition:
-    transform 0.6s ease;
+  transition: transform 0.6s ease;
 }
 
 .product-image img {
@@ -133,7 +115,6 @@
   transform: scale(1.04);
 }
 
-
 /* Efecto de textura */
 
 .product-image::after {
@@ -143,21 +124,14 @@
 
   inset: 0;
 
-  background:
-    linear-gradient(
-      135deg,
-      rgba(255,255,255,0.12),
-      transparent 50%
-    );
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.12), transparent 50%);
 
-  transition:
-    opacity 0.4s ease;
+  transition: opacity 0.4s ease;
 }
 
 .product-card:hover .product-image::after {
   opacity: 0.4;
 }
-
 
 /* NÚMERO */
 
@@ -169,18 +143,14 @@
 
   z-index: 2;
 
-  color: rgba(255,255,255,0.85);
+  color: rgba(255, 255, 255, 0.85);
 
-  font-family:
-    Georgia,
-    'Times New Roman',
-    serif;
+  font-family: Georgia, 'Times New Roman', serif;
 
   font-size: 18px;
 
   font-style: italic;
 }
-
 
 /* =========================
    INFORMACIÓN
@@ -211,10 +181,7 @@
 .product-info h3 {
   margin: 12px 0 0;
 
-  font-family:
-    Georgia,
-    'Times New Roman',
-    serif;
+  font-family: Georgia, 'Times New Roman', serif;
 
   font-size: 34px;
 
@@ -248,7 +215,6 @@
 
   transform: translateX(5px);
 }
-
 
 /* =========================
    PARTE INFERIOR
@@ -300,13 +266,11 @@
   padding-bottom: 7px;
 }
 
-
 /* =========================
    TABLET
 ========================= */
 
 @media (max-width: 900px) {
-
   .products {
     padding: 100px 6%;
   }
@@ -320,16 +284,13 @@
   .product-image {
     height: 350px;
   }
-
 }
-
 
 /* =========================
    MÓVIL
 ========================= */
 
 @media (max-width: 650px) {
-
   .products {
     padding: 80px 25px;
   }
@@ -361,5 +322,4 @@
   .products-bottom a {
     justify-self: start;
   }
-
 }

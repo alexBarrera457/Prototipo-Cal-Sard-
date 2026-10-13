@@ -5,7 +5,9 @@
   visibility: hidden;
   background: rgba(0, 0, 0, 0.42);
   opacity: 0;
-  transition: opacity 0.3s ease, visibility 0.3s ease;
+  transition:
+    opacity 0.3s ease,
+    visibility 0.3s ease;
 }
 
 .cart-overlay.active {
@@ -233,5 +235,9 @@
   outline-offset: 3px;
 }
 
-
-@media (max-width: 760px) { .cart-panel { width: 100%; max-width: 100%; } }
+@media (max-width: 760px) {
+  .cart-panel {
+    width: 100%;
+    max-width: 100%;
+  }
+}

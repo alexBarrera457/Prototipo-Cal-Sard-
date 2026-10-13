@@ -16,7 +16,7 @@ body {
   margin: 0;
   background: #f8f4f0;
   color: #17120d;
-  font-family: "Inter", "Segoe UI", Arial, sans-serif;
+  font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
   overflow-x: hidden;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
@@ -76,7 +76,9 @@ textarea {
 [appScrollReveal] {
   opacity: 0;
   transform: translateY(32px);
-  transition: opacity 0.8s ease, transform 0.8s ease;
+  transition:
+    opacity 0.8s ease,
+    transform 0.8s ease;
 }
 
 [appScrollReveal].visible {
@@ -84,12 +86,22 @@ textarea {
   transform: translateY(0);
 }
 
-[appScrollReveal="left"] { transform: translateX(-36px); }
-[appScrollReveal="right"] { transform: translateX(36px); }
-[appScrollReveal="scale"] { transform: scale(0.96); }
-[appScrollReveal].visible[appScrollReveal="left"],
-[appScrollReveal].visible[appScrollReveal="right"] { transform: translateX(0); }
-[appScrollReveal].visible[appScrollReveal="scale"] { transform: scale(1); }
+[appScrollReveal='left'] {
+  transform: translateX(-36px);
+}
+[appScrollReveal='right'] {
+  transform: translateX(36px);
+}
+[appScrollReveal='scale'] {
+  transform: scale(0.96);
+}
+[appScrollReveal].visible[appScrollReveal='left'],
+[appScrollReveal].visible[appScrollReveal='right'] {
+  transform: translateX(0);
+}
+[appScrollReveal].visible[appScrollReveal='scale'] {
+  transform: scale(1);
+}
 
 section {
   position: relative;
@@ -98,7 +110,7 @@ section {
 }
 
 .serif {
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: Georgia, 'Times New Roman', serif;
 }
 
 .container {
@@ -114,7 +126,9 @@ section {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  html { scroll-behavior: auto; }
+  html {
+    scroll-behavior: auto;
+  }
   [appScrollReveal] {
     opacity: 1;
     transform: none;
@@ -200,7 +214,9 @@ section {
   font-weight: 700;
   letter-spacing: 1.7px;
   text-transform: uppercase;
-  transition: background 0.2s ease, transform 0.2s ease;
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
 }
 
 .business-button-primary:hover {
@@ -953,4 +969,3 @@ section {
     padding: 30px 22px;
   }
 }
-
