@@ -56,6 +56,12 @@ if (!jsonMatch) {
 const products = JSON.parse(jsonMatch[1]);
 console.log(`Found ${products.length} products to include in sitemap.`);
 
+const blogSlugs = [
+  'el-arte-del-cafe-tostado-artesanal',
+  'guia-maridaje-embutidos-catalanes-vinos-cavas',
+  'como-preparar-cesta-regalo-gastronomica-perfecta',
+];
+
 const today = new Date().toISOString().split('T')[0];
 
 const sitemapEntries = [
@@ -66,6 +72,14 @@ const sitemapEntries = [
     <lastmod>${today}</lastmod>
     <changefreq>${r.changefreq}</changefreq>
     <priority>${r.priority}</priority>
+  </url>`;
+  }),
+  ...blogSlugs.map((slug) => {
+    return `  <url>
+    <loc>${BASE_URL}/blog/${slug}</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
   </url>`;
   }),
   ...products.map((p) => {

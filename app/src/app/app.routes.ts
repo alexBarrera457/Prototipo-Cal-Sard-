@@ -95,9 +95,13 @@ export const routes: Routes = [
   },
   {
     path: 'blog',
-    title: 'Blog | Cal Sardà',
-    loadComponent: () => import('./pages/brand-page/brand-page').then((m) => m.BrandPage),
-    data: { page: 'blog' },
+    title: 'Blog gastronómico y recetas | Cal Sardà',
+    loadComponent: () => import('./pages/blog-page/blog-page').then((m) => m.BlogPage),
+  },
+  {
+    path: 'blog/:slug',
+    loadComponent: () =>
+      import('./pages/blog-detail-page/blog-detail-page').then((m) => m.BlogDetailPage),
   },
   {
     path: 'aviso-legal',

@@ -1,0 +1,75 @@
+<main class="blog-detail-main">
+  @if (article(); as post) {
+    <article class="article-container">
+      <nav class="breadcrumb-nav" aria-label="Miga de pan">
+        <a routerLink="/">Inicio</a>
+        <span aria-hidden="true">/</span>
+        <a routerLink="/blog">Blog</a>
+        <span aria-hidden="true">/</span>
+        <span class="breadcrumb-current">{{ post.title }}</span>
+      </nav>
+
+      <header class="article-header">
+        <div class="article-tags">
+          @for (tag of post.tags; track tag) {
+            <span class="article-tag">{{ tag }}</span>
+          }
+        </div>
+        <h1 class="article-title">{{ post.title }}</h1>
+        <p class="article-lead">{{ post.excerpt }}</p>
+
+        <div class="article-byline">
+          <div class="author-avatar" aria-hidden="true">CS</div>
+          <div class="byline-meta">
+            <span class="author-name">{{ post.author }}</span>
+            <div class="byline-sub">
+              <time [attr.datetime]="post.publishedAt">{{ formatDate(post.publishedAt) }}</time>
+              <span>·</span>
+              <span>{{ post.readingTimeMinutes }} min de lectura</span>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <div class="article-cover-wrapper">
+        <img [src]="post.coverImage" [alt]="post.title" class="article-cover" />
+      </div>
+
+      <div class="article-content">
+        @for (paragraph of post.content; track $index) {
+          <p>{{ paragraph }}</p>
+        }
+      </div>
+
+      <footer class="article-footer">
+        <div class="author-box">
+          <div class="author-box-avatar">CS</div>
+          <div class="author-box-content">
+            <span class="author-box-label">Sobre la firma</span>
+            <h3 class="author-box-name">{{ post.author }}</h3>
+            <p class="author-box-desc">
+              Desde 1930, en Cal Sardà compartimos la pasión por los productos artesanales, el café
+              de obrador y la selección gastronómica en el barrio de Sagrada Família, Barcelona.
+            </p>
+          </div>
+        </div>
+
+        <div class="article-actions">
+          <a routerLink="/blog" class="back-link">← Volver a todos los artículos</a>
+          <a routerLink="/tienda-online" class="store-cta">Explorar la tienda online →</a>
+        </div>
+      </footer>
+    </article>
+  } @else if (notFound()) {
+    <div class="not-found-container">
+      <span class="not-found-kicker">BLOG DE CAL SARDÀ</span>
+      <h1 class="not-found-title">Artículo no encontrado</h1>
+      <p class="not-found-desc">
+        El artículo que buscas no existe o ha sido trasladado a otra dirección.
+      </p>
+      <button type="button" class="not-found-button" (click)="backToBlog()">
+        ← Volver al blog
+      </button>
+    </div>
+  }
+</main>

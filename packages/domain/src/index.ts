@@ -41,3 +41,15 @@ export interface Order {
   status: 'pending' | 'confirmed' | 'shipped' | 'cancelled';
   createdAt?: string;
 }
+
+export interface BlogPost {
+  slug: string;
+  title: string;
+  excerpt: string;
+  content: string[];
+  coverImage: string;
+  publishedAt: string;
+  readingTimeMinutes: number;
+  tags: string[];
+  author: string;
+}
