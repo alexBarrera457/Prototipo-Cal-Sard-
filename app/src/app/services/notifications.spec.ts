@@ -1,0 +1,239 @@
+import { describe, expect, it, vi } from 'vitest';
+import {
+  DEFAULT_NOTIFICATION_CONFIG,
+  HttpEmailAdapter,
+  InMemoryEmailAdapter,
+  NotificationConfig,
+  NotificationService,
+} from './notifications';
+import type { Order } from '@cal-sarda/domain';
+
+describe('NotificationService', () => {
+  const samplePickupOrder: Order = {
+    reference: 'CS-2026-1042',
+    customer: {
+      name: 'Maria Garcia',
+      email: 'maria.garcia@test.cat',
+      phone: '612345678',
+    },
+    items: [
+      {
+        name: 'Secallona artesana',
+        price: 6.8,
+        quantity: 2,
+        productNumber: '02',
+      },
+      {
+        name: 'Formatge de Maó semicurat',
+        price: 9.5,
+        quantity: 1,
+        productNumber: '05',
+      },
+    ],
+    subtotal: 23.1,
+    shippingCost: 0,
+    total: 23.1,
+    fulfillment: 'pickup',
+    shippingZoneLabel: 'Recogida en tienda (gratis)',
+    estimatedDate:
+      'Disponible para recogida en tienda a partir de mañana (laborable de 9:00 a 14:00 y de 17:00 a 20:30) en Carrer de Marina, 237, Barcelona',
+    paymentMethod:
+      'Pago en tienda física en el momento de la recogida (tarjeta bancaria o efectivo) o mediante Bizum.',
+    status: 'confirmed',
+    createdAt: '2026-10-14T10:00:00.000Z',
+  };
+
+  const sampleDeliveryOrder: Order = {
+    reference: 'CS-2026-1043',
+    customer: {
+      name: 'Jordi Vila',
+      email: 'jordi.vila@test.cat',
+      phone: '654987321',
+      address: 'Carrer de Mallorca, 120, 3r 2a',
+      postalCode: '08029',
+      city: 'Barcelona',
+    },
+    items: [
+      {
+        name: 'Café 100% Robusta',
+        price: 4.8,
+        quantity: 3,
+      },
+    ],
+    subtotal: 14.4,
+    shippingCost: 7.99,
+    total: 22.39,
+    fulfillment: 'delivery',
+    shippingZoneLabel: 'Cataluña (7,99 €)',
+    estimatedDate: 'Entrega estimada en 24-48 horas laborables (transporte refrigerado urgente)',
+    paymentMethod:
+      'Pago por Bizum al confirmar el encargo telefónicamente o contra reembolso al recibirlo.',
+    status: 'confirmed',
+    createdAt: '2026-10-14T10:05:00.000Z',
+  };
+
+  it('builds a customer email with greeting, reference code, pickup instructions, and product breakdown', () => {
+    const service = new NotificationService();
+    const email = service.buildCustomerEmail(samplePickupOrder);
+
+    expect(email.to).toBe('maria.garcia@test.cat');
+    expect(email.subject).toContain('CS-2026-1042');
+    expect(email.subject).toContain('Confirmación de tu encargo');
+    expect(email.replyTo).toBe('sarda@calsarda.com');
+
+    // HTML assertions
+    expect(email.html).toContain('Maria Garcia');
+    expect(email.html).toContain('CS-2026-1042');
+    expect(email.html).toContain('Marina, 237');
+    expect(email.html).toContain('Secallona artesana');
+    expect(email.html).toContain('23.10 €');
+    expect(email.html).toContain('tienda física');
+    expect(email.html).toContain('93 232 55 08');
+
+    // Plain text assertions
+    expect(email.text).toContain('Hola, Maria Garcia:');
+    expect(email.text).toContain('CS-2026-1042');
+    expect(email.text).toContain('Secallona artesana');
+    expect(email.text).toContain('TOTAL FINAL: 23.10 €');
+  });
+
+  it('builds a customer email with delivery details and shipping address', () => {
+    const service = new NotificationService();
+    const email = service.buildCustomerEmail(sampleDeliveryOrder);
+
+    expect(email.to).toBe('jordi.vila@test.cat');
+    expect(email.html).toContain('Envío refrigerado a domicilio');
+    expect(email.html).toContain('Carrer de Mallorca, 120');
+    expect(email.html).toContain('08029 Barcelona');
+    expect(email.html).toContain('7.99 €');
+    expect(email.html).toContain('22.39 €');
+    expect(email.text).toContain('Carrer de Mallorca, 120');
+    expect(email.text).toContain('TOTAL FINAL: 22.39 €');
+  });
+
+  it('builds a store alert email to sarda@calsarda.com with obrador details and phone number', () => {
+    const service = new NotificationService();
+    const email = service.buildStoreEmail(samplePickupOrder);
+
+    expect(email.to).toBe('sarda@calsarda.com');
+    expect(email.subject).toContain('[NUEVO ENCARGO] CS-2026-1042');
+    expect(email.subject).toContain('Maria Garcia');
+    expect(email.subject).toContain('Recogida');
+    expect(email.replyTo).toBe('maria.garcia@test.cat');
+
+    // Obrador preparation content
+    expect(email.html).toContain('NUEVO ENCARGO WEB RECIBIDO');
+    expect(email.html).toContain('612345678');
+    expect(email.html).toContain('Secallona artesana');
+    expect(email.html).toContain('Formatge de Maó');
+    expect(email.html).toContain('TOTAL DEL ENCARGO: 23.10 €');
+
+    expect(email.text).toContain('Teléfono: 612345678');
+    expect(email.text).toContain('Secallona artesana');
+  });
+
+  it('sends both customer and store notifications concurrently and registers in sent emails', async () => {
+    const adapter = new InMemoryEmailAdapter();
+    const service = new NotificationService(adapter);
+
+    expect(service.getSentEmails().length).toBe(0);
+
+    const result = await service.sendOrderConfirmationNotifications(samplePickupOrder);
+
+    expect(result.customerNotification.success).toBe(true);
+    expect(result.storeNotification.success).toBe(true);
+    expect(service.getSentEmails().length).toBe(2);
+
+    const sent = service.getSentEmails();
+    const customerSent = sent.find((e) => e.to === 'maria.garcia@test.cat');
+    const storeSent = sent.find((e) => e.to === 'sarda@calsarda.com');
+
+    expect(customerSent).toBeTruthy();
+    expect(customerSent?.subject).toContain('CS-2026-1042');
+    expect(storeSent).toBeTruthy();
+    expect(storeSent?.subject).toContain('[NUEVO ENCARGO]');
+
+    service.clearSentEmails();
+    expect(service.getSentEmails().length).toBe(0);
+  });
+
+  it('HttpEmailAdapter falls back to InMemory adapter when apiKey is absent', async () => {
+    const fallback = new InMemoryEmailAdapter();
+    const httpAdapter = new HttpEmailAdapter({ ...DEFAULT_NOTIFICATION_CONFIG }, fallback);
+
+    const email = {
+      to: 'cliente@test.cat',
+      from: 'pedidos@calsarda.com',
+      subject: 'Test',
+      html: '<p>Test</p>',
+      text: 'Test',
+    };
+
+    const res = await httpAdapter.sendEmail(email);
+    expect(res.success).toBe(true);
+    expect(fallback.getSentEmails().length).toBe(1);
+  });
+
+  it('HttpEmailAdapter makes HTTP fetch when apiKey is present and handles response', async () => {
+    const customConfig: NotificationConfig = {
+      ...DEFAULT_NOTIFICATION_CONFIG,
+      apiKey: 're_test_key_123456',
+      apiUrl: 'https://api.resend.test/emails',
+    };
+
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue({
+      ok: true,
+      json: async () => ({ id: 'resend_email_id_999' }),
+    } as Response);
+
+    const httpAdapter = new HttpEmailAdapter(customConfig);
+    const email = {
+      to: 'cliente@test.cat',
+      from: 'pedidos@calsarda.com',
+      subject: 'Test',
+      html: '<p>Test</p>',
+      text: 'Test',
+    };
+
+    const res = await httpAdapter.sendEmail(email);
+    expect(res.success).toBe(true);
+    expect(res.messageId).toBe('resend_email_id_999');
+    expect(fetchSpy).toHaveBeenCalledWith(
+      'https://api.resend.test/emails',
+      expect.objectContaining({
+        method: 'POST',
+        headers: expect.objectContaining({
+          Authorization: 'Bearer re_test_key_123456',
+        }),
+      }),
+    );
+
+    fetchSpy.mockRestore();
+  });
+
+  it('HttpEmailAdapter falls back to in-memory sender when HTTP request fails', async () => {
+    const customConfig: NotificationConfig = {
+      ...DEFAULT_NOTIFICATION_CONFIG,
+      apiKey: 're_test_key_123456',
+      apiUrl: 'https://api.resend.test/emails',
+    };
+
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockRejectedValue(new Error('Network error'));
+
+    const fallback = new InMemoryEmailAdapter();
+    const httpAdapter = new HttpEmailAdapter(customConfig, fallback);
+    const email = {
+      to: 'cliente@test.cat',
+      from: 'pedidos@calsarda.com',
+      subject: 'Test',
+      html: '<p>Test</p>',
+      text: 'Test',
+    };
+
+    const res = await httpAdapter.sendEmail(email);
+    expect(res.success).toBe(true);
+    expect(fallback.getSentEmails().length).toBe(1);
+
+    fetchSpy.mockRestore();
+  });
+});

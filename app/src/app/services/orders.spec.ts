@@ -152,6 +152,11 @@ describe('OrdersService', () => {
     const fetched = await service.getOrder(order.reference!);
     expect(fetched).toEqual(order);
 
+    const sentEmails = service.notifications.getSentEmails();
+    expect(sentEmails.length).toBe(2);
+    expect(sentEmails.some((e) => e.to === 'carles@test.cat')).toBe(true);
+    expect(sentEmails.some((e) => e.to === 'sarda@calsarda.com')).toBe(true);
+
     service.clearLatestOrder();
     expect(service.latestOrder()).toBeNull();
   });

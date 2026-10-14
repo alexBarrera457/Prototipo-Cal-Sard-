@@ -1,5 +1,6 @@
 import { Inject, Injectable, InjectionToken, Optional, signal } from '@angular/core';
 import type { CartItem, FulfillmentMethod, Order, OrderCustomer } from '@cal-sarda/domain';
+import { NotificationService } from './notifications';
 import { SUPABASE_CLIENT, type SupabaseClient } from './supabase';
 
 export type { CartItem, FulfillmentMethod, Order, OrderCustomer };
@@ -289,6 +290,7 @@ export class SupabaseOrdersRepository implements OrdersRepository {
 })
 export class OrdersService {
   private readonly repository: OrdersRepository;
+  private readonly notificationService: NotificationService;
   private orderCounter = 1042;
   readonly latestOrder = signal<Order | null>(null);
 
@@ -299,6 +301,8 @@ export class OrdersService {
     @Optional()
     @Inject(SUPABASE_CLIENT)
     supabaseClient?: SupabaseClient | null,
+    @Optional()
+    notificationService?: NotificationService,
   ) {
     if (repository) {
       this.repository = repository;
@@ -307,6 +311,11 @@ export class OrdersService {
     } else {
       this.repository = new InMemoryOrdersRepository();
     }
+    this.notificationService = notificationService ?? new NotificationService();
+  }
+
+  get notifications(): NotificationService {
+    return this.notificationService;
   }
 
   /**
@@ -339,7 +348,7 @@ export class OrdersService {
   }
 
   /**
-   * Formaliza el encargo, genera su referencia única y lo persiste mediante el repositorio.
+   * Formaliza el encargo, genera su referencia única, lo persiste y despacha notificaciones.
    */
   async submitOrder(input: CreateOrderInput): Promise<Order> {
     const subtotal =
@@ -367,6 +376,13 @@ export class OrdersService {
 
     const saved = await this.repository.saveOrder(order);
     this.latestOrder.set(saved);
+
+    try {
+      await this.notificationService.sendOrderConfirmationNotifications(saved);
+    } catch (err) {
+      console.warn('Fallo al despachar notificación de pedido:', err);
+    }
+
     return saved;
   }
 
