@@ -1,11 +1,82 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import {
   InMemoryOrdersRepository,
   ORDERS_REPOSITORY,
   OrdersRepository,
   OrdersService,
+  SupabaseOrdersRepository,
 } from './orders';
 import type { Order } from './orders';
+import type { SupabaseClient } from './supabase';
+
+function createMockSupabaseClient() {
+  const ordersDb: any[] = [];
+  const orderItemsDb: any[] = [];
+
+  const client = {
+    ordersDb,
+    orderItemsDb,
+    from: (table: string) => {
+      if (table === 'orders') {
+        return {
+          insert: (payload: any) => ({
+            select: () => ({
+              single: async () => {
+                const inserted = {
+                  ...payload,
+                  id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
+                  created_at: new Date().toISOString(),
+                };
+                ordersDb.push(inserted);
+                return { data: inserted, error: null };
+              },
+            }),
+          }),
+          select: () => {
+            const queryObj: any = {
+              eq: (col: string, val: any) => ({
+                single: async () => {
+                  const found = ordersDb.find((o) => o[col] === val);
+                  if (!found) return { data: null, error: { message: 'Not found' } };
+                  const items = orderItemsDb.filter((it) => it.order_id === found.id);
+                  return { data: { ...found, order_items: items }, error: null };
+                },
+              }),
+              filter: (_path: string, _op: string, val: any) => ({
+                single: async () => {
+                  const found = ordersDb.find((o) => o.shipping_address?.reference === val);
+                  if (!found) return { data: null, error: { message: 'Not found' } };
+                  const items = orderItemsDb.filter((it) => it.order_id === found.id);
+                  return { data: { ...found, order_items: items }, error: null };
+                },
+              }),
+              order: () =>
+                Promise.resolve({
+                  data: ordersDb.map((o) => ({
+                    ...o,
+                    order_items: orderItemsDb.filter((it) => it.order_id === o.id),
+                  })),
+                  error: null,
+                }),
+            };
+            return queryObj;
+          },
+        };
+      }
+      if (table === 'order_items') {
+        return {
+          insert: async (items: any[]) => {
+            orderItemsDb.push(...items);
+            return { error: null };
+          },
+        };
+      }
+      throw new Error(`Unexpected table: ${table}`);
+    },
+  };
+
+  return client as unknown as SupabaseClient & { ordersDb: any[]; orderItemsDb: any[] };
+}
 
 describe('OrdersService', () => {
   it('generates friendly reference codes formatted as CS-YYYY-XXXX', () => {
@@ -78,6 +149,9 @@ describe('OrdersService', () => {
 
     expect(service.latestOrder()).toEqual(order);
 
+    const fetched = await service.getOrder(order.reference!);
+    expect(fetched).toEqual(order);
+
     service.clearLatestOrder();
     expect(service.latestOrder()).toBeNull();
   });
@@ -143,5 +217,136 @@ describe('OrdersService', () => {
 
     const all = await repo.getAllOrders!();
     expect(all.length).toBe(1);
+  });
+});
+
+describe('SupabaseOrdersRepository', () => {
+  it('persists order into orders table and line items into order_items table in Supabase', async () => {
+    const mockClient = createMockSupabaseClient();
+    const repo = new SupabaseOrdersRepository(mockClient);
+
+    const newOrder: Order = {
+      reference: 'CS-2026-1042',
+      customer: {
+        name: 'Montserrat Caballe',
+        email: 'montserrat@test.cat',
+        phone: '932325508',
+        address: 'Carrer Gran de Gràcia, 12',
+        postalCode: '08012',
+        city: 'Barcelona',
+      },
+      items: [
+        { name: 'Secallona artesana', price: 6.8, quantity: 2 },
+        { name: 'Formatge Garrotxa', price: 14.5, quantity: 1 },
+      ],
+      subtotal: 28.1,
+      shippingCost: 7.99,
+      total: 36.09,
+      fulfillment: 'delivery',
+      shippingZoneLabel: 'Cataluña (7,99 €)',
+      estimatedDate: 'Entrega en 24-48h',
+      paymentMethod: 'Bizum',
+      status: 'confirmed',
+    };
+
+    const saved = await repo.saveOrder(newOrder);
+
+    expect(saved.id).toBe('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11');
+    expect(saved.reference).toBe('CS-2026-1042');
+
+    // Verify orders table received record
+    expect(mockClient.ordersDb.length).toBe(1);
+    expect(mockClient.ordersDb[0].customer_name).toBe('Montserrat Caballe');
+    expect(mockClient.ordersDb[0].total).toBe(36.09);
+    expect(mockClient.ordersDb[0].shipping_address.reference).toBe('CS-2026-1042');
+
+    // Verify order_items table received 2 items with foreign key
+    expect(mockClient.orderItemsDb.length).toBe(2);
+    expect(mockClient.orderItemsDb[0].order_id).toBe('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11');
+    expect(mockClient.orderItemsDb[0].product_name).toBe('Secallona artesana');
+    expect(mockClient.orderItemsDb[0].quantity).toBe(2);
+    expect(mockClient.orderItemsDb[1].product_name).toBe('Formatge Garrotxa');
+
+    // Verify fetching by reference
+    const fetched = await repo.getOrder('CS-2026-1042');
+    expect(fetched).toBeTruthy();
+    expect(fetched?.customer.name).toBe('Montserrat Caballe');
+    expect(fetched?.items.length).toBe(2);
+
+    // Verify fetching by UUID id
+    const fetchedById = await repo.getOrder('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11');
+    expect(fetchedById).toBeTruthy();
+    expect(fetchedById?.reference).toBe('CS-2026-1042');
+
+    // Verify getAllOrders
+    const all = await repo.getAllOrders!();
+    expect(all.length).toBe(1);
+    expect(all[0].customer.email).toBe('montserrat@test.cat');
+  });
+
+  it('falls back to memory repository gracefully when Supabase client is null', async () => {
+    const fallbackRepo = new InMemoryOrdersRepository();
+    const repo = new SupabaseOrdersRepository(null, fallbackRepo);
+
+    const testOrder: Order = {
+      reference: 'CS-2026-5555',
+      customer: { name: 'Pere', email: 'pere@test.cat' },
+      items: [{ name: 'Llonganissa', price: 8.0, quantity: 1 }],
+      total: 8.0,
+      status: 'confirmed',
+    };
+
+    const saved = await repo.saveOrder(testOrder);
+    expect(saved.reference).toBe('CS-2026-5555');
+
+    const fetched = await repo.getOrder('CS-2026-5555');
+    expect(fetched).toEqual(testOrder);
+
+    const all = await repo.getAllOrders!();
+    expect(all.length).toBe(1);
+  });
+
+  it('falls back to local repository when Supabase query returns error or throws exception', async () => {
+    const failingClient = {
+      from: () => ({
+        insert: () => ({
+          select: () => ({
+            single: async () => ({ data: null, error: { message: 'Database connection failed' } }),
+          }),
+        }),
+      }),
+    } as unknown as SupabaseClient;
+
+    const fallbackRepo = new InMemoryOrdersRepository();
+    const repo = new SupabaseOrdersRepository(failingClient, fallbackRepo);
+
+    const testOrder: Order = {
+      reference: 'CS-2026-7777',
+      customer: { name: 'Laia', email: 'laia@test.cat' },
+      items: [],
+      total: 10,
+      status: 'confirmed',
+    };
+
+    const saved = await repo.saveOrder(testOrder);
+    expect(saved.reference).toBe('CS-2026-7777');
+
+    const fetched = await fallbackRepo.getOrder('CS-2026-7777');
+    expect(fetched).toBeTruthy();
+  });
+
+  it('OrdersService utilizes SupabaseOrdersRepository when SUPABASE_CLIENT is provided', async () => {
+    const mockClient = createMockSupabaseClient();
+    const service = new OrdersService(undefined, mockClient);
+
+    const order = await service.submitOrder({
+      customer: { name: 'Ramon', email: 'ramon@test.cat' },
+      items: [{ name: 'Fuet artesà', price: 4.5, quantity: 1 }],
+      fulfillment: 'pickup',
+    });
+
+    expect(order.id).toBe('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11');
+    expect(mockClient.ordersDb.length).toBe(1);
+    expect(mockClient.orderItemsDb.length).toBe(1);
   });
 });
