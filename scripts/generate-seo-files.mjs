@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import vm from 'node:vm';
 import { fileURLToPath } from 'node:url';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -46,14 +47,15 @@ const staticRoutes = [
 const catalogPath = path.join(rootDir, 'app', 'src', 'app', 'services', 'products-catalog.ts');
 const catalogSource = fs.readFileSync(catalogPath, 'utf8');
 
-const jsonMatch = catalogSource.match(
-  /export const storeProducts: StoreProduct\[\] = (\[[\s\S]*\]);/,
-);
-if (!jsonMatch) {
+const cleaned = catalogSource.replace(/^import\s+.*?;/m, '').replace(/:\s*StoreProduct\[\]/g, '');
+
+const match = cleaned.match(/export\s+const\s+storeProducts\s*=\s*(\[[\s\S]*\]);/);
+if (!match) {
   throw new Error('Could not parse storeProducts from products-catalog.ts');
 }
 
-const products = JSON.parse(jsonMatch[1]);
+const vmScript = new vm.Script(`(${match[1]})`);
+const products = vmScript.runInNewContext({});
 console.log(`Found ${products.length} products to include in sitemap.`);
 
 const blogSlugs = [

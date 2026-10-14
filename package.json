@@ -14,6 +14,7 @@
     "test:watch": "npm test --workspace=@cal-sarda/app",
     "test:e2e": "playwright test",
     "generate:seo": "node scripts/generate-seo-files.mjs",
+    "generate:seed": "node scripts/generate-supabase-seed.mjs",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "prepare": "husky"
