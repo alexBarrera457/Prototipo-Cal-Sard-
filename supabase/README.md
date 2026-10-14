@@ -5,7 +5,9 @@ Este directorio gestiona la persistencia y migraciones de base de datos PostgreS
 ## Estructura
 
 - `migrations/`: Archivos SQL de migración versionados con timestamp (`YYYYMMDDHHMMSS_name.sql`).
-- `seed.sql`: (Opcional) Datos iniciales del catálogo extraídos de `products-catalog.ts`.
+  - `20261005000000_initial_schema.sql`: Creación de extensiones y tablas `categories`, `products`, `orders` y `order_items`.
+  - `20261014100000_enable_rls_and_policies.sql`: Habilitación de Row Level Security (RLS) y políticas de seguridad (lectura pública de categorías y productos activos, inserción anónima de pedidos, denegación de lectura/modificación de pedidos a terceros y acceso administrativo a `service_role`).
+- `seed.sql`: Catálogo completo oficial de categorías y 455 productos gourmet generado desde `products-catalog.ts`.
 
 ## Comandos Útiles
 
@@ -13,8 +15,11 @@ Este directorio gestiona la persistencia y migraciones de base de datos PostgreS
 # Iniciar Supabase localmente (requiere Docker)
 npx supabase start
 
-# Aplicar migraciones localmente
+# Aplicar migraciones y poblar seed.sql localmente
 npx supabase db reset
+
+# Regenerar seed.sql a partir del catálogo de la aplicación
+npm run generate:seed
 
 # Crear nueva migración
 npx supabase migration new <nombre_migracion>

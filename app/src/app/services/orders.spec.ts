@@ -354,4 +354,46 @@ describe('SupabaseOrdersRepository', () => {
     expect(mockClient.ordersDb.length).toBe(1);
     expect(mockClient.orderItemsDb.length).toBe(1);
   });
+
+  it('uses client-generated UUID and inserts order items when select return is empty (RLS restricted)', async () => {
+    let capturedOrderPayload: any = null;
+    let capturedItemsPayload: any = null;
+
+    const rlsMockClient = {
+      from: (table: string) => ({
+        insert: (payload: any) => {
+          if (table === 'orders') {
+            capturedOrderPayload = payload;
+            return {
+              select: () => ({
+                single: async () => ({ data: null, error: null }),
+              }),
+            };
+          }
+          if (table === 'order_items') {
+            capturedItemsPayload = payload;
+            return Promise.resolve({ error: null });
+          }
+          return Promise.resolve({ error: null });
+        },
+      }),
+    } as unknown as SupabaseClient;
+
+    const repo = new SupabaseOrdersRepository(rlsMockClient);
+    const orderToSave: Order = {
+      reference: 'CS-2026-8888',
+      customer: { name: 'Jordi', email: 'jordi@test.cat' },
+      items: [{ name: 'Sobrassada de Mallorca', price: 7.2, quantity: 2 }],
+      total: 14.4,
+      status: 'confirmed',
+    };
+
+    const saved = await repo.saveOrder(orderToSave);
+
+    expect(saved.id).toBeTruthy();
+    expect(capturedOrderPayload.id).toBe(saved.id);
+    expect(capturedItemsPayload.length).toBe(1);
+    expect(capturedItemsPayload[0].order_id).toBe(saved.id);
+    expect(capturedItemsPayload[0].product_name).toBe('Sobrassada de Mallorca');
+  });
 });

@@ -79,7 +79,15 @@ export class SupabaseOrdersRepository implements OrdersRepository {
     }
 
     try {
+      const clientGeneratedId =
+        order.id ||
+        (typeof globalThis !== 'undefined' &&
+        typeof (globalThis as any).crypto?.randomUUID === 'function'
+          ? (globalThis as any).crypto.randomUUID()
+          : undefined);
+
       const orderPayload = {
+        ...(clientGeneratedId ? { id: clientGeneratedId } : {}),
         customer_name: order.customer.name,
         customer_email: order.customer.email,
         customer_phone: order.customer.phone ?? null,
@@ -106,11 +114,14 @@ export class SupabaseOrdersRepository implements OrdersRepository {
         .select()
         .single();
 
-      if (orderError || !orderData) {
+      if (orderError) {
         return this.fallbackRepo.saveOrder(order);
       }
 
-      const orderId = orderData.id;
+      const orderId = orderData?.id || clientGeneratedId;
+      if (!orderId) {
+        return this.fallbackRepo.saveOrder(order);
+      }
 
       if (order.items && order.items.length > 0) {
         const itemsPayload = order.items.map((item) => ({
@@ -126,7 +137,7 @@ export class SupabaseOrdersRepository implements OrdersRepository {
       const savedOrder: Order = {
         ...order,
         id: orderId,
-        createdAt: orderData.created_at ?? order.createdAt,
+        createdAt: orderData?.created_at ?? order.createdAt ?? new Date().toISOString(),
       };
 
       await this.fallbackRepo.saveOrder(savedOrder);
