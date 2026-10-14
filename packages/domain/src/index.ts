@@ -26,18 +26,29 @@ export interface CartItem {
   image?: string;
 }
 
+export type FulfillmentMethod = 'pickup' | 'delivery';
+
 export interface OrderCustomer {
   name: string;
   email: string;
   phone?: string;
   address?: string;
+  postalCode?: string;
+  city?: string;
 }
 
 export interface Order {
   id?: string;
+  reference?: string;
   customer: OrderCustomer;
   items: CartItem[];
+  subtotal?: number;
+  shippingCost?: number;
   total: number;
+  fulfillment?: FulfillmentMethod;
+  shippingZoneLabel?: string;
+  estimatedDate?: string;
+  paymentMethod?: string;
   status: 'pending' | 'confirmed' | 'shipped' | 'cancelled';
   createdAt?: string;
 }

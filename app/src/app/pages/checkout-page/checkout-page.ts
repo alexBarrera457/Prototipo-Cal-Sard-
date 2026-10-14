@@ -1,10 +1,13 @@
-import { Component, signal } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
+import { Component, Inject, PLATFORM_ID, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import type { FulfillmentMethod } from '@cal-sarda/domain';
 
 import { CartService } from '../../services/cart';
+import { OrdersService, type Order } from '../../services/orders';
 
-export type FulfillmentMethod = 'pickup' | 'delivery';
+export type { FulfillmentMethod };
 
 export interface CheckoutFormErrors {
   name?: string;
@@ -25,6 +28,9 @@ export class CheckoutPage {
   fulfillment: FulfillmentMethod = 'pickup';
   readonly previewReady = signal(false);
   readonly submitted = signal(false);
+  readonly submitting = signal(false);
+  readonly confirmedOrder = signal<Order | null>(null);
+  readonly copied = signal(false);
   readonly errors = signal<CheckoutFormErrors>({});
 
   customer = {
@@ -36,7 +42,11 @@ export class CheckoutPage {
     city: '',
   };
 
-  constructor(public cartService: CartService) {}
+  constructor(
+    public cartService: CartService,
+    public ordersService: OrdersService,
+    @Inject(PLATFORM_ID) private readonly platformId: object,
+  ) {}
 
   get isDelivery(): boolean {
     return this.fulfillment === 'delivery';
@@ -170,5 +180,70 @@ export class CheckoutPage {
     if (this.submitted()) {
       this.validate();
     }
+  }
+
+  async confirmOrder(): Promise<void> {
+    if (this.submitting()) {
+      return;
+    }
+    if (!this.validate()) {
+      this.previewReady.set(false);
+      return;
+    }
+
+    this.submitting.set(true);
+    try {
+      const items = [...this.cartService.products()];
+      const order = await this.ordersService.submitOrder({
+        customer: { ...this.customer },
+        items,
+        fulfillment: this.fulfillment,
+        shippingCost: this.shippingCost,
+        shippingZoneLabel: this.shippingZoneLabel,
+        subtotal: this.cartService.getTotal(),
+        total: this.finalTotal,
+      });
+
+      this.cartService.clearCart();
+      this.confirmedOrder.set(order);
+
+      if (isPlatformBrowser(this.platformId)) {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    } finally {
+      this.submitting.set(false);
+    }
+  }
+
+  printOrder(): void {
+    if (isPlatformBrowser(this.platformId)) {
+      window.print();
+    }
+  }
+
+  async copyReference(reference: string): Promise<void> {
+    if (isPlatformBrowser(this.platformId) && navigator.clipboard) {
+      try {
+        await navigator.clipboard.writeText(reference);
+        this.copied.set(true);
+        setTimeout(() => this.copied.set(false), 2500);
+      } catch {
+        // Ignorar fallo de permisos del portapapeles
+      }
+    }
+  }
+
+  resetOrderState(): void {
+    this.confirmedOrder.set(null);
+    this.previewReady.set(false);
+    this.submitted.set(false);
+    this.customer = {
+      name: '',
+      email: '',
+      phone: '',
+      address: '',
+      postalCode: '',
+      city: '',
+    };
   }
 }

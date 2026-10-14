@@ -1,227 +1,435 @@
 <section class="checkout-page" aria-labelledby="checkout-title">
-  <header class="checkout-heading">
-    <a [routerLink]="['/tienda-online']" class="checkout-back">← VOLVER A LA TIENDA</a>
-    <span>CAL SARDÀ · COMPRA</span>
-    <h1 id="checkout-title">Prepara tu<br />pedido.</h1>
-    <p>
-      Completa tus datos para revisar una vista previa. Esta demo no envía la información ni realiza
-      ningún cobro.
-    </p>
-  </header>
+  @if (confirmedOrder(); as order) {
+    <!-- PANTALLA DE CONFIRMACIÓN DE ENCARGO -->
+    <div class="confirmation-container" role="region" aria-labelledby="confirmation-title">
+      <header class="confirmation-header">
+        <a [routerLink]="['/tienda-online']" class="checkout-back" (click)="resetOrderState()"
+          >← VOLVER A LA TIENDA</a
+        >
+        <span class="preview-kicker">CAL SARDÀ · ENCARGO REGISTRADO</span>
+        <h1 id="confirmation-title">¡Encargo confirmado<br />con éxito!</h1>
+        <p class="confirmation-lead">
+          Muchas gracias, <strong>{{ order.customer.name }}</strong
+          >. Hemos recibido tu solicitud con total éxito. Nuestro equipo en tienda ya se encuentra
+          preparando tus productos artesanos.
+        </p>
+      </header>
 
-  @if (cartService.products().length === 0) {
-    <section class="checkout-empty">
-      <h2>Tu cesta está vacía</h2>
-      <p>Vuelve a la tienda y añade los productos que quieras incluir.</p>
-      <a [routerLink]="['/tienda-online']">VER LA TIENDA →</a>
-    </section>
-  } @else {
-    <div class="checkout-layout">
-      <section class="checkout-form-panel">
-        <div class="checkout-step">
-          <span>01</span>
-          <h2>Tus datos</h2>
-        </div>
-
-        @if (!previewReady()) {
-          <form #orderForm="ngForm" (ngSubmit)="preparePreview()" novalidate>
-            <div class="checkout-fields">
-              <label>
-                Nombre y apellidos
-                <input
-                  name="name"
-                  [(ngModel)]="customer.name"
-                  (input)="onFieldInput('name')"
-                  autocomplete="name"
-                  [attr.aria-invalid]="errors().name ? 'true' : null"
-                  [attr.aria-describedby]="errors().name ? 'name-error' : null"
-                  required
-                />
-                @if (errors().name) {
-                  <p class="field-error" id="name-error" role="alert">{{ errors().name }}</p>
-                }
-              </label>
-              <label>
-                Correo electrónico
-                <input
-                  name="email"
-                  [(ngModel)]="customer.email"
-                  (input)="onFieldInput('email')"
-                  type="email"
-                  autocomplete="email"
-                  [attr.aria-invalid]="errors().email ? 'true' : null"
-                  [attr.aria-describedby]="errors().email ? 'email-error' : null"
-                  required
-                />
-                @if (errors().email) {
-                  <p class="field-error" id="email-error" role="alert">{{ errors().email }}</p>
-                }
-              </label>
-              <label>
-                Teléfono
-                <input
-                  name="phone"
-                  [(ngModel)]="customer.phone"
-                  (input)="onFieldInput('phone')"
-                  type="tel"
-                  autocomplete="tel"
-                  [attr.aria-invalid]="errors().phone ? 'true' : null"
-                  [attr.aria-describedby]="errors().phone ? 'phone-error' : null"
-                  required
-                />
-                @if (errors().phone) {
-                  <p class="field-error" id="phone-error" role="alert">{{ errors().phone }}</p>
-                }
-              </label>
-            </div>
-
-            <fieldset class="fulfillment-options">
-              <legend>¿Cómo quieres recibirlo?</legend>
-              <label class="fulfillment-choice">
-                <input
-                  type="radio"
-                  name="fulfillment"
-                  [(ngModel)]="fulfillment"
-                  (change)="onFulfillmentChange()"
-                  value="pickup"
-                  required
-                />
-                <span
-                  ><strong>Recogida en tienda</strong
-                  ><small>C/ Marina, 237 · Barcelona (Gratis)</small></span
-                >
-              </label>
-              <label class="fulfillment-choice">
-                <input
-                  type="radio"
-                  name="fulfillment"
-                  [(ngModel)]="fulfillment"
-                  (change)="onFulfillmentChange()"
-                  value="delivery"
-                  required
-                />
-                <span
-                  ><strong>Envío a domicilio</strong
-                  ><small>7,99 € Cataluña · 8,99 € resto de la península</small></span
-                >
-              </label>
-            </fieldset>
-
-            @if (fulfillment === 'delivery') {
-              <div class="checkout-fields delivery-fields">
-                <label class="field-wide">
-                  Dirección
-                  <input
-                    name="address"
-                    [(ngModel)]="customer.address"
-                    (input)="onFieldInput('address')"
-                    autocomplete="street-address"
-                    [attr.aria-invalid]="errors().address ? 'true' : null"
-                    [attr.aria-describedby]="errors().address ? 'address-error' : null"
-                    required
-                  />
-                  @if (errors().address) {
-                    <p class="field-error" id="address-error" role="alert">
-                      {{ errors().address }}
-                    </p>
-                  }
-                </label>
-                <label>
-                  Código postal
-                  <input
-                    name="postalCode"
-                    [(ngModel)]="customer.postalCode"
-                    (input)="onFieldInput('postalCode')"
-                    autocomplete="postal-code"
-                    [attr.aria-invalid]="errors().postalCode ? 'true' : null"
-                    [attr.aria-describedby]="errors().postalCode ? 'postalCode-error' : null"
-                    required
-                  />
-                  @if (errors().postalCode) {
-                    <p class="field-error" id="postalCode-error" role="alert">
-                      {{ errors().postalCode }}
-                    </p>
-                  }
-                </label>
-                <label>
-                  Ciudad
-                  <input
-                    name="city"
-                    [(ngModel)]="customer.city"
-                    (input)="onFieldInput('city')"
-                    autocomplete="address-level2"
-                    [attr.aria-invalid]="errors().city ? 'true' : null"
-                    [attr.aria-describedby]="errors().city ? 'city-error' : null"
-                    required
-                  />
-                  @if (errors().city) {
-                    <p class="field-error" id="city-error" role="alert">{{ errors().city }}</p>
-                  }
-                </label>
-              </div>
-            }
-
-            <button class="checkout-submit" type="submit">
-              PREPARAR VISTA PREVIA <span>→</span>
+      <!-- TARJETA DESTACADA DEL CÓDIGO IDENTIFICADOR -->
+      <section class="confirmation-hero-card" aria-label="Código identificador del encargo">
+        <div class="reference-badge-group">
+          <span class="reference-label">CÓDIGO DE REFERENCIA</span>
+          <div class="reference-code-row">
+            <span class="reference-code" id="order-reference-code">{{ order.reference }}</span>
+            <button
+              type="button"
+              class="copy-ref-btn"
+              (click)="copyReference(order.reference!)"
+              [attr.aria-label]="'Copiar código de referencia ' + order.reference"
+            >
+              @if (copied()) {
+                <span class="copied-indicator">✓ ¡Copiado!</span>
+              } @else {
+                <span>Copiar código</span>
+              }
             </button>
-          </form>
-        } @else {
-          <section class="order-preview" aria-live="polite">
-            <span class="preview-kicker">VISTA PREVIA LISTA</span>
-            <h2>Gracias, {{ customer.name }}.</h2>
-            <p>
-              La selección está preparada para
-              {{ fulfillment === 'pickup' ? 'recogida en tienda' : 'envío a domicilio' }}.
-            </p>
-            <p class="preview-contact">{{ customer.email }} · {{ customer.phone }}</p>
-            @if (fulfillment === 'delivery') {
-              <p class="preview-contact">
-                {{ customer.address }}, {{ customer.postalCode }} {{ customer.city }} ({{
-                  shippingZoneLabel
-                }})
-              </p>
-            }
-            <div class="preview-notice">
-              Esta es una vista previa. El pedido no se ha enviado y no se ha efectuado ningún
-              cobro.
-            </div>
-            <button class="edit-details" type="button" (click)="editDetails()">EDITAR DATOS</button>
-          </section>
-        }
+          </div>
+          <p class="reference-hint">
+            Conserva este código de referencia único para cualquier consulta o para recoger tu
+            encargo en tienda.
+          </p>
+        </div>
+        <div class="status-pill">
+          <span class="status-dot"></span>
+          <span>ESTADO: CONFIRMADO</span>
+        </div>
       </section>
 
-      <aside class="checkout-summary">
-        <div class="checkout-step">
-          <span>02</span>
-          <h2>Tu selección</h2>
-        </div>
-        <div class="summary-products">
-          @for (product of cartService.products(); track product.name) {
-            <article class="summary-product">
-              <img [src]="product.image ?? '/images/history.jpg'" [alt]="product.name" />
-              <div>
-                <h3>{{ product.name }}</h3>
-                <span>{{ product.quantity }} × {{ product.price.toFixed(2) }} €</span>
+      <!-- GRID DE INFORMACIÓN DETALLADA -->
+      <div class="confirmation-grid">
+        <!-- DETALLES DE ENTREGA / RECOGIDA -->
+        <article class="confirmation-card">
+          <div class="card-icon">
+            @if (order.fulfillment === 'pickup') {
+              🏪
+            } @else {
+              🚚
+            }
+          </div>
+          <h2>
+            {{ order.fulfillment === 'pickup' ? 'Recogida en tienda física' : 'Envío a domicilio' }}
+          </h2>
+          <div class="card-content">
+            @if (order.fulfillment === 'pickup') {
+              <div class="info-group">
+                <span class="info-label">PUNTO DE RECOGIDA</span>
+                <p><strong>Cal Sardà</strong></p>
+                <p>Carrer de Marina, 237 · 08013 Barcelona</p>
+                <p class="store-hours">Lunes a sábado: 9:00 - 14:00 y 17:00 - 20:30</p>
               </div>
-              <strong>{{ (product.quantity * product.price).toFixed(2) }} €</strong>
-            </article>
+            } @else {
+              <div class="info-group">
+                <span class="info-label">DIRECCIÓN DE ENTREGA</span>
+                <p>
+                  <strong>{{ order.customer.name }}</strong>
+                </p>
+                <p>{{ order.customer.address }}</p>
+                <p>{{ order.customer.postalCode }} {{ order.customer.city }}</p>
+                <p class="shipping-zone-tag">{{ order.shippingZoneLabel }}</p>
+              </div>
+            }
+
+            <div class="info-group highlight-box">
+              <span class="info-label">FECHA / PLAZO ESTIMADO</span>
+              <p class="estimated-time">
+                {{ order.estimatedDate }}
+              </p>
+            </div>
+
+            <div class="info-group">
+              <span class="info-label">DATOS DE CONTACTO</span>
+              <p>
+                Email de confirmación: <strong>{{ order.customer.email }}</strong>
+              </p>
+              <p>
+                Teléfono de aviso: <strong>{{ order.customer.phone }}</strong>
+              </p>
+            </div>
+          </div>
+        </article>
+
+        <!-- RECORDATORIO MÉTODO DE PAGO Y PASOS SIGUIENTES -->
+        <article class="confirmation-card">
+          <div class="card-icon">💶</div>
+          <h2>Método de pago</h2>
+          <div class="card-content">
+            <div class="info-group highlight-box">
+              <span class="info-label">INSTRUCCIONES DE PAGO</span>
+              <p class="payment-instructions">{{ order.paymentMethod }}</p>
+            </div>
+            <div class="payment-notice">
+              <p>
+                <strong>Sin cobros anticipados en la web:</strong> El importe de
+                <strong>{{ order.total.toFixed(2) }} €</strong> se abona según la modalidad indicada
+                (en tienda física al recoger o Bizum/contra reembolso en domicilio).
+              </p>
+            </div>
+            <div class="support-info">
+              <span class="info-label">¿DUDAS CON TU ENCARGO?</span>
+              <p>Contacta directamente con nuestro obrador:</p>
+              <p class="phone-link"><a href="tel:+34932325508">📞 93 232 55 08</a></p>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <!-- DESGLOSE Y RESUMEN DE PRODUCTOS -->
+      <section class="confirmation-items-section" aria-labelledby="items-summary-title">
+        <h2 id="items-summary-title">Resumen de productos solicitados</h2>
+        <div class="confirmation-items-table">
+          <div class="table-header">
+            <span>Producto</span>
+            <span class="text-center">Cant.</span>
+            <span class="text-right">Precio unitario</span>
+            <span class="text-right">Total</span>
+          </div>
+          @for (item of order.items; track item.name) {
+            <div class="table-row">
+              <div class="item-name-cell">
+                <img
+                  [src]="item.image ?? '/images/history.jpg'"
+                  [alt]="item.name"
+                  class="item-thumb"
+                />
+                <div>
+                  <strong>{{ item.name }}</strong>
+                  @if (item.productNumber) {
+                    <small>Ref. {{ item.productNumber }}</small>
+                  }
+                </div>
+              </div>
+              <div class="text-center item-qty">{{ item.quantity }}</div>
+              <div class="text-right item-unit-price">{{ item.price.toFixed(2) }} €</div>
+              <div class="text-right item-total-price">
+                <strong>{{ (item.quantity * item.price).toFixed(2) }} €</strong>
+              </div>
+            </div>
           }
         </div>
-        <div class="summary-total">
-          <span>Subtotal</span><strong>{{ cartService.getTotal().toFixed(2) }} €</strong>
+
+        <div class="confirmation-financials">
+          <div class="fin-row">
+            <span>Subtotal productos</span>
+            <span
+              >{{ (order.subtotal ?? order.total - (order.shippingCost ?? 0)).toFixed(2) }} €</span
+            >
+          </div>
+          <div class="fin-row">
+            <span>Gastos de envío ({{ order.shippingZoneLabel }})</span>
+            <span>{{
+              order.shippingCost === 0 ? '0,00 € (Gratis)' : order.shippingCost?.toFixed(2) + ' €'
+            }}</span>
+          </div>
+          <div class="fin-row total-row">
+            <span>TOTAL FINAL (IVA incluido)</span>
+            <strong>{{ order.total.toFixed(2) }} €</strong>
+          </div>
         </div>
-        <div class="summary-total shipping-total">
-          <span>Gastos de envío ({{ shippingZoneLabel }})</span>
-          <strong>{{ shippingCost === 0 ? '0,00 €' : shippingCost.toFixed(2) + ' €' }}</strong>
-        </div>
-        <div class="summary-total final-total">
-          <span>Total estimado</span><strong>{{ finalTotal.toFixed(2) }} €</strong>
-        </div>
-        <p class="demo-note">
-          Precios orientativos de prototipo. No hay pasarela de pago ni se transmiten datos
-          personales.
-        </p>
-      </aside>
+      </section>
+
+      <!-- BOTONES DE ACCIÓN -->
+      <footer class="confirmation-actions">
+        <button type="button" class="action-btn print-btn" (click)="printOrder()">
+          🖨️ IMPRIMIR / DESCARGAR COMPROBANTE
+        </button>
+        <a
+          [routerLink]="['/tienda-online']"
+          class="action-btn store-btn"
+          (click)="resetOrderState()"
+        >
+          VOLVER A LA TIENDA ONLINE →
+        </a>
+      </footer>
     </div>
+  } @else {
+    <header class="checkout-heading">
+      <a [routerLink]="['/tienda-online']" class="checkout-back">← VOLVER A LA TIENDA</a>
+      <span>CAL SARDÀ · COMPRA</span>
+      <h1 id="checkout-title">Prepara tu<br />pedido.</h1>
+      <p>Completa tus datos para revisar una vista previa y formalizar tu encargo.</p>
+    </header>
+
+    @if (cartService.products().length === 0) {
+      <section class="checkout-empty">
+        <h2>Tu cesta está vacía</h2>
+        <p>Vuelve a la tienda y añade los productos que quieras incluir.</p>
+        <a [routerLink]="['/tienda-online']">VER LA TIENDA →</a>
+      </section>
+    } @else {
+      <div class="checkout-layout">
+        <section class="checkout-form-panel">
+          <div class="checkout-step">
+            <span>01</span>
+            <h2>Tus datos</h2>
+          </div>
+
+          @if (!previewReady()) {
+            <form #orderForm="ngForm" (ngSubmit)="preparePreview()" novalidate>
+              <div class="checkout-fields">
+                <label>
+                  Nombre y apellidos
+                  <input
+                    name="name"
+                    [(ngModel)]="customer.name"
+                    (input)="onFieldInput('name')"
+                    autocomplete="name"
+                    [attr.aria-invalid]="errors().name ? 'true' : null"
+                    [attr.aria-describedby]="errors().name ? 'name-error' : null"
+                    required
+                  />
+                  @if (errors().name) {
+                    <p class="field-error" id="name-error" role="alert">{{ errors().name }}</p>
+                  }
+                </label>
+                <label>
+                  Correo electrónico
+                  <input
+                    name="email"
+                    [(ngModel)]="customer.email"
+                    (input)="onFieldInput('email')"
+                    type="email"
+                    autocomplete="email"
+                    [attr.aria-invalid]="errors().email ? 'true' : null"
+                    [attr.aria-describedby]="errors().email ? 'email-error' : null"
+                    required
+                  />
+                  @if (errors().email) {
+                    <p class="field-error" id="email-error" role="alert">{{ errors().email }}</p>
+                  }
+                </label>
+                <label>
+                  Teléfono
+                  <input
+                    name="phone"
+                    [(ngModel)]="customer.phone"
+                    (input)="onFieldInput('phone')"
+                    type="tel"
+                    autocomplete="tel"
+                    [attr.aria-invalid]="errors().phone ? 'true' : null"
+                    [attr.aria-describedby]="errors().phone ? 'phone-error' : null"
+                    required
+                  />
+                  @if (errors().phone) {
+                    <p class="field-error" id="phone-error" role="alert">{{ errors().phone }}</p>
+                  }
+                </label>
+              </div>
+
+              <fieldset class="fulfillment-options">
+                <legend>¿Cómo quieres recibirlo?</legend>
+                <label class="fulfillment-choice">
+                  <input
+                    type="radio"
+                    name="fulfillment"
+                    [(ngModel)]="fulfillment"
+                    (change)="onFulfillmentChange()"
+                    value="pickup"
+                    required
+                  />
+                  <span
+                    ><strong>Recogida en tienda</strong
+                    ><small>C/ Marina, 237 · Barcelona (Gratis)</small></span
+                  >
+                </label>
+                <label class="fulfillment-choice">
+                  <input
+                    type="radio"
+                    name="fulfillment"
+                    [(ngModel)]="fulfillment"
+                    (change)="onFulfillmentChange()"
+                    value="delivery"
+                    required
+                  />
+                  <span
+                    ><strong>Envío a domicilio</strong
+                    ><small>7,99 € Cataluña · 8,99 € resto de la península</small></span
+                  >
+                </label>
+              </fieldset>
+
+              @if (fulfillment === 'delivery') {
+                <div class="checkout-fields delivery-fields">
+                  <label class="field-wide">
+                    Dirección
+                    <input
+                      name="address"
+                      [(ngModel)]="customer.address"
+                      (input)="onFieldInput('address')"
+                      autocomplete="street-address"
+                      [attr.aria-invalid]="errors().address ? 'true' : null"
+                      [attr.aria-describedby]="errors().address ? 'address-error' : null"
+                      required
+                    />
+                    @if (errors().address) {
+                      <p class="field-error" id="address-error" role="alert">
+                        {{ errors().address }}
+                      </p>
+                    }
+                  </label>
+                  <label>
+                    Código postal
+                    <input
+                      name="postalCode"
+                      [(ngModel)]="customer.postalCode"
+                      (input)="onFieldInput('postalCode')"
+                      autocomplete="postal-code"
+                      [attr.aria-invalid]="errors().postalCode ? 'true' : null"
+                      [attr.aria-describedby]="errors().postalCode ? 'postalCode-error' : null"
+                      required
+                    />
+                    @if (errors().postalCode) {
+                      <p class="field-error" id="postalCode-error" role="alert">
+                        {{ errors().postalCode }}
+                      </p>
+                    }
+                  </label>
+                  <label>
+                    Ciudad
+                    <input
+                      name="city"
+                      [(ngModel)]="customer.city"
+                      (input)="onFieldInput('city')"
+                      autocomplete="address-level2"
+                      [attr.aria-invalid]="errors().city ? 'true' : null"
+                      [attr.aria-describedby]="errors().city ? 'city-error' : null"
+                      required
+                    />
+                    @if (errors().city) {
+                      <p class="field-error" id="city-error" role="alert">{{ errors().city }}</p>
+                    }
+                  </label>
+                </div>
+              }
+
+              <button class="checkout-submit" type="submit">
+                PREPARAR VISTA PREVIA <span>→</span>
+              </button>
+            </form>
+          } @else {
+            <section class="order-preview" aria-live="polite">
+              <span class="preview-kicker">VISTA PREVIA LISTA</span>
+              <h2>Gracias, {{ customer.name }}.</h2>
+              <p>
+                La selección está preparada para
+                {{ fulfillment === 'pickup' ? 'recogida en tienda' : 'envío a domicilio' }}.
+              </p>
+              <p class="preview-contact">{{ customer.email }} · {{ customer.phone }}</p>
+              @if (fulfillment === 'delivery') {
+                <p class="preview-contact">
+                  {{ customer.address }}, {{ customer.postalCode }} {{ customer.city }} ({{
+                    shippingZoneLabel
+                  }})
+                </p>
+              }
+              <div class="preview-notice">
+                Revisa los datos antes de formalizar tu pedido. Al pulsar «Confirmar encargo»,
+                registraremos tu solicitud y te facilitaremos tu comprobante con el código de
+                referencia.
+              </div>
+              <div class="preview-actions">
+                <button
+                  class="checkout-submit confirm-order-btn"
+                  type="button"
+                  [disabled]="submitting()"
+                  (click)="confirmOrder()"
+                >
+                  @if (submitting()) {
+                    PROCESANDO ENCARGO...
+                  } @else {
+                    CONFIRMAR ENCARGO <span>✓</span>
+                  }
+                </button>
+                <button class="edit-details" type="button" (click)="editDetails()">
+                  EDITAR DATOS
+                </button>
+              </div>
+            </section>
+          }
+        </section>
+
+        <aside class="checkout-summary">
+          <div class="checkout-step">
+            <span>02</span>
+            <h2>Tu selección</h2>
+          </div>
+          <div class="summary-products">
+            @for (product of cartService.products(); track product.name) {
+              <article class="summary-product">
+                <img [src]="product.image ?? '/images/history.jpg'" [alt]="product.name" />
+                <div>
+                  <h3>{{ product.name }}</h3>
+                  <span>{{ product.quantity }} × {{ product.price.toFixed(2) }} €</span>
+                </div>
+                <strong>{{ (product.quantity * product.price).toFixed(2) }} €</strong>
+              </article>
+            }
+          </div>
+          <div class="summary-total">
+            <span>Subtotal</span><strong>{{ cartService.getTotal().toFixed(2) }} €</strong>
+          </div>
+          <div class="summary-total shipping-total">
+            <span>Gastos de envío ({{ shippingZoneLabel }})</span>
+            <strong>{{ shippingCost === 0 ? '0,00 €' : shippingCost.toFixed(2) + ' €' }}</strong>
+          </div>
+          <div class="summary-total final-total">
+            <span>Total estimado</span><strong>{{ finalTotal.toFixed(2) }} €</strong>
+          </div>
+          <p class="demo-note">
+            Precios con IVA incluido. Al confirmar el encargo recibirás los detalles para recogida
+            en tienda o entrega refrigerada.
+          </p>
+        </aside>
+      </div>
+    }
   }
 </section>

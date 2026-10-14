@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+import { describe, expect, it, vi } from 'vitest';
 import { CheckoutPage } from './checkout-page';
 import { CART_STORAGE_ADAPTER, CartService, InMemoryCartAdapter } from '../../services/cart';
 
@@ -166,5 +167,137 @@ describe('CheckoutPage', () => {
 
     component.editDetails();
     expect(component.previewReady()).toBe(false);
+  });
+
+  it('confirms the order, clears the cart, generates a reference code, and displays the confirmation screen', async () => {
+    component.customer = {
+      name: 'Jordi Vila',
+      email: 'jordi.vila@test.cat',
+      phone: '654987321',
+      address: '',
+      postalCode: '',
+      city: '',
+    };
+    component.fulfillment = 'pickup';
+
+    component.preparePreview();
+    expect(component.previewReady()).toBe(true);
+    expect(cartService.products().length).toBe(1);
+
+    await component.confirmOrder();
+    fixture.detectChanges();
+
+    // Verify cart was reset to prevent duplicate orders
+    expect(cartService.products().length).toBe(0);
+
+    // Verify confirmed order signal
+    const order = component.confirmedOrder();
+    expect(order).toBeTruthy();
+    expect(order?.reference).toMatch(/^CS-\d{4}-\d+$/);
+    expect(order?.customer.name).toBe('Jordi Vila');
+    expect(order?.customer.email).toBe('jordi.vila@test.cat');
+    expect(order?.total).toBe(13.6);
+    expect(order?.fulfillment).toBe('pickup');
+
+    // Verify DOM rendering of confirmation view
+    const compiled = fixture.nativeElement as HTMLElement;
+    const confirmationContainer = compiled.querySelector('.confirmation-container');
+    expect(confirmationContainer).toBeTruthy();
+
+    const title = compiled.querySelector('#confirmation-title');
+    expect(title?.textContent).toContain('Encargo confirmado');
+
+    const refCode = compiled.querySelector('#order-reference-code');
+    expect(refCode?.textContent?.trim()).toBe(order?.reference);
+
+    const confirmationLead = compiled.querySelector('.confirmation-lead');
+    expect(confirmationLead?.textContent).toContain('Jordi Vila');
+
+    // Pickup details
+    const pickupContent = compiled.querySelector('.confirmation-grid');
+    expect(pickupContent?.textContent).toContain('Recogida en tienda');
+    expect(pickupContent?.textContent).toContain('Marina, 237');
+
+    // Payment reminder
+    expect(pickupContent?.textContent).toContain('Método de pago');
+    expect(pickupContent?.textContent).toContain('tienda física');
+    expect(pickupContent?.textContent).toContain('Bizum');
+
+    // Items table in confirmation
+    const itemsTable = compiled.querySelector('.confirmation-items-table');
+    expect(itemsTable?.textContent).toContain('Secallona artesana');
+    expect(itemsTable?.textContent).toContain('13.60 €');
+
+    // Total in confirmation
+    const financials = compiled.querySelector('.confirmation-financials');
+    expect(financials?.textContent).toContain('13.60 €');
+
+    // Action buttons
+    const printBtn = compiled.querySelector('.print-btn');
+    expect(printBtn).toBeTruthy();
+    expect(printBtn?.textContent).toContain('IMPRIMIR / DESCARGAR');
+
+    const storeBtn = compiled.querySelector('.store-btn');
+    expect(storeBtn).toBeTruthy();
+  });
+
+  it('renders delivery details and calculates correct totals in confirmation screen for delivery orders', async () => {
+    component.customer = {
+      name: 'Nuria Pons',
+      email: 'nuria@test.cat',
+      phone: '611223344',
+      address: 'Passeig de Gràcia, 45',
+      postalCode: '08007',
+      city: 'Barcelona',
+    };
+    component.fulfillment = 'delivery';
+
+    component.preparePreview();
+    expect(component.previewReady()).toBe(true);
+
+    await component.confirmOrder();
+    fixture.detectChanges();
+
+    expect(cartService.products().length).toBe(0);
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    const confirmationGrid = compiled.querySelector('.confirmation-grid');
+    expect(confirmationGrid?.textContent).toContain('Envío a domicilio');
+    expect(confirmationGrid?.textContent).toContain('Passeig de Gràcia, 45');
+    expect(confirmationGrid?.textContent).toContain('08007 Barcelona');
+    expect(confirmationGrid?.textContent).toContain('24-48 horas laborables');
+
+    const financials = compiled.querySelector('.confirmation-financials');
+    expect(financials?.textContent).toContain('7.99 €');
+    expect(financials?.textContent).toContain((13.6 + 7.99).toFixed(2));
+  });
+
+  it('handles printing and clipboard copying safely', async () => {
+    const printSpy = vi.spyOn(window, 'print').mockImplementation(() => {});
+
+    component.printOrder();
+    expect(printSpy).toHaveBeenCalled();
+    printSpy.mockRestore();
+
+    // Clipboard copy
+    Object.assign(navigator, {
+      clipboard: {
+        writeText: vi.fn().mockResolvedValue(undefined),
+      },
+    });
+
+    await component.copyReference('CS-2026-1042');
+    expect(component.copied()).toBe(true);
+    expect(navigator.clipboard.writeText).toHaveBeenCalledWith('CS-2026-1042');
+  });
+
+  it('resets state when starting a new order', () => {
+    component.customer.name = 'Test User';
+    component.previewReady.set(true);
+    component.resetOrderState();
+
+    expect(component.confirmedOrder()).toBeNull();
+    expect(component.previewReady()).toBe(false);
+    expect(component.customer.name).toBe('');
   });
 });

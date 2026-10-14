@@ -125,5 +125,20 @@ test.describe('Funnel de compra completo de Cal Sardà', () => {
     await expect(previewPanel).toContainText('marta.garcia@ejemplo.com');
     await expect(previewPanel).toContainText('612345678');
     await expect(previewPanel).toContainText('recogida en tienda');
+
+    // Confirmar el encargo
+    const confirmBtn = page.locator('.confirm-order-btn');
+    await expect(confirmBtn).toBeVisible();
+    await confirmBtn.click();
+
+    // Verificar que se muestra la pantalla de confirmación con el código de referencia
+    const confirmationContainer = page.locator('.confirmation-container');
+    await expect(confirmationContainer).toBeVisible();
+    await expect(page.locator('#confirmation-title')).toContainText('Encargo confirmado');
+    await expect(page.locator('#order-reference-code')).toHaveText(/^CS-\d{4}-\d+$/);
+    await expect(page.locator('.confirmation-grid')).toContainText('Marina, 237');
+
+    // Verificar que la cesta ha quedado reseteada
+    await expect(page.locator('.cart-count')).toHaveText('0');
   });
 });
