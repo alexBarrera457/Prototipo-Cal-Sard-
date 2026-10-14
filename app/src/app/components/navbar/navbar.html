@@ -237,7 +237,9 @@
           class="navbar-cart"
           type="button"
           (click)="toggleCart()"
-          [attr.aria-label]="'Abrir cesta, ' + cartService.count() + ' productos'"
+          [attr.aria-label]="
+            (cartOpen ? 'Cerrar cesta, ' : 'Abrir cesta, ') + cartService.count() + ' productos'
+          "
           [attr.aria-expanded]="cartOpen"
           aria-controls="cart-panel"
         >
@@ -253,13 +255,17 @@
     <div
       id="site-menu"
       class="mega-menu"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="site-menu-title"
       [class.open]="mobileMenuOpen"
       [attr.aria-hidden]="!mobileMenuOpen"
+      [attr.inert]="mobileMenuOpen ? null : ''"
     >
       <div class="mega-menu-heading">
         <div>
           <span>CAL SARDÀ · DESDE 1930</span>
-          <h2>Descubre nuestra tienda</h2>
+          <h2 id="site-menu-title">Descubre nuestra tienda</h2>
         </div>
         <button
           class="mega-menu-close"
@@ -330,7 +336,7 @@
      OVERLAY CESTA
 ========================== -->
 
-<div class="cart-overlay" [class.active]="cartOpen" (click)="closeCart()"></div>
+<div class="cart-overlay" [class.active]="cartOpen" (click)="closeCart()" aria-hidden="true"></div>
 
 <!-- =========================
      PANEL CESTA
@@ -339,17 +345,24 @@
 <aside
   id="cart-panel"
   class="cart-panel"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="cart-title"
   [class.open]="cartOpen"
   [attr.aria-hidden]="!cartOpen"
   [attr.inert]="cartOpen ? null : ''"
 >
+  <div class="visually-hidden" role="status" aria-live="polite">
+    {{ cartLiveMessage() }}
+  </div>
+
   <!-- CABECERA -->
 
   <div class="cart-header">
     <div>
       <span class="cart-label-panel"> CAL SARDÀ </span>
 
-      <h2>{{ i18n.t('nav.cart') }}</h2>
+      <h2 id="cart-title">{{ i18n.t('nav.cart') }}</h2>
     </div>
 
     <button
@@ -397,7 +410,7 @@
           <div class="cart-product-actions">
             <button
               type="button"
-              (click)="cartService.removeFromCart(product.name)"
+              (click)="decreaseCartItem(product.name, product.quantity)"
               [attr.aria-label]="'Restar una unidad de ' + product.name"
             >
               −
@@ -410,10 +423,10 @@
             <button
               type="button"
               (click)="
-                cartService.addToCart(
+                increaseCartItem(
                   product.name,
                   product.price,
-                  1,
+                  product.quantity,
                   product.productNumber,
                   product.image
                 )
@@ -429,7 +442,7 @@
           <button
             class="cart-product-delete"
             type="button"
-            (click)="cartService.deleteProduct(product.name)"
+            (click)="deleteCartItem(product.name)"
             [attr.aria-label]="'Eliminar ' + product.name + ' de la cesta'"
           >
             ELIMINAR

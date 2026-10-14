@@ -126,10 +126,10 @@
       </button>
     </div>
 
-    @if (addedToCartMessage) {
-      <p class="product-cart-feedback" role="status" aria-live="polite">
-        {{ product.name }}: {{ addedToCartMessage }}
-      </p>
-    }
+    <div class="product-cart-feedback-region" role="status" aria-live="polite">
+      @if (addedToCartMessage) {
+        <p class="product-cart-feedback">{{ product.name }}: {{ addedToCartMessage }}</p>
+      }
+    </div>
   </div>
 </section>

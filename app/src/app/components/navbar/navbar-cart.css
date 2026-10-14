@@ -1,4 +1,4 @@
-﻿.cart-overlay {
+.cart-overlay {
   position: fixed;
   z-index: 1100;
   inset: 0;
@@ -200,6 +200,7 @@
 
 .cart-checkout:hover {
   background: #b89763;
+  color: #211912;
 }
 
 :host .cart-checkout {

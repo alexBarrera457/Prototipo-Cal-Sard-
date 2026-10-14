@@ -118,11 +118,13 @@
             {{ i18n.t('store.add_to_cart') }}
           </button>
 
-          @if (addedProductNumber === product.number) {
-            <p class="store-added-message" role="status" aria-live="polite">
-              {{ addedProductMessage }}
-            </p>
-          }
+          <div class="store-feedback-region" role="status" aria-live="polite">
+            @if (addedProductNumber === product.number) {
+              <p class="store-added-message">
+                {{ addedProductMessage }}
+              </p>
+            }
+          </div>
         </article>
       }
     </div>

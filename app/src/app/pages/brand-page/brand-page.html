@@ -84,9 +84,11 @@
                     Añadir a la cesta <span aria-hidden="true">+</span>
                   </button>
                 </div>
-                @if (lastAddedGiftLotSlug === product.slug) {
-                  <p class="gift-lot-added" role="status" aria-live="polite">Añadido a la cesta.</p>
-                }
+                <div class="gift-lot-feedback-region" role="status" aria-live="polite">
+                  @if (lastAddedGiftLotSlug === product.slug) {
+                    <p class="gift-lot-added">{{ product.name }}: añadido a la cesta.</p>
+                  }
+                </div>
               </div>
             </article>
           }

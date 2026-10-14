@@ -96,4 +96,136 @@ describe('Navbar', () => {
     expect(component.selectedLanguage).toBe('es');
     expect(mockSelect.value).toBe('es');
   });
+
+  it('traps focus inside the cart panel and restores focus to the trigger on close', () => {
+    const triggerBtn = document.createElement('button');
+    document.body.appendChild(triggerBtn);
+    triggerBtn.focus();
+    expect(document.activeElement).toBe(triggerBtn);
+
+    component.openCart(triggerBtn);
+    expect(component.cartOpen).toBe(true);
+
+    const cartPanel = fixture.nativeElement.querySelector('#cart-panel') as HTMLElement;
+    expect(cartPanel).toBeTruthy();
+
+    const focusables = cartPanel.querySelectorAll<HTMLElement>('a[href], button:not([disabled])');
+    expect(focusables.length).toBeGreaterThan(0);
+    const firstFocusable = focusables[0];
+    const lastFocusable = focusables[focusables.length - 1];
+
+    // Shift+Tab from first element wraps to last
+    firstFocusable.focus();
+    const shiftTabEvent = new KeyboardEvent('keydown', {
+      key: 'Tab',
+      shiftKey: true,
+      cancelable: true,
+    });
+    component.onDocumentKeydown(shiftTabEvent);
+    expect(shiftTabEvent.defaultPrevented).toBe(true);
+    expect(document.activeElement).toBe(lastFocusable);
+
+    // Tab from last element wraps to first
+    lastFocusable.focus();
+    const tabEvent = new KeyboardEvent('keydown', {
+      key: 'Tab',
+      shiftKey: false,
+      cancelable: true,
+    });
+    component.onDocumentKeydown(tabEvent);
+    expect(tabEvent.defaultPrevented).toBe(true);
+    expect(document.activeElement).toBe(firstFocusable);
+
+    // Closing cart restores focus to trigger
+    const focusSpy = vi.spyOn(triggerBtn, 'focus');
+    component.closeCart();
+    expect(component.cartOpen).toBe(false);
+    expect(focusSpy).toHaveBeenCalled();
+
+    triggerBtn.remove();
+  });
+
+  it('traps focus inside mobile menu and restores focus to the menu trigger on close', () => {
+    const menuBtn = document.createElement('button');
+    document.body.appendChild(menuBtn);
+    menuBtn.focus();
+
+    component.openMobileMenu(menuBtn);
+    expect(component.mobileMenuOpen).toBe(true);
+
+    const siteMenu = fixture.nativeElement.querySelector('#site-menu') as HTMLElement;
+    expect(siteMenu).toBeTruthy();
+
+    const focusables = siteMenu.querySelectorAll<HTMLElement>('a[href], button:not([disabled])');
+    expect(focusables.length).toBeGreaterThan(0);
+    const firstFocusable = focusables[0];
+    const lastFocusable = focusables[focusables.length - 1];
+
+    // Shift+Tab on first element wraps to last
+    firstFocusable.focus();
+    const shiftTabEvent = new KeyboardEvent('keydown', {
+      key: 'Tab',
+      shiftKey: true,
+      cancelable: true,
+    });
+    component.onDocumentKeydown(shiftTabEvent);
+    expect(shiftTabEvent.defaultPrevented).toBe(true);
+    expect(document.activeElement).toBe(lastFocusable);
+
+    // Tab on last element wraps to first
+    lastFocusable.focus();
+    const tabEvent = new KeyboardEvent('keydown', {
+      key: 'Tab',
+      shiftKey: false,
+      cancelable: true,
+    });
+    component.onDocumentKeydown(tabEvent);
+    expect(tabEvent.defaultPrevented).toBe(true);
+    expect(document.activeElement).toBe(firstFocusable);
+
+    // Closing menu restores focus to trigger
+    const focusSpy = vi.spyOn(menuBtn, 'focus');
+    component.closeMobileMenu();
+    expect(component.mobileMenuOpen).toBe(false);
+    expect(focusSpy).toHaveBeenCalled();
+
+    menuBtn.remove();
+  });
+
+  it('restores focus when Escape closes the cart or mobile menu', () => {
+    const triggerBtn = document.createElement('button');
+    document.body.appendChild(triggerBtn);
+    triggerBtn.focus();
+
+    const focusSpy = vi.spyOn(triggerBtn, 'focus');
+
+    // Test with cart open
+    component.openCart(triggerBtn);
+    expect(component.cartOpen).toBe(true);
+    component.onEscape();
+    expect(component.cartOpen).toBe(false);
+    expect(focusSpy).toHaveBeenCalledTimes(1);
+
+    // Test with mobile menu open
+    component.openMobileMenu(triggerBtn);
+    expect(component.mobileMenuOpen).toBe(true);
+    component.onEscape();
+    expect(component.mobileMenuOpen).toBe(false);
+    expect(focusSpy).toHaveBeenCalledTimes(2);
+
+    triggerBtn.remove();
+  });
+
+  it('updates cartLiveMessage when adjusting or deleting cart items', () => {
+    component.increaseCartItem('Llonganissa de Vic', 8.5, 1, 'LL-01', '/images/llonganissa.jpg');
+    expect(component.cartLiveMessage()).toContain('Llonganissa de Vic');
+    expect(component.cartLiveMessage()).toContain('Total: 2');
+
+    component.decreaseCartItem('Llonganissa de Vic', 2);
+    expect(component.cartLiveMessage()).toContain('Llonganissa de Vic');
+    expect(component.cartLiveMessage()).toContain('Total: 1');
+
+    component.deleteCartItem('Llonganissa de Vic');
+    expect(component.cartLiveMessage()).toContain('eliminado de la cesta');
+  });
 });

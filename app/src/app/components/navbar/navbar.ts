@@ -28,6 +28,9 @@ export class Navbar {
   private searchRequest = 0;
   private loadedSearchQuery = '';
   languageNotice = '';
+  private cartTriggerElement: HTMLElement | null = null;
+  private menuTriggerElement: HTMLElement | null = null;
+  public readonly cartLiveMessage = signal<string>('');
 
   public readonly i18n = inject(I18nService);
 
@@ -279,6 +282,19 @@ export class Navbar {
     }
   }
 
+  @HostListener('document:keydown', ['$event'])
+  onDocumentKeydown(event: KeyboardEvent): void {
+    if (event.key !== 'Tab') {
+      return;
+    }
+
+    if (this.cartOpen) {
+      this.trapFocus(event, '#cart-panel');
+    } else if (this.mobileMenuOpen) {
+      this.trapFocus(event, '#site-menu');
+    }
+  }
+
   @HostListener('document:keydown.escape')
   onEscape(): void {
     this.closeSearch();
@@ -293,34 +309,150 @@ export class Navbar {
   }
 
   toggleCart(): void {
-    this.cartOpen = !this.cartOpen;
-    this.lockBodyScroll(this.cartOpen);
-
     if (this.cartOpen) {
-      this.mobileMenuOpen = false;
-      this.lockBodyScroll(true);
+      this.closeCart();
+    } else {
+      this.openCart();
     }
+  }
+
+  openCart(trigger?: HTMLElement): void {
+    this.cartTriggerElement =
+      trigger ?? (typeof document !== 'undefined' ? (document.activeElement as HTMLElement) : null);
+    this.cartOpen = true;
+    this.mobileMenuOpen = false;
+    this.lockBodyScroll(true);
+    this.focusInitialElement('#cart-panel');
   }
 
   closeCart(): void {
+    if (!this.cartOpen) {
+      return;
+    }
     this.cartOpen = false;
     this.lockBodyScroll(false);
+    this.restoreFocus(this.cartTriggerElement);
+    this.cartTriggerElement = null;
   }
 
   toggleMobileMenu(): void {
-    this.mobileMenuOpen = !this.mobileMenuOpen;
-
     if (this.mobileMenuOpen) {
-      this.cartOpen = false;
-      this.lockBodyScroll(true);
+      this.closeMobileMenu();
     } else {
-      this.lockBodyScroll(false);
+      this.openMobileMenu();
     }
   }
 
+  openMobileMenu(trigger?: HTMLElement): void {
+    this.menuTriggerElement =
+      trigger ?? (typeof document !== 'undefined' ? (document.activeElement as HTMLElement) : null);
+    this.mobileMenuOpen = true;
+    this.cartOpen = false;
+    this.lockBodyScroll(true);
+    this.focusInitialElement('#site-menu');
+  }
+
   closeMobileMenu(): void {
+    if (!this.mobileMenuOpen) {
+      return;
+    }
     this.mobileMenuOpen = false;
     this.lockBodyScroll(false);
+    this.restoreFocus(this.menuTriggerElement);
+    this.menuTriggerElement = null;
+  }
+
+  increaseCartItem(
+    name: string,
+    price: number,
+    currentQuantity: number,
+    productNumber?: string,
+    image?: string,
+  ): void {
+    this.cartService.addToCart(name, price, 1, productNumber, image);
+    this.cartLiveMessage.set(`${name}: una unidad añadida. Total: ${currentQuantity + 1}.`);
+  }
+
+  decreaseCartItem(name: string, currentQuantity: number): void {
+    this.cartService.removeFromCart(name);
+    if (currentQuantity > 1) {
+      this.cartLiveMessage.set(`${name}: una unidad restada. Total: ${currentQuantity - 1}.`);
+    } else {
+      this.cartLiveMessage.set(`${name} eliminado de la cesta.`);
+    }
+  }
+
+  deleteCartItem(name: string): void {
+    this.cartService.deleteProduct(name);
+    this.cartLiveMessage.set(`${name} eliminado de la cesta.`);
+  }
+
+  private focusInitialElement(containerSelector: string): void {
+    if (typeof document === 'undefined') {
+      return;
+    }
+
+    const root = this.elementRef?.nativeElement ?? document;
+    const container = root.querySelector(containerSelector) as HTMLElement | null;
+    if (!container) return;
+
+    const focusables = this.getFocusableElements(container);
+    if (focusables.length > 0) {
+      focusables[0].focus();
+    }
+  }
+
+  private restoreFocus(element: HTMLElement | null): void {
+    if (!element || typeof element.focus !== 'function') {
+      return;
+    }
+    element.focus();
+  }
+
+  private trapFocus(event: KeyboardEvent, containerSelector: string): void {
+    if (typeof document === 'undefined') {
+      return;
+    }
+
+    const root = this.elementRef?.nativeElement ?? document;
+    const container = root.querySelector(containerSelector) as HTMLElement | null;
+    if (!container) {
+      return;
+    }
+
+    const focusables = this.getFocusableElements(container);
+    if (focusables.length === 0) {
+      event.preventDefault();
+      return;
+    }
+
+    const first = focusables[0];
+    const last = focusables[focusables.length - 1];
+    const active = document.activeElement as HTMLElement | null;
+
+    if (event.shiftKey) {
+      if (!active || active === first || !container.contains(active)) {
+        event.preventDefault();
+        last.focus();
+      }
+    } else {
+      if (!active || active === last || !container.contains(active)) {
+        event.preventDefault();
+        first.focus();
+      }
+    }
+  }
+
+  private getFocusableElements(container: HTMLElement): HTMLElement[] {
+    const selector =
+      'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+    const items = Array.from(container.querySelectorAll<HTMLElement>(selector));
+    return items.filter((el) => {
+      if (el.hasAttribute('disabled') || el.getAttribute('aria-hidden') === 'true') {
+        return false;
+      }
+      return el.tabIndex !== -1;
+    });
   }
 
   private lockBodyScroll(shouldLock: boolean): void {

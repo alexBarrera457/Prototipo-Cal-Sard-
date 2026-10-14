@@ -52,6 +52,23 @@ textarea {
   font-family: inherit;
 }
 
+:focus-visible {
+  outline: 2px solid #845f39;
+  outline-offset: 3px;
+}
+
+.visually-hidden {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
 ::selection {
   background: rgba(184, 151, 99, 0.8);
   color: #fff;
@@ -239,7 +256,7 @@ section {
 }
 
 .business-button-secondary span {
-  color: #9b754d;
+  color: #845f39;
   font-size: 16px;
 }
 
@@ -258,7 +275,7 @@ section {
 .business-hero-benefits li::before {
   content: '✳';
   margin-right: 8px;
-  color: #a27b50;
+  color: #845f39;
 }
 
 .business-hero-visual {
