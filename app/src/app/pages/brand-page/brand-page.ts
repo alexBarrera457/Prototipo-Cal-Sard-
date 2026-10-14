@@ -1,9 +1,10 @@
-import { Component, DestroyRef } from '@angular/core';
+import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Meta } from '@angular/platform-browser';
 import { HistoryBookComponent } from '../../components/history-book/history-book';
 import { CartService } from '../../services/cart';
+import { NewsletterService } from '../../services/newsletter';
 import type { Product } from '@cal-sarda/domain';
 
 export type GiftLotProduct = Pick<
@@ -662,6 +663,10 @@ export class BrandPage {
     });
   }
 
+  readonly newsletterService = inject(NewsletterService);
+  readonly newsletterEmail = signal('');
+  readonly newsletterPrivacyAccepted = signal(false);
+
   scrollToBusinessProcess(event: MouseEvent): void {
     event.preventDefault();
     document.getElementById('como-funciona')?.scrollIntoView({
@@ -675,18 +680,42 @@ export class BrandPage {
     this.lastAddedGiftLotSlug = product.slug;
   }
 
-  prepareNewsletterRequest(event: SubmitEvent): void {
+  async submitNewsletter(event: SubmitEvent): Promise<void> {
     event.preventDefault();
+    await this.newsletterService.subscribe(
+      this.newsletterEmail(),
+      this.newsletterPrivacyAccepted(),
+    );
+  }
 
+  onPrivacyChange(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.newsletterPrivacyAccepted.set(input.checked);
+  }
+
+  onEmailChange(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.newsletterEmail.set(input.value);
+  }
+
+  resetNewsletterForm(): void {
+    this.newsletterService.reset();
+    this.newsletterEmail.set('');
+    this.newsletterPrivacyAccepted.set(false);
+  }
+
+  prepareNewsletterRequest(event: SubmitEvent): void {
     const form = event.currentTarget;
-    if (!(form instanceof HTMLFormElement)) {
-      return;
+    if (form instanceof HTMLFormElement) {
+      const emailValue = String(new FormData(form).get('email') || '');
+      if (emailValue) {
+        this.newsletterEmail.set(emailValue);
+      }
+      const privacyCheck = form.querySelector<HTMLInputElement>('input[type="checkbox"]');
+      if (privacyCheck) {
+        this.newsletterPrivacyAccepted.set(privacyCheck.checked);
+      }
     }
-
-    const email = String(new FormData(form).get('email'));
-    const subject = 'Solicitud de alta en el boletín de Cal Sardà';
-    const body = `Por favor, añade esta dirección al boletín: ${email}`;
-
-    window.location.href = `mailto:sarda@calsarda.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    this.submitNewsletter(event);
   }
 }

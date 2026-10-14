@@ -72,4 +72,53 @@ describe('BrandPage', () => {
       expect(component.lastAddedGiftLotSlug).toBe(giftLot.slug);
     }
   });
+
+  describe('newsletter subscription', () => {
+    it('renders newsletter form on boletin page and subscribes with RGPD consent', async () => {
+      await setupTest('newsletter');
+
+      expect(component.page.newsletter).toBe(true);
+
+      const emailInput: HTMLInputElement | null =
+        fixture.nativeElement.querySelector('#newsletter-email');
+      const privacyCheck: HTMLInputElement | null =
+        fixture.nativeElement.querySelector('#newsletter-privacy');
+      const submitBtn: HTMLButtonElement | null =
+        fixture.nativeElement.querySelector('button[type="submit"]');
+
+      expect(emailInput).toBeTruthy();
+      expect(privacyCheck).toBeTruthy();
+      expect(submitBtn).toBeTruthy();
+
+      // Attempt to submit without privacy checkbox
+      component.newsletterEmail.set('gourmet@calsarda.cat');
+      component.newsletterPrivacyAccepted.set(false);
+      await component.submitNewsletter(new SubmitEvent('submit'));
+      fixture.detectChanges();
+
+      expect(component.newsletterService.status()).toBe('error');
+      expect(component.newsletterService.errorMessage()).toContain('política de privacidad');
+
+      const errorMsg = fixture.nativeElement.querySelector('.newsletter-error');
+      expect(errorMsg?.textContent).toContain('política de privacidad');
+
+      // Now accept privacy policy and submit
+      component.newsletterPrivacyAccepted.set(true);
+      await component.submitNewsletter(new SubmitEvent('submit'));
+      fixture.detectChanges();
+
+      expect(component.newsletterService.status()).toBe('success');
+
+      const successCard = fixture.nativeElement.querySelector('.newsletter-success');
+      expect(successCard).toBeTruthy();
+      expect(successCard?.textContent).toContain('¡Suscripción confirmada!');
+
+      // Reset form
+      component.resetNewsletterForm();
+      fixture.detectChanges();
+
+      expect(component.newsletterService.status()).toBe('idle');
+      expect(fixture.nativeElement.querySelector('#newsletter-email')).toBeTruthy();
+    });
+  });
 });

@@ -328,24 +328,72 @@
     }
 
     @if (page.newsletter) {
-      <form class="newsletter-form" (submit)="prepareNewsletterRequest($event)">
-        <label for="newsletter-email">Tu correo electrónico</label>
-        <div class="newsletter-form-row">
-          <input
-            id="newsletter-email"
-            name="email"
-            type="email"
-            autocomplete="email"
-            placeholder="nombre@ejemplo.com"
-            required
-          />
-          <button type="submit">Solicitar el alta <span>→</span></button>
+      @if (newsletterService.status() === 'success') {
+        <div class="newsletter-success" role="alert" aria-live="polite">
+          <div class="newsletter-success-icon" aria-hidden="true">✓</div>
+          <h3>¡Suscripción confirmada!</h3>
+          <p>{{ newsletterService.message() }}</p>
+          <button type="button" class="newsletter-reset-button" (click)="resetNewsletterForm()">
+            Suscribir otra dirección <span>→</span>
+          </button>
         </div>
-        <p>
-          Se abrirá tu programa de correo con la solicitud preparada. No quedarás suscrito hasta que
-          se conecte el servicio de correo.
-        </p>
-      </form>
+      } @else {
+        <form class="newsletter-form" (submit)="prepareNewsletterRequest($event)">
+          <label for="newsletter-email">Tu correo electrónico</label>
+          <div class="newsletter-form-row">
+            <input
+              id="newsletter-email"
+              name="email"
+              type="email"
+              autocomplete="email"
+              placeholder="nombre@ejemplo.com"
+              [value]="newsletterEmail()"
+              (input)="onEmailChange($event)"
+              required
+            />
+            <button
+              type="submit"
+              [disabled]="newsletterService.status() === 'loading'"
+              aria-label="Suscribirme al boletín de Cal Sardà"
+            >
+              @if (newsletterService.status() === 'loading') {
+                Suscribiendo...
+              } @else {
+                Solicitar el alta <span>→</span>
+              }
+            </button>
+          </div>
+
+          <label class="newsletter-privacy-label" for="newsletter-privacy">
+            <input
+              type="checkbox"
+              id="newsletter-privacy"
+              name="privacyPolicy"
+              [checked]="newsletterPrivacyAccepted()"
+              (change)="onPrivacyChange($event)"
+              required
+            />
+            <span>
+              He leído y acepto la
+              <a [routerLink]="['/politica-de-privacidad']" target="_blank" rel="noopener">
+                política de privacidad
+              </a>
+              para recibir novedades gastronómicas y ofertas de Cal Sardà.
+            </span>
+          </label>
+
+          @if (newsletterService.status() === 'error' && newsletterService.errorMessage()) {
+            <div class="newsletter-error" role="alert" aria-live="assertive">
+              {{ newsletterService.errorMessage() }}
+            </div>
+          }
+
+          <p class="newsletter-help-text">
+            Tus datos personales están protegidos conforme al RGPD y la LSSI. Podrás darte de baja
+            en cualquier momento con un solo clic desde cada comunicación.
+          </p>
+        </form>
+      }
     }
 
     @if (page.galleryImages?.length) {
