@@ -21,4 +21,10 @@ describe('Footer', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+
+  it('delegates openCookiePreferences to CookieConsentService', () => {
+    const openSpy = vi.spyOn(component.cookieService, 'openPreferences');
+    component.openCookiePreferences();
+    expect(openSpy).toHaveBeenCalledTimes(1);
+  });
 });

@@ -50,6 +50,14 @@
       <a [routerLink]="['/aviso-legal']">{{ i18n.t('footer.legal') }}</a>
       <a [routerLink]="['/politica-de-privacidad']">{{ i18n.t('footer.privacy') }}</a>
       <a [routerLink]="['/politica-de-cookies']">{{ i18n.t('footer.cookies') }}</a>
+      <button
+        type="button"
+        class="footer-cookie-btn"
+        (click)="openCookiePreferences()"
+        [attr.aria-label]="i18n.t('cookies.settings')"
+      >
+        {{ i18n.t('cookies.settings') }}
+      </button>
       <a [routerLink]="['/condiciones-generales']">{{ i18n.t('footer.terms') }}</a>
       <a [routerLink]="['/mapa-web']">{{ i18n.t('footer.sitemap') }}</a>
       <a href="https://www.instagram.com/sardabcn/" target="_blank" rel="noopener noreferrer"

@@ -47,6 +47,31 @@ export const TRANSLATIONS = {
     'footer.back_to_top': 'VOLVER ARRIBA ↑',
     'footer.location': 'BARCELONA · CATALUÑA',
 
+    // Cookies & Privacy
+    'cookies.banner_title': 'Tu privacidad en Cal Sardà',
+    'cookies.banner_desc':
+      'Utilizamos cookies propias y de terceros necesarias para el funcionamiento de la web, así como analíticas para medir el uso del sitio de forma agregada. Puedes aceptar todas, rechazarlas o configurar tus preferencias.',
+    'cookies.accept_all': 'Aceptar todas',
+    'cookies.reject_non_essential': 'Rechazar no esenciales',
+    'cookies.configure': 'Configurar',
+    'cookies.policy_link': 'Política de cookies',
+    'cookies.settings': 'Configuración de cookies',
+    'cookies.modal_title': 'Configuración de privacidad y cookies',
+    'cookies.modal_desc':
+      'Elige qué tipos de cookies deseas autorizar. Las cookies técnicas son imprescindibles para navegar y gestionar tu cesta de la compra.',
+    'cookies.save_preferences': 'Guardar preferencias',
+    'cookies.close': 'Cerrar',
+    'cookies.cat_essential_title': 'Cookies técnicas (necesarias)',
+    'cookies.cat_essential_desc':
+      'Garantizan el funcionamiento seguro del sitio web, la autenticación y la memoria de los productos en tu cesta.',
+    'cookies.always_active': 'Siempre activas',
+    'cookies.cat_analytics_title': 'Cookies analíticas',
+    'cookies.cat_analytics_desc':
+      'Nos ayudan a entender de forma anónima cómo interactúan los clientes con nuestro catálogo para mejorar la experiencia de compra.',
+    'cookies.cat_marketing_title': 'Cookies de personalización',
+    'cookies.cat_marketing_desc':
+      'Permiten recordar preferencias como idioma o productos recomendados.',
+
     // Store & Categories
     'store.intro_kicker': 'CAL SARDÀ · TIENDA ONLINE',
     'store.intro_title': 'Una selección\npara disfrutar en casa.',
@@ -120,6 +145,31 @@ export const TRANSLATIONS = {
     'footer.sitemap': 'Mapa web',
     'footer.back_to_top': 'TORNAR A DALT ↑',
     'footer.location': 'BARCELONA · CATALUNYA',
+
+    // Cookies & Privacy
+    'cookies.banner_title': 'La teva privacitat a Cal Sardà',
+    'cookies.banner_desc':
+      'Utilitzem cookies pròpies i de tercers necessàries per al funcionament del web, així com analítiques per mesurar l’ús del lloc de manera agregada. Pots acceptar-les totes, rebutjar-les o configurar les teves preferències.',
+    'cookies.accept_all': 'Acceptar totes',
+    'cookies.reject_non_essential': 'Rebutjar no essencials',
+    'cookies.configure': 'Configurar',
+    'cookies.policy_link': 'Política de cookies',
+    'cookies.settings': 'Configuració de cookies',
+    'cookies.modal_title': 'Configuració de privacitat i cookies',
+    'cookies.modal_desc':
+      'Tria quins tipus de cookies vols autoritzar. Les cookies tècniques són imprescindibles per navegar i gestionar la teva cistella de compra.',
+    'cookies.save_preferences': 'Desar preferències',
+    'cookies.close': 'Tancar',
+    'cookies.cat_essential_title': 'Cookies tècniques (necessàries)',
+    'cookies.cat_essential_desc':
+      'Garanteixen el funcionament segur del lloc web, l’autenticació i la memòria dels productes a la teva cistella.',
+    'cookies.always_active': 'Sempre actives',
+    'cookies.cat_analytics_title': 'Cookies analítiques',
+    'cookies.cat_analytics_desc':
+      'Ens ajuden a entendre de forma anònima com interactuen els clients amb el nostre catàleg per millorar l’experiència de compra.',
+    'cookies.cat_marketing_title': 'Cookies de personalització',
+    'cookies.cat_marketing_desc':
+      'Permeten recordar preferències com idioma o productes recomanats.',
 
     // Store & Categories
     'store.intro_kicker': 'CAL SARDÀ · BOTIGA ONLINE',

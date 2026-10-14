@@ -1,5 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { CookieConsentService } from '../../services/cookie-consent';
 import { I18nService } from '../../services/i18n';
 
 @Component({
@@ -10,4 +11,9 @@ import { I18nService } from '../../services/i18n';
 })
 export class Footer {
   public readonly i18n = inject(I18nService);
+  public readonly cookieService = inject(CookieConsentService);
+
+  openCookiePreferences(): void {
+    this.cookieService.openPreferences();
+  }
 }

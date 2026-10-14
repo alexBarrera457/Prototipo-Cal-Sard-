@@ -1,0 +1,169 @@
+@if (cookieService.isBannerVisible()) {
+  <aside
+    class="cookie-banner"
+    role="region"
+    aria-label="Consentimiento de cookies"
+    aria-live="polite"
+  >
+    <div class="cookie-banner-inner">
+      <div class="cookie-banner-content">
+        <div class="cookie-banner-header">
+          <span class="cookie-badge">CAL SARDÀ · PRIVACIDAD</span>
+          <h2 class="cookie-banner-title">{{ i18n.t('cookies.banner_title') }}</h2>
+        </div>
+        <p class="cookie-banner-text">
+          {{ i18n.t('cookies.banner_desc') }}
+          <a [routerLink]="['/politica-de-cookies']" class="cookie-policy-link">
+            {{ i18n.t('cookies.policy_link') }} →
+          </a>
+        </p>
+      </div>
+
+      <div class="cookie-banner-actions">
+        <button
+          type="button"
+          class="cookie-btn cookie-btn-accept"
+          (click)="acceptAll()"
+          [attr.aria-label]="i18n.t('cookies.accept_all')"
+        >
+          {{ i18n.t('cookies.accept_all') }}
+        </button>
+
+        <button
+          type="button"
+          class="cookie-btn cookie-btn-reject"
+          (click)="rejectNonEssential()"
+          [attr.aria-label]="i18n.t('cookies.reject_non_essential')"
+        >
+          {{ i18n.t('cookies.reject_non_essential') }}
+        </button>
+
+        <button
+          type="button"
+          class="cookie-btn cookie-btn-configure"
+          (click)="openPreferences($event.currentTarget ? $any($event.currentTarget) : undefined)"
+          [attr.aria-label]="i18n.t('cookies.configure')"
+        >
+          {{ i18n.t('cookies.configure') }}
+        </button>
+      </div>
+    </div>
+  </aside>
+}
+
+@if (cookieService.showPreferences()) {
+  <div class="cookie-preferences-backdrop" (click)="closePreferences()"></div>
+
+  <div
+    class="cookie-preferences-modal"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="cookie-modal-title"
+  >
+    <div class="cookie-preferences-dialog">
+      <div class="cookie-modal-header">
+        <div>
+          <span class="cookie-badge">CAL SARDÀ · CONFIGURACIÓN</span>
+          <h2 id="cookie-modal-title" class="cookie-modal-title">
+            {{ i18n.t('cookies.modal_title') }}
+          </h2>
+        </div>
+        <button
+          type="button"
+          class="cookie-modal-close"
+          (click)="closePreferences()"
+          [attr.aria-label]="i18n.t('cookies.close')"
+        >
+          ×
+        </button>
+      </div>
+
+      <p class="cookie-modal-desc">
+        {{ i18n.t('cookies.modal_desc') }}
+      </p>
+
+      <div class="cookie-categories">
+        <!-- Esenciales -->
+        <div class="cookie-category">
+          <div class="cookie-category-info">
+            <div class="cookie-category-header">
+              <h3>{{ i18n.t('cookies.cat_essential_title') }}</h3>
+              <span class="cookie-status-badge">{{ i18n.t('cookies.always_active') }}</span>
+            </div>
+            <p>{{ i18n.t('cookies.cat_essential_desc') }}</p>
+          </div>
+          <div class="cookie-toggle-wrap">
+            <input
+              type="checkbox"
+              id="cookie-cat-essential"
+              checked
+              disabled
+              aria-label="Cookies esenciales siempre activas"
+            />
+          </div>
+        </div>
+
+        <!-- Analíticas -->
+        <div class="cookie-category">
+          <div class="cookie-category-info">
+            <div class="cookie-category-header">
+              <label for="cookie-cat-analytics">
+                <h3>{{ i18n.t('cookies.cat_analytics_title') }}</h3>
+              </label>
+            </div>
+            <p>{{ i18n.t('cookies.cat_analytics_desc') }}</p>
+          </div>
+          <div class="cookie-toggle-wrap">
+            <input
+              type="checkbox"
+              id="cookie-cat-analytics"
+              [checked]="analyticsChecked()"
+              (change)="toggleAnalytics($event)"
+              [attr.aria-label]="i18n.t('cookies.cat_analytics_title')"
+            />
+          </div>
+        </div>
+
+        <!-- Marketing / Personalización -->
+        <div class="cookie-category">
+          <div class="cookie-category-info">
+            <div class="cookie-category-header">
+              <label for="cookie-cat-marketing">
+                <h3>{{ i18n.t('cookies.cat_marketing_title') }}</h3>
+              </label>
+            </div>
+            <p>{{ i18n.t('cookies.cat_marketing_desc') }}</p>
+          </div>
+          <div class="cookie-toggle-wrap">
+            <input
+              type="checkbox"
+              id="cookie-cat-marketing"
+              [checked]="marketingChecked()"
+              (change)="toggleMarketing($event)"
+              [attr.aria-label]="i18n.t('cookies.cat_marketing_title')"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div class="cookie-modal-actions">
+        <a [routerLink]="['/politica-de-cookies']" class="cookie-modal-policy-link">
+          {{ i18n.t('cookies.policy_link') }} →
+        </a>
+
+        <div class="cookie-modal-buttons">
+          <button type="button" class="cookie-btn cookie-btn-reject" (click)="rejectNonEssential()">
+            {{ i18n.t('cookies.reject_non_essential') }}
+          </button>
+          <button
+            type="button"
+            class="cookie-btn cookie-btn-save"
+            (click)="saveCustomPreferences()"
+          >
+            {{ i18n.t('cookies.save_preferences') }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+}

@@ -55,14 +55,22 @@
   text-transform: uppercase;
 }
 
-.footer-column a {
+.footer-column a,
+.footer-cookie-btn {
   color: #d4cbc3;
   text-decoration: none;
+  font: inherit;
   font-size: 14px;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  text-align: left;
   transition: 0.3s ease;
 }
 
-.footer-column a:hover {
+.footer-column a:hover,
+.footer-cookie-btn:hover {
   color: #fff;
   transform: translateX(5px);
 }

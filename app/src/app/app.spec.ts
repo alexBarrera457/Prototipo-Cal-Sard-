@@ -66,4 +66,11 @@ describe('App', () => {
     expect(compiled.querySelector('.faq-list details')).toBeTruthy();
     expect(document.title).toBe('Preguntas frecuentes | Cal Sardà');
   });
+
+  it('should render the cookie banner in the root template', () => {
+    const fixture = TestBed.createComponent(App);
+    fixture.detectChanges();
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.querySelector('app-cookie-banner')).toBeTruthy();
+  });
 });
