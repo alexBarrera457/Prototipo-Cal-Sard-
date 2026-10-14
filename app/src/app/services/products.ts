@@ -1,5 +1,7 @@
-import { Injectable } from '@angular/core';
+import { Inject, Injectable, InjectionToken, Optional } from '@angular/core';
 import type { Category, Product } from '@cal-sarda/domain';
+import type { SupabaseClient } from '@supabase/supabase-js';
+import { SUPABASE_CLIENT } from './supabase';
 
 export type StoreCategory = Category;
 export type StoreProduct = Product;
@@ -110,29 +112,170 @@ export function getProductSlug(product: { number: string; name: string; slug?: s
   return product.slug ?? (slugify(product.name) || product.number);
 }
 
+/**
+ * Seam interface para abstracción del repositorio de productos.
+ */
+export interface ProductsRepository {
+  getProducts(): Promise<StoreProduct[]>;
+  getProductByNumber(number: string): Promise<StoreProduct | null>;
+}
+
+export type ProductsStorageAdapter = ProductsRepository;
+
+export const PRODUCTS_REPOSITORY = new InjectionToken<ProductsRepository>('PRODUCTS_REPOSITORY');
+
+/**
+ * Mapea un registro de la tabla 'products' de PostgreSQL al modelo de dominio Product.
+ */
+export function mapDatabaseProductToProduct(row: any): StoreProduct {
+  const images: string[] =
+    Array.isArray(row.images) && row.images.length > 0 ? row.images : row.image ? [row.image] : [];
+
+  return {
+    number: String(row.number),
+    name: String(row.name),
+    category: String(row.category_name ?? ''),
+    description: String(row.description ?? ''),
+    shortDescription: String(row.short_description ?? ''),
+    price: typeof row.price === 'number' ? row.price : parseFloat(row.price || '0'),
+    priceLabel: row.price_label ?? undefined,
+    image: String(row.image ?? ''),
+    images,
+    imageFit: row.image_fit === 'cover' ? 'cover' : 'contain',
+    sourceUrl: row.source_url ?? undefined,
+    slug: getProductSlug({ number: String(row.number), name: String(row.name) }),
+  };
+}
+
+/**
+ * Adaptador de catálogo estático en memoria (modo offline / desarrollo).
+ */
+@Injectable()
+export class StaticProductsAdapter implements ProductsRepository {
+  private static catalogPromise: Promise<StoreProduct[]> | null = null;
+
+  getProducts(): Promise<StoreProduct[]> {
+    StaticProductsAdapter.catalogPromise ??= import('./products-catalog').then(
+      (catalog) => catalog.storeProducts,
+    );
+    return StaticProductsAdapter.catalogPromise;
+  }
+
+  async getProductByNumber(number: string): Promise<StoreProduct | null> {
+    const products = await this.getProducts();
+    return products.find((product) => product.number === number) ?? null;
+  }
+}
+
+/**
+ * Adaptador de catálogo con persistencia PostgreSQL mediante Supabase.
+ */
+@Injectable()
+export class SupabaseProductsAdapter implements ProductsRepository {
+  private cachedProducts: Promise<StoreProduct[]> | null = null;
+  private readonly fallbackAdapter: ProductsRepository;
+
+  constructor(
+    @Optional()
+    @Inject(SUPABASE_CLIENT)
+    private readonly supabase?: SupabaseClient | null,
+    @Optional()
+    @Inject('FALLBACK_PRODUCTS_ADAPTER')
+    fallbackAdapter?: ProductsRepository,
+  ) {
+    this.fallbackAdapter = fallbackAdapter ?? new StaticProductsAdapter();
+  }
+
+  getProducts(): Promise<StoreProduct[]> {
+    if (!this.supabase) {
+      return this.fallbackAdapter.getProducts();
+    }
+
+    if (this.cachedProducts) {
+      return this.cachedProducts;
+    }
+
+    this.cachedProducts = this.loadProductsFromSupabase();
+    return this.cachedProducts;
+  }
+
+  private async loadProductsFromSupabase(): Promise<StoreProduct[]> {
+    try {
+      const { data, error } = await this.supabase!.from('products')
+        .select('*')
+        .eq('is_active', true)
+        .order('number', { ascending: true });
+
+      if (error || !data || data.length === 0) {
+        return this.fallbackAdapter.getProducts();
+      }
+
+      return data.map(mapDatabaseProductToProduct);
+    } catch {
+      return this.fallbackAdapter.getProducts();
+    }
+  }
+
+  async getProductByNumber(number: string): Promise<StoreProduct | null> {
+    if (!this.supabase) {
+      return this.fallbackAdapter.getProductByNumber(number);
+    }
+
+    try {
+      const { data, error } = await this.supabase
+        .from('products')
+        .select('*')
+        .eq('number', number)
+        .eq('is_active', true)
+        .maybeSingle();
+
+      if (error || !data) {
+        return this.fallbackAdapter.getProductByNumber(number);
+      }
+
+      return mapDatabaseProductToProduct(data);
+    } catch {
+      return this.fallbackAdapter.getProductByNumber(number);
+    }
+  }
+}
+
 @Injectable({
   providedIn: 'root',
 })
 export class ProductsService {
   readonly categories: StoreCategory[] = storeCategories;
-  private static catalogPromise: Promise<StoreProduct[]> | null = null;
+  private readonly repository: ProductsRepository;
+
+  constructor(
+    @Optional()
+    @Inject(PRODUCTS_REPOSITORY)
+    repository?: ProductsRepository,
+    @Optional()
+    @Inject(SUPABASE_CLIENT)
+    supabase?: SupabaseClient | null,
+  ) {
+    if (repository) {
+      this.repository = repository;
+    } else if (supabase) {
+      this.repository = new SupabaseProductsAdapter(supabase);
+    } else {
+      this.repository = new StaticProductsAdapter();
+    }
+  }
 
   /**
    * Carga el catálogo completo de productos con caché en memoria.
    */
   getProducts(): Promise<StoreProduct[]> {
-    ProductsService.catalogPromise ??= import('./products-catalog').then(
-      (catalog) => catalog.storeProducts,
-    );
-    return ProductsService.catalogPromise;
+    return this.repository.getProducts();
   }
 
   /**
    * Obtiene un producto por su código/número único.
    */
-  async getProductByNumber(productNumber: string): Promise<StoreProduct | null> {
-    const products = await this.getProducts();
-    return products.find((product) => product.number === productNumber) ?? null;
+  getProductByNumber(productNumber: string): Promise<StoreProduct | null> {
+    return this.repository.getProductByNumber(productNumber);
   }
 
   /**

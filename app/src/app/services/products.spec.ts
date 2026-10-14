@@ -1,5 +1,15 @@
 import { TestBed } from '@angular/core/testing';
-import { ProductsService, StoreProduct } from './products';
+import {
+  mapDatabaseProductToProduct,
+  PRODUCTS_REPOSITORY,
+  ProductsRepository,
+  ProductsService,
+  StaticProductsAdapter,
+  StoreProduct,
+  SupabaseProductsAdapter,
+} from './products';
+import { SUPABASE_CLIENT } from './supabase';
+import type { SupabaseClient } from '@supabase/supabase-js';
 
 describe('ProductsService', () => {
   let service: ProductsService;
@@ -169,6 +179,338 @@ describe('ProductsService', () => {
       expect(empty.pageCount).toBe(1);
       expect(empty.firstItemIndex).toBe(0);
       expect(empty.lastItemIndex).toBe(0);
+    });
+  });
+
+  describe('mapDatabaseProductToProduct', () => {
+    it('maps database record columns to Product domain interface', () => {
+      const dbRow = {
+        number: '10',
+        name: 'Formatge d’Oveja Curat',
+        category_name: 'EMBUTIDOS',
+        description: 'Formatge artesanal madurat 12 mesos',
+        short_description: '250 g',
+        price: '12.50',
+        price_label: '12,50 €',
+        image: '/img/formatge.jpg',
+        images: ['/img/formatge-1.jpg', '/img/formatge-2.jpg'],
+        image_fit: 'cover',
+        source_url: 'https://calsarda.com/formatge',
+        is_active: true,
+      };
+
+      const mapped = mapDatabaseProductToProduct(dbRow);
+
+      expect(mapped.number).toBe('10');
+      expect(mapped.name).toBe('Formatge d’Oveja Curat');
+      expect(mapped.category).toBe('EMBUTIDOS');
+      expect(mapped.price).toBe(12.5);
+      expect(mapped.priceLabel).toBe('12,50 €');
+      expect(mapped.image).toBe('/img/formatge.jpg');
+      expect(mapped.images).toEqual(['/img/formatge-1.jpg', '/img/formatge-2.jpg']);
+      expect(mapped.imageFit).toBe('cover');
+      expect(mapped.sourceUrl).toBe('https://calsarda.com/formatge');
+      expect(mapped.slug).toBeTruthy();
+    });
+
+    it('handles fallbacks for missing optional columns', () => {
+      const minimalRow = {
+        number: '99',
+        name: 'Producte Minimal',
+        image: '/img/minimal.jpg',
+      };
+
+      const mapped = mapDatabaseProductToProduct(minimalRow);
+
+      expect(mapped.number).toBe('99');
+      expect(mapped.price).toBe(0);
+      expect(mapped.images).toEqual(['/img/minimal.jpg']);
+      expect(mapped.imageFit).toBe('contain');
+      expect(mapped.priceLabel).toBeUndefined();
+      expect(mapped.sourceUrl).toBeUndefined();
+    });
+  });
+
+  describe('StaticProductsAdapter', () => {
+    it('retrieves products from static catalog in memory', async () => {
+      const adapter = new StaticProductsAdapter();
+      const products = await adapter.getProducts();
+
+      expect(products.length).toBeGreaterThan(0);
+      expect(products[0].number).toBe('01');
+    });
+
+    it('retrieves single product by number or returns null', async () => {
+      const adapter = new StaticProductsAdapter();
+      const product = await adapter.getProductByNumber('01');
+
+      expect(product).toBeTruthy();
+      expect(product?.number).toBe('01');
+
+      const missing = await adapter.getProductByNumber('non-existent-xyz');
+      expect(missing).toBeNull();
+    });
+  });
+
+  describe('SupabaseProductsAdapter', () => {
+    const mockDbProducts = [
+      {
+        number: '01',
+        name: 'Café Robusta Supabase',
+        category_name: 'CAFÉ GOURMET',
+        description: 'Café de Supabase',
+        short_description: '250 g',
+        price: 5.25,
+        image: '/cafe.jpg',
+        images: ['/cafe.jpg'],
+        image_fit: 'contain',
+        is_active: true,
+      },
+      {
+        number: '02',
+        name: 'Secallona Supabase',
+        category_name: 'EMBUTIDOS',
+        description: 'Secallona de Vic',
+        short_description: '180 g',
+        price: 6.8,
+        image: '/secallona.jpg',
+        images: ['/secallona.jpg'],
+        image_fit: 'contain',
+        is_active: true,
+      },
+    ];
+
+    function createMockSupabase(records: any[] = mockDbProducts) {
+      return {
+        from: (table: string) => ({
+          select: () => {
+            let filtered = [...records];
+            const builder: any = {
+              eq: (field: string, value: any) => {
+                filtered = filtered.filter((r) => r[field] === value);
+                return builder;
+              },
+              order: (field: string, { ascending }: { ascending: boolean }) => {
+                filtered.sort((a: any, b: any) => {
+                  const valA = a[field];
+                  const valB = b[field];
+                  return ascending ? (valA > valB ? 1 : -1) : valA > valB ? -1 : 1;
+                });
+                return builder;
+              },
+              maybeSingle: async () => ({
+                data: filtered[0] ?? null,
+                error: null,
+              }),
+              then: (resolve: any, reject: any) =>
+                Promise.resolve({ data: filtered, error: null }).then(resolve, reject),
+            };
+            return builder;
+          },
+        }),
+      } as unknown as SupabaseClient;
+    }
+
+    it('loads active products from Supabase table', async () => {
+      const mockSupabase = createMockSupabase();
+      const adapter = new SupabaseProductsAdapter(mockSupabase);
+
+      const products = await adapter.getProducts();
+
+      expect(products.length).toBe(2);
+      expect(products[0].name).toBe('Café Robusta Supabase');
+      expect(products[1].name).toBe('Secallona Supabase');
+    });
+
+    it('loads single product by number from Supabase table', async () => {
+      const mockSupabase = createMockSupabase();
+      const adapter = new SupabaseProductsAdapter(mockSupabase);
+
+      const product = await adapter.getProductByNumber('02');
+
+      expect(product).toBeTruthy();
+      expect(product?.name).toBe('Secallona Supabase');
+      expect(product?.category).toBe('EMBUTIDOS');
+    });
+
+    it('falls back to static adapter when Supabase client is null', async () => {
+      const customFallback: ProductsRepository = {
+        getProducts: async () => [
+          {
+            number: 'FB-1',
+            name: 'Fallback Product',
+            category: 'EMBUTIDOS',
+            description: '',
+            shortDescription: '',
+            price: 10,
+            image: '/fb.jpg',
+          },
+        ],
+        getProductByNumber: async (num) =>
+          num === 'FB-1'
+            ? {
+                number: 'FB-1',
+                name: 'Fallback Product',
+                category: 'EMBUTIDOS',
+                description: '',
+                shortDescription: '',
+                price: 10,
+                image: '/fb.jpg',
+              }
+            : null,
+      };
+
+      const adapter = new SupabaseProductsAdapter(null, customFallback);
+      const products = await adapter.getProducts();
+
+      expect(products.length).toBe(1);
+      expect(products[0].number).toBe('FB-1');
+
+      const single = await adapter.getProductByNumber('FB-1');
+      expect(single?.name).toBe('Fallback Product');
+    });
+
+    it('falls back gracefully when Supabase query returns error or empty array', async () => {
+      const failingSupabase = {
+        from: () => ({
+          select: () => ({
+            eq: () => ({
+              order: async () => ({ data: null, error: { message: 'Query error' } }),
+              maybeSingle: async () => ({ data: null, error: { message: 'Query error' } }),
+            }),
+          }),
+        }),
+      } as unknown as SupabaseClient;
+
+      const fallbackAdapter: ProductsRepository = {
+        getProducts: async () => [
+          {
+            number: 'OFFLINE-1',
+            name: 'Offline Catalog Item',
+            category: 'CAFÉ GOURMET',
+            description: '',
+            shortDescription: '',
+            price: 5,
+            image: '/offline.jpg',
+          },
+        ],
+        getProductByNumber: async (num) =>
+          num === 'OFFLINE-1'
+            ? {
+                number: 'OFFLINE-1',
+                name: 'Offline Catalog Item',
+                category: 'CAFÉ GOURMET',
+                description: '',
+                shortDescription: '',
+                price: 5,
+                image: '/offline.jpg',
+              }
+            : null,
+      };
+
+      const adapter = new SupabaseProductsAdapter(failingSupabase, fallbackAdapter);
+      const products = await adapter.getProducts();
+
+      expect(products.length).toBe(1);
+      expect(products[0].number).toBe('OFFLINE-1');
+
+      const single = await adapter.getProductByNumber('OFFLINE-1');
+      expect(single?.number).toBe('OFFLINE-1');
+    });
+  });
+
+  describe('ProductsService DI Seams and Tokens', () => {
+    it('accepts custom repository via PRODUCTS_REPOSITORY token', async () => {
+      const customRepo: ProductsRepository = {
+        getProducts: async () => [
+          {
+            number: 'CUSTOM-1',
+            name: 'Custom Product',
+            category: 'BODEGA GOURMET',
+            description: '',
+            shortDescription: '',
+            price: 25,
+            image: '/custom.jpg',
+          },
+        ],
+        getProductByNumber: async (num) =>
+          num === 'CUSTOM-1'
+            ? {
+                number: 'CUSTOM-1',
+                name: 'Custom Product',
+                category: 'BODEGA GOURMET',
+                description: '',
+                shortDescription: '',
+                price: 25,
+                image: '/custom.jpg',
+              }
+            : null,
+      };
+
+      TestBed.resetTestingModule();
+      TestBed.configureTestingModule({
+        providers: [ProductsService, { provide: PRODUCTS_REPOSITORY, useValue: customRepo }],
+      });
+
+      const customService = TestBed.inject(ProductsService);
+      const products = await customService.getProducts();
+
+      expect(products.length).toBe(1);
+      expect(products[0].number).toBe('CUSTOM-1');
+
+      const product = await customService.getProductByNumber('CUSTOM-1');
+      expect(product?.name).toBe('Custom Product');
+    });
+
+    it('automatically uses SupabaseProductsAdapter when SUPABASE_CLIENT is provided', async () => {
+      const mockSupabase = {
+        from: () => ({
+          select: () => {
+            const builder: any = {
+              eq: () => builder,
+              order: () => builder,
+              maybeSingle: async () => ({
+                data: {
+                  number: 'SB-01',
+                  name: 'Supabase Injected Product',
+                  category_name: 'BODEGA GOURMET',
+                  price: 30,
+                  image: '/sb.jpg',
+                  is_active: true,
+                },
+                error: null,
+              }),
+              then: (resolve: any, reject: any) =>
+                Promise.resolve({
+                  data: [
+                    {
+                      number: 'SB-01',
+                      name: 'Supabase Injected Product',
+                      category_name: 'BODEGA GOURMET',
+                      price: 30,
+                      image: '/sb.jpg',
+                      is_active: true,
+                    },
+                  ],
+                  error: null,
+                }).then(resolve, reject),
+            };
+            return builder;
+          },
+        }),
+      } as unknown as SupabaseClient;
+
+      TestBed.resetTestingModule();
+      TestBed.configureTestingModule({
+        providers: [ProductsService, { provide: SUPABASE_CLIENT, useValue: mockSupabase }],
+      });
+
+      const supabaseService = TestBed.inject(ProductsService);
+      const products = await supabaseService.getProducts();
+
+      expect(products.length).toBe(1);
+      expect(products[0].number).toBe('SB-01');
+      expect(products[0].name).toBe('Supabase Injected Product');
     });
   });
 });
