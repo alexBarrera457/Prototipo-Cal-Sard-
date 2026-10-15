@@ -1,19 +1,39 @@
-import { Component, inject } from '@angular/core';
+import { Component, effect, inject, OnInit, signal } from '@angular/core';
+import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule, NgForm } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth';
 import { I18nService } from '../../services/i18n';
+import { OrdersService, type Order, type OrderStatus } from '../../services/orders';
+import { CartService } from '../../services/cart';
+import { InvoicingService } from '../../services/invoicing';
+
+export type AccountTab = 'perfil' | 'direcciones' | 'pedidos';
 
 @Component({
   selector: 'app-account-page',
-  imports: [FormsModule, RouterLink],
+  standalone: true,
+  imports: [CommonModule, FormsModule, RouterLink, DatePipe],
   templateUrl: './account-page.html',
   styleUrl: './account-page.css',
 })
-export class AccountPage {
+export class AccountPage implements OnInit {
   public readonly auth = inject(AuthService);
   public readonly i18n = inject(I18nService);
+  public readonly ordersService = inject(OrdersService);
+  public readonly cartService = inject(CartService);
+  public readonly invoicingService = inject(InvoicingService);
 
+  // Pestaña activa en el área privada
+  readonly activeTab = signal<AccountTab>('pedidos');
+
+  // Pedidos del cliente autenticado
+  readonly customerOrders = signal<Order[]>([]);
+  readonly loadingOrders = signal<boolean>(false);
+  readonly expandedOrderRef = signal<string | null>(null);
+  readonly toastMessage = signal<string | null>(null);
+
+  // Formulario de inicio de sesión
   email = '';
   password = '';
   showPassword = false;
@@ -21,6 +41,103 @@ export class AccountPage {
   recoveryNotice = false;
   recoverySuccess = false;
   errorMessage = '';
+
+  constructor() {
+    // Al cambiar el usuario autenticado, recargar sus pedidos
+    effect(() => {
+      const user = this.auth.currentUser();
+      if (user?.email) {
+        void this.loadCustomerOrders(user.email);
+      } else {
+        this.customerOrders.set([]);
+      }
+    });
+  }
+
+  async ngOnInit(): Promise<void> {
+    const user = this.auth.currentUser();
+    if (user?.email) {
+      await this.loadCustomerOrders(user.email);
+    }
+  }
+
+  async loadCustomerOrders(email: string): Promise<void> {
+    this.loadingOrders.set(true);
+    try {
+      const orders = await this.ordersService.getOrdersByCustomerEmail(email);
+      this.customerOrders.set(orders);
+    } finally {
+      this.loadingOrders.set(false);
+    }
+  }
+
+  setTab(tab: AccountTab): void {
+    this.activeTab.set(tab);
+  }
+
+  toggleOrderDetails(ref?: string): void {
+    if (!ref) return;
+    this.expandedOrderRef.update((curr) => (curr === ref ? null : ref));
+  }
+
+  /**
+   * Repite un encargo anterior cargando todos sus productos en la cesta actual.
+   */
+  reorder(order: Order): void {
+    if (!order.items || order.items.length === 0) return;
+
+    for (const item of order.items) {
+      this.cartService.addToCart(
+        item.name,
+        item.price,
+        item.quantity,
+        item.productNumber,
+        item.image,
+      );
+    }
+
+    this.showToast(this.i18n.t('account.reorder_success'));
+  }
+
+  /**
+   * Genera y abre el diálogo de impresión/descarga de factura simplificada en PDF.
+   */
+  downloadInvoice(order: Order): void {
+    const invoice = this.invoicingService.generateInvoice(order);
+    this.invoicingService.printInvoice(invoice);
+  }
+
+  getOrderStep(status?: OrderStatus): number {
+    if (!status) return 1;
+    switch (status) {
+      case 'recibido':
+      case 'pending':
+      case 'confirmed':
+        return 1;
+      case 'en_preparacion':
+        return 2;
+      case 'listo_recogida':
+      case 'enviado':
+        return 3;
+      case 'entregado':
+        return 4;
+      case 'cancelado':
+      default:
+        return 0;
+    }
+  }
+
+  showToast(text: string): void {
+    this.toastMessage.set(text);
+    setTimeout(() => {
+      this.toastMessage.set(null);
+    }, 3500);
+  }
+
+  formatCurrency(value?: number): string {
+    if (value === undefined || value === null) return '0,00 €';
+    return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(value);
+  }
 
   async signIn(form: NgForm): Promise<void> {
     if (form.invalid) {

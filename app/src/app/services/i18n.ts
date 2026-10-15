@@ -341,6 +341,25 @@ export const TRANSLATIONS = {
       'Te hemos enviado un enlace para confirmar tu cuenta o restablecer tu contraseña.',
     'account.login_loading': 'Iniciando sesión...',
     'account.register_loading': 'Creando cuenta...',
+    'account.tab_profile': 'Mi Perfil',
+    'account.tab_addresses': 'Direcciones',
+    'account.tab_orders': 'Mis Pedidos',
+    'account.orders_title': 'Historial de Encargos y Pedidos',
+    'account.orders_subtitle':
+      'Consulta el estado en tiempo real de tus pedidos en curso y repite compras anteriores.',
+    'account.orders_empty_title': 'Todavía no has realizado ningún encargo',
+    'account.orders_empty_desc':
+      'Cuando realices un pedido en nuestra tienda web aparecerá aquí con su estado y factura.',
+    'account.reorder_button': 'Repetir pedido',
+    'account.reorder_success': 'Productos añadidos a la cesta con éxito',
+    'account.invoice_button': 'Descargar Factura',
+    'account.timeline_step_received': 'Recibido',
+    'account.timeline_step_in_prep': 'En preparación',
+    'account.timeline_step_ready': 'Listo / En reparto',
+    'account.timeline_step_delivered': 'Entregado',
+    'account.address_default_shipping': 'Dirección habitual de entrega a domicilio',
+    'account.address_default_pickup': 'Punto oficial de recogida en tienda',
+    'account.address_pickup_details': 'Carrer de la Marina, 237, 08013 Barcelona (Sagrada Família)',
 
     // Admin Backoffice
     'admin.title': 'Panel de Administración',
@@ -789,6 +808,25 @@ export const TRANSLATIONS = {
       'T’hem enviat un enllaç per confirmar el teu compte o restablir la teva contrasenya.',
     'account.login_loading': 'Iniciant sessió...',
     'account.register_loading': 'Creant compte...',
+    'account.tab_profile': 'El meu Perfil',
+    'account.tab_addresses': 'Adreces',
+    'account.tab_orders': 'Les meves Comandes',
+    'account.orders_title': 'Historial d’Encàrrecs i Comandes',
+    'account.orders_subtitle':
+      'Consulta l’estat en temps real de les teves comandes en curs i repeteix compres anteriors.',
+    'account.orders_empty_title': 'Encara no has fet cap encàrrec',
+    'account.orders_empty_desc':
+      'Quan facis una comanda a la nostra botiga web apareixerà aquí amb el seu estat i factura.',
+    'account.reorder_button': 'Repetir comanda',
+    'account.reorder_success': 'Productes afegits a la cistella amb èxit',
+    'account.invoice_button': 'Descarregar Factura',
+    'account.timeline_step_received': 'Rebut',
+    'account.timeline_step_in_prep': 'En preparació',
+    'account.timeline_step_ready': 'A punt / En repartiment',
+    'account.timeline_step_delivered': 'Lliurat',
+    'account.address_default_shipping': 'Adreça habitual d’entrega a domicili',
+    'account.address_default_pickup': 'Punt oficial de recollida a botiga',
+    'account.address_pickup_details': 'Carrer de la Marina, 237, 08013 Barcelona (Sagrada Família)',
 
     // Admin Backoffice
     'admin.title': 'Panell d’Administració',

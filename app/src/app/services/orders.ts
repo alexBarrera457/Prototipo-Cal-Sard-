@@ -87,6 +87,27 @@ export const DEFAULT_INITIAL_ORDERS: Order[] = [
     createdAt: new Date(Date.now() - 45 * 60 * 1000).toISOString(),
   },
   {
+    id: 'b6f2f310-7214-4c42-b062-817366304106',
+    reference: 'CS-2026-1035',
+    customer: {
+      name: 'Jaume Sardà',
+      email: 'cliente@calsarda.com',
+      phone: '633 999 888',
+    },
+    items: [
+      { name: 'Cafè de Finca Torrat Artesanal 250g', price: 8.5, quantity: 2 },
+      { name: 'Carquinyolis Artesans d’Ametlla 250g', price: 7.5, quantity: 1 },
+    ],
+    subtotal: 24.5,
+    shippingCost: 0,
+    total: 24.5,
+    fulfillment: 'pickup',
+    status: 'entregado',
+    estimatedDate: 'Entregado en tienda Carrer de Marina, 237',
+    paymentMethod: 'Pago en tienda',
+    createdAt: new Date(Date.now() - 48 * 3600 * 1000).toISOString(),
+  },
+  {
     id: 'b6f2f310-7214-4c42-b062-817366304103',
     reference: 'CS-2026-1040',
     customer: {
@@ -554,6 +575,22 @@ export class OrdersService {
       }
     }
     return updated;
+  }
+
+  /**
+   * Obtiene los encargos de un cliente filtrando por email y ordenados por fecha descendente.
+   */
+  async getOrdersByCustomerEmail(email: string): Promise<Order[]> {
+    if (!email) return [];
+    const all = await this.getAllOrders();
+    const cleanEmail = email.trim().toLowerCase();
+    return all
+      .filter((o) => o.customer?.email?.trim().toLowerCase() === cleanEmail)
+      .sort((a, b) => {
+        const da = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+        const db = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+        return db - da;
+      });
   }
 
   /**

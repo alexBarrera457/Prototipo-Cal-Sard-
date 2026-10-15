@@ -1,5 +1,13 @@
 <main class="account-page" aria-labelledby="account-title">
-  <div class="account-layout">
+  <!-- Toast de aviso -->
+  @if (toastMessage(); as msg) {
+    <div class="account-toast" role="status" aria-live="polite">
+      <span>✓</span>
+      <span>{{ msg }}</span>
+    </div>
+  }
+
+  <div class="account-layout" [class.wide-layout]="auth.currentUser()">
     <section class="account-copy">
       <span class="eyebrow">{{ i18n.t('account.kicker') }}</span>
       <h1 id="account-title">
@@ -13,8 +21,8 @@
         @if (auth.currentUser(); as user) {
           {{
             i18n.currentLang() === 'ca'
-              ? 'Benvingut/da a la teva àrea de Cal Sardà. Des d’aquí pots revisar les teves dades personals i accedir als serveis de la botiga.'
-              : 'Bienvenido/a a tu área de Cal Sardà. Desde aquí puedes consultar tus datos de cliente y acceder a los servicios de la tienda.'
+              ? 'Benvingut/da a la teva àrea de Cal Sardà. Revisa l’estat en viu dels teus encàrrecs i repeteix les teves compres fàcilment.'
+              : 'Bienvenido/a a tu área de Cal Sardà. Consulta el estado en vivo de tus pedidos y repite tus compras fácilmente.'
           }}
         } @else {
           {{ i18n.t('account.welcome_desc') }}
@@ -40,6 +48,7 @@
     <section class="login-card" aria-label="Área de usuario o formulario de inicio de sesión">
       @if (auth.currentUser(); as user) {
         <div class="user-dashboard" role="region" aria-labelledby="user-dashboard-title">
+          <!-- Cabecera de usuario -->
           <div class="user-header">
             <div class="user-avatar" aria-hidden="true">
               {{ user.name.charAt(0).toUpperCase() }}
@@ -55,29 +64,23 @@
               <h2 id="user-dashboard-title">{{ user.name }}</h2>
               <p class="user-email">{{ user.email }}</p>
             </div>
-          </div>
 
-          <div class="dashboard-details">
-            <div class="detail-item">
-              <span class="detail-label">{{ i18n.t('account.phone_mobile') }}</span>
-              <span class="detail-value">{{ user.phone || i18n.t('account.no_phone') }}</span>
-            </div>
-            <div class="detail-item">
-              <span class="detail-label">{{ i18n.t('account.address') }}</span>
-              <span class="detail-value">
-                {{
-                  user.address
-                    ? user.address + ', ' + (user.postalCode || '') + ' ' + (user.city || '')
-                    : i18n.t('account.no_address')
-                }}
-              </span>
+            <div class="user-header-actions">
+              <button
+                type="button"
+                class="sign-out-button"
+                (click)="returnToLogin()"
+                [disabled]="auth.loading()"
+              >
+                🚪 {{ i18n.t('account.sign_out') }}
+              </button>
             </div>
           </div>
 
           @if (auth.isAdmin()) {
             <div class="admin-cta-card">
               <div class="admin-cta-copy">
-                <h3>{{ i18n.t('account.admin_badge') }} · Cal Sardà</h3>
+                <h4>{{ i18n.t('account.admin_badge') }} · Cal Sardà</h4>
                 <p>
                   {{
                     i18n.currentLang() === 'ca'
@@ -92,18 +95,324 @@
             </div>
           }
 
-          <div class="dashboard-footer">
+          <!-- Pestañas de navegación del área privada -->
+          <nav class="account-tabs" aria-label="Pestañas de la cuenta">
             <button
               type="button"
-              class="sign-out-button"
-              (click)="returnToLogin()"
-              [disabled]="auth.loading()"
+              class="account-tab-btn"
+              [class.active]="activeTab() === 'pedidos'"
+              (click)="setTab('pedidos')"
+              [attr.aria-selected]="activeTab() === 'pedidos'"
+              role="tab"
             >
-              {{ i18n.t('account.sign_out') }}
+              <span>📦</span>
+              <span>{{ i18n.t('account.tab_orders') }}</span>
+              <span class="tab-badge">{{ customerOrders().length }}</span>
             </button>
-          </div>
+
+            <button
+              type="button"
+              class="account-tab-btn"
+              [class.active]="activeTab() === 'perfil'"
+              (click)="setTab('perfil')"
+              [attr.aria-selected]="activeTab() === 'perfil'"
+              role="tab"
+            >
+              <span>👤</span>
+              <span>{{ i18n.t('account.tab_profile') }}</span>
+            </button>
+
+            <button
+              type="button"
+              class="account-tab-btn"
+              [class.active]="activeTab() === 'direcciones'"
+              (click)="setTab('direcciones')"
+              [attr.aria-selected]="activeTab() === 'direcciones'"
+              role="tab"
+            >
+              <span>📍</span>
+              <span>{{ i18n.t('account.tab_addresses') }}</span>
+            </button>
+          </nav>
+
+          <!-- Pestaña 1: Mis Pedidos -->
+          @if (activeTab() === 'pedidos') {
+            <div class="tab-content tab-orders" role="tabpanel">
+              <div class="orders-section-header">
+                <div>
+                  <h3>{{ i18n.t('account.orders_title') }}</h3>
+                  <p>{{ i18n.t('account.orders_subtitle') }}</p>
+                </div>
+              </div>
+
+              @if (loadingOrders()) {
+                <div class="orders-loading">
+                  <span class="spinner" aria-hidden="true"></span>
+                  <p>Cargando tus pedidos...</p>
+                </div>
+              } @else if (customerOrders().length === 0) {
+                <div class="orders-empty-state">
+                  <span class="empty-icon" aria-hidden="true">🛍️</span>
+                  <h4>{{ i18n.t('account.orders_empty_title') }}</h4>
+                  <p>{{ i18n.t('account.orders_empty_desc') }}</p>
+                  <a [routerLink]="['/tienda-online']" class="btn-shop-cta">
+                    Visitar la tienda online →
+                  </a>
+                </div>
+              } @else {
+                <div class="customer-orders-list">
+                  @for (order of customerOrders(); track order.reference || order.id) {
+                    <article
+                      class="customer-order-card"
+                      [class.cancelled]="order.status === 'cancelado'"
+                    >
+                      <!-- Cabecera del pedido -->
+                      <header class="order-card-header">
+                        <div class="order-id-group">
+                          <span class="order-ref-label">REFERENCIA</span>
+                          <strong class="order-ref">{{ order.reference }}</strong>
+                          @if (order.createdAt) {
+                            <time class="order-date"
+                              >{{ order.createdAt | date: 'dd/MM/yyyy · HH:mm' }}h</time
+                            >
+                          }
+                        </div>
+
+                        <div class="order-status-group">
+                          <span
+                            class="fulfillment-chip"
+                            [class.chip-delivery]="order.fulfillment === 'delivery'"
+                          >
+                            {{ order.fulfillment === 'delivery' ? '🚚 Domicilio' : '🏪 Recogida' }}
+                          </span>
+                          <span class="status-badge status-{{ order.status }}">
+                            {{ order.status }}
+                          </span>
+                        </div>
+                      </header>
+
+                      <!-- Línea de tiempo visual del pedido -->
+                      @if (order.status !== 'cancelado') {
+                        <div class="order-timeline" aria-label="Progreso del encargo">
+                          <div
+                            class="timeline-step"
+                            [class.step-active]="getOrderStep(order.status) >= 1"
+                          >
+                            <div class="step-dot">1</div>
+                            <span class="step-label">{{
+                              i18n.t('account.timeline_step_received')
+                            }}</span>
+                          </div>
+                          <div
+                            class="timeline-line"
+                            [class.line-active]="getOrderStep(order.status) >= 2"
+                          ></div>
+
+                          <div
+                            class="timeline-step"
+                            [class.step-active]="getOrderStep(order.status) >= 2"
+                          >
+                            <div class="step-dot">2</div>
+                            <span class="step-label">{{
+                              i18n.t('account.timeline_step_in_prep')
+                            }}</span>
+                          </div>
+                          <div
+                            class="timeline-line"
+                            [class.line-active]="getOrderStep(order.status) >= 3"
+                          ></div>
+
+                          <div
+                            class="timeline-step"
+                            [class.step-active]="getOrderStep(order.status) >= 3"
+                          >
+                            <div class="step-dot">3</div>
+                            <span class="step-label">{{
+                              i18n.t('account.timeline_step_ready')
+                            }}</span>
+                          </div>
+                          <div
+                            class="timeline-line"
+                            [class.line-active]="getOrderStep(order.status) >= 4"
+                          ></div>
+
+                          <div
+                            class="timeline-step"
+                            [class.step-active]="getOrderStep(order.status) >= 4"
+                          >
+                            <div class="step-dot">4</div>
+                            <span class="step-label">{{
+                              i18n.t('account.timeline_step_delivered')
+                            }}</span>
+                          </div>
+                        </div>
+                      }
+
+                      <!-- Desglose de productos (expandible) -->
+                      <div class="order-items-preview">
+                        <div class="items-summary-bar">
+                          <span class="items-count-text">
+                            <strong>{{ order.items.length }}</strong> productos incluidos
+                          </span>
+
+                          <button
+                            type="button"
+                            class="btn-toggle-items"
+                            (click)="toggleOrderDetails(order.reference)"
+                            [attr.aria-expanded]="expandedOrderRef() === order.reference"
+                          >
+                            {{
+                              expandedOrderRef() === order.reference
+                                ? 'Ocultar detalle ▲'
+                                : 'Ver productos ▼'
+                            }}
+                          </button>
+                        </div>
+
+                        @if (expandedOrderRef() === order.reference) {
+                          <div class="items-expanded-table">
+                            <table>
+                              <thead>
+                                <tr>
+                                  <th>Producto</th>
+                                  <th style="text-align: center">Cant.</th>
+                                  <th style="text-align: right">Total</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                @for (it of order.items; track it.name) {
+                                  <tr>
+                                    <td>{{ it.name }}</td>
+                                    <td style="text-align: center">{{ it.quantity }}</td>
+                                    <td style="text-align: right; font-weight: 600">
+                                      {{ formatCurrency(it.price * it.quantity) }}
+                                    </td>
+                                  </tr>
+                                }
+                              </tbody>
+                            </table>
+                            @if (order.notes) {
+                              <div class="order-notes-box">
+                                <strong>Notas:</strong> <em>«{{ order.notes }}»</em>
+                              </div>
+                            }
+                          </div>
+                        }
+                      </div>
+
+                      <!-- Pie de tarjeta: Total y Acciones (Repetir + Factura) -->
+                      <footer class="order-card-footer">
+                        <div class="order-total-block">
+                          <span class="total-label">Total del encargo:</span>
+                          <strong class="order-total-val">{{ formatCurrency(order.total) }}</strong>
+                        </div>
+
+                        <div class="order-actions">
+                          <button
+                            type="button"
+                            class="btn-order-action btn-reorder"
+                            (click)="reorder(order)"
+                            title="Añadir los productos de este pedido a la cesta"
+                          >
+                            <span>🔄</span>
+                            <span>{{ i18n.t('account.reorder_button') }}</span>
+                          </button>
+
+                          <button
+                            type="button"
+                            class="btn-order-action btn-invoice"
+                            (click)="downloadInvoice(order)"
+                            title="Descargar factura simplificada en PDF"
+                          >
+                            <span>🧾</span>
+                            <span>{{ i18n.t('account.invoice_button') }}</span>
+                          </button>
+                        </div>
+                      </footer>
+                    </article>
+                  }
+                </div>
+              }
+            </div>
+          }
+
+          <!-- Pestaña 2: Mi Perfil -->
+          @if (activeTab() === 'perfil') {
+            <div class="tab-content tab-profile" role="tabpanel">
+              <div class="profile-card">
+                <h3>Datos Personales</h3>
+                <div class="dashboard-details">
+                  <div class="detail-item">
+                    <span class="detail-label">Nombre y apellidos</span>
+                    <strong class="detail-value">{{ user.name }}</strong>
+                  </div>
+                  <div class="detail-item">
+                    <span class="detail-label">{{ i18n.t('account.email_label') }}</span>
+                    <strong class="detail-value">{{ user.email }}</strong>
+                  </div>
+                  <div class="detail-item">
+                    <span class="detail-label">{{ i18n.t('account.phone_mobile') }}</span>
+                    <span class="detail-value">{{ user.phone || i18n.t('account.no_phone') }}</span>
+                  </div>
+                  <div class="detail-item">
+                    <span class="detail-label">Rol en la plataforma</span>
+                    <span class="detail-value">{{
+                      user.role === 'admin' ? 'Administrador del Obrador' : 'Cliente Particular'
+                    }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          }
+
+          <!-- Pestaña 3: Direcciones -->
+          @if (activeTab() === 'direcciones') {
+            <div class="tab-content tab-addresses" role="tabpanel">
+              <div class="addresses-grid">
+                <!-- Dirección de entrega -->
+                <div class="address-card">
+                  <div class="address-header">
+                    <span class="address-icon">🚚</span>
+                    <h4>{{ i18n.t('account.address_default_shipping') }}</h4>
+                  </div>
+                  <div class="address-body">
+                    @if (user.address) {
+                      <p class="address-line">
+                        <strong>{{ user.name }}</strong>
+                      </p>
+                      <p class="address-line">{{ user.address }}</p>
+                      <p class="address-line">
+                        {{ user.postalCode }} {{ user.city }} ({{ user.province || 'Barcelona' }})
+                      </p>
+                      <p class="address-line">España</p>
+                    } @else {
+                      <p class="address-line text-muted">{{ i18n.t('account.no_address') }}</p>
+                      <p class="address-hint">
+                        Puedes añadirla en el momento de tramitar tu próximo pedido.
+                      </p>
+                    }
+                  </div>
+                </div>
+
+                <!-- Punto de recogida oficial -->
+                <div class="address-card card-store">
+                  <div class="address-header">
+                    <span class="address-icon">🏪</span>
+                    <h4>{{ i18n.t('account.address_default_pickup') }}</h4>
+                  </div>
+                  <div class="address-body">
+                    <p class="address-line"><strong>Cal Sardà Obrador</strong></p>
+                    <p class="address-line">{{ i18n.t('account.address_pickup_details') }}</p>
+                    <p class="address-line">Metro L2 / L5 Sagrada Família</p>
+                    <p class="address-hours">Lunes a Sábado: 09:00 - 14:00 y 17:00 - 20:30</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          }
         </div>
       } @else {
+        <!-- Formulario de inicio de sesión -->
         <div class="form-heading">
           <span>{{ i18n.t('account.area_label') }}</span>
           <h2>{{ i18n.t('account.login_title') }}</h2>
