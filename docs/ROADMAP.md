@@ -72,13 +72,51 @@ Documento de referencia para el plan de trabajo, backlog de issues en GitHub y e
 - [Issue #34](https://github.com/alexBarrera457/Prototipo-Cal-Sard-/issues/34): `feat(notifications): envío de correos transaccionales de confirmación al cliente y a la tienda`
 - [Issue #35](https://github.com/alexBarrera457/Prototipo-Cal-Sard-/issues/35): `feat(legal): banner de consentimiento de cookies conforme a RGPD y LSSI`
 - [Issue #36](https://github.com/alexBarrera457/Prototipo-Cal-Sard-/issues/36): `feat(orders): vista de confirmación de encargo con código de referencia y detalles de recogida/entrega`
+- [Issue #37](https://github.com/alexBarrera457/Prototipo-Cal-Sard-/issues/37): `fix(layout): corregir solapamiento del header fijo en páginas interiores y navegación interna`
+- [Issue #38](https://github.com/alexBarrera457/Prototipo-Cal-Sard-/issues/38): `fix(i18n): completar cobertura de traducciones y corregir selector bilingüe en toda la web`
 
 ---
 
-## 🛠️ Plan de Ejecución por Bloques (Fase A)
+## 💼 Backlog de la Fase B (E-Commerce 100% Autónomo con Cobro Online y Backoffice)
+
+### 🔐 7. Autenticación y Control de Acceso (RBAC)
+
+- [Issue #39](https://github.com/alexBarrera457/Prototipo-Cal-Sard-/issues/39): `feat(auth): integrar autenticación real con Supabase Auth y control de roles (admin / cliente)`
+
+### 🛠️ 8. Panel de Administración y Backoffice (/admin)
+
+- [Issue #40](https://github.com/alexBarrera457/Prototipo-Cal-Sard-/issues/40): `feat(admin): crear módulo y layout de Backoffice (/admin) con protección de ruta (AdminGuard)`
+- [Issue #41](https://github.com/alexBarrera457/Prototipo-Cal-Sard-/issues/41): `feat(admin-orders): panel de gestión de pedidos en tiempo real con cambios de estado y filtros`
+- [Issue #42](https://github.com/alexBarrera457/Prototipo-Cal-Sard-/issues/42): `feat(admin-catalog): gestión de catálogo y stock desde el panel de administración`
+
+### 🧾 9. Facturación Legal, Área Privada y Cobro Online
+
+- [Issue #43](https://github.com/alexBarrera457/Prototipo-Cal-Sard-/issues/43): `feat(invoicing): generación y descarga de tickets/facturas simplificadas en PDF con desglose de IVA`
+- [Issue #44](https://github.com/alexBarrera457/Prototipo-Cal-Sard-/issues/44): `feat(customer-area): área privada de cliente con historial y seguimiento de pedidos ("Mis Pedidos")`
+- [Issue #45](https://github.com/alexBarrera457/Prototipo-Cal-Sard-/issues/45): `feat(payments): pasarela de pago online con tarjeta bancaria y Bizum (Stripe / Redsys)`
+
+### 📢 10. Notificaciones Avanzadas, QA Integral y Despliegue a Producción
+
+- [Issue #46](https://github.com/alexBarrera457/Prototipo-Cal-Sard-/issues/46): `feat(notifications-webhooks): envío de alertas automáticas por cambio de estado de pedido (Email & SMS/WhatsApp)`
+- [Issue #47](https://github.com/alexBarrera457/Prototipo-Cal-Sard-/issues/47): `test(admin-e2e): suite de pruebas E2E con Playwright para backoffice y ciclo de vida de pedidos`
+- [Issue #48](https://github.com/alexBarrera457/Prototipo-Cal-Sard-/issues/48): `chore(deploy): configuración de despliegue a producción, Dockerfile optimizado para SSR y variables de entorno`
+
+---
+
+## 🛠️ Plan de Ejecución por Bloques
+
+### Fase A (Completada al 100% — Issues #1 a #38 cerradas)
 
 1. **Bloque 1 — Estabilidad inmediata y cero warnings**: #32 (Prettier), #10 (Lazy loading), #12 (Fix bucle cesta), #13 (SSR timer).
 2. **Bloque 2 — Reactividad y Dominio**: #11 (Signals Store), #15 (Debounce), #20 (Dominio & Cesta), #21 (CartItem enriquecido).
 3. **Bloque 3 — Persistencia**: #16 (Seed SQL), #17 (RLS Supabase), #18 (ProductsRepository), #19 (Guardar pedidos).
-4. **Bloque 4 — Flujo de Encargo**: #23 (Validaciones checkout), #36 (Confirmación CS-XXXX), #34 (Emails transaccionales), #35 (Cookies), #24 (Catalán).
-5. **Bloque 5 — QA & SEO**: #29 (CI Actions), #30 (Tests páginas), #31 (Playwright E2E), #25 (SEO & Schema).
+4. **Bloque 4 — Flujo de Encargo**: #23 (Validaciones checkout), #36 (Confirmación CS-XXXX), #34 (Emails transaccionales), #35 (Cookies), #24/#38 (Catalán e i18n integral).
+5. **Bloque 5 — QA & Layout**: #29 (CI Actions), #30 (Tests páginas), #31 (Playwright E2E), #25 (SEO & Schema), #37 (Fix header overlap).
+
+### Fase B (En curso — Issues #39 a #48)
+
+6. **Bloque 6 — Autenticación y Cimientos del Backoffice**: #39 (Supabase Auth y Roles), #40 (Layout `/admin` y `AdminGuard`).
+7. **Bloque 7 — Operaciones de Tienda**: #41 (Gestión de Pedidos en Tiempo Real), #42 (Gestión de Stock y Catálogo).
+8. **Bloque 8 — Fiscalidad y Fidelización**: #43 (Tickets/Facturas PDF con IVA), #44 (Área Privada «Mis Pedidos»).
+9. **Bloque 9 — Cobro Online y Alertas**: #45 (Pasarela de Pago Online Tarjeta/Bizum), #46 (Alertas por cambio de estado).
+10. **Bloque 10 — QA Final y Entrega a Producción**: #47 (Suite E2E Playwright Backoffice), #48 (Dockerfile SSR y Guía de Despliegue).
