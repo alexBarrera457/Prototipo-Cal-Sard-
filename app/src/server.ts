@@ -13,16 +13,18 @@ const app = express();
 const angularApp = new AngularNodeAppEngine();
 
 /**
- * Example Express Rest API endpoints can be defined here.
- * Uncomment and define endpoints as necessary.
- *
- * Example:
- * ```ts
- * app.get('/api/{*splat}', (req, res) => {
- *   // Handle API request
- * });
- * ```
+ * Health check endpoint for uptime monitors, Docker healthcheck, and load balancers.
  */
+app.get(['/health', '/api/health'], (_req, res) => {
+  res.status(200).json({
+    status: 'healthy',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    app: 'Cal Sardà 1930 - Obrador Artesà',
+    version: '2.0.0',
+    environment: process.env['NODE_ENV'] || 'development',
+  });
+});
 
 /**
  * Serve static files from /browser
