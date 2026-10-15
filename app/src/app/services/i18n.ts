@@ -473,6 +473,61 @@ export const TRANSLATIONS = {
     'admin.save_success': 'Producto actualizado con éxito',
     'admin.save_error': 'Error al actualizar el producto',
 
+    // Admin Invoicing
+    'admin.invoicing_title': 'Facturación y Series Fiscales',
+    'admin.invoicing_subtitle':
+      'Control de facturas simplificadas emitidas, desglose de IVA por tramo según el RD 1619/2012 y exportación del libro fiscal.',
+    'admin.invoicing_kpi_total_billed': 'Total Facturado',
+    'admin.invoicing_kpi_tax_base': 'Base Imponible Total',
+    'admin.invoicing_kpi_vat_quota': 'Cuota IVA Total',
+    'admin.invoicing_kpi_invoice_count': 'Facturas Emitidas',
+    'admin.invoicing_export_csv': 'Exportar Libro Fiscal (CSV)',
+    'admin.invoicing_search_placeholder': 'Buscar por nº factura (FS-XXXX), pedido o cliente...',
+    'admin.invoicing_filter_period_all': 'Todos los periodos',
+    'admin.invoicing_filter_period_today': 'Hoy',
+    'admin.invoicing_filter_period_week': 'Esta semana',
+    'admin.invoicing_filter_period_month': 'Este mes',
+    'admin.invoicing_filter_vat_all': 'Todos los tipos de IVA',
+    'admin.invoicing_filter_vat_4': 'Contiene IVA 4% (Superreducido)',
+    'admin.invoicing_filter_vat_10': 'Contiene IVA 10% (Reducido)',
+    'admin.invoicing_filter_vat_21': 'Contiene IVA 21% (General)',
+    'admin.invoicing_th_number': 'Nº Factura',
+    'admin.invoicing_th_order': 'Pedido Ref.',
+    'admin.invoicing_th_date': 'Fecha Emisión',
+    'admin.invoicing_th_customer': 'Cliente',
+    'admin.invoicing_th_base': 'Base Imp.',
+    'admin.invoicing_th_vat': 'Cuota IVA',
+    'admin.invoicing_th_total': 'Total Factura',
+    'admin.invoicing_th_actions': 'Acciones',
+    'admin.invoicing_btn_view': 'Ver / Desglose',
+    'admin.invoicing_btn_print': 'Imprimir Factura',
+    'admin.invoicing_empty': 'No se encontraron facturas con los filtros seleccionados.',
+    'admin.invoicing_modal_title': 'Detalle de Factura Simplificada',
+    'admin.invoicing_modal_official_notice':
+      'Documento tributario válido según el Real Decreto 1619/2012 por el que se regulan las obligaciones de facturación.',
+    'admin.invoicing_modal_close': 'Cerrar',
+
+    // Admin Settings
+    'admin.settings_title': 'Ajustes del Obrador y Tienda',
+    'admin.settings_subtitle':
+      'Configuración de datos fiscales, horarios comerciales de obrador, costes de logística y avisos automáticos.',
+    'admin.settings_card_fiscal_title': 'Datos Fiscales y de Contacto',
+    'admin.settings_card_fiscal_desc':
+      'Información societaria que figurará en los tickets, facturas y comunicaciones oficiales.',
+    'admin.settings_card_hours_title': 'Horarios y Tiempos de Elaboración',
+    'admin.settings_card_hours_desc':
+      'Franjas de atención presencial en mostrador (C/ Marina 237) y tiempo de antelación para pedidos.',
+    'admin.settings_card_logistics_title': 'Tarifas y Condiciones de Transporte',
+    'admin.settings_card_logistics_desc':
+      'Gastos de transporte refrigerado según destino y umbral para entrega gratuita.',
+    'admin.settings_card_notifications_title': 'Canales de Notificación y Alertas',
+    'admin.settings_card_notifications_desc':
+      'Configuración de envíos automáticos de correos y avisos operativos para el equipo del obrador.',
+    'admin.settings_btn_save': 'Guardar Cambios',
+    'admin.settings_btn_reset': 'Restablecer Valores Predeterminados',
+    'admin.settings_saved_toast': 'Ajustes guardados correctamente en el sistema.',
+    'admin.settings_reset_toast': 'Se han restablecido los ajustes predeterminados.',
+
     // Categories
     'cat.CAFE_GOURMET': 'Café gourmet',
     'cat.CONSERVAS_DE_MAR': 'Conservas de mar',
@@ -953,6 +1008,61 @@ export const TRANSLATIONS = {
     'admin.empty_catalog': 'No s’han trobat productes amb els filtres aplicats.',
     'admin.save_success': 'Producte actualitzat amb èxit',
     'admin.save_error': 'Error en actualitzar el producte',
+
+    // Admin Invoicing
+    'admin.invoicing_title': 'Facturació i Sèries Fiscals',
+    'admin.invoicing_subtitle':
+      'Control de factures simplificades emeses, desglossament d’IVA per tram segons el RD 1619/2012 i exportació del llibre fiscal.',
+    'admin.invoicing_kpi_total_billed': 'Total Facturat',
+    'admin.invoicing_kpi_tax_base': 'Base Imposable Total',
+    'admin.invoicing_kpi_vat_quota': 'Quota IVA Total',
+    'admin.invoicing_kpi_invoice_count': 'Factures Emeses',
+    'admin.invoicing_export_csv': 'Exportar Llibre Fiscal (CSV)',
+    'admin.invoicing_search_placeholder': 'Cercar per nº factura (FS-XXXX), comanda o client...',
+    'admin.invoicing_filter_period_all': 'Tots els períodes',
+    'admin.invoicing_filter_period_today': 'Avui',
+    'admin.invoicing_filter_period_week': 'Aquesta setmana',
+    'admin.invoicing_filter_period_month': 'Aquest mes',
+    'admin.invoicing_filter_vat_all': 'Tots els tipus d’IVA',
+    'admin.invoicing_filter_vat_4': 'Conté IVA 4% (Superreduït)',
+    'admin.invoicing_filter_vat_10': 'Conté IVA 10% (Reduït)',
+    'admin.invoicing_filter_vat_21': 'Conté IVA 21% (General)',
+    'admin.invoicing_th_number': 'Nº Factura',
+    'admin.invoicing_th_order': 'Comanda Ref.',
+    'admin.invoicing_th_date': 'Data Emissió',
+    'admin.invoicing_th_customer': 'Client',
+    'admin.invoicing_th_base': 'Base Imp.',
+    'admin.invoicing_th_vat': 'Quota IVA',
+    'admin.invoicing_th_total': 'Total Factura',
+    'admin.invoicing_th_actions': 'Accions',
+    'admin.invoicing_btn_view': 'Veure / Desglossament',
+    'admin.invoicing_btn_print': 'Imprimir Factura',
+    'admin.invoicing_empty': 'No s’han trobat factures amb els filtres seleccionats.',
+    'admin.invoicing_modal_title': 'Detall de Factura Simplificada',
+    'admin.invoicing_modal_official_notice':
+      'Document tributari vàlid segons el Reial Decret 1619/2012 pel qual es regulen les obligacions de facturació.',
+    'admin.invoicing_modal_close': 'Tancar',
+
+    // Admin Settings
+    'admin.settings_title': 'Ajustos de l’Obrador i Botiga',
+    'admin.settings_subtitle':
+      'Configuració de dades fiscals, horaris comercials d’obrador, costos de logística i avisos automàtics.',
+    'admin.settings_card_fiscal_title': 'Dades Fiscals i de Contacte',
+    'admin.settings_card_fiscal_desc':
+      'Informació societària que figurarà als tiquets, factures i comunicacions oficials.',
+    'admin.settings_card_hours_title': 'Horaris i Temps d’Elaboració',
+    'admin.settings_card_hours_desc':
+      'Franges d’atenció presencial al taulell (C/ Marina 237) i temps d’antelació per a encàrrecs.',
+    'admin.settings_card_logistics_title': 'Tarifes i Condicions de Transport',
+    'admin.settings_card_logistics_desc':
+      'Despeses de transport refrigerat segons destinació i llindar per a lliurament gratuït.',
+    'admin.settings_card_notifications_title': 'Canals de Notificació i Alertes',
+    'admin.settings_card_notifications_desc':
+      'Configuració d’enviaments automàtics de correus i avisos operatius per a l’equip de l’obrador.',
+    'admin.settings_btn_save': 'Desar Canvis',
+    'admin.settings_btn_reset': 'Restablir Valors Predeterminats',
+    'admin.settings_saved_toast': 'Ajustos desats correctament al sistema.',
+    'admin.settings_reset_toast': 'S’han restablert els ajustos predeterminats.',
 
     // Categories
     'cat.CAFE_GOURMET': 'Cafè gourmet',

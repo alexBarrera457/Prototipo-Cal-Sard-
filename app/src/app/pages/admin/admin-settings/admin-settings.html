@@ -1,0 +1,342 @@
+<section class="admin-settings-page" aria-labelledby="settings-title">
+  <!-- Cabecera de Ajustes -->
+  <header class="settings-header">
+    <div>
+      <span class="settings-kicker">{{ i18n.t('admin.obrador_badge') }}</span>
+      <h1 id="settings-title" class="settings-title">{{ i18n.t('admin.settings_title') }}</h1>
+      <p class="settings-subtitle">{{ i18n.t('admin.settings_subtitle') }}</p>
+    </div>
+
+    <div class="settings-header-actions">
+      <button
+        type="button"
+        class="btn-reset"
+        (click)="resetDefaults()"
+        [title]="i18n.t('admin.settings_btn_reset')"
+      >
+        <span>🔄</span>
+        <span>{{ i18n.t('admin.settings_btn_reset') }}</span>
+      </button>
+
+      <button
+        type="button"
+        class="btn-save-main"
+        (click)="saveSettings()"
+        [disabled]="isSaving()"
+        [title]="i18n.t('admin.settings_btn_save')"
+      >
+        <span>💾</span>
+        <span>{{ isSaving() ? 'Guardando...' : i18n.t('admin.settings_btn_save') }}</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Notificación Toast Reactiva -->
+  @if (storeSettingsService.toastMessage(); as toast) {
+    <div class="settings-toast" role="alert" aria-live="polite">
+      <span class="toast-icon">✓</span>
+      <span class="toast-text">{{ toast }}</span>
+    </div>
+  }
+
+  <form (ngSubmit)="saveSettings()" class="settings-cards-grid">
+    <!-- Tarjeta 1: Datos Fiscales y de Contacto -->
+    <div class="settings-card">
+      <div class="card-header">
+        <span class="card-icon" aria-hidden="true">🏪</span>
+        <div>
+          <h2 class="card-title">{{ i18n.t('admin.settings_card_fiscal_title') }}</h2>
+          <p class="card-desc">{{ i18n.t('admin.settings_card_fiscal_desc') }}</p>
+        </div>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-field">
+          <label for="legalName">Razón Social Legal</label>
+          <input
+            id="legalName"
+            name="legalName"
+            type="text"
+            [(ngModel)]="formData.fiscal.legalName"
+            required
+          />
+        </div>
+
+        <div class="form-field">
+          <label for="tradeName">Nombre Comercial</label>
+          <input
+            id="tradeName"
+            name="tradeName"
+            type="text"
+            [(ngModel)]="formData.fiscal.tradeName"
+            required
+          />
+        </div>
+
+        <div class="form-field">
+          <label for="cif">NIF / CIF</label>
+          <input id="cif" name="cif" type="text" [(ngModel)]="formData.fiscal.cif" required />
+        </div>
+
+        <div class="form-field">
+          <label for="phone">Teléfono de Atención</label>
+          <input id="phone" name="phone" type="tel" [(ngModel)]="formData.fiscal.phone" required />
+        </div>
+
+        <div class="form-field full-width">
+          <label for="email">Correo Electrónico Oficial</label>
+          <input
+            id="email"
+            name="email"
+            type="email"
+            [(ngModel)]="formData.fiscal.email"
+            required
+          />
+        </div>
+
+        <div class="form-field full-width">
+          <label for="address">Dirección Física (Tienda & Obrador)</label>
+          <input
+            id="address"
+            name="address"
+            type="text"
+            [(ngModel)]="formData.fiscal.address"
+            required
+          />
+        </div>
+
+        <div class="form-field">
+          <label for="postalCode">Código Postal</label>
+          <input
+            id="postalCode"
+            name="postalCode"
+            type="text"
+            [(ngModel)]="formData.fiscal.postalCode"
+            required
+          />
+        </div>
+
+        <div class="form-field">
+          <label for="city">Ciudad / Población</label>
+          <input id="city" name="city" type="text" [(ngModel)]="formData.fiscal.city" required />
+        </div>
+      </div>
+    </div>
+
+    <!-- Tarjeta 2: Horarios y Tiempos de Elaboración -->
+    <div class="settings-card">
+      <div class="card-header">
+        <span class="card-icon" aria-hidden="true">⏰</span>
+        <div>
+          <h2 class="card-title">{{ i18n.t('admin.settings_card_hours_title') }}</h2>
+          <p class="card-desc">{{ i18n.t('admin.settings_card_hours_desc') }}</p>
+        </div>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-field">
+          <label for="morningHours">Horario Mañanas (Mostrador)</label>
+          <input
+            id="morningHours"
+            name="morningHours"
+            type="text"
+            [(ngModel)]="formData.hours.morningHours"
+            placeholder="09:00 - 14:00"
+            required
+          />
+        </div>
+
+        <div class="form-field">
+          <label for="afternoonHours">Horario Tardes (Mostrador)</label>
+          <input
+            id="afternoonHours"
+            name="afternoonHours"
+            type="text"
+            [(ngModel)]="formData.hours.afternoonHours"
+            placeholder="17:00 - 20:30"
+            required
+          />
+        </div>
+
+        <div class="form-field">
+          <label for="workingDays">Días de Apertura Semanal</label>
+          <input
+            id="workingDays"
+            name="workingDays"
+            type="text"
+            [(ngModel)]="formData.hours.workingDays"
+            placeholder="Lunes a Sábado"
+            required
+          />
+        </div>
+
+        <div class="form-field">
+          <label for="prepTimeHours">Tiempo Mínimo de Preparación (Horas)</label>
+          <input
+            id="prepTimeHours"
+            name="prepTimeHours"
+            type="number"
+            min="1"
+            max="168"
+            [(ngModel)]="formData.hours.prepTimeHours"
+            required
+          />
+        </div>
+      </div>
+    </div>
+
+    <!-- Tarjeta 3: Tarifas y Condiciones de Transporte -->
+    <div class="settings-card">
+      <div class="card-header">
+        <span class="card-icon" aria-hidden="true">🚚</span>
+        <div>
+          <h2 class="card-title">{{ i18n.t('admin.settings_card_logistics_title') }}</h2>
+          <p class="card-desc">{{ i18n.t('admin.settings_card_logistics_desc') }}</p>
+        </div>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-field">
+          <label for="shippingCostBcn">Envío Urgente Barcelona Ciudad (€)</label>
+          <input
+            id="shippingCostBcn"
+            name="shippingCostBcn"
+            type="number"
+            step="0.01"
+            min="0"
+            [(ngModel)]="formData.logistics.shippingCostBcn"
+            required
+          />
+        </div>
+
+        <div class="form-field">
+          <label for="shippingCostCatalonia">Envío Cataluña Resto (€)</label>
+          <input
+            id="shippingCostCatalonia"
+            name="shippingCostCatalonia"
+            type="number"
+            step="0.01"
+            min="0"
+            [(ngModel)]="formData.logistics.shippingCostCatalonia"
+            required
+          />
+        </div>
+
+        <div class="form-field">
+          <label for="shippingCostPeninsula">Envío Península Ibérica (€)</label>
+          <input
+            id="shippingCostPeninsula"
+            name="shippingCostPeninsula"
+            type="number"
+            step="0.01"
+            min="0"
+            [(ngModel)]="formData.logistics.shippingCostPeninsula"
+            required
+          />
+        </div>
+
+        <div class="form-field">
+          <label for="freeShippingThreshold">Umbral para Envío Gratuito (€)</label>
+          <input
+            id="freeShippingThreshold"
+            name="freeShippingThreshold"
+            type="number"
+            step="1"
+            min="0"
+            [(ngModel)]="formData.logistics.freeShippingThreshold"
+            required
+          />
+        </div>
+      </div>
+    </div>
+
+    <!-- Tarjeta 4: Canales de Notificación y Alertas -->
+    <div class="settings-card">
+      <div class="card-header">
+        <span class="card-icon" aria-hidden="true">🔔</span>
+        <div>
+          <h2 class="card-title">{{ i18n.t('admin.settings_card_notifications_title') }}</h2>
+          <p class="card-desc">{{ i18n.t('admin.settings_card_notifications_desc') }}</p>
+        </div>
+      </div>
+
+      <div class="toggles-list">
+        <label class="toggle-row">
+          <div class="toggle-content">
+            <span class="toggle-label">Avisos automáticos de estado por email</span>
+            <span class="toggle-desc">
+              Notifica al cliente por correo en cada avance de su pedido (En preparación, Listo para
+              recogida, Entregado).
+            </span>
+          </div>
+          <input
+            type="checkbox"
+            name="emailStatusUpdates"
+            [(ngModel)]="formData.notifications.emailStatusUpdates"
+            class="toggle-input"
+          />
+        </label>
+
+        <label class="toggle-row">
+          <div class="toggle-content">
+            <span class="toggle-label">Alerta sonora y visual en obrador por nuevo pedido</span>
+            <span class="toggle-desc">
+              Genera una notificación de aviso en el panel cuando entra un encargo desde la tienda
+              web.
+            </span>
+          </div>
+          <input
+            type="checkbox"
+            name="internalNewOrderAlert"
+            [(ngModel)]="formData.notifications.internalNewOrderAlert"
+            class="toggle-input"
+          />
+        </label>
+
+        <label class="toggle-row">
+          <div class="toggle-content">
+            <span class="toggle-label">Habilitar recordatorios de abono Bizum</span>
+            <span class="toggle-desc">
+              Incluye las instrucciones de número de teléfono de obrador en los pedidos con
+              modalidad Bizum.
+            </span>
+          </div>
+          <input
+            type="checkbox"
+            name="enableBizumAlert"
+            [(ngModel)]="formData.notifications.enableBizumAlert"
+            class="toggle-input"
+          />
+        </label>
+
+        <label class="toggle-row">
+          <div class="toggle-content">
+            <span class="toggle-label">Copia oculta (BCC) a gerencia en pedidos de empresas</span>
+            <span class="toggle-desc">
+              Envía una copia de los encargos de lotes corporativos a la dirección de
+              administración.
+            </span>
+          </div>
+          <input
+            type="checkbox"
+            name="bccManager"
+            [(ngModel)]="formData.notifications.bccManager"
+            class="toggle-input"
+          />
+        </label>
+      </div>
+    </div>
+
+    <!-- Barra de Guardado Inferior -->
+    <div class="settings-bottom-bar">
+      <p class="bottom-bar-hint">
+        * Todos los cambios se aplicarán inmediatamente en la facturación y el checkout de la tienda
+        web.
+      </p>
+      <button type="button" class="btn-save-main" (click)="saveSettings()" [disabled]="isSaving()">
+        <span>💾</span>
+        <span>{{ isSaving() ? 'Guardando...' : i18n.t('admin.settings_btn_save') }}</span>
+      </button>
+    </div>
+  </form>
+</section>

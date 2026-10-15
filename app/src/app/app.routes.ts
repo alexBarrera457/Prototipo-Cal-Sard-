@@ -77,6 +77,18 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./pages/admin/admin-catalog/admin-catalog').then((m) => m.AdminCatalog),
       },
+      {
+        path: 'facturacion',
+        title: 'Facturación y Series Fiscales | Cal Sardà',
+        loadComponent: () =>
+          import('./pages/admin/admin-invoicing/admin-invoicing').then((m) => m.AdminInvoicing),
+      },
+      {
+        path: 'ajustes',
+        title: 'Ajustes del Obrador y Tienda | Cal Sardà',
+        loadComponent: () =>
+          import('./pages/admin/admin-settings/admin-settings').then((m) => m.AdminSettings),
+      },
     ],
   },
   {
