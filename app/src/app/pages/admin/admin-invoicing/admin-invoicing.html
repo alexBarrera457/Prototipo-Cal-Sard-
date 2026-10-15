@@ -1,0 +1,428 @@
+<section class="admin-invoicing-page" aria-labelledby="invoicing-title">
+  <!-- Cabecera de Facturación y Series Fiscales -->
+  <header class="invoicing-header">
+    <div>
+      <span class="invoicing-kicker">{{ i18n.t('admin.obrador_badge') }}</span>
+      <h1 id="invoicing-title" class="invoicing-title">{{ i18n.t('admin.invoicing_title') }}</h1>
+      <p class="invoicing-subtitle">{{ i18n.t('admin.invoicing_subtitle') }}</p>
+    </div>
+
+    <div class="invoicing-header-actions">
+      <button
+        type="button"
+        class="btn-export-csv"
+        (click)="exportFiscalBookCsv()"
+        [title]="i18n.t('admin.invoicing_export_csv')"
+      >
+        <span class="export-icon" aria-hidden="true">📥</span>
+        <span>{{ i18n.t('admin.invoicing_export_csv') }}</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Métricas KPI Principales -->
+  <div class="kpi-grid">
+    <div class="kpi-card highlight">
+      <div class="kpi-header">
+        <span class="kpi-label">{{ i18n.t('admin.invoicing_kpi_total_billed') }}</span>
+        <span class="kpi-icon" aria-hidden="true">💶</span>
+      </div>
+      <div class="kpi-value">{{ formatCurrency(fiscalAggregates().totalBilled) }}</div>
+      <div class="kpi-footer">
+        <span class="kpi-sub">{{ fiscalAggregates().invoiceCount }} facturas emitidas</span>
+      </div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-header">
+        <span class="kpi-label">{{ i18n.t('admin.invoicing_kpi_tax_base') }}</span>
+        <span class="kpi-icon" aria-hidden="true">📊</span>
+      </div>
+      <div class="kpi-value">{{ formatCurrency(fiscalAggregates().totalBase) }}</div>
+      <div class="kpi-footer">
+        <span class="kpi-sub">Total sin impuestos</span>
+      </div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-header">
+        <span class="kpi-label">{{ i18n.t('admin.invoicing_kpi_vat_quota') }}</span>
+        <span class="kpi-icon" aria-hidden="true">🧾</span>
+      </div>
+      <div class="kpi-value warning">{{ formatCurrency(fiscalAggregates().totalVat) }}</div>
+      <div class="kpi-footer">
+        <span class="kpi-sub">Cuota tributaria repercutida</span>
+      </div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-header">
+        <span class="kpi-label">{{ i18n.t('admin.invoicing_kpi_invoice_count') }}</span>
+        <span class="kpi-icon" aria-hidden="true">📑</span>
+      </div>
+      <div class="kpi-value success">{{ fiscalAggregates().invoiceCount }}</div>
+      <div class="kpi-footer">
+        <span class="kpi-sub">Serie oficial FS-2026</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Desglose Fiscal por Tipo Impositivo (RD 1619/2012) -->
+  <div class="vat-breakdown-row">
+    <div class="vat-card">
+      <div class="vat-badge vat-4">IVA 4% Superreducido</div>
+      <div class="vat-desc">Pan artesanal de obrador y básicos</div>
+      <div class="vat-figures">
+        <div>
+          <span class="vat-fig-label">Base:</span>
+          <strong>{{ formatCurrency(fiscalAggregates().base4) }}</strong>
+        </div>
+        <div>
+          <span class="vat-fig-label">Cuota:</span>
+          <span class="vat-amount">{{ formatCurrency(fiscalAggregates().vat4) }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="vat-card">
+      <div class="vat-badge vat-10">IVA 10% Reducido</div>
+      <div class="vat-desc">Alimentación gourmet, café, embutidos</div>
+      <div class="vat-figures">
+        <div>
+          <span class="vat-fig-label">Base:</span>
+          <strong>{{ formatCurrency(fiscalAggregates().base10) }}</strong>
+        </div>
+        <div>
+          <span class="vat-fig-label">Cuota:</span>
+          <span class="vat-amount">{{ formatCurrency(fiscalAggregates().vat10) }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="vat-card">
+      <div class="vat-badge vat-21">IVA 21% General</div>
+      <div class="vat-desc">Bodega de vinos, cavas y portes de envío</div>
+      <div class="vat-figures">
+        <div>
+          <span class="vat-fig-label">Base:</span>
+          <strong>{{ formatCurrency(fiscalAggregates().base21) }}</strong>
+        </div>
+        <div>
+          <span class="vat-fig-label">Cuota:</span>
+          <span class="vat-amount">{{ formatCurrency(fiscalAggregates().vat21) }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Barra de Filtros y Búsqueda -->
+  <div class="invoicing-toolbar">
+    <div class="search-box">
+      <span class="search-icon" aria-hidden="true">🔍</span>
+      <input
+        type="search"
+        class="search-input"
+        [(ngModel)]="searchQueryModel"
+        (input)="onSearchChange()"
+        [placeholder]="i18n.t('admin.invoicing_search_placeholder')"
+        aria-label="Buscar en facturas"
+      />
+      @if (searchQueryModel) {
+        <button
+          type="button"
+          class="clear-search-btn"
+          (click)="clearSearch()"
+          aria-label="Limpiar búsqueda"
+        >
+          ✕
+        </button>
+      }
+    </div>
+
+    <!-- Filtro por periodo -->
+    <div class="filter-group">
+      <div class="period-pills" role="radiogroup" aria-label="Filtro temporal">
+        <button
+          type="button"
+          class="period-pill"
+          [class.active]="periodFilter() === 'todos'"
+          (click)="setPeriodFilter('todos')"
+        >
+          {{ i18n.t('admin.invoicing_filter_period_all') }}
+        </button>
+        <button
+          type="button"
+          class="period-pill"
+          [class.active]="periodFilter() === 'hoy'"
+          (click)="setPeriodFilter('hoy')"
+        >
+          {{ i18n.t('admin.invoicing_filter_period_today') }}
+        </button>
+        <button
+          type="button"
+          class="period-pill"
+          [class.active]="periodFilter() === 'semana'"
+          (click)="setPeriodFilter('semana')"
+        >
+          {{ i18n.t('admin.invoicing_filter_period_week') }}
+        </button>
+        <button
+          type="button"
+          class="period-pill"
+          [class.active]="periodFilter() === 'mes'"
+          (click)="setPeriodFilter('mes')"
+        >
+          {{ i18n.t('admin.invoicing_filter_period_month') }}
+        </button>
+      </div>
+
+      <!-- Filtro por tipo impositivo -->
+      <select
+        class="vat-select"
+        [value]="vatFilter()"
+        (change)="setVatFilter($any($event.target).value)"
+        aria-label="Filtrar por tipo impositivo"
+      >
+        <option value="todos">{{ i18n.t('admin.invoicing_filter_vat_all') }}</option>
+        <option value="4">{{ i18n.t('admin.invoicing_filter_vat_4') }}</option>
+        <option value="10">{{ i18n.t('admin.invoicing_filter_vat_10') }}</option>
+        <option value="21">{{ i18n.t('admin.invoicing_filter_vat_21') }}</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Tabla Oficial de Facturas Simplificadas -->
+  <div class="table-container">
+    <table class="invoicing-table" aria-label="Listado de facturas emitidas">
+      <thead>
+        <tr>
+          <th>{{ i18n.t('admin.invoicing_th_number') }}</th>
+          <th>{{ i18n.t('admin.invoicing_th_order') }}</th>
+          <th>{{ i18n.t('admin.invoicing_th_date') }}</th>
+          <th>{{ i18n.t('admin.invoicing_th_customer') }}</th>
+          <th class="cell-number">{{ i18n.t('admin.invoicing_th_base') }}</th>
+          <th class="cell-number">{{ i18n.t('admin.invoicing_th_vat') }}</th>
+          <th class="cell-number">{{ i18n.t('admin.invoicing_th_total') }}</th>
+          <th class="cell-center">{{ i18n.t('admin.invoicing_th_actions') }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (inv of filteredInvoices(); track inv.invoiceNumber) {
+          <tr class="invoice-row">
+            <td>
+              <strong class="invoice-number">{{ inv.invoiceNumber }}</strong>
+            </td>
+            <td>
+              <span class="order-ref-pill">{{ inv.orderReference }}</span>
+            </td>
+            <td>
+              <span class="date-text">{{ inv.issuedAt | date: 'dd/MM/yyyy HH:mm' }}</span>
+            </td>
+            <td>
+              <div class="customer-cell">
+                <span class="customer-name">{{ inv.customer.name }}</span>
+                @if (inv.customer.email) {
+                  <span class="customer-sub">{{ inv.customer.email }}</span>
+                }
+              </div>
+            </td>
+            <td class="cell-number">
+              <span>{{ formatCurrency(inv.subtotalBase) }}</span>
+            </td>
+            <td class="cell-number">
+              <span class="vat-badge-mini">{{ formatCurrency(inv.totalVat) }}</span>
+            </td>
+            <td class="cell-number">
+              <strong class="invoice-total">{{ formatCurrency(inv.total) }}</strong>
+            </td>
+            <td class="cell-center">
+              <div class="row-actions">
+                <button
+                  type="button"
+                  class="btn-row-action view-btn"
+                  (click)="openPreview(inv)"
+                  [title]="i18n.t('admin.invoicing_btn_view')"
+                >
+                  <span>👁️</span>
+                  <span class="btn-text">{{ i18n.t('admin.invoicing_btn_view') }}</span>
+                </button>
+                <button
+                  type="button"
+                  class="btn-row-action print-btn"
+                  (click)="printInvoice(inv)"
+                  [title]="i18n.t('admin.invoicing_btn_print')"
+                >
+                  <span>🖨️</span>
+                </button>
+              </div>
+            </td>
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="8" class="empty-cell">
+              <div class="empty-state">
+                <span class="empty-icon" aria-hidden="true">🧾</span>
+                <p>{{ i18n.t('admin.invoicing_empty') }}</p>
+              </div>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Diálogo / Modal de Vista Previa de Factura -->
+  @if (selectedInvoice(); as inv) {
+    <div
+      class="modal-backdrop"
+      (click)="closePreview()"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="modal-invoice-title"
+    >
+      <div class="modal-dialog" (click)="$event.stopPropagation()">
+        <header class="modal-header">
+          <div>
+            <span class="modal-kicker">CAL SARDÀ · SERIE FISCAL RD 1619/2012</span>
+            <h2 id="modal-invoice-title" class="modal-title">
+              {{ inv.invoiceNumber }}
+            </h2>
+            <span class="modal-subtitle">
+              Pedido asociado: <strong>{{ inv.orderReference }}</strong> ·
+              {{ inv.issuedAt | date: 'dd/MM/yyyy HH:mm' }}
+            </span>
+          </div>
+          <button
+            type="button"
+            class="modal-close-btn"
+            (click)="closePreview()"
+            aria-label="Cerrar vista previa"
+          >
+            ✕
+          </button>
+        </header>
+
+        <div class="modal-body">
+          <div class="parties-grid">
+            <div class="party-card">
+              <span class="party-label">Emisor / Vendedor</span>
+              <strong>{{ inv.company.legalName }}</strong>
+              <span>CIF: {{ inv.company.cif }}</span>
+              <span>{{ inv.company.address }}</span>
+              <span>{{ inv.company.postalCode }} {{ inv.company.city }}</span>
+              <span>Tel: {{ inv.company.phone }}</span>
+            </div>
+
+            <div class="party-card">
+              <span class="party-label">Cliente / Receptor</span>
+              <strong>{{ inv.customer.name }}</strong>
+              @if (inv.customer.email) {
+                <span>Email: {{ inv.customer.email }}</span>
+              }
+              @if (inv.customer.phone) {
+                <span>Tel: {{ inv.customer.phone }}</span>
+              }
+              @if (inv.customer.address) {
+                <span>{{ inv.customer.address }}</span>
+              }
+              <span class="fulfillment-indicator">
+                Modalidad:
+                {{ inv.fulfillment === 'delivery' ? 'Entrega a domicilio' : 'Recogida en tienda' }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Líneas de Artículos -->
+          <div class="modal-section-title">Conceptos Facturados</div>
+          <table class="modal-table">
+            <thead>
+              <tr>
+                <th>Concepto</th>
+                <th class="cell-center">Cant.</th>
+                <th class="cell-number">Precio Ud.</th>
+                <th class="cell-center">IVA</th>
+                <th class="cell-number">Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (item of inv.items; track item.name) {
+                <tr>
+                  <td>{{ item.name }}</td>
+                  <td class="cell-center">{{ item.quantity }}</td>
+                  <td class="cell-number">{{ formatCurrency(item.unitPrice) }}</td>
+                  <td class="cell-center">
+                    <span class="vat-pill-small">{{ item.vatRate }}%</span>
+                  </td>
+                  <td class="cell-number">
+                    <strong>{{ formatCurrency(item.total) }}</strong>
+                  </td>
+                </tr>
+              }
+              @if (inv.shippingTotal > 0) {
+                <tr>
+                  <td>Gastos de envío refrigerado a domicilio</td>
+                  <td class="cell-center">1</td>
+                  <td class="cell-number">{{ formatCurrency(inv.shippingTotal) }}</td>
+                  <td class="cell-center">
+                    <span class="vat-pill-small">21%</span>
+                  </td>
+                  <td class="cell-number">
+                    <strong>{{ formatCurrency(inv.shippingTotal) }}</strong>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+
+          <!-- Desglose de Bases y Cuotas de IVA -->
+          <div class="modal-section-title">Desglose Fiscal de Impuestos</div>
+          <table class="modal-table tax-breakdown-table">
+            <thead>
+              <tr>
+                <th>Tipo Impositivo</th>
+                <th class="cell-number">Base Imponible</th>
+                <th class="cell-number">Cuota IVA</th>
+                <th class="cell-number">Total con IVA</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (tax of inv.taxBreakdown; track tax.vatRate) {
+                <tr>
+                  <td>
+                    <strong>IVA {{ tax.vatRate }}%</strong>
+                  </td>
+                  <td class="cell-number">{{ formatCurrency(tax.baseAmount) }}</td>
+                  <td class="cell-number">{{ formatCurrency(tax.vatAmount) }}</td>
+                  <td class="cell-number">
+                    <strong>{{ formatCurrency(tax.total) }}</strong>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+
+          <!-- Total Consolidado -->
+          <div class="modal-totals-footer">
+            <div class="modal-legal-note">
+              {{ i18n.t('admin.invoicing_modal_official_notice') }}
+            </div>
+            <div class="modal-grand-total">
+              <span class="total-label">TOTAL FACTURA</span>
+              <span class="total-figure">{{ formatCurrency(inv.total) }}</span>
+            </div>
+          </div>
+        </div>
+
+        <footer class="modal-footer">
+          <button type="button" class="btn-cancel" (click)="closePreview()">
+            {{ i18n.t('admin.invoicing_modal_close') }}
+          </button>
+          <button type="button" class="btn-primary-print" (click)="printInvoice(inv)">
+            <span>🖨️</span>
+            <span>{{ i18n.t('admin.invoicing_btn_print') }}</span>
+          </button>
+        </footer>
+      </div>
+    </div>
+  }
+</section>

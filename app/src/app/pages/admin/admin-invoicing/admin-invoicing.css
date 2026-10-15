@@ -1,0 +1,634 @@
+.admin-invoicing-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.invoicing-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.invoicing-kicker,
+.modal-kicker {
+  display: inline-block;
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: #9e3a24;
+}
+
+.invoicing-title {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.85rem;
+  font-weight: 700;
+  color: #1a1614;
+  margin: 0.35rem 0;
+}
+
+.invoicing-subtitle {
+  font-size: 0.95rem;
+  color: #665e57;
+  margin: 0;
+  max-width: 650px;
+}
+
+.invoicing-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.btn-export-csv {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #9e3a24;
+  color: #fff;
+  border: none;
+  padding: 0.65rem 1.25rem;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.btn-export-csv:hover {
+  background: #7d2a17;
+}
+
+/* KPIs */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 1rem;
+}
+
+.kpi-card {
+  background: #fff;
+  border: 1px solid #dfd8cc;
+  border-radius: 10px;
+  padding: 1.25rem 1.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.kpi-card.highlight {
+  border-left: 4px solid #9e3a24;
+  background: #fdfaf6;
+}
+
+.kpi-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.kpi-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #6b635b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.kpi-value {
+  font-size: 1.85rem;
+  font-weight: 700;
+  color: #1a1614;
+}
+
+.kpi-value.warning {
+  color: #b45309;
+}
+
+.kpi-value.success {
+  color: #15803d;
+}
+
+.kpi-footer {
+  font-size: 0.78rem;
+  color: #8c827a;
+}
+
+/* Desglose IVA por Tipo */
+.vat-breakdown-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1rem;
+}
+
+.vat-card {
+  background: #faf7f2;
+  border: 1px solid #e7ded2;
+  border-radius: 8px;
+  padding: 1rem 1.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.vat-badge {
+  display: inline-block;
+  align-self: flex-start;
+  padding: 0.2rem 0.6rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.vat-badge.vat-4 {
+  background: #e0f2fe;
+  color: #0369a1;
+}
+
+.vat-badge.vat-10 {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.vat-badge.vat-21 {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.vat-desc {
+  font-size: 0.8rem;
+  color: #786f66;
+}
+
+.vat-figures {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px dashed #dfd8cc;
+  font-size: 0.88rem;
+}
+
+.vat-fig-label {
+  color: #8c827a;
+  margin-right: 0.3rem;
+}
+
+.vat-amount {
+  font-weight: 700;
+  color: #9e3a24;
+}
+
+/* Toolbar */
+.invoicing-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.search-box {
+  position: relative;
+  flex: 1;
+  min-width: 280px;
+}
+
+.search-icon {
+  position: absolute;
+  left: 0.9rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #8c827a;
+  pointer-events: none;
+}
+
+.search-input {
+  width: 100%;
+  padding: 0.65rem 2.2rem 0.65rem 2.4rem;
+  background: #fff;
+  border: 1px solid #dfd8cc;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  color: #2b2520;
+  box-sizing: border-box;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #9e3a24;
+  box-shadow: 0 0 0 3px rgba(158, 58, 36, 0.1);
+}
+
+.clear-search-btn {
+  position: absolute;
+  right: 0.8rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #999;
+  cursor: pointer;
+}
+
+.filter-group {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.period-pills {
+  display: flex;
+  background: #f0ebe1;
+  padding: 0.25rem;
+  border-radius: 8px;
+  gap: 0.25rem;
+}
+
+.period-pill {
+  border: none;
+  background: transparent;
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #5c5249;
+  cursor: pointer;
+}
+
+.period-pill.active {
+  background: #fff;
+  color: #9e3a24;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.vat-select {
+  padding: 0.55rem 0.85rem;
+  border: 1px solid #dfd8cc;
+  border-radius: 8px;
+  background: #fff;
+  font-size: 0.85rem;
+  color: #3d352e;
+  cursor: pointer;
+}
+
+/* Tabla */
+.table-container {
+  background: #fff;
+  border: 1px solid #dfd8cc;
+  border-radius: 10px;
+  overflow-x: auto;
+}
+
+.invoicing-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+  text-align: left;
+}
+
+.invoicing-table th {
+  background: #f7f3ed;
+  color: #4a4038;
+  font-weight: 700;
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid #dfd8cc;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+.invoicing-table td {
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid #f0ebe1;
+  color: #2b2520;
+  vertical-align: middle;
+}
+
+.invoicing-table tbody tr:hover {
+  background: #fdfcf9;
+}
+
+.invoice-number {
+  font-family: monospace;
+  font-weight: 700;
+  color: #9e3a24;
+}
+
+.order-ref-pill {
+  font-size: 0.78rem;
+  font-family: monospace;
+  background: #f2ece4;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+}
+
+.customer-cell {
+  display: flex;
+  flex-direction: column;
+}
+
+.customer-name {
+  font-weight: 600;
+  color: #1a1614;
+}
+
+.customer-sub {
+  font-size: 0.75rem;
+  color: #8c827a;
+}
+
+.cell-number {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.cell-center {
+  text-align: center;
+}
+
+.vat-badge-mini {
+  background: #fff7ed;
+  color: #c2410c;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+  border: 1px solid #ffedd5;
+}
+
+.invoice-total {
+  font-weight: 700;
+  color: #1a1614;
+}
+
+.row-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+}
+
+.btn-row-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: #faf7f2;
+  border: 1px solid #dfd8cc;
+  padding: 0.35rem 0.65rem;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #4a4038;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-row-action:hover {
+  background: #fff;
+  border-color: #9e3a24;
+  color: #9e3a24;
+}
+
+.empty-cell {
+  padding: 3rem !important;
+  text-align: center;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  color: #8c827a;
+}
+
+.empty-icon {
+  font-size: 2rem;
+}
+
+/* Modal */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(26, 22, 20, 0.55);
+  backdrop-filter: blur(2px);
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.modal-dialog {
+  background: #fff;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 680px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid #dfd8cc;
+  background: #faf7f2;
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+}
+
+.modal-title {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.4rem;
+  margin: 0.2rem 0;
+  color: #1a1614;
+}
+
+.modal-subtitle {
+  font-size: 0.82rem;
+  color: #665e57;
+}
+
+.modal-close-btn {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  color: #8c827a;
+  cursor: pointer;
+}
+
+.modal-body {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.parties-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.party-card {
+  background: #faf7f2;
+  border: 1px solid #e7ded2;
+  border-radius: 8px;
+  padding: 0.85rem 1rem;
+  font-size: 0.82rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  color: #4a4038;
+}
+
+.party-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #9e3a24;
+  margin-bottom: 0.2rem;
+}
+
+.fulfillment-indicator {
+  margin-top: 0.4rem;
+  font-style: italic;
+  color: #665e57;
+}
+
+.modal-section-title {
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #9e3a24;
+  margin-bottom: -0.4rem;
+}
+
+.modal-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+
+.modal-table th {
+  background: #f7f3ed;
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid #dfd8cc;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.modal-table td {
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid #f0ebe1;
+}
+
+.vat-pill-small {
+  background: #e0f2fe;
+  color: #0369a1;
+  font-size: 0.7rem;
+  padding: 0.1rem 0.35rem;
+  border-radius: 3px;
+  font-weight: 600;
+}
+
+.tax-breakdown-table {
+  background: #faf7f2;
+  border: 1px solid #e7ded2;
+  border-radius: 6px;
+}
+
+.modal-totals-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding-top: 0.75rem;
+  border-top: 2px solid #9e3a24;
+}
+
+.modal-legal-note {
+  font-size: 0.72rem;
+  color: #8c827a;
+  max-width: 320px;
+  line-height: 1.4;
+}
+
+.modal-grand-total {
+  text-align: right;
+}
+
+.total-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #665e57;
+  letter-spacing: 0.05em;
+}
+
+.total-figure {
+  display: block;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #9e3a24;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.5rem;
+  border-top: 1px solid #dfd8cc;
+  background: #faf7f2;
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
+}
+
+.btn-cancel {
+  background: #fff;
+  border: 1px solid #dfd8cc;
+  padding: 0.55rem 1rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  color: #4a4038;
+}
+
+.btn-primary-print {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: #9e3a24;
+  color: #fff;
+  border: none;
+  padding: 0.55rem 1.15rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-primary-print:hover {
+  background: #7d2a17;
+}
+
+@media (max-width: 768px) {
+  .parties-grid {
+    grid-template-columns: 1fr;
+  }
+}
