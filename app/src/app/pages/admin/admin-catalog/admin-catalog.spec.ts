@@ -270,4 +270,30 @@ describe('AdminCatalog', () => {
     expect(component.allProducts().length).toBe(2);
     expect(component.allProducts().find((p) => p.number === '02')).toBeUndefined();
   });
+
+  it('toggles allergens correctly in editForm and createForm', () => {
+    const glutenDef = component.officialAllergens.find((a) => a.id === 'gluten')!;
+    const lacteosDef = component.officialAllergens.find((a) => a.id === 'lacteos')!;
+
+    // Initial state in editForm
+    component.editForm.allergensText = 'Gluten';
+    expect(component.isAllergenSelected(glutenDef, false)).toBe(true);
+    expect(component.isAllergenSelected(lacteosDef, false)).toBe(false);
+
+    // Toggle lacteos on in editForm
+    component.toggleAllergen(lacteosDef, false);
+    expect(component.editForm.allergensText).toContain('Lácteos');
+    expect(component.isAllergenSelected(lacteosDef, false)).toBe(true);
+
+    // Toggle gluten off in editForm
+    component.toggleAllergen(glutenDef, false);
+    expect(component.editForm.allergensText).not.toContain('Gluten');
+    expect(component.isAllergenSelected(glutenDef, false)).toBe(false);
+
+    // Toggle in createForm
+    component.createForm.allergensText = '';
+    component.toggleAllergen(glutenDef, true);
+    expect(component.createForm.allergensText).toContain('Gluten');
+    expect(component.isAllergenSelected(glutenDef, true)).toBe(true);
+  });
 });

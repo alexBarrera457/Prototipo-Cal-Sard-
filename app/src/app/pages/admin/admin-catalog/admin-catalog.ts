@@ -30,6 +30,30 @@ export interface ProductCreateForm {
   featured: boolean;
 }
 
+export interface AllergenDef {
+  id: string;
+  icon: string;
+  nameEs: string;
+  nameCa: string;
+}
+
+export const OFFICIAL_ALLERGENS: AllergenDef[] = [
+  { id: 'gluten', icon: '🌾', nameEs: 'Gluten', nameCa: 'Gluten' },
+  { id: 'crustaceos', icon: '🦀', nameEs: 'Crustáceos', nameCa: 'Crustacis' },
+  { id: 'huevos', icon: '🥚', nameEs: 'Huevos', nameCa: 'Ous' },
+  { id: 'pescado', icon: '🐟', nameEs: 'Pescado', nameCa: 'Peix' },
+  { id: 'cacahuetes', icon: '🥜', nameEs: 'Cacahuetes', nameCa: 'Cacauets' },
+  { id: 'soja', icon: '🌱', nameEs: 'Soja', nameCa: 'Soia' },
+  { id: 'lacteos', icon: '🥛', nameEs: 'Lácteos', nameCa: 'Lactis' },
+  { id: 'frutos_cascara', icon: '🌰', nameEs: 'Frutos de cáscara', nameCa: 'Fruits de closca' },
+  { id: 'apio', icon: '🥬', nameEs: 'Apio', nameCa: 'Api' },
+  { id: 'mostaza', icon: '🟡', nameEs: 'Mostaza', nameCa: 'Mostassa' },
+  { id: 'sesamo', icon: '⚪', nameEs: 'Sésamo', nameCa: 'Sèsam' },
+  { id: 'sulfitos', icon: '🍷', nameEs: 'Sulfitos', nameCa: 'Sulfits' },
+  { id: 'altramuces', icon: '🫘', nameEs: 'Altramuces', nameCa: 'Tramussos' },
+  { id: 'moluscos', icon: '🦪', nameEs: 'Moluscos', nameCa: 'Mol·luscs' },
+];
+
 @Component({
   selector: 'app-admin-catalog',
   standalone: true,
@@ -38,8 +62,48 @@ export interface ProductCreateForm {
   styleUrl: './admin-catalog.css',
 })
 export class AdminCatalog implements OnInit {
+  readonly officialAllergens = OFFICIAL_ALLERGENS;
   readonly productsService = inject(ProductsService);
   readonly i18n = inject(I18nService);
+
+  isAllergenSelected(allergenDef: AllergenDef, isCreate: boolean = false): boolean {
+    const text = (isCreate ? this.createForm.allergensText : this.editForm.allergensText) || '';
+    const lower = text.toLowerCase();
+    return (
+      lower.includes(allergenDef.nameEs.toLowerCase()) ||
+      lower.includes(allergenDef.nameCa.toLowerCase())
+    );
+  }
+
+  toggleAllergen(allergenDef: AllergenDef, isCreate: boolean = false): void {
+    const current = (isCreate ? this.createForm.allergensText : this.editForm.allergensText) || '';
+    const currentItems = current
+      .split(',')
+      .map((s) => s.trim())
+      .filter((s) => Boolean(s));
+
+    const isCa = this.i18n.currentLang() === 'ca';
+    const targetName = isCa ? allergenDef.nameCa : allergenDef.nameEs;
+
+    const existsIndex = currentItems.findIndex(
+      (item) =>
+        item.toLowerCase() === allergenDef.nameEs.toLowerCase() ||
+        item.toLowerCase() === allergenDef.nameCa.toLowerCase(),
+    );
+
+    if (existsIndex >= 0) {
+      currentItems.splice(existsIndex, 1);
+    } else {
+      currentItems.push(targetName);
+    }
+
+    const newText = currentItems.join(', ');
+    if (isCreate) {
+      this.createForm.allergensText = newText;
+    } else {
+      this.editForm.allergensText = newText;
+    }
+  }
 
   readonly allProducts = signal<StoreProduct[]>([]);
   readonly isLoading = signal<boolean>(true);

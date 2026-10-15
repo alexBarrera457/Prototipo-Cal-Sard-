@@ -206,4 +206,37 @@ test.describe('Gestión de Catálogo y Stock en Backoffice (Issue #42)', () => {
     // Ya no debe aparecer en la búsqueda
     await expect(page.locator('.catalog-empty')).toBeVisible();
   });
+
+  test('8. Permite seleccionar alérgenos oficiales mediante el selector visual en el modal de producto (Issue #50)', async ({
+    page,
+  }) => {
+    // Abrir modal de nuevo producto
+    await page.click('.btn-add-product');
+    const createModal = page.locator('.edit-modal');
+    await expect(createModal).toBeVisible();
+
+    // Comprobar presencia del selector visual de alérgenos
+    const chipsContainer = createModal.locator('.allergens-chips-grid');
+    await expect(chipsContainer).toBeVisible();
+
+    // Seleccionar chips de alérgenos (ej. Gluten y Lácteos)
+    const glutenChip = chipsContainer.locator('.allergen-toggle-chip:has-text("Gluten")');
+    const lacteosChip = chipsContainer.locator(
+      '.allergen-toggle-chip:has-text("Lácteos"), .allergen-toggle-chip:has-text("Lactis")',
+    );
+    await expect(glutenChip).toBeVisible();
+    await glutenChip.click();
+    await expect(glutenChip).toHaveClass(/active/);
+
+    await lacteosChip.click();
+    await expect(lacteosChip).toHaveClass(/active/);
+
+    // Comprobar que se refleja en el campo de texto de alérgenos
+    const allergensInput = createModal.locator('#create-allergens');
+    await expect(allergensInput).toHaveValue(/Gluten/);
+
+    // Cerrar modal
+    await createModal.locator('.btn-cancel').click();
+    await expect(createModal).not.toBeVisible();
+  });
 });

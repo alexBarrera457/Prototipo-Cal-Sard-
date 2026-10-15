@@ -58,10 +58,18 @@
       <span class="kpi-hint">Con existencias</span>
     </div>
 
-    <div class="kpi-card card-warning">
+    <div
+      class="kpi-card card-warning kpi-clickable"
+      [class.kpi-active]="stockFilter() === 'out_of_stock'"
+      (click)="setStockFilter(stockFilter() === 'out_of_stock' ? 'todos' : 'out_of_stock')"
+      role="button"
+      tabindex="0"
+      [attr.aria-pressed]="stockFilter() === 'out_of_stock'"
+      title="Filtrar productos agotados que requieren reposición"
+    >
       <span class="kpi-label">Agotados / Pausados</span>
       <strong class="kpi-value text-warning">{{ catalogStats().outOfStock }}</strong>
-      <span class="kpi-hint">Pausados temporalmente</span>
+      <span class="kpi-hint">⚠️ Clic para ver reposición</span>
     </div>
 
     <div class="kpi-card card-accent">
@@ -191,6 +199,15 @@
                     <span class="product-number">#{{ product.number }}</span>
                     <strong class="product-name">{{ product.name }}</strong>
                     <span class="product-desc-snippet">{{ product.shortDescription }}</span>
+                    @if (product.allergens && product.allergens.length > 0) {
+                      <div class="product-allergens-chips" aria-label="Alérgenos presentes">
+                        @for (all of product.allergens; track all) {
+                          <span class="product-allergen-tag" [title]="'Contiene ' + all"
+                            >⚠️ {{ all }}</span
+                          >
+                        }
+                      </div>
+                    }
                   </div>
                 </div>
               </td>
@@ -427,6 +444,31 @@
             [placeholder]="i18n.t('admin.field_allergens_placeholder')"
             class="form-input"
           />
+          <div class="allergens-selector-container">
+            <span class="allergens-selector-title">
+              {{
+                i18n.currentLang() === 'ca'
+                  ? 'Selector visual de 14 al·lèrgens (Reglament UE):'
+                  : 'Selector visual de 14 alérgenos oficiales (Reglamento UE):'
+              }}
+            </span>
+            <div class="allergens-chips-grid">
+              @for (allergen of officialAllergens; track allergen.id) {
+                <button
+                  type="button"
+                  class="allergen-toggle-chip"
+                  [class.active]="isAllergenSelected(allergen, false)"
+                  (click)="toggleAllergen(allergen, false)"
+                  [attr.aria-pressed]="isAllergenSelected(allergen, false)"
+                >
+                  <span class="chip-icon">{{ allergen.icon }}</span>
+                  <span class="chip-name">{{
+                    i18n.currentLang() === 'ca' ? allergen.nameCa : allergen.nameEs
+                  }}</span>
+                </button>
+              }
+            </div>
+          </div>
         </div>
 
         <!-- Toggles de Stock y Destacado -->
@@ -617,6 +659,31 @@
             [placeholder]="i18n.t('admin.field_allergens_placeholder')"
             class="form-input"
           />
+          <div class="allergens-selector-container">
+            <span class="allergens-selector-title">
+              {{
+                i18n.currentLang() === 'ca'
+                  ? 'Selector visual de 14 al·lèrgens (Reglament UE):'
+                  : 'Selector visual de 14 alérgenos oficiales (Reglamento UE):'
+              }}
+            </span>
+            <div class="allergens-chips-grid">
+              @for (allergen of officialAllergens; track allergen.id) {
+                <button
+                  type="button"
+                  class="allergen-toggle-chip"
+                  [class.active]="isAllergenSelected(allergen, true)"
+                  (click)="toggleAllergen(allergen, true)"
+                  [attr.aria-pressed]="isAllergenSelected(allergen, true)"
+                >
+                  <span class="chip-icon">{{ allergen.icon }}</span>
+                  <span class="chip-name">{{
+                    i18n.currentLang() === 'ca' ? allergen.nameCa : allergen.nameEs
+                  }}</span>
+                </button>
+              }
+            </div>
+          </div>
         </div>
 
         <!-- Toggles de Stock y Destacado -->

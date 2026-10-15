@@ -966,3 +966,87 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* KPI clickable para filtrar agotados */
+.kpi-clickable {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.kpi-clickable:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(180, 83, 9, 0.15);
+}
+.kpi-card.card-warning.kpi-active {
+  border: 2px solid #b45309;
+  background: #fef3c7;
+}
+
+/* Badges de alérgenos en tabla de catálogo */
+.product-allergens-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin-top: 0.3rem;
+}
+.product-allergen-tag {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.72rem;
+  font-weight: 600;
+  background: #fffbeb;
+  color: #92400e;
+  border: 1px solid #fde68a;
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+}
+
+/* Selector visual de 14 alérgenos en modales */
+.allergens-selector-container {
+  margin-top: 0.6rem;
+  background: #faf8f5;
+  border: 1px solid #e7dfd4;
+  border-radius: 8px;
+  padding: 0.75rem;
+}
+.allergens-selector-title {
+  display: block;
+  font-size: 0.76rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #7c6f64;
+  margin-bottom: 0.5rem;
+}
+.allergens-chips-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+.allergen-toggle-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.65rem;
+  background: #fff;
+  border: 1px solid #dcd3c5;
+  border-radius: 9999px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #4a423b;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.allergen-toggle-chip:hover {
+  border-color: #9e3a24;
+  color: #9e3a24;
+  background: #fdfbf7;
+}
+.allergen-toggle-chip.active {
+  background: #fef2f2;
+  border-color: #dc2626;
+  color: #991b1b;
+  box-shadow: 0 1px 3px rgba(220, 38, 38, 0.15);
+}
+.allergen-toggle-chip .chip-icon {
+  font-size: 0.95rem;
+}
