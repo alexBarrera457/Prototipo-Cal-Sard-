@@ -81,6 +81,29 @@
       {{ product.description }}
     </p>
 
+    <div class="product-dietary-row" aria-label="Información sobre alérgenos y dietas">
+      @if (isGlutenFree) {
+        <span class="dietary-badge badge-gluten"
+          >🌾 {{ i18n.currentLang() === 'ca' ? 'Sense Gluten' : 'Sin Gluten' }}</span
+        >
+      }
+      @if (isLactoseFree) {
+        <span class="dietary-badge badge-lactose"
+          >🥛 {{ i18n.currentLang() === 'ca' ? 'Sense Lactosa' : 'Sin Lactosa' }}</span
+        >
+      }
+      @if (product.allergens && product.allergens.length > 0) {
+        <div class="product-allergens-tags">
+          <span class="allergens-label">{{
+            i18n.currentLang() === 'ca' ? 'Al·lèrgens presents:' : 'Alérgenos presentes:'
+          }}</span>
+          @for (all of product.allergens; track all) {
+            <span class="allergen-tag">⚠️ {{ all }}</span>
+          }
+        </div>
+      }
+    </div>
+
     <div class="product-detail-price">
       {{ formatPrice() }}
     </div>

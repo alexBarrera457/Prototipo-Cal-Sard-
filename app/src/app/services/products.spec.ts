@@ -1,5 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import {
+  isGlutenFree,
+  isLactoseFree,
   mapDatabaseProductToProduct,
   PRODUCTS_REPOSITORY,
   ProductsRepository,
@@ -126,6 +128,61 @@ describe('ProductsService', () => {
       expect(nameAsc[0].number).toBe('P1'); // Café...
       expect(nameAsc[1].number).toBe('P2'); // Conservas...
       expect(nameAsc[2].number).toBe('P3'); // Galletas...
+    });
+
+    it('filters by gluten-free and lactose-free requirements', () => {
+      const dietaryProducts: StoreProduct[] = [
+        {
+          number: 'D1',
+          name: 'Fuet Tradicional',
+          category: 'EMBUTIDOS',
+          description: 'Fuet artesanal curado lentamente',
+          shortDescription: 'Pieza 180 g',
+          price: 6,
+          image: '/fuet.jpg',
+          allergens: ['Lactosa'],
+        },
+        {
+          number: 'D2',
+          name: 'Pan de Cristal',
+          category: 'PANES',
+          description: 'Pan artesano de alta hidratación',
+          shortDescription: 'Pack 4 unidades',
+          price: 3,
+          image: '/pan.jpg',
+          allergens: ['Gluten', 'Trigo'],
+        },
+        {
+          number: 'D3',
+          name: 'Jamón Ibérico 100% Bellota',
+          category: 'IBÉRICOS',
+          description: 'Jamón de bellota 100% ibérico cortado a mano',
+          shortDescription: 'Sobre 100 g',
+          price: 18,
+          image: '/jamon.jpg',
+          allergens: [],
+        },
+      ];
+
+      expect(isGlutenFree(dietaryProducts[0])).toBe(true);
+      expect(isGlutenFree(dietaryProducts[1])).toBe(false);
+      expect(isGlutenFree(dietaryProducts[2])).toBe(true);
+
+      expect(isLactoseFree(dietaryProducts[0])).toBe(false);
+      expect(isLactoseFree(dietaryProducts[1])).toBe(true);
+      expect(isLactoseFree(dietaryProducts[2])).toBe(true);
+
+      const glutenFreeOnly = service.filterAndSort(dietaryProducts, { glutenFreeOnly: true });
+      expect(glutenFreeOnly.map((p) => p.number)).toEqual(['D1', 'D3']);
+
+      const lactoseFreeOnly = service.filterAndSort(dietaryProducts, { lactoseFreeOnly: true });
+      expect(lactoseFreeOnly.map((p) => p.number)).toEqual(['D2', 'D3']);
+
+      const both = service.filterAndSort(dietaryProducts, {
+        glutenFreeOnly: true,
+        lactoseFreeOnly: true,
+      });
+      expect(both.map((p) => p.number)).toEqual(['D3']);
     });
 
     it('supports search with limit', async () => {

@@ -20,6 +20,8 @@ import { CartService } from '../../services/cart';
 import { I18nService } from '../../services/i18n';
 import {
   getProductSlug,
+  isGlutenFree,
+  isLactoseFree,
   PaginatedResult,
   ProductsService,
   StoreProduct,
@@ -40,6 +42,8 @@ export class Store implements AfterViewInit, OnDestroy {
   catalogError = signal(false);
   readonly categoryFilters: { label: string; value: string }[];
   selectedCategory = signal('TODOS');
+  glutenFreeFilter = signal(false);
+  lactoseFreeFilter = signal(false);
   sortOrder = signal<StoreSortOrder>('featured');
   currentPage = signal(1);
   readonly pageSize = 24;
@@ -53,6 +57,8 @@ export class Store implements AfterViewInit, OnDestroy {
       searchTerm: this.searchTerm(),
       category: this.selectedCategory(),
       sortOrder: this.sortOrder(),
+      glutenFreeOnly: this.glutenFreeFilter(),
+      lactoseFreeOnly: this.lactoseFreeFilter(),
     });
   });
 
@@ -131,6 +137,24 @@ export class Store implements AfterViewInit, OnDestroy {
   selectCategory(category: string): void {
     this.selectedCategory.set(category);
     this.currentPage.set(1);
+  }
+
+  toggleGlutenFree(): void {
+    this.glutenFreeFilter.update((v) => !v);
+    this.currentPage.set(1);
+  }
+
+  toggleLactoseFree(): void {
+    this.lactoseFreeFilter.update((v) => !v);
+    this.currentPage.set(1);
+  }
+
+  isGlutenFree(product: StoreProduct): boolean {
+    return isGlutenFree(product);
+  }
+
+  isLactoseFree(product: StoreProduct): boolean {
+    return isLactoseFree(product);
   }
 
   goToPage(page: number): void {

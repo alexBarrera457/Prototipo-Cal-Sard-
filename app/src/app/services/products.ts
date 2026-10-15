@@ -26,6 +26,26 @@ export interface FilterProductsOptions {
   searchTerm?: string;
   category?: string;
   sortOrder?: StoreSortOrder;
+  glutenFreeOnly?: boolean;
+  lactoseFreeOnly?: boolean;
+}
+
+export function isGlutenFree(product: StoreProduct): boolean {
+  if (!product.allergens || product.allergens.length === 0) return true;
+  return !product.allergens.some((a) => {
+    const l = a.toLowerCase();
+    return (
+      l.includes('gluten') || l.includes('trigo') || l.includes('cebada') || l.includes('centeno')
+    );
+  });
+}
+
+export function isLactoseFree(product: StoreProduct): boolean {
+  if (!product.allergens || product.allergens.length === 0) return true;
+  return !product.allergens.some((a) => {
+    const l = a.toLowerCase();
+    return l.includes('láct') || l.includes('lact') || l.includes('leche') || l.includes('llet');
+  });
 }
 
 export interface PaginatedResult<T> {
@@ -679,6 +699,14 @@ export class ProductsService {
 
     if (category && category !== 'TODOS') {
       results = results.filter((product) => product.category === category);
+    }
+
+    if (options.glutenFreeOnly) {
+      results = results.filter((product) => isGlutenFree(product));
+    }
+
+    if (options.lactoseFreeOnly) {
+      results = results.filter((product) => isLactoseFree(product));
     }
 
     if (hasSearch && sortOrder === 'featured') {

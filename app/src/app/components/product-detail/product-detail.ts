@@ -10,7 +10,12 @@ import {
 import { NgOptimizedImage } from '@angular/common';
 import { CartService } from '../../services/cart';
 import { I18nService } from '../../services/i18n';
-import { ProductsService, StoreProduct } from '../../services/products';
+import {
+  isGlutenFree,
+  isLactoseFree,
+  ProductsService,
+  StoreProduct,
+} from '../../services/products';
 
 @Component({
   selector: 'app-product-detail',
@@ -20,6 +25,14 @@ import { ProductsService, StoreProduct } from '../../services/products';
 })
 export class ProductDetail implements OnChanges {
   public readonly i18n = inject(I18nService);
+
+  get isGlutenFree(): boolean {
+    return isGlutenFree(this.product);
+  }
+
+  get isLactoseFree(): boolean {
+    return isLactoseFree(this.product);
+  }
 
   @Input() product: StoreProduct = {
     name: '',

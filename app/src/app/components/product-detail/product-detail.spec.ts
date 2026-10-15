@@ -44,4 +44,47 @@ describe('ProductDetail', () => {
     expect(addToCartSpy).toHaveBeenCalledWith('Fuet artesano', 5.5, 3, '01', 'fuet.jpg');
     expect(component.addedToCartMessage).toBe('3 unidades añadidas a la cesta.');
   });
+
+  it('determines if product is gluten-free or lactose-free based on allergens', () => {
+    component.product = {
+      number: 'Q1',
+      name: 'Queso Curado',
+      price: 12,
+      category: 'QUESOS',
+      image: 'queso.jpg',
+      description: 'Queso curado artesano',
+      shortDescription: 'Pieza 250 g',
+      allergens: ['Lácteos', 'Lactosa'],
+    };
+
+    expect(component.isGlutenFree).toBe(true);
+    expect(component.isLactoseFree).toBe(false);
+
+    component.product = {
+      number: 'G1',
+      name: 'Galletas de Espelta',
+      price: 4,
+      category: 'DULCES',
+      image: 'galletas.jpg',
+      description: 'Galletas artesanas crujientes',
+      shortDescription: 'Caja 200 g',
+      allergens: ['Gluten'],
+    };
+
+    expect(component.isGlutenFree).toBe(false);
+    expect(component.isLactoseFree).toBe(true);
+
+    component.product = {
+      number: 'A1',
+      name: 'Aceite de Oliva Virgen Extra',
+      price: 15,
+      category: 'ACEITES',
+      image: 'aceite.jpg',
+      description: 'Aceite de oliva virgen extra arbequina',
+      shortDescription: 'Botella 500 ml',
+    };
+
+    expect(component.isGlutenFree).toBe(true);
+    expect(component.isLactoseFree).toBe(true);
+  });
 });

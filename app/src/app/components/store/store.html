@@ -35,6 +35,33 @@
       }
     </div>
 
+    <div class="store-dietary-filters" role="group" aria-label="Filtrar por alérgenos y dietas">
+      <span class="dietary-label">
+        {{ i18n.currentLang() === 'ca' ? 'Al·lèrgens & Dietes:' : 'Alérgenos & Dietas:' }}
+      </span>
+      <button
+        type="button"
+        class="dietary-filter-chip"
+        [class.active]="glutenFreeFilter()"
+        [attr.aria-pressed]="glutenFreeFilter()"
+        (click)="toggleGlutenFree()"
+      >
+        <span>🌾</span>
+        <span>{{ i18n.currentLang() === 'ca' ? 'Sense Gluten' : 'Sin Gluten' }}</span>
+      </button>
+
+      <button
+        type="button"
+        class="dietary-filter-chip"
+        [class.active]="lactoseFreeFilter()"
+        [attr.aria-pressed]="lactoseFreeFilter()"
+        (click)="toggleLactoseFree()"
+      >
+        <span>🥛</span>
+        <span>{{ i18n.currentLang() === 'ca' ? 'Sense Lactosa' : 'Sin Lactosa' }}</span>
+      </button>
+    </div>
+
     <div class="store-results-row">
       <span class="store-result-count" aria-live="polite">
         {{ filteredProducts().length }}
@@ -99,6 +126,33 @@
 
           <div class="store-product-info">
             <div>
+              <div class="store-dietary-badges" aria-label="Información dietética">
+                @if (isGlutenFree(product)) {
+                  <span
+                    class="badge-gluten-free"
+                    [title]="
+                      i18n.currentLang() === 'ca'
+                        ? 'Apte per a celíacs · Sense Gluten'
+                        : 'Apto para celíacos · Sin Gluten'
+                    "
+                  >
+                    🌾 {{ i18n.currentLang() === 'ca' ? 'Sense Gluten' : 'Sin Gluten' }}
+                  </span>
+                }
+                @if (isLactoseFree(product)) {
+                  <span
+                    class="badge-lactose-free"
+                    [title]="
+                      i18n.currentLang() === 'ca'
+                        ? 'Apte intolerància · Sense Lactosa'
+                        : 'Apto intolerantes · Sin Lactosa'
+                    "
+                  >
+                    🥛 {{ i18n.currentLang() === 'ca' ? 'Sense Lactosa' : 'Sin Lactosa' }}
+                  </span>
+                }
+              </div>
+
               <h3>
                 {{ product.name }}
               </h3>

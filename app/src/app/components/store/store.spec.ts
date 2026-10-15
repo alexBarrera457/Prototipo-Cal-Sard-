@@ -70,4 +70,39 @@ describe('Store', () => {
     expect(component.currentPage()).toBe(2);
     expect(component.firstVisibleProduct()).toBe(component.pageSize + 1);
   });
+
+  it('filters catalog when gluten-free and lactose-free filters are toggled', () => {
+    expect(component.glutenFreeFilter()).toBe(false);
+    expect(component.lactoseFreeFilter()).toBe(false);
+
+    const totalInitial = component.filteredProducts().length;
+
+    // Toggle gluten free
+    component.toggleGlutenFree();
+    expect(component.glutenFreeFilter()).toBe(true);
+    expect(component.currentPage()).toBe(1);
+
+    const glutenFreeCount = component.filteredProducts().length;
+    expect(glutenFreeCount).toBeGreaterThan(0);
+    expect(glutenFreeCount).toBeLessThanOrEqual(totalInitial);
+    expect(component.filteredProducts().every((p) => component.isGlutenFree(p))).toBe(true);
+
+    // Toggle lactose free as well
+    component.toggleLactoseFree();
+    expect(component.lactoseFreeFilter()).toBe(true);
+    expect(
+      component
+        .filteredProducts()
+        .every((p) => component.isGlutenFree(p) && component.isLactoseFree(p)),
+    ).toBe(true);
+
+    // Untoggle
+    component.toggleGlutenFree();
+    expect(component.glutenFreeFilter()).toBe(false);
+    expect(component.filteredProducts().every((p) => component.isLactoseFree(p))).toBe(true);
+
+    component.toggleLactoseFree();
+    expect(component.lactoseFreeFilter()).toBe(false);
+    expect(component.filteredProducts().length).toBe(totalInitial);
+  });
 });
