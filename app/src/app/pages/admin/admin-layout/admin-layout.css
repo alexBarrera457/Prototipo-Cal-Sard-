@@ -1,0 +1,326 @@
+:host {
+  display: block;
+  min-height: 100vh;
+  color: #2d241e;
+  background-color: #f4efe6;
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    sans-serif;
+}
+
+.admin-app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* -------------------------------------------------------------
+   TOPBAR
+------------------------------------------------------------- */
+.admin-topbar {
+  display: flex;
+  height: 64px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  background: #2d241e;
+  color: #f7f0e6;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.mobile-menu-btn {
+  display: none;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.mobile-menu-btn .bar {
+  display: block;
+  width: 20px;
+  height: 2px;
+  background-color: #f7f0e6;
+  transition: transform 0.2s;
+}
+
+.admin-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.brand-heritage {
+  color: #d5b98e;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 2px;
+}
+
+.brand-name {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.admin-pill {
+  padding: 3px 8px;
+  border-radius: 4px;
+  color: #2d241e;
+  background: #d5b98e;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.view-store-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #d5b98e;
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.view-store-link:hover {
+  color: #fff;
+}
+
+.admin-user-profile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.admin-user-avatar {
+  display: grid;
+  width: 32px;
+  height: 32px;
+  place-items: center;
+  border-radius: 50%;
+  color: #2d241e;
+  background: #d5b98e;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.admin-user-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-user-name {
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.admin-user-role {
+  color: #a6998d;
+  font-size: 10px;
+}
+
+.topbar-signout-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  color: #f7f0e6;
+  background: transparent;
+  cursor: pointer;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.topbar-signout-btn:hover {
+  border-color: #d5b98e;
+  color: #2d241e;
+  background: #d5b98e;
+}
+
+/* -------------------------------------------------------------
+   BODY & SIDEBAR
+------------------------------------------------------------- */
+.admin-body {
+  display: flex;
+  flex: 1;
+  position: relative;
+}
+
+.admin-sidebar {
+  width: 250px;
+  flex-shrink: 0;
+  background: #fff;
+  border-right: 1px solid #e5ded3;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 24px 0 16px;
+}
+
+.sidebar-header {
+  padding: 0 20px 16px;
+  border-bottom: 1px solid #f0e9df;
+}
+
+.sidebar-kicker {
+  display: block;
+  color: #977541;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+
+.sidebar-header h3 {
+  margin: 4px 0 0;
+  color: #3e3024;
+  font-family: Georgia, serif;
+  font-size: 18px;
+  font-weight: 400;
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 16px 12px;
+  flex: 1;
+}
+
+.sidebar-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: 6px;
+  color: #5c4a39;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.15s ease;
+}
+
+.sidebar-nav-item .nav-icon {
+  font-size: 16px;
+}
+
+.sidebar-nav-item:hover {
+  color: #2d241e;
+  background-color: #f7f2ea;
+}
+
+.sidebar-nav-item.active {
+  color: #fff;
+  background-color: #3e3024;
+  font-weight: 600;
+}
+
+.sidebar-footer {
+  padding: 16px 20px 0;
+  border-top: 1px solid #f0e9df;
+}
+
+.sidebar-location {
+  margin: 0 0 8px;
+  color: #8c7e72;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.sidebar-version {
+  color: #b0a498;
+  font-size: 10px;
+}
+
+/* -------------------------------------------------------------
+   CONTENT WRAPPER
+------------------------------------------------------------- */
+.admin-content {
+  flex: 1;
+  padding: 32px 36px 64px;
+  max-width: 1400px;
+}
+
+/* -------------------------------------------------------------
+   RESPONSIVE (TABLET & MOBILE)
+------------------------------------------------------------- */
+@media (max-width: 900px) {
+  .mobile-menu-btn {
+    display: flex;
+  }
+
+  .admin-sidebar {
+    position: fixed;
+    top: 64px;
+    bottom: 0;
+    left: -260px;
+    z-index: 99;
+    box-shadow: 4px 0 20px rgba(0, 0, 0, 0.15);
+    transition: left 0.25s ease-in-out;
+  }
+
+  .admin-sidebar.open {
+    left: 0;
+  }
+
+  .sidebar-backdrop {
+    position: fixed;
+    inset: 64px 0 0 0;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 98;
+  }
+
+  .admin-content {
+    padding: 24px 20px 48px;
+  }
+
+  .admin-user-details {
+    display: none;
+  }
+}
+
+@media (max-width: 600px) {
+  .brand-heritage,
+  .admin-pill,
+  .signout-label {
+    display: none;
+  }
+
+  .admin-topbar {
+    padding: 0 16px;
+  }
+}

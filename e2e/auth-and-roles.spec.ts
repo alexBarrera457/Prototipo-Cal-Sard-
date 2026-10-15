@@ -33,10 +33,19 @@ test.describe('Autenticación y Control de Roles (Issue #39)', () => {
     page,
   }) => {
     await page.goto('/cuenta');
+    await page.waitForLoadState('networkidle');
 
-    await page.fill('#login-email', 'cliente@calsarda.com');
-    await page.fill('#login-password', 'cliente1930');
-    await page.click('.login-card form button[type="submit"]');
+    const emailInput = page.locator('#login-email');
+    const passwordInput = page.locator('#login-password');
+
+    await expect(emailInput).toBeVisible();
+    await emailInput.fill('cliente@calsarda.com');
+    await passwordInput.fill('cliente1930');
+
+    await expect(emailInput).toHaveValue('cliente@calsarda.com');
+    await expect(passwordInput).toHaveValue('cliente1930');
+
+    await page.locator('.login-card form button[type="submit"]').click();
 
     // Comprobar dashboard del cliente
     const dashboard = page.locator('.user-dashboard');
@@ -79,10 +88,10 @@ test.describe('Autenticación y Control de Roles (Issue #39)', () => {
     await page.goto('/crear-cuenta');
 
     const uniqueEmail = `test.${Date.now()}@calsarda.cat`;
-    await page.fill('#account-name', 'Montserrat Puig');
-    await page.fill('#account-email', uniqueEmail);
-    await page.fill('#account-password', 'ClaveSegura1930!');
-    await page.fill('#account-confirm-password', 'ClaveSegura1930!');
+    await page.locator('#account-name').fill('Montserrat Puig');
+    await page.locator('#account-email').fill(uniqueEmail);
+    await page.locator('#account-password').fill('ClaveSegura1930!');
+    await page.locator('#account-confirm-password').fill('ClaveSegura1930!');
     await page.check('#account-privacy');
 
     const submitBtn = page.locator('.form-card form button[type="submit"]');

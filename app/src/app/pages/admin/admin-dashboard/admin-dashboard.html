@@ -1,0 +1,198 @@
+<section class="admin-dashboard" aria-labelledby="dashboard-title">
+  <!-- Encabezado de la página -->
+  <header class="dashboard-header">
+    <div>
+      <span class="header-kicker">{{ i18n.t('admin.obrador_badge') }}</span>
+      <h1 id="dashboard-title">{{ i18n.t('admin.title') }}</h1>
+      <p class="header-desc">
+        {{
+          i18n.currentLang() === 'ca'
+            ? 'Resum operatiu en temps real de Cal Sardà (Carrer de la Marina, 237, Sagrada Família).'
+            : 'Resumen operativo en tiempo real de Cal Sardà (Carrer de la Marina, 237, Sagrada Família).'
+        }}
+      </p>
+    </div>
+
+    <div class="header-actions">
+      <a class="action-btn primary" [routerLink]="['/admin/pedidos']">
+        <span>📦</span>
+        {{ i18n.currentLang() === 'ca' ? 'Veure totes les comandes' : 'Ver todos los pedidos' }} →
+      </a>
+    </div>
+  </header>
+
+  <!-- Métricas KPI -->
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-header">
+        <span class="kpi-label">{{ i18n.t('admin.kpi_today_orders') }}</span>
+        <span class="kpi-icon" aria-hidden="true">📋</span>
+      </div>
+      <div class="kpi-value">{{ kpis().todayOrders }}</div>
+      <div class="kpi-footer">
+        <span class="kpi-badge positive">+3 vs ayer</span>
+        <span class="kpi-sub">Total jornada</span>
+      </div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-header">
+        <span class="kpi-label">{{ i18n.t('admin.kpi_in_prep') }}</span>
+        <span class="kpi-icon" aria-hidden="true">🥣</span>
+      </div>
+      <div class="kpi-value warning">{{ kpis().inPreparation }}</div>
+      <div class="kpi-footer">
+        <span class="kpi-sub">En obrador artesanal</span>
+      </div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-header">
+        <span class="kpi-label">{{ i18n.t('admin.kpi_ready_pickup') }}</span>
+        <span class="kpi-icon" aria-hidden="true">🏪</span>
+      </div>
+      <div class="kpi-value success">{{ kpis().readyPickup }}</div>
+      <div class="kpi-footer">
+        <span class="kpi-sub">Mostrador C/ Marina 237</span>
+      </div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-header">
+        <span class="kpi-label">{{ i18n.t('admin.kpi_deliveries') }}</span>
+        <span class="kpi-icon" aria-hidden="true">🛵</span>
+      </div>
+      <div class="kpi-value">{{ kpis().deliveries }}</div>
+      <div class="kpi-footer">
+        <span class="kpi-sub">Reparto Barcelona</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Módulos de Acceso Rápido -->
+  <div class="admin-modules-grid">
+    <div class="module-card">
+      <div class="module-icon" aria-hidden="true">📦</div>
+      <div class="module-content">
+        <h3>{{ i18n.t('admin.nav_orders') }}</h3>
+        <p>
+          {{
+            i18n.currentLang() === 'ca'
+              ? 'Controla els encàrrecs rebuts, canvia estats (En preparació / A punt) i avisa els clients.'
+              : 'Controla los encargos recibidos, cambia estados (En preparación / Listo) y avisa a los clientes.'
+          }}
+        </p>
+        <a [routerLink]="['/admin/pedidos']" class="module-link">
+          {{ i18n.currentLang() === 'ca' ? 'Gestionar encàrrecs' : 'Gestionar pedidos' }} →
+        </a>
+      </div>
+    </div>
+
+    <div class="module-card">
+      <div class="module-icon" aria-hidden="true">🥖</div>
+      <div class="module-content">
+        <h3>{{ i18n.t('admin.nav_catalog') }}</h3>
+        <p>
+          {{
+            i18n.currentLang() === 'ca'
+              ? 'Pausa productes exhaurits, actualitza existències i preus dels lots de l’obrador.'
+              : 'Pausa productos agotados, actualiza existencias y precios de los lotes del obrador.'
+          }}
+        </p>
+        <a [routerLink]="['/admin/productos']" class="module-link">
+          {{ i18n.currentLang() === 'ca' ? 'Control de catàleg' : 'Control de catálogo' }} →
+        </a>
+      </div>
+    </div>
+
+    <div class="module-card">
+      <div class="module-icon" aria-hidden="true">🧾</div>
+      <div class="module-content">
+        <h3>{{ i18n.t('admin.nav_invoicing') }}</h3>
+        <p>
+          {{
+            i18n.currentLang() === 'ca'
+              ? 'Genera tiquets i factures simplificades amb desglossament d’IVA oficial i dades fiscals.'
+              : 'Genera tickets y facturas simplificadas con desglose de IVA oficial y datos fiscales.'
+          }}
+        </p>
+        <a [routerLink]="['/admin/facturacion']" class="module-link">
+          {{ i18n.currentLang() === 'ca' ? 'Veure facturació' : 'Ver facturación' }} →
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabla de Actividad Reciente -->
+  <div class="recent-orders-section">
+    <div class="section-top">
+      <div>
+        <h2>{{ i18n.t('admin.recent_orders_title') }}</h2>
+        <p>{{ i18n.t('admin.recent_orders_desc') }}</p>
+      </div>
+      <a [routerLink]="['/admin/pedidos']" class="view-all-text-link">
+        {{ i18n.currentLang() === 'ca' ? 'Veure tots' : 'Ver todos' }} →
+      </a>
+    </div>
+
+    <div class="table-responsive">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>{{ i18n.t('admin.order_ref') }}</th>
+            <th>{{ i18n.t('admin.order_customer') }}</th>
+            <th>{{ i18n.t('admin.order_type') }}</th>
+            <th>{{ i18n.t('admin.order_total') }}</th>
+            <th>{{ i18n.t('admin.order_status') }}</th>
+            <th>Tiempo</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (order of recentOrders(); track order.reference) {
+            <tr>
+              <td>
+                <strong class="order-ref-cell">{{ order.reference }}</strong>
+              </td>
+              <td>{{ order.customerName }}</td>
+              <td>
+                <span class="fulfillment-badge" [class.pickup]="order.fulfillmentType === 'pickup'">
+                  {{
+                    order.fulfillmentType === 'pickup'
+                      ? i18n.currentLang() === 'ca'
+                        ? 'Recollida botiga'
+                        : 'Recogida tienda'
+                      : i18n.currentLang() === 'ca'
+                        ? 'Domicili BCN'
+                        : 'Domicilio BCN'
+                  }}
+                </span>
+              </td>
+              <td>
+                <strong>{{ order.total.toFixed(2) }} €</strong>
+              </td>
+              <td>
+                <span class="status-pill" [class]="'status-' + order.status">
+                  @switch (order.status) {
+                    @case ('ready') {
+                      {{ i18n.t('admin.status_ready') }}
+                    }
+                    @case ('in_prep') {
+                      {{ i18n.t('admin.status_in_prep') }}
+                    }
+                    @case ('received') {
+                      {{ i18n.t('admin.status_received') }}
+                    }
+                    @case ('delivered') {
+                      {{ i18n.t('admin.status_delivered') }}
+                    }
+                  }
+                </span>
+              </td>
+              <td class="time-cell">{{ order.timeAgo }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>

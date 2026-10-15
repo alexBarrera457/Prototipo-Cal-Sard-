@@ -1,0 +1,138 @@
+<div class="admin-app">
+  <!-- Cabecera Superior del Panel de Administración -->
+  <header class="admin-topbar">
+    <div class="topbar-left">
+      <button
+        type="button"
+        class="mobile-menu-btn"
+        (click)="toggleSidebar()"
+        aria-label="Abrir navegación administrativa"
+      >
+        <span class="bar"></span>
+        <span class="bar"></span>
+        <span class="bar"></span>
+      </button>
+
+      <div class="admin-brand">
+        <span class="brand-heritage">DESDE 1930</span>
+        <span class="brand-name">CAL SARDÀ</span>
+        <span class="admin-pill">{{ i18n.t('admin.title') }}</span>
+      </div>
+    </div>
+
+    <div class="topbar-right">
+      <a [routerLink]="['/']" class="view-store-link" title="Ver la tienda web de clientes">
+        <span>🏪</span> {{ i18n.t('admin.view_shop') }} ↗
+      </a>
+
+      @if (auth.currentUser(); as user) {
+        <div class="admin-user-profile">
+          <div class="admin-user-avatar" aria-hidden="true">
+            {{ user.name.charAt(0).toUpperCase() }}
+          </div>
+          <div class="admin-user-details">
+            <span class="admin-user-name">{{ user.name }}</span>
+            <span class="admin-user-role">{{ user.email }}</span>
+          </div>
+        </div>
+      }
+
+      <button
+        type="button"
+        class="topbar-signout-btn"
+        (click)="signOut()"
+        [attr.aria-label]="i18n.t('account.sign_out')"
+      >
+        <span>🚪</span>
+        <span class="signout-label">{{ i18n.t('account.sign_out') }}</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Cuerpo: Sidebar + Outlet Central -->
+  <div class="admin-body">
+    <!-- Overlay móvil -->
+    @if (sidebarOpen()) {
+      <div class="sidebar-backdrop" (click)="closeSidebar()" aria-hidden="true"></div>
+    }
+
+    <!-- Barra lateral de navegación -->
+    <aside
+      class="admin-sidebar"
+      [class.open]="sidebarOpen()"
+      aria-label="Navegación del backoffice"
+    >
+      <div class="sidebar-header">
+        <span class="sidebar-kicker">{{ i18n.t('admin.obrador_badge') }}</span>
+        <h3>Gestión Tienda</h3>
+      </div>
+
+      <nav class="sidebar-nav">
+        <a
+          [routerLink]="['/admin']"
+          [routerLinkActiveOptions]="{ exact: true }"
+          routerLinkActive="active"
+          (click)="closeSidebar()"
+          class="sidebar-nav-item"
+        >
+          <span class="nav-icon" aria-hidden="true">📊</span>
+          <span class="nav-text">{{ i18n.t('admin.nav_summary') }}</span>
+        </a>
+
+        <a
+          [routerLink]="['/admin/pedidos']"
+          routerLinkActive="active"
+          (click)="closeSidebar()"
+          class="sidebar-nav-item"
+        >
+          <span class="nav-icon" aria-hidden="true">📦</span>
+          <span class="nav-text">{{ i18n.t('admin.nav_orders') }}</span>
+        </a>
+
+        <a
+          [routerLink]="['/admin/productos']"
+          routerLinkActive="active"
+          (click)="closeSidebar()"
+          class="sidebar-nav-item"
+        >
+          <span class="nav-icon" aria-hidden="true">🥖</span>
+          <span class="nav-text">{{ i18n.t('admin.nav_catalog') }}</span>
+        </a>
+
+        <a
+          [routerLink]="['/admin/facturacion']"
+          routerLinkActive="active"
+          (click)="closeSidebar()"
+          class="sidebar-nav-item"
+        >
+          <span class="nav-icon" aria-hidden="true">🧾</span>
+          <span class="nav-text">{{ i18n.t('admin.nav_invoicing') }}</span>
+        </a>
+
+        <a
+          [routerLink]="['/admin/ajustes']"
+          routerLinkActive="active"
+          (click)="closeSidebar()"
+          class="sidebar-nav-item"
+        >
+          <span class="nav-icon" aria-hidden="true">⚙️</span>
+          <span class="nav-text">{{ i18n.t('admin.nav_settings') }}</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <p class="sidebar-location">
+          <strong>Cal Sardà</strong><br />
+          Carrer de la Marina, 237<br />
+          08013 Barcelona
+        </p>
+        <span class="sidebar-version">v2.0 · Fase B</span>
+      </div>
+    </aside>
+
+    <!-- Contenedor dinámico de rutas hijas -->
+    <main class="admin-content" role="main">
+      <router-outlet />
+    </main>
+  </div>
+</div>

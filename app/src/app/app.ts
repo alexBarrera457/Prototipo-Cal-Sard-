@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Component, inject, signal } from '@angular/core';
+import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
+import { filter } from 'rxjs/operators';
 
 import { Navbar } from './components/navbar/navbar';
 import { Footer } from './components/footer/footer';
@@ -11,4 +12,15 @@ import { CookieBanner } from './components/cookie-banner/cookie-banner';
   templateUrl: './app.html',
   styleUrl: './app.css',
 })
-export class App {}
+export class App {
+  private readonly router = inject(Router);
+  readonly isAdminRoute = signal<boolean>(false);
+
+  constructor() {
+    this.router.events
+      .pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd))
+      .subscribe((event) => {
+        this.isAdminRoute.set(event.urlAfterRedirects.startsWith('/admin'));
+      });
+  }
+}

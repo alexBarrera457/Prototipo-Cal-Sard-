@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { adminGuard } from './guards/admin.guard';
 
 export const routes: Routes = [
   {
@@ -51,6 +52,20 @@ export const routes: Routes = [
     path: 'account/register',
     redirectTo: 'crear-cuenta',
     pathMatch: 'full',
+  },
+  {
+    path: 'admin',
+    canActivate: [adminGuard],
+    loadComponent: () =>
+      import('./pages/admin/admin-layout/admin-layout').then((m) => m.AdminLayout),
+    children: [
+      {
+        path: '',
+        title: 'Panel de Control | Cal Sardà',
+        loadComponent: () =>
+          import('./pages/admin/admin-dashboard/admin-dashboard').then((m) => m.AdminDashboard),
+      },
+    ],
   },
   {
     path: 'galeria',
