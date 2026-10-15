@@ -424,6 +424,8 @@ describe('SupabaseOrdersRepository', () => {
     expect(service.allOrders().find((o) => o.reference === created.reference)?.status).toBe(
       'listo_recogida',
     );
+    expect(service.notifications.lastDispatchedAlert()?.newStatus).toBe('listo_recogida');
+    expect(service.notifications.lastDispatchedAlert()?.orderReference).toBe(created.reference);
 
     // Intentar actualizar pedido inexistente
     const notFound = await service.updateOrderStatus('CS-UNKNOWN-999', 'cancelado');
