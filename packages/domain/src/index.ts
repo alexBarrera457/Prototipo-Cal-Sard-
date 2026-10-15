@@ -64,6 +64,9 @@ export interface Order {
   shippingZoneLabel?: string;
   estimatedDate?: string;
   paymentMethod?: string;
+  paymentMethodType?: PaymentMethodType;
+  paymentStatus?: PaymentStatus;
+  paymentTransactionId?: string;
   status: OrderStatus;
   notes?: string;
   createdAt?: string;
@@ -124,4 +127,32 @@ export interface Invoice {
   total: number;
   paymentMethod?: string;
   fulfillment?: FulfillmentMethod;
+}
+
+export type PaymentMethodType = 'card' | 'bizum' | 'store';
+export type PaymentStatus = 'pending' | 'requires_action' | 'confirmed' | 'failed';
+
+export interface PaymentIntentRequest {
+  orderReference: string;
+  amount: number;
+  currency: 'eur';
+  paymentMethod: PaymentMethodType;
+  customer: OrderCustomer;
+  cardNumber?: string;
+  cardExp?: string;
+  cardCvc?: string;
+  bizumPhone?: string;
+}
+
+export interface PaymentTransactionResult {
+  success: boolean;
+  transactionId: string;
+  status: PaymentStatus;
+  paymentMethod: PaymentMethodType;
+  orderReference: string;
+  amount: number;
+  currency: 'eur';
+  timestamp: string;
+  errorMessage?: string;
+  details?: Record<string, unknown>;
 }

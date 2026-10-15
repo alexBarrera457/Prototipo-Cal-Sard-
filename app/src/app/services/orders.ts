@@ -5,13 +5,24 @@ import type {
   Order,
   OrderCustomer,
   OrderStatus,
+  PaymentMethodType,
+  PaymentStatus,
 } from '@cal-sarda/domain';
 import { NotificationService } from './notifications';
 import { SUPABASE_CLIENT, type SupabaseClient } from './supabase';
 
-export type { CartItem, FulfillmentMethod, Order, OrderCustomer, OrderStatus };
+export type {
+  CartItem,
+  FulfillmentMethod,
+  Order,
+  OrderCustomer,
+  OrderStatus,
+  PaymentMethodType,
+  PaymentStatus,
+};
 
 export interface CreateOrderInput {
+  reference?: string;
   customer: OrderCustomer;
   items: CartItem[];
   fulfillment: FulfillmentMethod;
@@ -19,6 +30,10 @@ export interface CreateOrderInput {
   shippingCost?: number;
   subtotal?: number;
   total?: number;
+  paymentMethod?: string;
+  paymentMethodType?: PaymentMethodType;
+  paymentStatus?: PaymentStatus;
+  paymentTransactionId?: string;
   notes?: string;
 }
 
@@ -630,9 +645,19 @@ export class OrdersService {
       input.subtotal ?? input.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
     const shippingCost = input.shippingCost ?? 0;
     const total = input.total ?? subtotal + shippingCost;
-    const reference = this.generateOrderReference();
+    const reference = input.reference ?? this.generateOrderReference();
     const estimatedDate = this.getEstimatedDateLabel(input.fulfillment);
-    const paymentMethod = this.getPaymentInstructions(input.fulfillment);
+    const paymentMethod = input.paymentMethod ?? this.getPaymentInstructions(input.fulfillment);
+    const paymentStatus: PaymentStatus =
+      input.paymentStatus ??
+      (input.paymentMethodType && input.paymentMethodType !== 'store' ? 'confirmed' : 'pending');
+
+    const status: OrderStatus =
+      input.paymentMethodType &&
+      input.paymentMethodType !== 'store' &&
+      paymentStatus === 'confirmed'
+        ? 'en_preparacion'
+        : 'confirmed';
 
     const order: Order = {
       reference,
@@ -645,8 +670,11 @@ export class OrdersService {
       shippingZoneLabel: input.shippingZoneLabel,
       estimatedDate,
       paymentMethod,
+      paymentMethodType: input.paymentMethodType,
+      paymentStatus,
+      paymentTransactionId: input.paymentTransactionId,
       notes: input.notes,
-      status: 'confirmed',
+      status,
       createdAt: new Date().toISOString(),
     };
 

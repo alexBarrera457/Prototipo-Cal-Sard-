@@ -300,4 +300,82 @@ describe('CheckoutPage', () => {
     expect(component.previewReady()).toBe(false);
     expect(component.customer.name).toBe('');
   });
+
+  it('processes order with card payment and saves transaction ID and status confirmed', async () => {
+    component.customer = {
+      name: 'Maria Valls',
+      email: 'maria.valls@calsarda.com',
+      phone: '612345678',
+      address: '',
+      postalCode: '',
+      city: '',
+    };
+    component.paymentMethod = 'card';
+    component.card = {
+      number: '4242 4242 4242 4242',
+      exp: '12/28',
+      cvc: '123',
+    };
+
+    component.preparePreview();
+    expect(component.previewReady()).toBe(true);
+
+    await component.confirmOrder();
+
+    const order = component.confirmedOrder();
+    expect(order).toBeTruthy();
+    expect(order?.paymentMethodType).toBe('card');
+    expect(order?.paymentStatus).toBe('confirmed');
+    expect(order?.paymentTransactionId).toContain('TX-CARD-');
+    expect(order?.status).toBe('en_preparacion');
+  });
+
+  it('processes order with Bizum payment and saves transaction ID', async () => {
+    component.customer = {
+      name: 'Jordi Puig',
+      email: 'jordi.puig@calsarda.com',
+      phone: '633456789',
+      address: '',
+      postalCode: '',
+      city: '',
+    };
+    component.paymentMethod = 'bizum';
+    component.bizum = { phone: '633456789' };
+
+    component.preparePreview();
+    expect(component.previewReady()).toBe(true);
+
+    await component.confirmOrder();
+
+    const order = component.confirmedOrder();
+    expect(order).toBeTruthy();
+    expect(order?.paymentMethodType).toBe('bizum');
+    expect(order?.paymentStatus).toBe('confirmed');
+    expect(order?.paymentTransactionId).toContain('TX-BIZUM-');
+  });
+
+  it('handles card decline error during confirmation and preserves preview state', async () => {
+    component.customer = {
+      name: 'Pau Claris',
+      email: 'pau.claris@calsarda.com',
+      phone: '611223344',
+      address: '',
+      postalCode: '',
+      city: '',
+    };
+    component.paymentMethod = 'card';
+    component.card = {
+      number: '4000 0000 0000 0002',
+      exp: '12/28',
+      cvc: '123',
+    };
+
+    component.preparePreview();
+    expect(component.previewReady()).toBe(true);
+
+    await component.confirmOrder();
+
+    expect(component.paymentError()).toContain('fondos insuficientes');
+    expect(component.confirmedOrder()).toBeNull();
+  });
 });

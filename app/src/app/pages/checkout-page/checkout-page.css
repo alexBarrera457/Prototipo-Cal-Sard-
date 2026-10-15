@@ -611,6 +611,202 @@
   padding: 0 22px;
 }
 
+/* Métodos de Pago (Issue #45) */
+.payment-options {
+  margin: 22px 0 0;
+  padding: 0;
+  border: 0;
+}
+
+.payment-options legend {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #7a6b5e;
+  margin-bottom: 12px;
+}
+
+.payment-choices {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.payment-choice {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 14px;
+  border: 1px solid #d4cabc;
+  background: #fffdf9;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.payment-choice:hover {
+  border-color: #8b3a2b;
+  background: #fdfaf6;
+}
+
+.payment-choice.selected {
+  border-color: #8b3a2b;
+  background: #fdf6f0;
+  box-shadow: 0 0 0 1px #8b3a2b;
+}
+
+.payment-choice-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.choice-icon {
+  font-size: 20px;
+}
+
+.choice-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.choice-text strong {
+  font-size: 13px;
+  color: #34291f;
+}
+
+.choice-text small {
+  font-size: 11px;
+  color: #7a6b5e;
+}
+
+.card-details-box,
+.bizum-details-box {
+  margin-top: 14px;
+  padding: 14px;
+  background: #fdfaf6;
+  border: 1px solid #ebd9c8;
+}
+
+.card-field-full {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 10px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #554438;
+}
+
+.card-details-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.card-details-row label,
+.bizum-details-box label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #554438;
+}
+
+.card-details-box input,
+.bizum-details-box input {
+  padding: 10px 12px;
+  border: 1px solid #d4cabc;
+  background: #fff;
+  font-size: 13px;
+  color: #34291f;
+  outline: none;
+}
+
+.card-details-box input:focus,
+.bizum-details-box input:focus {
+  border-color: #8b3a2b;
+}
+
+.preview-payment-badge {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 16px 0;
+  padding: 12px 14px;
+  background: #f5ede1;
+  border-left: 3px solid #8b3a2b;
+}
+
+.preview-payment-icon {
+  font-size: 22px;
+}
+
+.preview-payment-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.preview-payment-info strong {
+  font-size: 13px;
+  color: #34291f;
+}
+
+.preview-payment-info small {
+  font-size: 11px;
+  color: #7a6b5e;
+}
+
+.payment-error-alert {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 14px 0;
+  padding: 12px 14px;
+  background: #fbeae8;
+  border-left: 3px solid #b34033;
+  color: #7a2218;
+  font-size: 12px;
+}
+
+.payment-error-alert strong {
+  display: block;
+  font-size: 13px;
+  margin-bottom: 2px;
+}
+
+.payment-error-alert p {
+  margin: 0;
+}
+
+.payment-confirmed-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  padding: 4px 10px;
+  background: #dcfce7;
+  color: #15803d;
+  font-size: 12px;
+  font-weight: 700;
+  border-radius: 4px;
+}
+
+.payment-tx-id {
+  margin-top: 6px;
+  color: #695d53;
+}
+
+.payment-tx-id code {
+  font-family: monospace;
+  background: #f3efe9;
+  padding: 2px 6px;
+  border-radius: 3px;
+  color: #34291f;
+}
+
 @media (max-width: 900px) {
   .checkout-layout {
     grid-template-columns: 1fr;

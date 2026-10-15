@@ -121,23 +121,53 @@
 
         <!-- RECORDATORIO MÉTODO DE PAGO Y PASOS SIGUIENTES -->
         <article class="confirmation-card">
-          <div class="card-icon">💶</div>
+          <div class="card-icon">
+            @if (order.paymentMethodType === 'card') {
+              💳
+            } @else if (order.paymentMethodType === 'bizum') {
+              📱
+            } @else {
+              🏪
+            }
+          </div>
           <h2>{{ i18n.t('checkout.payment_method_label') }}</h2>
           <div class="card-content">
             <div class="info-group highlight-box">
               <span class="info-label">{{ i18n.t('checkout.payment_instructions') }}</span>
-              <p class="payment-instructions">{{ order.paymentMethod }}</p>
+              <p class="payment-instructions">
+                <strong>{{ order.paymentMethod }}</strong>
+              </p>
+              @if (order.paymentStatus === 'confirmed') {
+                <p class="payment-confirmed-badge">
+                  <span>✓</span> {{ i18n.t('checkout.payment_confirmed') }}
+                </p>
+              }
+              @if (order.paymentTransactionId) {
+                <p class="payment-tx-id">
+                  <small
+                    >{{ i18n.t('checkout.payment_tx_label') }}
+                    <code>{{ order.paymentTransactionId }}</code></small
+                  >
+                </p>
+              }
             </div>
             <div class="payment-notice">
               <p>
-                @if (i18n.currentLang() === 'ca') {
-                  <strong>Sense cobraments anticipats al web:</strong> L'import de
-                  <strong>{{ order.total.toFixed(2) }} €</strong> s'abona segons la modalitat
-                  indicada (a la botiga física en recollir o Bizum/contra reemborsament a domicili).
+                @if (order.paymentStatus === 'confirmed') {
+                  <strong>Transacción completada:</strong> El importe de
+                  <strong>{{ order.total.toFixed(2) }} €</strong> ha sido procesado correctamente
+                  mediante pasarela segura.
                 } @else {
-                  <strong>Sin cobros anticipados en la web:</strong> El importe de
-                  <strong>{{ order.total.toFixed(2) }} €</strong> se abona según la modalidad
-                  indicada (en tienda física al recoger o Bizum/contra reembolso en domicilio).
+                  @if (i18n.currentLang() === 'ca') {
+                    <strong>Sense cobraments anticipats al web:</strong> L'import de
+                    <strong>{{ order.total.toFixed(2) }} €</strong> s'abona segons la modalitat
+                    indicada (a la botiga física en recollir o Bizum/contra reemborsament a
+                    domicili).
+                  } @else {
+                    <strong>Sin cobros anticipados en la web:</strong> El importe de
+                    <strong>{{ order.total.toFixed(2) }} €</strong> se abona según la modalidad
+                    indicada (en tienda física al recoger o Bizum/contra reembolso en domicilio).
+                  }
                 }
               </p>
             </div>
@@ -387,6 +417,129 @@
                 </div>
               }
 
+              <!-- Selector de Métodos de Pago (Issue #45) -->
+              <fieldset class="payment-options">
+                <legend>{{ i18n.t('checkout.payment_method_legend') }}</legend>
+                <div class="payment-choices">
+                  <label class="payment-choice" [class.selected]="paymentMethod === 'card'">
+                    <input
+                      type="radio"
+                      name="paymentMethod"
+                      [(ngModel)]="paymentMethod"
+                      value="card"
+                      (change)="onPaymentMethodChange()"
+                    />
+                    <span class="payment-choice-content">
+                      <span class="choice-icon">💳</span>
+                      <span class="choice-text">
+                        <strong>{{ i18n.t('checkout.payment_card_title') }}</strong>
+                        <small>{{ i18n.t('checkout.payment_card_desc') }}</small>
+                      </span>
+                    </span>
+                  </label>
+
+                  <label class="payment-choice" [class.selected]="paymentMethod === 'bizum'">
+                    <input
+                      type="radio"
+                      name="paymentMethod"
+                      [(ngModel)]="paymentMethod"
+                      value="bizum"
+                      (change)="onPaymentMethodChange()"
+                    />
+                    <span class="payment-choice-content">
+                      <span class="choice-icon">📱</span>
+                      <span class="choice-text">
+                        <strong>{{ i18n.t('checkout.payment_bizum_title') }}</strong>
+                        <small>{{ i18n.t('checkout.payment_bizum_desc') }}</small>
+                      </span>
+                    </span>
+                  </label>
+
+                  <label class="payment-choice" [class.selected]="paymentMethod === 'store'">
+                    <input
+                      type="radio"
+                      name="paymentMethod"
+                      [(ngModel)]="paymentMethod"
+                      value="store"
+                      (change)="onPaymentMethodChange()"
+                    />
+                    <span class="payment-choice-content">
+                      <span class="choice-icon">🏪</span>
+                      <span class="choice-text">
+                        <strong>{{ i18n.t('checkout.payment_store_title') }}</strong>
+                        <small>{{ i18n.t('checkout.payment_store_desc') }}</small>
+                      </span>
+                    </span>
+                  </label>
+                </div>
+
+                <!-- Detalles de tarjeta de crédito/débito -->
+                @if (paymentMethod === 'card') {
+                  <div class="card-details-box">
+                    <label class="card-field-full">
+                      {{ i18n.t('checkout.card_number_label') }}
+                      <input
+                        name="cardNumber"
+                        [(ngModel)]="card.number"
+                        placeholder="4242 •••• •••• 4242"
+                        maxlength="19"
+                        [attr.aria-invalid]="errors().cardNumber ? 'true' : null"
+                      />
+                      @if (errors().cardNumber) {
+                        <p class="field-error" role="alert">{{ errors().cardNumber }}</p>
+                      }
+                    </label>
+                    <div class="card-details-row">
+                      <label>
+                        {{ i18n.t('checkout.card_exp_label') }}
+                        <input
+                          name="cardExp"
+                          [(ngModel)]="card.exp"
+                          placeholder="MM/AA (ej: 12/28)"
+                          maxlength="5"
+                          [attr.aria-invalid]="errors().cardExp ? 'true' : null"
+                        />
+                        @if (errors().cardExp) {
+                          <p class="field-error" role="alert">{{ errors().cardExp }}</p>
+                        }
+                      </label>
+                      <label>
+                        {{ i18n.t('checkout.card_cvc_label') }}
+                        <input
+                          name="cardCvc"
+                          [(ngModel)]="card.cvc"
+                          placeholder="123"
+                          maxlength="4"
+                          [attr.aria-invalid]="errors().cardCvc ? 'true' : null"
+                        />
+                        @if (errors().cardCvc) {
+                          <p class="field-error" role="alert">{{ errors().cardCvc }}</p>
+                        }
+                      </label>
+                    </div>
+                  </div>
+                }
+
+                <!-- Detalles de Bizum -->
+                @if (paymentMethod === 'bizum') {
+                  <div class="bizum-details-box">
+                    <label>
+                      {{ i18n.t('checkout.bizum_phone_label') }}
+                      <input
+                        name="bizumPhone"
+                        [(ngModel)]="bizum.phone"
+                        [placeholder]="customer.phone || '612 345 678'"
+                        maxlength="12"
+                        [attr.aria-invalid]="errors().bizumPhone ? 'true' : null"
+                      />
+                      @if (errors().bizumPhone) {
+                        <p class="field-error" role="alert">{{ errors().bizumPhone }}</p>
+                      }
+                    </label>
+                  </div>
+                }
+              </fieldset>
+
               <button class="checkout-submit" type="submit">
                 {{ i18n.t('checkout.prepare_preview') }} <span>→</span>
               </button>
@@ -411,6 +564,38 @@
                   }})
                 </p>
               }
+
+              <!-- Método de pago seleccionado en vista previa -->
+              <div class="preview-payment-badge">
+                <span class="preview-payment-icon">
+                  {{ paymentMethod === 'card' ? '💳' : paymentMethod === 'bizum' ? '📱' : '🏪' }}
+                </span>
+                <div class="preview-payment-info">
+                  <strong>{{
+                    paymentsService.getMethodLabel(
+                      paymentMethod,
+                      i18n.currentLang() === 'ca' ? 'ca' : 'es'
+                    )
+                  }}</strong>
+                  @if (paymentMethod === 'card') {
+                    <small>•••• •••• •••• {{ card.number.slice(-4) || '4242' }}</small>
+                  } @else if (paymentMethod === 'bizum') {
+                    <small>Bizum: {{ bizum.phone || customer.phone }}</small>
+                  }
+                </div>
+              </div>
+
+              <!-- Alerta de fallo en el pago si ocurre -->
+              @if (paymentError(); as pErr) {
+                <div class="payment-error-alert" role="alert">
+                  <span class="error-icon">⚠️</span>
+                  <div>
+                    <strong>{{ i18n.t('checkout.payment_failed') }}</strong>
+                    <p>{{ pErr }}</p>
+                  </div>
+                </div>
+              }
+
               <div class="preview-notice">
                 {{ i18n.t('checkout.preview_notice') }}
               </div>
@@ -422,7 +607,11 @@
                   (click)="confirmOrder()"
                 >
                   @if (submitting()) {
-                    {{ i18n.t('checkout.confirming') }}
+                    {{
+                      paymentProcessing()
+                        ? i18n.t('checkout.payment_processing')
+                        : i18n.t('checkout.confirming')
+                    }}
                   } @else {
                     {{ i18n.t('checkout.confirm_button') }} <span>✓</span>
                   }

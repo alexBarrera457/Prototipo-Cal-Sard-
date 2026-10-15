@@ -2,14 +2,19 @@ import { isPlatformBrowser } from '@angular/common';
 import { Component, inject, Inject, PLATFORM_ID, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import type { FulfillmentMethod } from '@cal-sarda/domain';
+import type {
+  FulfillmentMethod,
+  PaymentMethodType,
+  PaymentTransactionResult,
+} from '@cal-sarda/domain';
 
 import { CartService } from '../../services/cart';
 import { I18nService } from '../../services/i18n';
 import { InvoicingService } from '../../services/invoicing';
 import { OrdersService, type Order } from '../../services/orders';
+import { PaymentsService } from '../../services/payments';
 
-export type { FulfillmentMethod };
+export type { FulfillmentMethod, PaymentMethodType };
 
 export interface CheckoutFormErrors {
   name?: string;
@@ -18,6 +23,10 @@ export interface CheckoutFormErrors {
   address?: string;
   postalCode?: string;
   city?: string;
+  cardNumber?: string;
+  cardExp?: string;
+  cardCvc?: string;
+  bizumPhone?: string;
 }
 
 @Component({
@@ -28,6 +37,7 @@ export interface CheckoutFormErrors {
 })
 export class CheckoutPage {
   fulfillment: FulfillmentMethod = 'pickup';
+  paymentMethod: PaymentMethodType = 'store';
   readonly previewReady = signal(false);
   readonly submitted = signal(false);
   readonly submitting = signal(false);
@@ -35,8 +45,13 @@ export class CheckoutPage {
   readonly copied = signal(false);
   readonly errors = signal<CheckoutFormErrors>({});
 
+  readonly paymentProcessing = signal(false);
+  readonly paymentError = signal<string | null>(null);
+  readonly paymentResult = signal<PaymentTransactionResult | null>(null);
+
   public readonly i18n = inject(I18nService);
   private readonly invoicingService = inject(InvoicingService);
+  public readonly paymentsService = inject(PaymentsService);
 
   customer = {
     name: '',
@@ -45,6 +60,16 @@ export class CheckoutPage {
     address: '',
     postalCode: '',
     city: '',
+  };
+
+  card = {
+    number: '',
+    exp: '',
+    cvc: '',
+  };
+
+  bizum = {
+    phone: '',
   };
 
   constructor(
@@ -163,6 +188,39 @@ export class CheckoutPage {
       }
     }
 
+    if (this.paymentMethod === 'card') {
+      const num = this.card.number.trim();
+      const exp = this.card.exp.trim();
+      const cvc = this.card.cvc.trim();
+
+      if (!num) {
+        errs.cardNumber = 'El número de tarjeta es obligatorio.';
+      }
+      if (!exp) {
+        errs.cardExp = 'La fecha de caducidad es obligatoria.';
+      }
+      if (!cvc) {
+        errs.cardCvc = 'El CVC es obligatorio.';
+      }
+
+      if (num && exp && cvc) {
+        const check = this.paymentsService.validateCard(num, exp, cvc);
+        if (!check.valid) {
+          errs.cardNumber = check.error;
+        }
+      }
+    } else if (this.paymentMethod === 'bizum') {
+      const bPhone = (this.bizum.phone || this.customer.phone).trim();
+      if (!bPhone) {
+        errs.bizumPhone = 'El teléfono para Bizum es obligatorio.';
+      } else {
+        const check = this.paymentsService.validateBizum(bPhone);
+        if (!check.valid) {
+          errs.bizumPhone = check.error;
+        }
+      }
+    }
+
     this.errors.set(errs);
     return Object.keys(errs).length === 0;
   }
@@ -191,6 +249,13 @@ export class CheckoutPage {
     }
   }
 
+  onPaymentMethodChange(): void {
+    this.paymentError.set(null);
+    if (this.submitted()) {
+      this.validate();
+    }
+  }
+
   async confirmOrder(): Promise<void> {
     if (this.submitting()) {
       return;
@@ -201,9 +266,36 @@ export class CheckoutPage {
     }
 
     this.submitting.set(true);
+    this.paymentProcessing.set(true);
+    this.paymentError.set(null);
     try {
+      const reference = this.ordersService.generateOrderReference();
+
+      // Procesar el pago a través de la pasarela desacoplada
+      const tx = await this.paymentsService.processPayment({
+        orderReference: reference,
+        amount: this.finalTotal,
+        currency: 'eur',
+        paymentMethod: this.paymentMethod,
+        customer: { ...this.customer },
+        cardNumber: this.card.number,
+        cardExp: this.card.exp,
+        cardCvc: this.card.cvc,
+        bizumPhone: this.bizum.phone || this.customer.phone,
+      });
+
+      if (!tx.success) {
+        this.paymentError.set(
+          tx.errorMessage || 'No se ha podido procesar el pago. Por favor, revisa tus datos.',
+        );
+        return;
+      }
+
+      this.paymentResult.set(tx);
+
       const items = [...this.cartService.products()];
       const order = await this.ordersService.submitOrder({
+        reference,
         customer: { ...this.customer },
         items,
         fulfillment: this.fulfillment,
@@ -211,6 +303,13 @@ export class CheckoutPage {
         shippingZoneLabel: this.shippingZoneLabel,
         subtotal: this.cartService.getTotal(),
         total: this.finalTotal,
+        paymentMethod: this.paymentsService.getMethodLabel(
+          this.paymentMethod,
+          this.i18n.currentLang() === 'ca' ? 'ca' : 'es',
+        ),
+        paymentMethodType: this.paymentMethod,
+        paymentStatus: tx.status,
+        paymentTransactionId: tx.transactionId,
       });
 
       this.cartService.clearCart();
@@ -221,6 +320,7 @@ export class CheckoutPage {
       }
     } finally {
       this.submitting.set(false);
+      this.paymentProcessing.set(false);
     }
   }
 
@@ -252,6 +352,8 @@ export class CheckoutPage {
     this.confirmedOrder.set(null);
     this.previewReady.set(false);
     this.submitted.set(false);
+    this.paymentError.set(null);
+    this.paymentResult.set(null);
     this.customer = {
       name: '',
       email: '',
@@ -260,5 +362,7 @@ export class CheckoutPage {
       postalCode: '',
       city: '',
     };
+    this.card = { number: '', exp: '', cvc: '' };
+    this.bizum = { phone: '' };
   }
 }
