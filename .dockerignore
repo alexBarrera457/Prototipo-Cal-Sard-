@@ -1,0 +1,17 @@
+node_modules
+.git
+.github
+.gemini
+dist
+app/dist
+packages/*/dist
+test-results
+playwright-report
+.angular
+*.log
+.env
+.env.local
+.env.production
+.DS_Store
+Thumbs.db
+coverage
