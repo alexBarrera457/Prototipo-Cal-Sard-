@@ -3,6 +3,7 @@ import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { OrdersService, type Order, type OrderStatus } from '../../../services/orders';
 import { I18nService } from '../../../services/i18n';
+import { InvoicingService } from '../../../services/invoicing';
 
 @Component({
   selector: 'app-admin-orders',
@@ -14,6 +15,7 @@ import { I18nService } from '../../../services/i18n';
 export class AdminOrders {
   readonly ordersService = inject(OrdersService);
   readonly i18n = inject(I18nService);
+  readonly invoicingService = inject(InvoicingService);
 
   readonly statusFilter = signal<string>('todos');
   readonly fulfillmentFilter = signal<string>('todos');
@@ -216,5 +218,10 @@ export class AdminOrders {
   formatCurrency(value?: number): string {
     if (value === undefined || value === null) return '0,00 €';
     return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(value);
+  }
+
+  printInvoice(order: Order): void {
+    const invoice = this.invoicingService.generateInvoice(order);
+    this.invoicingService.printInvoice(invoice);
   }
 }

@@ -80,3 +80,48 @@ export interface BlogPost {
   tags: string[];
   author: string;
 }
+
+export interface TaxBreakdownItem {
+  vatRate: number;
+  baseAmount: number;
+  vatAmount: number;
+  total: number;
+}
+
+export interface InvoiceItem {
+  name: string;
+  quantity: number;
+  unitPrice: number;
+  total: number;
+  vatRate: number;
+  baseAmount: number;
+  vatAmount: number;
+}
+
+export interface Invoice {
+  invoiceNumber: string;
+  orderReference: string;
+  issuedAt: string;
+  company: {
+    legalName: string;
+    tradeName: string;
+    cif: string;
+    address: string;
+    postalCode: string;
+    city: string;
+    country: string;
+    phone: string;
+    email: string;
+  };
+  customer: OrderCustomer;
+  items: InvoiceItem[];
+  taxBreakdown: TaxBreakdownItem[];
+  subtotalBase: number;
+  totalVat: number;
+  shippingBase: number;
+  shippingVat: number;
+  shippingTotal: number;
+  total: number;
+  paymentMethod?: string;
+  fulfillment?: FulfillmentMethod;
+}

@@ -479,9 +479,20 @@
           }
         </div>
 
-        <button type="button" class="btn-modal-close" (click)="closeOrderDetail()">
-          {{ i18n.t('admin.close_modal') }}
-        </button>
+        <div class="modal-footer-secondary">
+          <button
+            type="button"
+            class="btn-modal-invoice"
+            (click)="printInvoice(order)"
+            title="Descargar factura simplificada en PDF"
+          >
+            🧾 Factura (PDF)
+          </button>
+
+          <button type="button" class="btn-modal-close" (click)="closeOrderDetail()">
+            {{ i18n.t('admin.close_modal') }}
+          </button>
+        </div>
       </footer>
     </div>
   }

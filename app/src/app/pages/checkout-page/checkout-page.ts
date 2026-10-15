@@ -6,6 +6,7 @@ import type { FulfillmentMethod } from '@cal-sarda/domain';
 
 import { CartService } from '../../services/cart';
 import { I18nService } from '../../services/i18n';
+import { InvoicingService } from '../../services/invoicing';
 import { OrdersService, type Order } from '../../services/orders';
 
 export type { FulfillmentMethod };
@@ -35,6 +36,7 @@ export class CheckoutPage {
   readonly errors = signal<CheckoutFormErrors>({});
 
   public readonly i18n = inject(I18nService);
+  private readonly invoicingService = inject(InvoicingService);
 
   customer = {
     name: '',
@@ -224,7 +226,13 @@ export class CheckoutPage {
 
   printOrder(): void {
     if (isPlatformBrowser(this.platformId)) {
-      window.print();
+      const order = this.confirmedOrder();
+      if (order) {
+        const invoice = this.invoicingService.generateInvoice(order);
+        this.invoicingService.printInvoice(invoice);
+      } else {
+        window.print();
+      }
     }
   }
 

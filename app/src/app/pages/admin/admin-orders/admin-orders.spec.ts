@@ -149,4 +149,13 @@ describe('AdminOrders', () => {
     expect(component.isRefreshing()).toBe(false);
     expect(component.filteredOrders().length).toBe(DEFAULT_INITIAL_ORDERS.length);
   });
+
+  it('calls invoicingService.printInvoice when printInvoice is triggered', () => {
+    const order = DEFAULT_INITIAL_ORDERS[0];
+    const printSpy = vi
+      .spyOn(component.invoicingService, 'printInvoice')
+      .mockImplementation(() => {});
+    component.printInvoice(order);
+    expect(printSpy).toHaveBeenCalled();
+  });
 });
