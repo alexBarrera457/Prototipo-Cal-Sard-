@@ -136,4 +136,27 @@ test.describe('Gestión de Pedidos en Backoffice (Issue #41)', () => {
     await expect(movedRow).toBeVisible();
     await expect(movedRow.locator('.status-badge')).toContainText(/En preparación|En preparació/);
   });
+
+  test('6. Permite generar la comanda de preparación del colmado y el enlace directo de WhatsApp (Issue #49)', async ({
+    page,
+  }) => {
+    const row = page.locator('.orders-table tbody tr:has-text("CS-2026-1042")');
+    await expect(row).toBeVisible();
+
+    // Comprobar botones de acción de fila
+    const slipBtn = row.locator('.btn-slip');
+    const waBtn = row.locator('.btn-whatsapp');
+    await expect(slipBtn).toBeVisible();
+    await expect(waBtn).toBeVisible();
+
+    // Abrir modal de detalle
+    await row.locator('.ref-button').click();
+    const modal = page.locator('.order-modal');
+    await expect(modal).toBeVisible();
+
+    // Comprobar presencia de botones en modal
+    await expect(modal.locator('.btn-modal-slip')).toBeVisible();
+    await expect(modal.locator('.btn-modal-whatsapp')).toBeVisible();
+    await expect(modal.locator('.btn-modal-invoice')).toBeVisible();
+  });
 });

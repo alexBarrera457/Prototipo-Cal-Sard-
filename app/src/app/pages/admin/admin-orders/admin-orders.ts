@@ -224,4 +224,55 @@ export class AdminOrders {
     const invoice = this.invoicingService.generateInvoice(order);
     this.invoicingService.printInvoice(invoice);
   }
+
+  readonly toastMessage = signal<string | null>(null);
+
+  showToast(text: string): void {
+    this.toastMessage.set(text);
+    setTimeout(() => {
+      this.toastMessage.set(null);
+    }, 3500);
+  }
+
+  getWhatsAppUrl(order: Order): string {
+    const rawPhone = order.customer?.phone || '';
+    const digitsOnly = rawPhone.replace(/\D/g, '');
+    let fullPhone = digitsOnly;
+    if (fullPhone.length === 9) {
+      fullPhone = `34${fullPhone}`;
+    }
+    const isCa = this.i18n.currentLang() === 'ca';
+    const status = this.normalizeStatus(order.status);
+    let message = '';
+
+    if (status === 'listo_recogida') {
+      message = isCa
+        ? `Hola ${order.customer?.name || 'client'}! La teva comanda ${order.reference} ja està preparada al Colmado Cal Sardà (Carrer de Marina, 237). Pots passar a recollir-la en el nostre horari habitual. Moltes gràcies!`
+        : `¡Hola ${order.customer?.name || 'cliente'}! Tu pedido ${order.reference} ya está preparado en el Colmado Cal Sardà (Carrer de Marina, 237). Puedes pasar a recogerlo en nuestro horario habitual. ¡Muchas gracias!`;
+    } else if (status === 'enviado') {
+      message = isCa
+        ? `Hola ${order.customer?.name || 'client'}! La teva comanda ${order.reference} de Cal Sardà ja ha sortit en repartiment cap a la teva adreça. Moltes gràcies!`
+        : `¡Hola ${order.customer?.name || 'cliente'}! Tu pedido ${order.reference} de Cal Sardà ya ha salido en reparto hacia tu dirección. ¡Muchas gracias!`;
+    } else {
+      message = isCa
+        ? `Hola ${order.customer?.name || 'client'}! Et contactem des del Colmado Cal Sardà respecte a la teva comanda ${order.reference}.`
+        : `¡Hola ${order.customer?.name || 'cliente'}! Te contactamos desde el Colmado Cal Sardà respecto a tu pedido ${order.reference}.`;
+    }
+
+    return `https://wa.me/${fullPhone}?text=${encodeURIComponent(message)}`;
+  }
+
+  openWhatsApp(order: Order): void {
+    if (!order.customer?.phone || !order.customer.phone.replace(/\D/g, '')) {
+      this.showToast(this.i18n.t('admin.whatsapp_no_phone'));
+      return;
+    }
+    if (typeof window !== 'undefined') {
+      window.open(this.getWhatsAppUrl(order), '_blank', 'noopener,noreferrer');
+    }
+  }
+
+  printPreparationSlip(order: Order): void {
+    this.invoicingService.printPreparationSlip(order, this.i18n.currentLang());
+  }
 }

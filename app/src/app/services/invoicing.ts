@@ -444,4 +444,278 @@ export class InvoicingService {
       printWindow.print();
     }, 250);
   }
+
+  /**
+   * Genera el HTML de la comanda de preparación / hoja de obrador del colmado.
+   */
+  generatePreparationSlipHtml(order: Order, lang: 'es' | 'ca' = 'es'): string {
+    const isCa = lang === 'ca';
+    const formattedDate = order.createdAt
+      ? new Date(order.createdAt).toLocaleDateString(isCa ? 'ca-ES' : 'es-ES', {
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit',
+        })
+      : new Date().toLocaleDateString();
+
+    const fulfillmentText =
+      order.fulfillment === 'delivery'
+        ? isCa
+          ? '🚚 REPARTIMENT A DOMICILI'
+          : '🚚 REPARTO A DOMICILIO'
+        : isCa
+          ? '🏪 RECOLLIDA AL COLMADO (Marina 237)'
+          : '🏪 RECOGIDA EN COLMADO (Marina 237)';
+
+    const itemsRows = (order.items ?? [])
+      .map(
+        (it) => `
+      <tr>
+        <td style="text-align:center; width: 40px; font-size: 16px;">[ &nbsp; ]</td>
+        <td style="font-weight: 600;">${it.name}</td>
+        <td style="text-align: center; font-size: 14px; font-weight: 700;">${it.quantity}</td>
+        <td style="text-align: right; color: #555;">${new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(it.price * it.quantity)}</td>
+      </tr>
+    `,
+      )
+      .join('');
+
+    return `<!DOCTYPE html>
+<html lang="${lang}">
+<head>
+  <meta charset="utf-8">
+  <title>${isCa ? 'Comanda de Preparació' : 'Comanda de Preparación'} ${order.reference} - Cal Sardà</title>
+  <style>
+    @page { size: A4; margin: 15mm; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      color: #1a1a1a;
+      line-height: 1.4;
+      font-size: 13px;
+      margin: 0;
+      padding: 20px;
+    }
+    .slip-container {
+      max-width: 760px;
+      margin: 0 auto;
+      border: 2px solid #2b2520;
+      padding: 24px;
+      border-radius: 8px;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      border-bottom: 2px solid #9e3a24;
+      padding-bottom: 14px;
+      margin-bottom: 16px;
+    }
+    .brand-title {
+      font-size: 22px;
+      font-weight: 800;
+      color: #9e3a24;
+      margin: 0;
+      letter-spacing: 0.05em;
+    }
+    .brand-sub {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: #555;
+    }
+    .meta-box {
+      text-align: right;
+    }
+    .meta-box h2 {
+      margin: 0;
+      font-size: 20px;
+      font-family: monospace;
+      color: #1a1a1a;
+    }
+    .fulfillment-badge {
+      display: inline-block;
+      margin-top: 4px;
+      padding: 4px 10px;
+      background: #f4eee2;
+      border: 1px solid #dfd8cc;
+      font-weight: 700;
+      font-size: 12px;
+      border-radius: 4px;
+    }
+    .info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    .info-card {
+      background: #faf8f5;
+      border: 1px solid #e5dfd5;
+      padding: 10px 14px;
+      border-radius: 6px;
+    }
+    .info-title {
+      font-size: 10px;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: #9e3a24;
+      letter-spacing: 0.05em;
+      margin-bottom: 4px;
+    }
+    .notes-box {
+      background: #fffbeb;
+      border: 2px dashed #d97706;
+      padding: 10px 14px;
+      border-radius: 6px;
+      margin-bottom: 16px;
+    }
+    .notes-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: #b45309;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+    }
+    th {
+      background: #2b2520;
+      color: #fff;
+      font-weight: 700;
+      font-size: 11px;
+      text-transform: uppercase;
+      padding: 8px 10px;
+      text-align: left;
+    }
+    td {
+      padding: 9px 10px;
+      border-bottom: 1px solid #ddd;
+    }
+    .footer-control {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 12px;
+      margin-top: 24px;
+      border-top: 1px solid #2b2520;
+      padding-top: 14px;
+      font-size: 11px;
+    }
+    .control-box {
+      border: 1px solid #ccc;
+      padding: 8px;
+      height: 48px;
+      border-radius: 4px;
+    }
+    @media print {
+      body { padding: 0; }
+      .slip-container { border: 1px solid #000; }
+    }
+  </style>
+</head>
+<body>
+  <div class="slip-container">
+    <div class="header">
+      <div>
+        <h1 class="brand-title">CAL SARDÀ</h1>
+        <div class="brand-sub">${isCa ? 'COLMADO FAMILIAR DES DE 1930 · SAGRADA FAMÍLIA' : 'COLMADO FAMILIAR DESDE 1930 · SAGRADA FAMILIA'}</div>
+      </div>
+      <div class="meta-box">
+        <h2>${order.reference}</h2>
+        <div class="fulfillment-badge">${fulfillmentText}</div>
+        <div style="font-size: 11px; color: #555; margin-top: 4px;">${formattedDate}</div>
+      </div>
+    </div>
+
+    <div class="info-grid">
+      <div class="info-card">
+        <div class="info-title">${isCa ? 'Client' : 'Cliente'}</div>
+        <strong style="font-size: 14px;">${order.customer?.name}</strong><br>
+        ${order.customer?.phone ? `📞 Tel: <strong>${order.customer.phone}</strong><br>` : ''}
+        ${order.customer?.email ? `✉️ ${order.customer.email}` : ''}
+      </div>
+      <div class="info-card">
+        <div class="info-title">${isCa ? 'Destinació / Lliurament' : 'Destino / Entrega'}</div>
+        ${
+          order.fulfillment === 'delivery'
+            ? `
+          <strong>${order.customer?.address || ''}</strong><br>
+          ${order.customer?.postalCode || ''} ${order.customer?.city || ''}
+        `
+            : `
+          <strong>Cal Sardà Colmado</strong><br>
+          Carrer de la Marina, 237, 08013 Barcelona
+        `
+        }
+      </div>
+    </div>
+
+    ${
+      order.notes
+        ? `
+      <div class="notes-box">
+        <div class="notes-title">⚠️ ${isCa ? 'INDICACIONS ESPECIALS DEL CLIENT (Tall / Envasat)' : 'INDICACIONES ESPECIALES DEL CLIENTE (Corte / Envasado)'}</div>
+        <div style="font-size: 13px; font-weight: 600;">« ${order.notes} »</div>
+      </div>
+    `
+        : ''
+    }
+
+    <table>
+      <thead>
+        <tr>
+          <th style="width: 40px; text-align: center;">OK</th>
+          <th>${isCa ? 'Producte / Article del Colmado' : 'Producto / Artículo del Colmado'}</th>
+          <th style="text-align: center; width: 70px;">${isCa ? 'Quant.' : 'Cant.'}</th>
+          <th style="text-align: right; width: 90px;">Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${itemsRows}
+      </tbody>
+    </table>
+
+    <div style="text-align: right; font-size: 14px; margin-bottom: 14px;">
+      <strong>Total comanda: ${new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(order.total)}</strong>
+    </div>
+
+    <div class="footer-control">
+      <div class="control-box">
+        <strong>${isCa ? 'Preparat per:' : 'Preparado por:'}</strong>
+      </div>
+      <div class="control-box">
+        <strong>${isCa ? 'Comprovat per:' : 'Comprobado por:'}</strong>
+      </div>
+      <div class="control-box">
+        <strong>${isCa ? 'Hora recollida/sortida:' : 'Hora recogida/salida:'}</strong>
+      </div>
+    </div>
+  </div>
+</body>
+</html>`;
+  }
+
+  /**
+   * Abre la comanda de preparación en una ventana lista para imprimir.
+   */
+  printPreparationSlip(order: Order, lang: 'es' | 'ca' = 'es'): void {
+    if (typeof window === 'undefined') {
+      return;
+    }
+    const html = this.generatePreparationSlipHtml(order, lang);
+    const printWindow = window.open('', '_blank', 'width=840,height=900');
+    if (!printWindow) {
+      return;
+    }
+    printWindow.document.open();
+    printWindow.document.write(html);
+    printWindow.document.close();
+    printWindow.focus();
+    setTimeout(() => {
+      printWindow.print();
+    }, 250);
+  }
 }

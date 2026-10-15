@@ -1,4 +1,12 @@
 <div class="admin-orders-page" role="region" aria-label="Gestión de pedidos del backoffice">
+  <!-- Toast de aviso -->
+  @if (toastMessage(); as msg) {
+    <div class="orders-toast" role="status" aria-live="polite">
+      <span>💬</span>
+      <span>{{ msg }}</span>
+    </div>
+  }
+
   <!-- Cabecera de la sección -->
   <header class="orders-header">
     <div class="orders-title-group">
@@ -279,6 +287,28 @@
                     >
                       👁️ {{ i18n.t('admin.action_view_detail') }}
                     </button>
+
+                    <!-- Imprimir Comanda -->
+                    <button
+                      type="button"
+                      class="btn-action btn-slip"
+                      (click)="printPreparationSlip(order)"
+                      [attr.aria-label]="i18n.t('admin.action_print_slip')"
+                      title="Imprimir comanda de preparación del colmado"
+                    >
+                      🖨️ {{ i18n.t('admin.action_print_slip') }}
+                    </button>
+
+                    <!-- Contacto WhatsApp -->
+                    <button
+                      type="button"
+                      class="btn-action btn-whatsapp"
+                      (click)="openWhatsApp(order)"
+                      [attr.aria-label]="'Avisar por WhatsApp al cliente ' + order.customer.name"
+                      title="Contactar al cliente por WhatsApp"
+                    >
+                      💬 {{ i18n.t('admin.action_whatsapp') }}
+                    </button>
                   </div>
                 </td>
               </tr>
@@ -480,6 +510,24 @@
         </div>
 
         <div class="modal-footer-secondary">
+          <button
+            type="button"
+            class="btn-modal-slip"
+            (click)="printPreparationSlip(order)"
+            title="Imprimir comanda de preparación del colmado"
+          >
+            🖨️ {{ i18n.t('admin.action_print_slip') }}
+          </button>
+
+          <button
+            type="button"
+            class="btn-modal-whatsapp"
+            (click)="openWhatsApp(order)"
+            title="Contactar al cliente por WhatsApp"
+          >
+            💬 {{ i18n.t('admin.action_whatsapp') }}
+          </button>
+
           <button
             type="button"
             class="btn-modal-invoice"

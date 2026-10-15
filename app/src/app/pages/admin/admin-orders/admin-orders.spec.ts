@@ -158,4 +158,38 @@ describe('AdminOrders', () => {
     component.printInvoice(order);
     expect(printSpy).toHaveBeenCalled();
   });
+
+  it('calls invoicingService.printPreparationSlip when printPreparationSlip is triggered', () => {
+    const order = DEFAULT_INITIAL_ORDERS[0];
+    const slipSpy = vi
+      .spyOn(component.invoicingService, 'printPreparationSlip')
+      .mockImplementation(() => {});
+    component.printPreparationSlip(order);
+    expect(slipSpy).toHaveBeenCalledWith(order, component.i18n.currentLang());
+  });
+
+  it('formats WhatsApp URL correctly and opens chat window for customer with phone', () => {
+    const order = DEFAULT_INITIAL_ORDERS[0]; // Montserrat Puig, 612 345 678
+    const waUrl = component.getWhatsAppUrl(order);
+    expect(waUrl).toContain('https://wa.me/34612345678');
+    expect(waUrl).toContain(encodeURIComponent(order.reference!));
+
+    const openSpy = vi.spyOn(window, 'open').mockImplementation(() => null);
+    component.openWhatsApp(order);
+    expect(openSpy).toHaveBeenCalledWith(waUrl, '_blank', 'noopener,noreferrer');
+  });
+
+  it('shows toast notification when customer has no phone number for WhatsApp', () => {
+    const orderWithoutPhone: Order = {
+      ...DEFAULT_INITIAL_ORDERS[0],
+      customer: {
+        ...DEFAULT_INITIAL_ORDERS[0].customer,
+        phone: undefined,
+      },
+    };
+    const openSpy = vi.spyOn(window, 'open').mockImplementation(() => null);
+    component.openWhatsApp(orderWithoutPhone);
+    expect(openSpy).not.toHaveBeenCalled();
+    expect(component.toastMessage()).toBeTruthy();
+  });
 });

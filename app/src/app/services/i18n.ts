@@ -431,6 +431,9 @@ export const TRANSLATIONS = {
     'admin.payment_method_label': 'Método de Pago',
     'admin.date_label': 'Fecha del Encargo',
     'admin.close_modal': 'Cerrar',
+    'admin.action_print_slip': 'Imprimir Comanda',
+    'admin.action_whatsapp': 'WhatsApp',
+    'admin.whatsapp_no_phone': 'El cliente no tiene teléfono registrado para WhatsApp.',
 
     // Admin Catalog
     'admin.catalog_title': 'Gestión de Catálogo y Stock',
@@ -981,6 +984,9 @@ export const TRANSLATIONS = {
     'admin.payment_method_label': 'Mètode de Pagament',
     'admin.date_label': 'Data de l’Encàrrec',
     'admin.close_modal': 'Tancar',
+    'admin.action_print_slip': 'Imprimir Comanda',
+    'admin.action_whatsapp': 'WhatsApp',
+    'admin.whatsapp_no_phone': 'El client no té telèfon registrat per a WhatsApp.',
 
     // Admin Catalog
     'admin.catalog_title': 'Gestió de Catàleg i Estoc',
