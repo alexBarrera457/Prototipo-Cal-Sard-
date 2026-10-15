@@ -51,3 +51,199 @@
 .product-page-content {
   min-height: 80vh;
 }
+
+/* Bloque Maridaje del Obrador / Venta Cruzada */
+.pairing-toast {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.85rem 1.25rem;
+  border-radius: 4px;
+  background: #2b211a;
+  color: #fff;
+  font-size: 0.88rem;
+  font-weight: 600;
+  border-left: 4px solid #845f39;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.cross-selling-section {
+  padding: 60px 7vw 80px;
+  background: #fbf8f4;
+  border-top: 1px solid rgba(43, 33, 26, 0.08);
+}
+
+.cross-selling-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.cross-selling-header {
+  margin-bottom: 36px;
+  text-align: center;
+}
+
+.pairing-kicker {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2.5px;
+  color: #845f39;
+  margin-bottom: 8px;
+}
+
+.pairing-title {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: clamp(26px, 3.5vw, 38px);
+  font-weight: 400;
+  color: #241b14;
+  margin: 0 0 10px;
+}
+
+.pairing-subtitle {
+  color: #65594f;
+  font-size: 14px;
+  max-width: 580px;
+  margin: 0 auto;
+  line-height: 1.5;
+}
+
+.pairing-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+}
+
+.pairing-card {
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border: 1px solid rgba(43, 33, 26, 0.1);
+  border-radius: 3px;
+  overflow: hidden;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.pairing-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(43, 33, 26, 0.08);
+}
+
+.pairing-media {
+  display: block;
+  aspect-ratio: 1.1;
+  background: #f4eee7;
+  overflow: hidden;
+  text-decoration: none;
+}
+
+.pairing-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.pairing-card:hover .pairing-media img {
+  transform: scale(1.03);
+}
+
+.pairing-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  font-size: 32px;
+}
+
+.pairing-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding: 16px 18px 18px;
+}
+
+.pairing-category {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: #845f39;
+  margin-bottom: 6px;
+}
+
+.pairing-name {
+  margin: 0 0 14px;
+  font-family: Georgia, serif;
+  font-size: 17px;
+  font-weight: 400;
+  line-height: 1.3;
+}
+
+.pairing-name a {
+  color: #241b14;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.pairing-name a:hover {
+  color: #845f39;
+}
+
+.pairing-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: auto;
+  padding-top: 12px;
+  border-top: 1px solid rgba(43, 33, 26, 0.08);
+}
+
+.pairing-price {
+  font-size: 16px;
+  font-weight: 700;
+  color: #241b14;
+}
+
+.btn-add-pairing {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #2b211a;
+  color: #fff;
+  border: 1px solid #2b211a;
+  border-radius: 2px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-add-pairing:hover {
+  background: #845f39;
+  border-color: #845f39;
+}
+
+@media (max-width: 850px) {
+  .pairing-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 550px) {
+  .pairing-grid {
+    grid-template-columns: 1fr;
+  }
+  .cross-selling-section {
+    padding: 40px 20px 60px;
+  }
+}

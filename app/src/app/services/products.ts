@@ -533,6 +533,68 @@ export class ProductsService {
   }
 
   /**
+   * Obtiene de 2 a 3 productos complementarios recomendados por el colmado ("Amb què combina millor?")
+   */
+  async getPairingsForProduct(product: StoreProduct): Promise<StoreProduct[]> {
+    const all = await this.getProducts();
+    const available = all.filter((p) => p.number !== product.number && p.inStock !== false);
+
+    const targetCategories = this.getRecommendedCategories(product.category);
+    const categoryMatches = available.filter((p) => targetCategories.includes(p.category));
+
+    if (categoryMatches.length >= 2) {
+      return categoryMatches.slice(0, 3);
+    }
+
+    const remaining = available.filter(
+      (p) => !categoryMatches.some((cm) => cm.number === p.number),
+    );
+    return [...categoryMatches, ...remaining].slice(0, 3);
+  }
+
+  /**
+   * Obtiene recomendaciones de maridaje cruzado para los productos actuales de la cesta.
+   */
+  async getPairingsForCart(cartItemNumbersOrNames: string[]): Promise<StoreProduct[]> {
+    const all = await this.getProducts();
+    const available = all.filter(
+      (p) =>
+        !cartItemNumbersOrNames.includes(p.number) &&
+        !cartItemNumbersOrNames.includes(p.name) &&
+        p.inStock !== false,
+    );
+
+    const preferred = available.filter((p) =>
+      ['BODEGA GOURMET', 'CAFÉ GOURMET', 'VÍVERES GOURMET', 'FRUTOS SECOS'].includes(p.category),
+    );
+
+    if (preferred.length >= 2) {
+      return preferred.slice(0, 3);
+    }
+    return available.slice(0, 3);
+  }
+
+  private getRecommendedCategories(category: string): string[] {
+    switch (category) {
+      case 'CAFÉ GOURMET':
+        return ['GALLETAS Y PASTAS', 'CHOCOLATE GOURMET', 'DULCES DE FIESTAS'];
+      case 'CONSERVAS DE MAR':
+        return ['BODEGA GOURMET', 'VÍVERES GOURMET'];
+      case 'DULCES DE FIESTAS':
+      case 'GALLETAS Y PASTAS':
+        return ['CAFÉ GOURMET', 'CHOCOLATE GOURMET', 'BODEGA GOURMET'];
+      case 'FRUTOS SECOS':
+        return ['BODEGA GOURMET', 'EMBUTIDOS', 'VÍVERES GOURMET'];
+      case 'EMBUTIDOS':
+        return ['BODEGA GOURMET', 'FRUTOS SECOS', 'CONSERVAS DE MAR'];
+      case 'BODEGA GOURMET':
+        return ['CONSERVAS DE MAR', 'FRUTOS SECOS', 'EMBUTIDOS'];
+      default:
+        return ['BODEGA GOURMET', 'CAFÉ GOURMET', 'CONSERVAS DE MAR'];
+    }
+  }
+
+  /**
    * Búsqueda en texto completo de productos por múltiples términos.
    */
   async search(query: string, limit?: number): Promise<StoreProduct[]> {

@@ -228,4 +228,28 @@ describe('Navbar', () => {
     component.deleteCartItem('Llonganissa de Vic');
     expect(component.cartLiveMessage()).toContain('eliminado de la cesta');
   });
+
+  it('loads and adds cross-sell pairings from cart drawer', async () => {
+    const productsService = TestBed.inject(ProductsService);
+    const mockPairing = {
+      number: '99',
+      name: 'Vino Tinto Priorat',
+      category: 'BODEGA GOURMET',
+      description: 'Crianza en barrica',
+      shortDescription: '75 cl',
+      price: 16.5,
+      image: '/images/vino.jpg',
+    };
+    vi.spyOn(productsService, 'getPairingsForCart').mockResolvedValue([mockPairing]);
+
+    await component.loadCartPairings();
+    expect(component.cartPairings().length).toBe(1);
+    expect(component.cartPairings()[0].name).toBe('Vino Tinto Priorat');
+
+    component.addPairingFromCart(mockPairing);
+    expect(component.cartService.products().some((p) => p.name === 'Vino Tinto Priorat')).toBe(
+      true,
+    );
+    expect(component.cartLiveMessage()).toContain('Vino Tinto Priorat');
+  });
 });

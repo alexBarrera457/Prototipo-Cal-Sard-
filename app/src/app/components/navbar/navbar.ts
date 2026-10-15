@@ -32,6 +32,7 @@ export class Navbar {
   private cartTriggerElement: HTMLElement | null = null;
   private menuTriggerElement: HTMLElement | null = null;
   public readonly cartLiveMessage = signal<string>('');
+  public readonly cartPairings = signal<StoreProduct[]>([]);
 
   public readonly auth = inject(AuthService);
   public readonly i18n = inject(I18nService);
@@ -324,6 +325,7 @@ export class Navbar {
     this.cartOpen = true;
     this.mobileMenuOpen = false;
     this.lockBodyScroll(true);
+    void this.loadCartPairings();
     this.focusInitialElement('#cart-panel');
   }
 
@@ -387,6 +389,29 @@ export class Navbar {
   deleteCartItem(name: string): void {
     this.cartService.deleteProduct(name);
     this.cartLiveMessage.set(`${name} eliminado de la cesta.`);
+    void this.loadCartPairings();
+  }
+
+  async loadCartPairings(): Promise<void> {
+    try {
+      const currentKeys = this.cartService.products().map((p) => p.name);
+      const pairings = await this.productsService.getPairingsForCart(currentKeys);
+      this.cartPairings.set(pairings);
+    } catch {
+      this.cartPairings.set([]);
+    }
+  }
+
+  addPairingFromCart(item: StoreProduct): void {
+    const currentQuantity =
+      this.cartService.products().find((p) => p.name === item.name)?.quantity ?? 0;
+    this.cartService.addToCart(item.name, item.price, 1, item.number, item.image);
+    this.cartLiveMessage.set(
+      this.i18n.currentLang() === 'ca'
+        ? `${item.name}: afegit a la cistella. Total: ${currentQuantity + 1}.`
+        : `${item.name}: una unidad añadida. Total: ${currentQuantity + 1}.`,
+    );
+    void this.loadCartPairings();
   }
 
   private focusInitialElement(containerSelector: string): void {

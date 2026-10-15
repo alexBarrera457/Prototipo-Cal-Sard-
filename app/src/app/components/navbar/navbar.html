@@ -464,6 +464,41 @@
   ========================== -->
 
   @if (cartService.products().length > 0) {
+    <!-- Recomanació del colmado / Amb què combina millor? -->
+    @if (cartPairings().length > 0) {
+      <div class="cart-cross-sell" aria-label="Recomendaciones del colmado">
+        <span class="cart-cross-sell-title">
+          {{ i18n.currentLang() === 'ca' ? 'Amb què combina millor?' : '¿Con qué combina mejor?' }}
+        </span>
+        <div class="cart-cross-sell-items">
+          @for (item of cartPairings(); track item.number) {
+            <div class="cart-cross-sell-item">
+              <div class="cross-sell-thumb">
+                @if (item.image) {
+                  <img [src]="item.image" [alt]="item.name" loading="lazy" />
+                } @else {
+                  <span>📦</span>
+                }
+              </div>
+              <div class="cross-sell-details">
+                <span class="cross-sell-name">{{ item.name }}</span>
+                <span class="cross-sell-price">{{ item.price.toFixed(2) }} €</span>
+              </div>
+              <button
+                type="button"
+                class="btn-add-cross-sell"
+                (click)="addPairingFromCart(item)"
+                [attr.aria-label]="'Añadir ' + item.name + ' a la cesta'"
+                title="Añadir recomendación"
+              >
+                +
+              </button>
+            </div>
+          }
+        </div>
+      </div>
+    }
+
     <div class="cart-footer">
       <div class="cart-total">
         <span> {{ i18n.t('nav.total') }} </span>

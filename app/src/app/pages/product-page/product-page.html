@@ -4,7 +4,82 @@
   </section>
 } @else if (product(); as prod) {
   <main class="product-page-content">
+    @if (pairingToast(); as toast) {
+      <div class="pairing-toast" role="status" aria-live="polite">
+        <span>✓</span>
+        <span>{{ toast }}</span>
+      </div>
+    }
+
     <app-product-detail [product]="prod" (backToStore)="backToStore()" />
+
+    <!-- Bloque de Venta Cruzada / Maridaje del Obrador -->
+    @if (recommendedPairings().length > 0) {
+      <section class="cross-selling-section" aria-labelledby="pairing-heading">
+        <div class="cross-selling-container">
+          <div class="cross-selling-header">
+            <span class="pairing-kicker">
+              {{
+                i18n.currentLang() === 'ca'
+                  ? 'CONSELL DEL COLMADO · DES DE 1930'
+                  : 'CONSEJO DEL COLMADO · DESDE 1930'
+              }}
+            </span>
+            <h2 id="pairing-heading" class="pairing-title">
+              {{
+                i18n.currentLang() === 'ca' ? 'Amb què combina millor?' : '¿Con qué combina mejor?'
+              }}
+            </h2>
+            <p class="pairing-subtitle">
+              {{
+                i18n.currentLang() === 'ca'
+                  ? 'Maridatges artesanals seleccionats per la família Sardà per gaudir al màxim:'
+                  : 'Maridajes artesanales seleccionados por la familia Sardà para disfrutar al máximo:'
+              }}
+            </p>
+          </div>
+
+          <div class="pairing-grid">
+            @for (item of recommendedPairings(); track item.number) {
+              <article class="pairing-card">
+                <a
+                  [routerLink]="['/tienda-online/producto', item.slug || item.number]"
+                  class="pairing-media"
+                  [attr.aria-label]="'Ver ficha de ' + item.name"
+                >
+                  @if (item.image) {
+                    <img [src]="item.image" [alt]="item.name" loading="lazy" />
+                  } @else {
+                    <span class="pairing-placeholder">📦</span>
+                  }
+                </a>
+
+                <div class="pairing-body">
+                  <span class="pairing-category">{{ i18n.translateCategory(item.category) }}</span>
+                  <h3 class="pairing-name">
+                    <a [routerLink]="['/tienda-online/producto', item.slug || item.number]">{{
+                      item.name
+                    }}</a>
+                  </h3>
+                  <div class="pairing-footer">
+                    <strong class="pairing-price">{{ formatPrice(item.price) }}</strong>
+                    <button
+                      type="button"
+                      class="btn-add-pairing"
+                      (click)="addPairingToCart(item)"
+                      [attr.aria-label]="'Añadir ' + item.name + ' a la cesta'"
+                    >
+                      <span>+</span>
+                      <span>{{ i18n.currentLang() === 'ca' ? 'Afegir' : 'Añadir' }}</span>
+                    </button>
+                  </div>
+                </div>
+              </article>
+            }
+          </div>
+        </div>
+      </section>
+    }
   </main>
 } @else if (notFound()) {
   <main class="product-page-status product-not-found" aria-labelledby="not-found-heading">

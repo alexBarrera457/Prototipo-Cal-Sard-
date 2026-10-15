@@ -6,6 +6,7 @@ import { ProductDetail } from '../../components/product-detail/product-detail';
 import { getProductSlug, ProductsService, StoreProduct } from '../../services/products';
 import { I18nService } from '../../services/i18n';
 import { SeoService } from '../../services/seo';
+import { CartService } from '../../services/cart';
 
 @Component({
   selector: 'app-product-page',
@@ -17,11 +18,14 @@ export class ProductPage {
   readonly product = signal<StoreProduct | null>(null);
   readonly loading = signal(true);
   readonly notFound = signal(false);
-  public readonly i18n = inject(I18nService);
+  readonly recommendedPairings = signal<StoreProduct[]>([]);
+  readonly pairingToast = signal<string | null>(null);
 
+  public readonly i18n = inject(I18nService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
-  private readonly productsService = inject(ProductsService);
+  public readonly productsService = inject(ProductsService);
+  public readonly cartService = inject(CartService);
   private readonly seo = inject(SeoService);
   private readonly destroyRef = inject(DestroyRef);
   private requestIndex = 0;
@@ -54,13 +58,44 @@ export class ProductPage {
         if (product) {
           this.product.set(product);
           this.updateMetaForProduct(product);
+          void this.loadPairings(product);
         } else {
           this.notFound.set(true);
           this.product.set(null);
+          this.recommendedPairings.set([]);
           this.updateMetaForNotFound();
         }
       });
     });
+  }
+
+  async loadPairings(product: StoreProduct): Promise<void> {
+    try {
+      const pairings = await this.productsService.getPairingsForProduct(product);
+      this.recommendedPairings.set(pairings);
+    } catch {
+      this.recommendedPairings.set([]);
+    }
+  }
+
+  addPairingToCart(item: StoreProduct): void {
+    this.cartService.addToCart(item.name, item.price, 1, item.number, item.image);
+    const msg =
+      this.i18n.currentLang() === 'ca'
+        ? `${item.name} afegit a la cistella!`
+        : `¡${item.name} añadido a la cesta!`;
+    this.showToast(msg);
+  }
+
+  showToast(text: string): void {
+    this.pairingToast.set(text);
+    setTimeout(() => {
+      this.pairingToast.set(null);
+    }, 3200);
+  }
+
+  formatPrice(price: number): string {
+    return this.productsService.formatPrice(price);
   }
 
   backToStore(): void {
