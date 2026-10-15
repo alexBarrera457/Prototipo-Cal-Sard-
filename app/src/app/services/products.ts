@@ -118,6 +118,7 @@ export function getProductSlug(product: { number: string; name: string; slug?: s
 export interface ProductsRepository {
   getProducts(): Promise<StoreProduct[]>;
   getProductByNumber(number: string): Promise<StoreProduct | null>;
+  updateProduct?(number: string, updates: Partial<StoreProduct>): Promise<StoreProduct | null>;
 }
 
 export type ProductsStorageAdapter = ProductsRepository;
@@ -144,6 +145,9 @@ export function mapDatabaseProductToProduct(row: any): StoreProduct {
     imageFit: row.image_fit === 'cover' ? 'cover' : 'contain',
     sourceUrl: row.source_url ?? undefined,
     slug: getProductSlug({ number: String(row.number), name: String(row.name) }),
+    inStock: row.in_stock !== undefined ? Boolean(row.in_stock) : true,
+    featured: row.featured !== undefined ? Boolean(row.featured) : false,
+    allergens: Array.isArray(row.allergens) ? row.allergens : [],
   };
 }
 
@@ -153,17 +157,43 @@ export function mapDatabaseProductToProduct(row: any): StoreProduct {
 @Injectable()
 export class StaticProductsAdapter implements ProductsRepository {
   private static catalogPromise: Promise<StoreProduct[]> | null = null;
+  private static catalogData: StoreProduct[] | null = null;
 
   getProducts(): Promise<StoreProduct[]> {
-    StaticProductsAdapter.catalogPromise ??= import('./products-catalog').then(
-      (catalog) => catalog.storeProducts,
-    );
+    StaticProductsAdapter.catalogPromise ??= import('./products-catalog').then((catalog) => {
+      StaticProductsAdapter.catalogData = catalog.storeProducts.map((p) => ({
+        ...p,
+        inStock: p.inStock ?? true,
+        featured: p.featured ?? false,
+        allergens: p.allergens ? [...p.allergens] : [],
+      }));
+      return StaticProductsAdapter.catalogData;
+    });
     return StaticProductsAdapter.catalogPromise;
   }
 
   async getProductByNumber(number: string): Promise<StoreProduct | null> {
     const products = await this.getProducts();
     return products.find((product) => product.number === number) ?? null;
+  }
+
+  async updateProduct(
+    number: string,
+    updates: Partial<StoreProduct>,
+  ): Promise<StoreProduct | null> {
+    const products = await this.getProducts();
+    const index = products.findIndex((product) => product.number === number);
+    if (index === -1) {
+      return null;
+    }
+    const current = products[index];
+    const updated: StoreProduct = {
+      ...current,
+      ...updates,
+      number: current.number,
+    };
+    products[index] = updated;
+    return updated;
   }
 }
 
@@ -238,6 +268,61 @@ export class SupabaseProductsAdapter implements ProductsRepository {
       return this.fallbackAdapter.getProductByNumber(number);
     }
   }
+
+  private async fallbackUpdate(
+    number: string,
+    updates: Partial<StoreProduct>,
+  ): Promise<StoreProduct | null> {
+    if (this.fallbackAdapter.updateProduct) {
+      return this.fallbackAdapter.updateProduct(number, updates);
+    }
+    const current = await this.fallbackAdapter.getProductByNumber(number);
+    if (!current) {
+      return null;
+    }
+    return { ...current, ...updates };
+  }
+
+  async updateProduct(
+    number: string,
+    updates: Partial<StoreProduct>,
+  ): Promise<StoreProduct | null> {
+    if (!this.supabase) {
+      return this.fallbackUpdate(number, updates);
+    }
+
+    try {
+      const dbPayload: Record<string, unknown> = {
+        updated_at: new Date().toISOString(),
+      };
+      if (updates.name !== undefined) dbPayload['name'] = updates.name;
+      if (updates.category !== undefined) dbPayload['category_name'] = updates.category;
+      if (updates.description !== undefined) dbPayload['description'] = updates.description;
+      if (updates.shortDescription !== undefined)
+        dbPayload['short_description'] = updates.shortDescription;
+      if (updates.price !== undefined) dbPayload['price'] = updates.price;
+      if (updates.priceLabel !== undefined) dbPayload['price_label'] = updates.priceLabel;
+      if (updates.inStock !== undefined) dbPayload['in_stock'] = updates.inStock;
+      if (updates.featured !== undefined) dbPayload['featured'] = updates.featured;
+      if (updates.allergens !== undefined) dbPayload['allergens'] = updates.allergens;
+
+      const { data, error } = await this.supabase
+        .from('products')
+        .update(dbPayload)
+        .eq('number', number)
+        .select()
+        .maybeSingle();
+
+      if (error || !data) {
+        return this.fallbackUpdate(number, updates);
+      }
+
+      this.cachedProducts = null;
+      return mapDatabaseProductToProduct(data);
+    } catch {
+      return this.fallbackUpdate(number, updates);
+    }
+  }
 }
 
 @Injectable({
@@ -269,6 +354,23 @@ export class ProductsService {
    */
   getProducts(): Promise<StoreProduct[]> {
     return this.repository.getProducts();
+  }
+
+  /**
+   * Actualiza los datos o disponibilidad de un producto en el repositorio.
+   */
+  async updateProduct(
+    number: string,
+    updates: Partial<StoreProduct>,
+  ): Promise<StoreProduct | null> {
+    if (this.repository.updateProduct) {
+      return this.repository.updateProduct(number, updates);
+    }
+    const current = await this.repository.getProductByNumber(number);
+    if (!current) {
+      return null;
+    }
+    return { ...current, ...updates };
   }
 
   /**

@@ -16,6 +16,9 @@ export interface Product {
   imageFit?: 'cover' | 'contain';
   sourceUrl?: string;
   slug?: string;
+  inStock?: boolean;
+  featured?: boolean;
+  allergens?: string[];
 }
 
 export interface CartItem {

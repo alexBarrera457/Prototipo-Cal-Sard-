@@ -512,5 +512,60 @@ describe('ProductsService', () => {
       expect(products[0].number).toBe('SB-01');
       expect(products[0].name).toBe('Supabase Injected Product');
     });
+
+    it('updates product attributes via updateProduct', async () => {
+      TestBed.resetTestingModule();
+      TestBed.configureTestingModule({
+        providers: [ProductsService],
+      });
+      const staticService = TestBed.inject(ProductsService);
+
+      const updated = await staticService.updateProduct('01', {
+        inStock: false,
+        featured: true,
+        price: 19.99,
+        allergens: ['Gluten', 'Soja'],
+      });
+
+      expect(updated).not.toBeNull();
+      expect(updated?.number).toBe('01');
+      expect(updated?.inStock).toBe(false);
+      expect(updated?.featured).toBe(true);
+      expect(updated?.price).toBe(19.99);
+      expect(updated?.allergens).toEqual(['Gluten', 'Soja']);
+
+      const retrieved = await staticService.getProductByNumber('01');
+      expect(retrieved?.inStock).toBe(false);
+      expect(retrieved?.featured).toBe(true);
+    });
+
+    it('returns null when updating a non-existent product', async () => {
+      TestBed.resetTestingModule();
+      TestBed.configureTestingModule({
+        providers: [ProductsService],
+      });
+      const staticService = TestBed.inject(ProductsService);
+
+      const result = await staticService.updateProduct('XYZ-NON-EXISTENT', { inStock: false });
+      expect(result).toBeNull();
+    });
+
+    it('mapDatabaseProductToProduct maps stock, featured and allergens correctly', () => {
+      const dbRow = {
+        number: 'TEST-01',
+        name: 'Turrón de Agramunt',
+        category_name: 'DULCES DE FIESTAS',
+        price: '12.50',
+        in_stock: false,
+        featured: true,
+        allergens: ['Frutos secos', 'Huevo'],
+      };
+
+      const product = mapDatabaseProductToProduct(dbRow);
+      expect(product.number).toBe('TEST-01');
+      expect(product.inStock).toBe(false);
+      expect(product.featured).toBe(true);
+      expect(product.allergens).toEqual(['Frutos secos', 'Huevo']);
+    });
   });
 });

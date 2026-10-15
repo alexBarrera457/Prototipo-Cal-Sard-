@@ -1,0 +1,450 @@
+<section class="admin-catalog" aria-labelledby="catalog-title">
+  <!-- Toast de retroalimentación -->
+  @if (feedbackMessage(); as msg) {
+    <div
+      class="catalog-toast"
+      [class.toast-success]="msg.type === 'success'"
+      [class.toast-error]="msg.type === 'error'"
+      role="status"
+      aria-live="polite"
+    >
+      <span>{{ msg.type === 'success' ? '✓' : '⚠️' }}</span>
+      <span>{{ msg.text }}</span>
+    </div>
+  }
+
+  <!-- Cabecera de la sección -->
+  <header class="catalog-header">
+    <div>
+      <h1 id="catalog-title">{{ i18n.t('admin.catalog_title') }}</h1>
+      <p class="catalog-subtitle">{{ i18n.t('admin.catalog_subtitle') }}</p>
+    </div>
+
+    <button
+      type="button"
+      class="refresh-btn"
+      (click)="loadCatalog()"
+      [disabled]="isLoading()"
+      title="Recargar catálogo oficial"
+    >
+      <span class="refresh-icon" [class.spinning]="isLoading()">🔄</span>
+      <span>Actualizar</span>
+    </button>
+  </header>
+
+  <!-- Tarjetas KPI de resumen -->
+  <div class="catalog-kpi-grid">
+    <div class="kpi-card">
+      <span class="kpi-label">Total Productos</span>
+      <strong class="kpi-value">{{ catalogStats().total }}</strong>
+      <span class="kpi-hint">Catálogo de obrador</span>
+    </div>
+
+    <div class="kpi-card card-success">
+      <span class="kpi-label">Disponibles</span>
+      <strong class="kpi-value text-success">{{ catalogStats().inStock }}</strong>
+      <span class="kpi-hint">Con existencias</span>
+    </div>
+
+    <div class="kpi-card card-warning">
+      <span class="kpi-label">Agotados / Pausados</span>
+      <strong class="kpi-value text-warning">{{ catalogStats().outOfStock }}</strong>
+      <span class="kpi-hint">Pausados temporalmente</span>
+    </div>
+
+    <div class="kpi-card card-accent">
+      <span class="kpi-label">Destacados Portada</span>
+      <strong class="kpi-value text-accent">{{ catalogStats().featured }}</strong>
+      <span class="kpi-hint">Selección de obrador</span>
+    </div>
+  </div>
+
+  <!-- Barra de Filtros y Búsqueda -->
+  <div class="catalog-toolbar">
+    <!-- Buscador en tiempo real -->
+    <div class="search-box">
+      <span class="search-icon" aria-hidden="true">🔍</span>
+      <input
+        type="search"
+        [(ngModel)]="searchQueryModel"
+        (ngModelChange)="onSearchInput($event)"
+        [placeholder]="i18n.t('admin.catalog_search_placeholder')"
+        class="search-input"
+        aria-label="Buscar en el catálogo"
+      />
+      @if (searchQueryModel) {
+        <button
+          type="button"
+          class="clear-search-btn"
+          (click)="clearSearch()"
+          aria-label="Borrar búsqueda"
+        >
+          ✕
+        </button>
+      }
+    </div>
+
+    <!-- Filtros de categoría y stock -->
+    <div class="filter-controls">
+      <!-- Selector de categoría -->
+      <select
+        [ngModel]="categoryFilter()"
+        (ngModelChange)="setCategoryFilter($event)"
+        class="filter-select"
+        aria-label="Filtrar por categoría"
+      >
+        <option value="todos">{{ i18n.t('admin.filter_category_all') }}</option>
+        @for (cat of categories(); track cat.value) {
+          <option [value]="cat.value">{{ i18n.translateCategory(cat.value) }}</option>
+        }
+      </select>
+
+      <!-- Selector de disponibilidad -->
+      <select
+        [ngModel]="stockFilter()"
+        (ngModelChange)="setStockFilter($event)"
+        class="filter-select"
+        aria-label="Filtrar por disponibilidad"
+      >
+        <option value="todos">{{ i18n.t('admin.filter_stock_all') }}</option>
+        <option value="in_stock">{{ i18n.t('admin.filter_stock_in') }}</option>
+        <option value="out_of_stock">{{ i18n.t('admin.filter_stock_out') }}</option>
+      </select>
+
+      <!-- Toggle filtro destacados -->
+      <button
+        type="button"
+        class="featured-filter-btn"
+        [class.active]="featuredFilter()"
+        (click)="toggleFeaturedFilter()"
+        [attr.aria-pressed]="featuredFilter()"
+      >
+        <span>⭐</span>
+        <span>{{ i18n.t('admin.filter_featured_only') }}</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Estado de carga -->
+  @if (isLoading()) {
+    <div class="catalog-loading" role="status">
+      <span class="spinner" aria-hidden="true"></span>
+      <p>Cargando productos del catálogo...</p>
+    </div>
+  } @else if (filteredProducts().length === 0) {
+    <!-- Estado vacío -->
+    <div class="catalog-empty">
+      <span class="empty-icon">🥖</span>
+      <h3>{{ i18n.t('admin.empty_catalog') }}</h3>
+      <p>Prueba a cambiar los términos de búsqueda o restablecer los filtros de categoría.</p>
+      <button
+        type="button"
+        class="btn-reset"
+        (click)="clearSearch(); setCategoryFilter('todos'); setStockFilter('todos')"
+      >
+        Restablecer filtros
+      </button>
+    </div>
+  } @else {
+    <!-- Tabla de productos -->
+    <div class="table-container">
+      <table class="catalog-table">
+        <thead>
+          <tr>
+            <th scope="col">{{ i18n.t('admin.th_product') }}</th>
+            <th scope="col">{{ i18n.t('admin.th_category') }}</th>
+            <th scope="col">{{ i18n.t('admin.th_price') }}</th>
+            <th scope="col">{{ i18n.t('admin.th_stock') }}</th>
+            <th scope="col">{{ i18n.t('admin.th_featured') }}</th>
+            <th scope="col" class="th-actions">{{ i18n.t('admin.th_actions') }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (product of paginatedProducts(); track product.number) {
+            <tr [class.row-paused]="product.inStock === false">
+              <!-- Información de producto con miniatura -->
+              <td class="td-product">
+                <div class="product-info-cell">
+                  @if (product.image) {
+                    <img
+                      [src]="product.image"
+                      [alt]="product.name"
+                      class="product-thumb"
+                      loading="lazy"
+                    />
+                  } @else {
+                    <div class="thumb-placeholder" aria-hidden="true">📦</div>
+                  }
+                  <div class="product-text">
+                    <span class="product-number">#{{ product.number }}</span>
+                    <strong class="product-name">{{ product.name }}</strong>
+                    <span class="product-desc-snippet">{{ product.shortDescription }}</span>
+                  </div>
+                </div>
+              </td>
+
+              <!-- Categoría -->
+              <td class="td-category">
+                <span class="category-badge">
+                  {{ i18n.translateCategory(product.category) }}
+                </span>
+              </td>
+
+              <!-- Precio -->
+              <td class="td-price">
+                <strong class="price-val">{{ formatCurrency(product.price) }}</strong>
+                @if (product.priceLabel) {
+                  <span class="price-label-sub">{{ product.priceLabel }}</span>
+                }
+              </td>
+
+              <!-- Toggle directo de stock -->
+              <td class="td-stock">
+                <button
+                  type="button"
+                  class="stock-toggle-btn"
+                  [class.in-stock]="product.inStock !== false"
+                  [class.out-of-stock]="product.inStock === false"
+                  [disabled]="updatingProductNumber() === product.number"
+                  (click)="toggleStock(product)"
+                  [attr.aria-label]="
+                    (product.inStock !== false ? 'Pausar stock de ' : 'Activar stock de ') +
+                    product.name
+                  "
+                  [attr.aria-checked]="product.inStock !== false"
+                  role="switch"
+                >
+                  <span class="toggle-dot"></span>
+                  <span class="toggle-label">
+                    {{
+                      product.inStock !== false
+                        ? i18n.t('admin.badge_in_stock')
+                        : i18n.t('admin.badge_out_of_stock')
+                    }}
+                  </span>
+                </button>
+              </td>
+
+              <!-- Toggle directo de destacado -->
+              <td class="td-featured">
+                <button
+                  type="button"
+                  class="featured-toggle-btn"
+                  [class.active]="product.featured"
+                  [disabled]="updatingProductNumber() === product.number"
+                  (click)="toggleFeatured(product)"
+                  [attr.aria-label]="
+                    (product.featured ? 'Quitar de destacados ' : 'Marcar como destacado ') +
+                    product.name
+                  "
+                  [attr.aria-checked]="product.featured ? 'true' : 'false'"
+                  role="switch"
+                  title="Alternar producto destacado en portada"
+                >
+                  <span>{{ product.featured ? '⭐' : '☆' }}</span>
+                  <span class="featured-label">{{
+                    product.featured ? 'Destacado' : 'Estándar'
+                  }}</span>
+                </button>
+              </td>
+
+              <!-- Acciones: Modal de edición completa -->
+              <td class="td-actions">
+                <button
+                  type="button"
+                  class="btn-edit-product"
+                  (click)="openEditModal(product)"
+                  [attr.aria-label]="i18n.t('admin.action_edit') + ' ' + product.name"
+                >
+                  <span>✏️</span>
+                  <span>{{ i18n.t('admin.action_edit') }}</span>
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Paginación -->
+    @if (totalPages() > 1) {
+      <nav class="catalog-pagination" aria-label="Paginación del catálogo">
+        <div class="pagination-info">
+          Mostrando {{ firstItemIndex() }} a {{ lastItemIndex() }} de
+          {{ totalFiltered() }} productos
+        </div>
+
+        <div class="pagination-buttons">
+          <button
+            type="button"
+            class="page-btn"
+            [disabled]="currentPage() === 1"
+            (click)="goToPage(currentPage() - 1)"
+            aria-label="Página anterior"
+          >
+            ← Anterior
+          </button>
+
+          <span class="page-current">
+            Página <strong>{{ currentPage() }}</strong> de {{ totalPages() }}
+          </span>
+
+          <button
+            type="button"
+            class="page-btn"
+            [disabled]="currentPage() === totalPages()"
+            (click)="goToPage(currentPage() + 1)"
+            aria-label="Página siguiente"
+          >
+            Siguiente →
+          </button>
+        </div>
+      </nav>
+    }
+  }
+
+  <!-- Modal de Edición de Producto -->
+  @if (editingProduct(); as prod) {
+    <div class="modal-backdrop" (click)="closeEditModal()" role="presentation"></div>
+
+    <div class="edit-modal" role="dialog" aria-modal="true" aria-labelledby="edit-dialog-title">
+      <header class="modal-header">
+        <div>
+          <span class="modal-kicker">REFERENCIA #{{ editForm.number }}</span>
+          <h2 id="edit-dialog-title">{{ i18n.t('admin.edit_product_title') }}</h2>
+        </div>
+        <button
+          type="button"
+          class="modal-close-btn"
+          (click)="closeEditModal()"
+          aria-label="Cerrar ventana de edición"
+        >
+          ✕
+        </button>
+      </header>
+
+      <form class="modal-form" (ngSubmit)="saveProduct()">
+        <!-- Nombre del Producto -->
+        <div class="form-group">
+          <label for="edit-name">{{ i18n.t('admin.field_name') }} *</label>
+          <input
+            id="edit-name"
+            type="text"
+            name="name"
+            [(ngModel)]="editForm.name"
+            required
+            class="form-input"
+          />
+        </div>
+
+        <!-- Categoría y Precio en fila -->
+        <div class="form-row">
+          <div class="form-group">
+            <label for="edit-category">{{ i18n.t('admin.field_category') }} *</label>
+            <select
+              id="edit-category"
+              name="category"
+              [(ngModel)]="editForm.category"
+              required
+              class="form-select"
+            >
+              @for (cat of categories(); track cat.value) {
+                <option [value]="cat.value">{{ i18n.translateCategory(cat.value) }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="edit-price">{{ i18n.t('admin.field_price') }} *</label>
+            <input
+              id="edit-price"
+              type="number"
+              name="price"
+              step="0.01"
+              min="0"
+              [(ngModel)]="editForm.price"
+              required
+              class="form-input"
+            />
+          </div>
+        </div>
+
+        <!-- Descripción corta -->
+        <div class="form-group">
+          <label for="edit-short-desc">{{ i18n.t('admin.field_short_desc') }}</label>
+          <input
+            id="edit-short-desc"
+            type="text"
+            name="shortDescription"
+            [(ngModel)]="editForm.shortDescription"
+            class="form-input"
+          />
+        </div>
+
+        <!-- Descripción completa -->
+        <div class="form-group">
+          <label for="edit-desc">{{ i18n.t('admin.field_desc') }}</label>
+          <textarea
+            id="edit-desc"
+            name="description"
+            rows="3"
+            [(ngModel)]="editForm.description"
+            class="form-textarea"
+          ></textarea>
+        </div>
+
+        <!-- Alérgenos -->
+        <div class="form-group">
+          <label for="edit-allergens">{{ i18n.t('admin.field_allergens') }}</label>
+          <input
+            id="edit-allergens"
+            type="text"
+            name="allergensText"
+            [(ngModel)]="editForm.allergensText"
+            [placeholder]="i18n.t('admin.field_allergens_placeholder')"
+            class="form-input"
+          />
+        </div>
+
+        <!-- Toggles de Stock y Destacado -->
+        <div class="modal-toggles">
+          <label class="toggle-checkbox-label">
+            <input
+              type="checkbox"
+              name="inStock"
+              [(ngModel)]="editForm.inStock"
+              class="checkbox-input"
+            />
+            <span>{{ i18n.t('admin.field_in_stock') }}</span>
+          </label>
+
+          <label class="toggle-checkbox-label">
+            <input
+              type="checkbox"
+              name="featured"
+              [(ngModel)]="editForm.featured"
+              class="checkbox-input"
+            />
+            <span>{{ i18n.t('admin.field_featured') }}</span>
+          </label>
+        </div>
+
+        <!-- Botones de acción del modal -->
+        <footer class="modal-footer">
+          <button type="button" class="btn-cancel" (click)="closeEditModal()">
+            {{ i18n.t('admin.btn_cancel') }}
+          </button>
+
+          <button type="submit" class="btn-submit" [disabled]="isSaving()">
+            @if (isSaving()) {
+              <span class="spinner-small" aria-hidden="true"></span>
+              <span>{{ i18n.t('admin.btn_saving') }}</span>
+            } @else {
+              <span>💾 {{ i18n.t('admin.btn_save') }}</span>
+            }
+          </button>
+        </footer>
+      </form>
+    </div>
+  }
+</section>
