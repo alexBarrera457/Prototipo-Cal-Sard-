@@ -523,6 +523,14 @@ export class ProductsService {
   }
 
   /**
+   * Obtiene exclusivamente los productos marcados como destacados y disponibles en stock.
+   */
+  async getFeaturedProducts(): Promise<StoreProduct[]> {
+    const products = await this.getProducts();
+    return products.filter((product) => Boolean(product.featured) && product.inStock !== false);
+  }
+
+  /**
    * Búsqueda en texto completo de productos por múltiples términos.
    */
   async search(query: string, limit?: number): Promise<StoreProduct[]> {

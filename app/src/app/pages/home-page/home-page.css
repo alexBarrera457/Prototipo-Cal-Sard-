@@ -6,10 +6,195 @@
   color: #241b14;
 }
 
+.home-featured-section,
 .home-categories,
 .home-gifts,
 .home-visit {
   padding: clamp(78px, 10vw, 144px) 7vw;
+}
+
+.home-featured-section {
+  background: #ffffff;
+  border-bottom: 1px solid rgba(45, 36, 30, 0.08);
+}
+
+.home-toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: #2b211a;
+  color: #f7f3ed;
+  padding: 13px 20px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 500;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  border-left: 4px solid #845f39;
+}
+
+.home-featured-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 20px;
+  max-width: 1350px;
+  margin: 0 auto;
+}
+
+.featured-card {
+  display: flex;
+  flex-direction: column;
+  background: #fffcf8;
+  border: 1px solid rgba(45, 36, 30, 0.1);
+  border-radius: 2px;
+  overflow: hidden;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.featured-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 24px rgba(45, 36, 30, 0.08);
+}
+
+.featured-card-media {
+  position: relative;
+  display: block;
+  aspect-ratio: 1.05;
+  overflow: hidden;
+  background: #f4eee7;
+  text-decoration: none;
+}
+
+.featured-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.35s ease;
+}
+
+.featured-card:hover .featured-image {
+  transform: scale(1.03);
+}
+
+.featured-image-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  font-size: 38px;
+}
+
+.featured-star-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(36, 27, 20, 0.88);
+  color: #f7f3ed;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 7px;
+  border-radius: 2px;
+}
+
+.featured-card-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding: 16px 16px 18px;
+}
+
+.featured-category-tag {
+  display: inline-block;
+  color: #845f39;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.featured-product-name {
+  margin: 0 0 6px;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 1.25;
+}
+
+.featured-product-name a {
+  color: #241b14;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.featured-product-name a:hover {
+  color: #845f39;
+}
+
+.featured-product-snippet {
+  margin: 0 0 14px;
+  color: #65594f;
+  font-size: 12.5px;
+  line-height: 1.45;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.featured-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: auto;
+  padding-top: 12px;
+  border-top: 1px solid rgba(45, 36, 30, 0.08);
+}
+
+.featured-price-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.featured-price {
+  font-size: 17px;
+  font-weight: 700;
+  color: #241b14;
+}
+
+.featured-price-label {
+  font-size: 11px;
+  color: #8a7c71;
+}
+
+.btn-featured-add {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: #2b211a;
+  color: #f7f3ed;
+  border: 1px solid #2b211a;
+  border-radius: 2px;
+  padding: 7px 12px;
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.btn-featured-add:hover {
+  background: #845f39;
+  border-color: #845f39;
 }
 
 .home-categories {
@@ -476,7 +661,8 @@
 }
 
 @media (max-width: 950px) {
-  .home-category-grid {
+  .home-category-grid,
+  .home-featured-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
@@ -505,10 +691,16 @@
     padding: 52px 20px;
   }
 
+  .home-featured-section,
   .home-categories,
   .home-gifts,
   .home-visit {
     padding: 76px 22px;
+  }
+
+  .home-featured-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
   }
 
   .home-section-heading {

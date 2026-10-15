@@ -1,6 +1,12 @@
 <app-hero></app-hero>
 
 <main class="home-page-content">
+  @if (toastMessage(); as msg) {
+    <div class="home-toast" role="status" aria-live="polite">
+      <span>✓</span>
+      <span>{{ msg }}</span>
+    </div>
+  }
   <section class="home-story" aria-labelledby="home-story-title">
     <div class="home-story-top">
       <div class="home-story-copy">
@@ -42,6 +48,92 @@
       </li>
     </ol>
   </section>
+
+  <!-- Sección de Productos Destacados del Colmado -->
+  @if (featuredProducts().length > 0) {
+    <section class="home-featured-section" id="destacados" aria-labelledby="home-featured-title">
+      <header class="home-section-heading">
+        <div>
+          <span class="home-section-label">{{ i18n.t('home.featured_kicker') }}</span>
+          <h2 id="home-featured-title">
+            {{ i18n.t('home.featured_title_1') }}<br />{{ i18n.t('home.featured_title_2') }}
+          </h2>
+        </div>
+        <div class="home-section-heading-aside">
+          <p>
+            {{ i18n.t('home.featured_desc') }}
+          </p>
+          <a
+            class="home-text-link"
+            [routerLink]="['/tienda-online']"
+            [queryParams]="{ orden: 'featured' }"
+          >
+            {{ i18n.t('home.featured_all') }} <span aria-hidden="true">↗</span>
+          </a>
+        </div>
+      </header>
+
+      <div class="home-featured-grid">
+        @for (product of featuredProducts(); track product.number) {
+          <article class="featured-card">
+            <a
+              [routerLink]="['/tienda-online/producto', product.slug || product.number]"
+              class="featured-card-media"
+              [attr.aria-label]="'Ver ficha de ' + product.name"
+            >
+              @if (product.image) {
+                <img
+                  [src]="product.image"
+                  [alt]="product.name"
+                  loading="lazy"
+                  decoding="async"
+                  class="featured-image"
+                />
+              } @else {
+                <div class="featured-image-placeholder">📦</div>
+              }
+              <span class="featured-star-badge" aria-label="Producto seleccionado"
+                >⭐ Selección</span
+              >
+            </a>
+
+            <div class="featured-card-body">
+              <span class="featured-category-tag">{{
+                i18n.translateCategory(product.category)
+              }}</span>
+              <h3 class="featured-product-name">
+                <a [routerLink]="['/tienda-online/producto', product.slug || product.number]">
+                  {{ product.name }}
+                </a>
+              </h3>
+              @if (product.shortDescription) {
+                <p class="featured-product-snippet">{{ product.shortDescription }}</p>
+              }
+
+              <div class="featured-card-footer">
+                <div class="featured-price-group">
+                  <strong class="featured-price">{{ formatCurrency(product.price) }}</strong>
+                  @if (product.priceLabel) {
+                    <span class="featured-price-label">{{ product.priceLabel }}</span>
+                  }
+                </div>
+
+                <button
+                  type="button"
+                  class="btn-featured-add"
+                  (click)="addToCart(product, $event)"
+                  [attr.aria-label]="'Añadir ' + product.name + ' a la cesta'"
+                >
+                  <span>🛒</span>
+                  <span>{{ i18n.currentLang() === 'ca' ? 'Afegir' : 'Añadir' }}</span>
+                </button>
+              </div>
+            </div>
+          </article>
+        }
+      </div>
+    </section>
+  }
 
   <section class="home-categories" id="tienda" aria-labelledby="home-categories-title">
     <header class="home-section-heading">
