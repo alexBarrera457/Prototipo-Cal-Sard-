@@ -1,6 +1,15 @@
-import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  inject,
+  Input,
+  OnChanges,
+  Output,
+  SimpleChanges,
+} from '@angular/core';
 import { NgOptimizedImage } from '@angular/common';
 import { CartService } from '../../services/cart';
+import { I18nService } from '../../services/i18n';
 import { ProductsService, StoreProduct } from '../../services/products';
 
 @Component({
@@ -10,6 +19,8 @@ import { ProductsService, StoreProduct } from '../../services/products';
   styleUrl: './product-detail.css',
 })
 export class ProductDetail implements OnChanges {
+  public readonly i18n = inject(I18nService);
+
   @Input() product: StoreProduct = {
     name: '',
     category: '',
@@ -89,8 +100,11 @@ export class ProductDetail implements OnChanges {
       this.product.image,
     );
 
-    const unitLabel = this.quantity === 1 ? 'unidad añadida' : 'unidades añadidas';
-    this.addedToCartMessage = `${this.quantity} ${unitLabel} a la cesta.`;
+    const unitLabel =
+      this.quantity === 1
+        ? this.i18n.t('product.added_single')
+        : this.i18n.t('product.added_multiple');
+    this.addedToCartMessage = `${this.quantity} ${unitLabel}`;
   }
 
   goBack(): void {

@@ -38,14 +38,18 @@
     <div class="store-results-row">
       <span class="store-result-count" aria-live="polite">
         {{ filteredProducts().length }}
-        {{ filteredProducts().length === 1 ? 'producto' : 'productos' }}
+        {{
+          filteredProducts().length === 1
+            ? i18n.t('store.item_singular')
+            : i18n.t('store.item_plural')
+        }}
         @if (filteredProducts().length > pageSize) {
           · {{ i18n.t('store.showing') }} {{ firstVisibleProduct() }}–{{ lastVisibleProduct() }}
         }
       </span>
 
       <label class="store-sort">
-        <span>Ordenar por</span>
+        <span>{{ i18n.t('store.sort_by') }}</span>
         <select [value]="sortOrder()" (change)="updateSortOrder($event)">
           <option value="featured">{{ i18n.t('store.sort_featured') }}</option>
           <option value="name-asc">{{ i18n.t('store.sort_name_asc') }}</option>
@@ -135,9 +139,9 @@
           type="button"
           (click)="goToPage(currentPage() - 1)"
           [disabled]="currentPage() === 1"
-          aria-label="Página anterior"
+          [attr.aria-label]="i18n.t('store.prev_page')"
         >
-          ← Anterior
+          {{ i18n.t('store.prev_page') }}
         </button>
         <span aria-live="polite"
           >{{ i18n.t('store.page') }} {{ currentPage() }} {{ i18n.t('store.of') }}
@@ -147,23 +151,24 @@
           type="button"
           (click)="goToPage(currentPage() + 1)"
           [disabled]="currentPage() === pageCount()"
-          aria-label="Página siguiente"
+          [attr.aria-label]="i18n.t('store.next_page')"
         >
-          Siguiente →
+          {{ i18n.t('store.next_page') }}
         </button>
       </nav>
     }
   } @else {
     <p class="store-empty-search" role="status">
-      No encontramos productos para “{{ searchTerm() }}”. Prueba otra búsqueda.
+      {{ i18n.t('store.empty_search_prefix') }} “{{ searchTerm() }}”.
+      {{ i18n.t('store.empty_search_suffix') }}
     </p>
   }
 
   <div class="store-footer">
-    <span> SELECCIÓN CAL SARDÀ </span>
+    <span> {{ i18n.t('store.footer_label') }} </span>
 
-    <p>Productos escogidos con tradición y criterio.</p>
+    <p>{{ i18n.t('store.footer_text') }}</p>
 
-    <a [routerLink]="['/contacto']"> MÁS INFORMACIÓN → </a>
+    <a [routerLink]="['/contacto']"> {{ i18n.t('store.footer_more') }} </a>
   </div>
 </section>

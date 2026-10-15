@@ -165,7 +165,10 @@ export class Store implements AfterViewInit, OnDestroy {
     const quantity =
       this.cartService.products().find((item) => item.name === product.name)?.quantity ?? 1;
     this.addedProductNumber = product.number;
-    this.addedProductMessage = `${product.name} añadido a la cesta. Cantidad: ${quantity}.`;
+    const isCa = this.i18n.currentLang() === 'ca';
+    this.addedProductMessage = isCa
+      ? `${product.name} afegit a la cistella. Quantitat: ${quantity}.`
+      : `${product.name} añadido a la cesta. Cantidad: ${quantity}.`;
   }
 
   getProductSlug(product: StoreProduct): string {

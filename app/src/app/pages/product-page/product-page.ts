@@ -4,6 +4,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { ProductDetail } from '../../components/product-detail/product-detail';
 import { getProductSlug, ProductsService, StoreProduct } from '../../services/products';
+import { I18nService } from '../../services/i18n';
 import { SeoService } from '../../services/seo';
 
 @Component({
@@ -16,6 +17,7 @@ export class ProductPage {
   readonly product = signal<StoreProduct | null>(null);
   readonly loading = signal(true);
   readonly notFound = signal(false);
+  public readonly i18n = inject(I18nService);
 
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);

@@ -101,12 +101,12 @@
         class="menu-toggle"
         type="button"
         (click)="toggleMobileMenu()"
-        [attr.aria-label]="mobileMenuOpen ? 'Cerrar menú' : 'Abrir menú'"
+        [attr.aria-label]="mobileMenuOpen ? i18n.t('nav.close_menu') : i18n.t('nav.open_menu')"
         aria-controls="site-menu"
         [attr.aria-expanded]="mobileMenuOpen"
       >
         <span class="menu-toggle-icon"><span></span><span></span></span>
-        <span class="menu-toggle-label">MENÚ</span>
+        <span class="menu-toggle-label">{{ i18n.t('nav.menu') }}</span>
       </button>
 
       <div class="navbar-tools">
@@ -193,26 +193,24 @@
                   }
                 </div>
                 <button class="search-view-all" type="submit">
-                  Ver todos los resultados <span>→</span>
+                  {{ i18n.t('nav.search_view_all') }} <span>→</span>
                 </button>
               } @else {
-                <p class="search-no-results">No encontramos productos. Prueba con otra búsqueda.</p>
+                <p class="search-no-results">{{ i18n.t('nav.search_no_results') }}</p>
               }
             </div>
           }
         </form>
 
         <label class="language-control">
-          <span class="visually-hidden">Seleccionar idioma</span>
+          <span class="visually-hidden">{{ i18n.t('nav.select_language') }}</span>
           <select
-            aria-label="Seleccionar idioma"
+            [attr.aria-label]="i18n.t('nav.select_language')"
             [value]="selectedLanguage"
             (change)="onLanguageChange($event)"
           >
             <option value="ca">Català</option>
             <option value="es">Español</option>
-            <option value="en">English</option>
-            <option value="fr">Français</option>
           </select>
           <svg viewBox="0 0 16 16" aria-hidden="true"><path d="m3 6 5 5 5-5" /></svg>
         </label>
@@ -223,14 +221,14 @@
         <a
           class="account-button"
           [routerLink]="['/cuenta']"
-          aria-label="Mi cuenta"
-          title="Mi cuenta"
+          [attr.aria-label]="i18n.t('nav.my_account')"
+          [title]="i18n.t('nav.my_account')"
         >
           <svg viewBox="0 0 24 24" aria-hidden="true">
             <circle cx="12" cy="8" r="3.5" />
             <path d="M4.5 21a7.5 7.5 0 0 1 15 0" />
           </svg>
-          <span>Mi cuenta</span>
+          <span>{{ i18n.t('nav.my_account') }}</span>
         </a>
 
         <button
@@ -238,12 +236,17 @@
           type="button"
           (click)="toggleCart()"
           [attr.aria-label]="
-            (cartOpen ? 'Cerrar cesta, ' : 'Abrir cesta, ') + cartService.count() + ' productos'
+            (cartOpen ? i18n.t('nav.close_cart') + ', ' : i18n.t('nav.open_cart') + ', ') +
+            cartService.count() +
+            ' ' +
+            (cartService.count() === 1
+              ? i18n.t('store.item_singular')
+              : i18n.t('store.item_plural'))
           "
           [attr.aria-expanded]="cartOpen"
           aria-controls="cart-panel"
         >
-          <span class="cart-label">CESTA</span>
+          <span class="cart-label">{{ i18n.t('nav.cart_label') }}</span>
           <span class="cart-circle">
             <span class="cart-icon"></span>
             <span class="cart-count">{{ cartService.count() }}</span>
@@ -322,9 +325,9 @@
             alt="Interior de Cal Sardà con mostrador y estanterías de productos"
           />
           <span class="menu-feature-overlay">
-            <span>UN COLMADO CON HISTORIA</span>
-            <strong>Tradición de barrio desde 1930</strong>
-            <span class="menu-feature-link">Conoce Cal Sardà <b>→</b></span>
+            <span>{{ i18n.t('nav.menu_feature_eyebrow') }}</span>
+            <strong>{{ i18n.t('nav.menu_feature_title') }}</strong>
+            <span class="menu-feature-link">{{ i18n.t('nav.menu_feature_link') }} <b>→</b></span>
           </span>
         </a>
       </div>
@@ -396,7 +399,7 @@
       @for (product of cartService.products(); track product.name) {
         <div class="cart-product">
           <div class="cart-product-info">
-            <span class="cart-product-category"> PRODUCTO </span>
+            <span class="cart-product-category"> {{ i18n.t('nav.cart_product') }} </span>
 
             <h3>
               {{ product.name }}
@@ -445,7 +448,7 @@
             (click)="deleteCartItem(product.name)"
             [attr.aria-label]="'Eliminar ' + product.name + ' de la cesta'"
           >
-            ELIMINAR
+            {{ i18n.t('nav.cart_delete') }}
           </button>
         </div>
       }
@@ -467,7 +470,7 @@
       <a [routerLink]="['/preparar-pedido']" class="cart-checkout" (click)="closeCart()">
         {{ i18n.t('nav.checkout') }} →
       </a>
-      <p class="cart-demo-note">Compra de prueba · No se enviará ni cobrará el pedido.</p>
+      <p class="cart-demo-note">{{ i18n.t('nav.cart_demo_note') }}</p>
     </div>
   }
 </aside>

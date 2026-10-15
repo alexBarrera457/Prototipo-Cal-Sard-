@@ -2,6 +2,7 @@ import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import type { BlogPost } from '@cal-sarda/domain';
 import { BlogService } from '../../services/blog';
+import { I18nService } from '../../services/i18n';
 import { SeoService } from '../../services/seo';
 
 @Component({
@@ -13,6 +14,7 @@ import { SeoService } from '../../services/seo';
 export class BlogPage {
   private readonly blogService = inject(BlogService);
   private readonly seo = inject(SeoService);
+  public readonly i18n = inject(I18nService);
 
   readonly articles: BlogPost[] = this.blogService.getArticles();
 
@@ -30,7 +32,8 @@ export class BlogPage {
   formatDate(dateString: string): string {
     try {
       const date = new Date(dateString);
-      return new Intl.DateTimeFormat('es-ES', {
+      const locale = this.i18n.currentLang() === 'ca' ? 'ca-ES' : 'es-ES';
+      return new Intl.DateTimeFormat(locale, {
         day: 'numeric',
         month: 'long',
         year: 'numeric',

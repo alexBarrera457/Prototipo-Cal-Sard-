@@ -17,7 +17,7 @@
         class="product-gallery-arrow product-gallery-previous"
         type="button"
         (click)="showPreviousImage()"
-        aria-label="Foto anterior"
+        [attr.aria-label]="i18n.t('product.prev_photo')"
       >
         ‹
       </button>
@@ -26,7 +26,7 @@
         class="product-gallery-arrow product-gallery-next"
         type="button"
         (click)="showNextImage()"
-        aria-label="Foto siguiente"
+        [attr.aria-label]="i18n.t('product.next_photo')"
       >
         ›
       </button>
@@ -62,16 +62,16 @@
     </span>
 
     <span class="product-detail-category">
-      {{ product.category }}
+      {{ i18n.translateCategory(product.category) }}
     </span>
   </div>
 
   <div class="product-detail-content">
     <button type="button" class="product-detail-back" (click)="goBack()">
-      ← VOLVER A LA TIENDA
+      ← {{ i18n.t('product.back_to_shop') }}
     </button>
 
-    <span class="product-detail-label"> CAL SARDÀ · PRODUCTO </span>
+    <span class="product-detail-label"> {{ i18n.t('product.kicker') }} </span>
 
     <h1>
       {{ product.name }}
@@ -122,7 +122,7 @@
           ' a la cesta'
         "
       >
-        AÑADIR A LA CESTA →
+        {{ i18n.t('product.add_to_cart') }} →
       </button>
     </div>
 

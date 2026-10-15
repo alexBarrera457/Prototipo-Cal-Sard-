@@ -2,9 +2,9 @@
   @if (article(); as post) {
     <article class="article-container">
       <nav class="breadcrumb-nav" aria-label="Miga de pan">
-        <a routerLink="/">Inicio</a>
+        <a routerLink="/">{{ i18n.t('footer.home') }}</a>
         <span aria-hidden="true">/</span>
-        <a routerLink="/blog">Blog</a>
+        <a routerLink="/blog">{{ i18n.t('footer.blog') }}</a>
         <span aria-hidden="true">/</span>
         <span class="breadcrumb-current">{{ post.title }}</span>
       </nav>
@@ -25,7 +25,7 @@
             <div class="byline-sub">
               <time [attr.datetime]="post.publishedAt">{{ formatDate(post.publishedAt) }}</time>
               <span>·</span>
-              <span>{{ post.readingTimeMinutes }} min de lectura</span>
+              <span>{{ post.readingTimeMinutes }} {{ i18n.t('blog.read_time') }}</span>
             </div>
           </div>
         </div>
@@ -45,30 +45,29 @@
         <div class="author-box">
           <div class="author-box-avatar">CS</div>
           <div class="author-box-content">
-            <span class="author-box-label">Sobre la firma</span>
+            <span class="author-box-label">{{ i18n.t('blog.author_about') }}</span>
             <h3 class="author-box-name">{{ post.author }}</h3>
             <p class="author-box-desc">
-              Desde 1930, en Cal Sardà compartimos la pasión por los productos artesanales, el café
-              de obrador y la selección gastronómica en el barrio de Sagrada Família, Barcelona.
+              {{ i18n.t('blog.author_desc') }}
             </p>
           </div>
         </div>
 
         <div class="article-actions">
-          <a routerLink="/blog" class="back-link">← Volver a todos los artículos</a>
-          <a routerLink="/tienda-online" class="store-cta">Explorar la tienda online →</a>
+          <a routerLink="/blog" class="back-link">{{ i18n.t('blog.back_to_all') }}</a>
+          <a routerLink="/tienda-online" class="store-cta">{{ i18n.t('blog.explore_shop') }}</a>
         </div>
       </footer>
     </article>
   } @else if (notFound()) {
     <div class="not-found-container">
-      <span class="not-found-kicker">BLOG DE CAL SARDÀ</span>
-      <h1 class="not-found-title">Artículo no encontrado</h1>
+      <span class="not-found-kicker">{{ i18n.t('blog.not_found_kicker') }}</span>
+      <h1 class="not-found-title">{{ i18n.t('blog.not_found_title') }}</h1>
       <p class="not-found-desc">
-        El artículo que buscas no existe o ha sido trasladado a otra dirección.
+        {{ i18n.t('blog.not_found_desc') }}
       </p>
       <button type="button" class="not-found-button" (click)="backToBlog()">
-        ← Volver al blog
+        {{ i18n.t('blog.not_found_button') }} <span>→</span>
       </button>
     </div>
   }

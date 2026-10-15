@@ -1,4 +1,5 @@
-import { Component, Input } from '@angular/core';
+import { Component, inject, Input } from '@angular/core';
+import { I18nService } from '../../services/i18n';
 
 @Component({
   selector: 'app-contact',
@@ -8,6 +9,7 @@ import { Component, Input } from '@angular/core';
 })
 export class Contact {
   @Input() showPageTitle = false;
+  public readonly i18n = inject(I18nService);
 
   prepareEmail(event: SubmitEvent): void {
     event.preventDefault();

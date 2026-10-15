@@ -2,15 +2,15 @@
   <div class="account-layout">
     <section class="account-copy">
       <a class="back-link" [routerLink]="['/cuenta']"
-        ><span aria-hidden="true">←</span> VOLVER A MI CUENTA</a
+        ><span aria-hidden="true">←</span> {{ i18n.t('account.back_to_account') }}</a
       >
-      <span class="eyebrow">CAL SARDÀ · CLIENTES</span>
-      <h1 id="create-account-title">Crea tu cuenta</h1>
-      <p>Ten a mano tus productos favoritos y prepara tus próximos pedidos con más comodidad.</p>
+      <span class="eyebrow">{{ i18n.t('account.kicker') }}</span>
+      <h1 id="create-account-title">{{ i18n.t('account.create_title') }}</h1>
+      <p>{{ i18n.t('account.create_desc') }}</p>
       <div class="preview-note">
         <span aria-hidden="true">✳</span>
         <p>
-          Formulario de demostración. Todavía no crea cuentas reales ni envía o guarda tus datos.
+          {{ i18n.t('account.create_demo_note') }}
         </p>
       </div>
     </section>
@@ -19,22 +19,38 @@
       @if (accountCreated) {
         <div class="success-message" role="status" aria-live="polite">
           <span class="success-mark" aria-hidden="true">✓</span>
-          <h2>Formulario completado</h2>
-          <p>Esta demostración no ha creado una cuenta. Tus datos no se han enviado ni guardado.</p>
+          <h2>
+            {{ i18n.currentLang() === 'ca' ? 'Formulari completat' : 'Formulario completado' }}
+          </h2>
+          <p>
+            {{
+              i18n.currentLang() === 'ca'
+                ? 'Aquesta demostració no ha creat cap compte. Les teves dades no s’han enviat ni desat.'
+                : 'Esta demostración no ha creado una cuenta. Tus datos no se han enviado ni guardado.'
+            }}
+          </p>
           <a [routerLink]="['/tienda-online']"
-            >VOLVER A LA TIENDA <span aria-hidden="true">→</span></a
+            >{{ i18n.t('checkout.back_to_shop') }} <span aria-hidden="true">→</span></a
           >
         </div>
       } @else {
         <div class="form-heading">
-          <span>EMPIEZA AQUÍ</span>
-          <h2>Regístrate</h2>
-          <p>Los campos marcados con <span aria-hidden="true">*</span> son obligatorios.</p>
+          <span>{{ i18n.t('account.start_here') }}</span>
+          <h2>{{ i18n.t('account.register_title') }}</h2>
+          <p>
+            {{
+              i18n.currentLang() === 'ca'
+                ? 'Els camps marcats amb * són obligatoris.'
+                : 'Los campos marcados con * son obligatorios.'
+            }}
+          </p>
         </div>
 
         <form #registrationForm="ngForm" (ngSubmit)="createAccount(registrationForm)" novalidate>
           <div class="field">
-            <label for="account-name">Nombre completo <span aria-hidden="true">*</span></label>
+            <label for="account-name"
+              >{{ i18n.t('account.full_name') }} <span aria-hidden="true">*</span></label
+            >
             <input
               id="account-name"
               name="name"
@@ -46,13 +62,15 @@
               (ngModelChange)="accountCreated = false"
             />
             @if (nameField.invalid && (nameField.touched || registrationForm.submitted)) {
-              <span class="field-error" role="alert">Escribe tu nombre.</span>
+              <span class="field-error" role="alert">
+                {{ i18n.currentLang() === 'ca' ? 'Escriu el teu nom.' : 'Escribe tu nombre.' }}
+              </span>
             }
           </div>
 
           <div class="field">
             <label for="account-email"
-              >Correo electrónico (Gmail, Outlook u otro) <span aria-hidden="true">*</span></label
+              >{{ i18n.t('account.email_extended') }} <span aria-hidden="true">*</span></label
             >
             <input
               id="account-email"
@@ -67,18 +85,27 @@
               (ngModelChange)="accountCreated = false"
             />
             @if (emailField.invalid && (emailField.touched || registrationForm.submitted)) {
-              <span class="field-error" role="alert">Introduce un correo electrónico válido.</span>
+              <span class="field-error" role="alert">
+                {{
+                  i18n.currentLang() === 'ca'
+                    ? 'Introdueix un correu electrònic vàlid.'
+                    : 'Introduce un correo electrónico válido.'
+                }}
+              </span>
             }
           </div>
 
           <fieldset class="contact-fields">
-            <legend id="contact-details-title">Datos de contacto <span>OPCIONALES</span></legend>
+            <legend id="contact-details-title">
+              {{ i18n.t('account.optional_contact') }}
+              <span>{{ i18n.t('account.optional_badge') }}</span>
+            </legend>
             <p class="section-hint">
-              Puedes añadirlos para agilizar la preparación de tus pedidos.
+              {{ i18n.t('account.optional_hint') }}
             </p>
             <div class="field-grid">
               <div class="field field-full">
-                <label for="account-phone">Teléfono móvil</label>
+                <label for="account-phone">{{ i18n.t('account.phone_mobile') }}</label>
                 <input
                   id="account-phone"
                   name="phone"
@@ -90,7 +117,7 @@
                 />
               </div>
               <div class="field field-full">
-                <label for="account-address">Dirección</label>
+                <label for="account-address">{{ i18n.t('account.address') }}</label>
                 <input
                   id="account-address"
                   name="address"
@@ -102,7 +129,7 @@
                 />
               </div>
               <div class="field">
-                <label for="account-postal-code">Código postal</label>
+                <label for="account-postal-code">{{ i18n.t('account.postal_code') }}</label>
                 <input
                   id="account-postal-code"
                   name="postalCode"
@@ -113,7 +140,7 @@
                 />
               </div>
               <div class="field">
-                <label for="account-city">Población</label>
+                <label for="account-city">{{ i18n.t('account.city') }}</label>
                 <input
                   id="account-city"
                   name="city"
@@ -124,7 +151,7 @@
                 />
               </div>
               <div class="field">
-                <label for="account-province">Provincia</label>
+                <label for="account-province">{{ i18n.t('account.province') }}</label>
                 <input
                   id="account-province"
                   name="province"
@@ -135,7 +162,7 @@
                 />
               </div>
               <div class="field">
-                <label for="account-country">País</label>
+                <label for="account-country">{{ i18n.t('account.country') }}</label>
                 <input
                   id="account-country"
                   name="country"
@@ -149,7 +176,9 @@
           </fieldset>
 
           <div class="field">
-            <label for="account-password">Contraseña <span aria-hidden="true">*</span></label>
+            <label for="account-password"
+              >{{ i18n.t('account.password_label') }} <span aria-hidden="true">*</span></label
+            >
             <div class="password-input">
               <input
                 id="account-password"
@@ -167,21 +196,35 @@
                 class="visibility-toggle"
                 (click)="showPassword = !showPassword"
                 [attr.aria-pressed]="showPassword"
-                [attr.aria-label]="showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+                [attr.aria-label]="
+                  showPassword
+                    ? i18n.t('account.hide_password') +
+                      ' ' +
+                      i18n.t('account.password_label').toLowerCase()
+                    : i18n.t('account.show_password') +
+                      ' ' +
+                      i18n.t('account.password_label').toLowerCase()
+                "
               >
-                {{ showPassword ? 'Ocultar' : 'Mostrar' }}
+                {{
+                  showPassword ? i18n.t('account.hide_password') : i18n.t('account.show_password')
+                }}
               </button>
             </div>
             @if (passwordField.invalid && (passwordField.touched || registrationForm.submitted)) {
-              <span class="field-error" role="alert"
-                >La contraseña debe tener al menos 8 caracteres.</span
-              >
+              <span class="field-error" role="alert">
+                {{
+                  i18n.currentLang() === 'ca'
+                    ? 'La contrasenya ha de tenir com a mínim 8 caràcters.'
+                    : 'La contraseña debe tener al menos 8 caracteres.'
+                }}
+              </span>
             }
           </div>
 
           <div class="field">
             <label for="account-confirm-password"
-              >Repite la contraseña <span aria-hidden="true">*</span></label
+              >{{ i18n.t('account.repeat_password') }} <span aria-hidden="true">*</span></label
             >
             <input
               id="account-confirm-password"
@@ -194,7 +237,13 @@
               (ngModelChange)="accountCreated = false"
             />
             @if (confirmPasswordField.touched && passwordsMismatch) {
-              <span class="field-error" role="alert">Las contraseñas no coinciden.</span>
+              <span class="field-error" role="alert">
+                {{
+                  i18n.currentLang() === 'ca'
+                    ? 'Les contrasenyes no coincideixen.'
+                    : 'Las contraseñas no coinciden.'
+                }}
+              </span>
             }
           </div>
 
@@ -209,14 +258,21 @@
               (ngModelChange)="accountCreated = false"
             />
             <label for="account-privacy"
-              >He leído la <a [routerLink]="['/politica-de-privacidad']">política de privacidad</a>
+              >{{ i18n.t('account.read_privacy') }}
+              <a [routerLink]="['/politica-de-privacidad']">{{
+                i18n.t('account.privacy_policy')
+              }}</a>
               <span aria-hidden="true">*</span></label
             >
           </div>
           @if (privacyField.invalid && (privacyField.touched || registrationForm.submitted)) {
-            <span class="field-error privacy-error" role="alert"
-              >Debes aceptar la política de privacidad.</span
-            >
+            <span class="field-error privacy-error" role="alert">
+              {{
+                i18n.currentLang() === 'ca'
+                  ? 'Has d’acceptar la política de privacitat.'
+                  : 'Debes aceptar la política de privacidad.'
+              }}
+            </span>
           }
 
           <button
@@ -224,10 +280,11 @@
             type="submit"
             [disabled]="registrationForm.invalid || passwordsMismatch"
           >
-            CREAR CUENTA <span aria-hidden="true">→</span>
+            {{ i18n.t('account.submit_create') }} <span aria-hidden="true">→</span>
           </button>
           <p class="login-prompt">
-            ¿Ya tienes una cuenta? <a [routerLink]="['/cuenta']">Inicia sesión</a>
+            {{ i18n.t('account.already_account') }}
+            <a [routerLink]="['/cuenta']">{{ i18n.t('account.login_title') }}</a>
           </p>
         </form>
       }

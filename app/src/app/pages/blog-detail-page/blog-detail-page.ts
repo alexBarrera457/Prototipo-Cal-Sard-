@@ -3,6 +3,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import type { BlogPost } from '@cal-sarda/domain';
 import { BlogService } from '../../services/blog';
+import { I18nService } from '../../services/i18n';
 import { SeoService } from '../../services/seo';
 
 @Component({
@@ -14,6 +15,7 @@ import { SeoService } from '../../services/seo';
 export class BlogDetailPage {
   readonly article = signal<BlogPost | null>(null);
   readonly notFound = signal(false);
+  public readonly i18n = inject(I18nService);
 
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
@@ -51,7 +53,8 @@ export class BlogDetailPage {
   formatDate(dateString: string): string {
     try {
       const date = new Date(dateString);
-      return new Intl.DateTimeFormat('es-ES', {
+      const locale = this.i18n.currentLang() === 'ca' ? 'ca-ES' : 'es-ES';
+      return new Intl.DateTimeFormat(locale, {
         day: 'numeric',
         month: 'long',
         year: 'numeric',

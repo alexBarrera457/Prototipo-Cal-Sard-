@@ -1,11 +1,10 @@
 <main class="blog-main">
   <header class="blog-hero">
     <div class="blog-hero-container">
-      <span class="blog-kicker">CAL SARDÀ · DESDE 1930</span>
-      <h1 class="blog-title">Historias de obrador y gastronomía</h1>
+      <span class="blog-kicker">{{ i18n.t('blog.kicker') }}</span>
+      <h1 class="blog-title">{{ i18n.t('blog.title') }}</h1>
       <p class="blog-subtitle">
-        Cultura gastronómica, secretos de nuestro tostador de café, guías de maridaje y recetas
-        transmitidas de generación en generación en Barcelona.
+        {{ i18n.t('blog.subtitle') }}
       </p>
     </div>
   </header>
@@ -28,7 +27,9 @@
                 @for (tag of article.tags; track tag) {
                   <span class="article-tag">{{ tag }}</span>
                 }
-                <span class="reading-time">· {{ article.readingTimeMinutes }} min de lectura</span>
+                <span class="reading-time"
+                  >· {{ article.readingTimeMinutes }} {{ i18n.t('blog.read_time') }}</span
+                >
               </div>
               <h2 class="article-card-title">
                 <a [routerLink]="['/blog', article.slug]">{{ article.title }}</a>
@@ -42,7 +43,7 @@
                   </time>
                 </div>
                 <a [routerLink]="['/blog', article.slug]" class="read-more-link">
-                  Leer artículo <span>→</span>
+                  {{ i18n.t('blog.read_article') }} <span>→</span>
                 </a>
               </div>
             </div>

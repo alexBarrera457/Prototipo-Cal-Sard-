@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { NgOptimizedImage } from '@angular/common';
+import { I18nService } from '../../services/i18n';
 
 @Component({
   selector: 'app-hero',
@@ -8,6 +9,8 @@ import { NgOptimizedImage } from '@angular/common';
   styleUrl: './hero.css',
 })
 export class Hero {
+  public readonly i18n = inject(I18nService);
+
   goToStore(): void {
     const store = document.getElementById('tienda');
 

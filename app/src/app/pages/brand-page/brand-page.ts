@@ -4,6 +4,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Meta } from '@angular/platform-browser';
 import { HistoryBookComponent } from '../../components/history-book/history-book';
 import { CartService } from '../../services/cart';
+import { I18nService } from '../../services/i18n';
 import { NewsletterService } from '../../services/newsletter';
 import type { Product } from '@cal-sarda/domain';
 
@@ -43,8 +44,46 @@ export type PageDefinition = {
   styleUrl: './brand-page.css',
 })
 export class BrandPage {
-  page!: PageDefinition;
+  public readonly i18n = inject(I18nService);
+  readonly pageSlug = signal<string>('historia');
   lastAddedGiftLotSlug: string | null = null;
+
+  get isGiftLotsPage(): boolean {
+    const slug = this.pageSlug();
+    return (
+      slug === 'lots-i-cistelles-gurmet' ||
+      slug === 'lotes-y-cestas-gourmet' ||
+      this.page.eyebrow === 'Lotes y cestas gourmet' ||
+      this.page.eyebrow === 'Lots i cistelles gurmet'
+    );
+  }
+
+  get isBusinessPage(): boolean {
+    const slug = this.pageSlug();
+    return (
+      slug === 'lots-per-a-empreses' ||
+      slug === 'lotes-para-empresas' ||
+      this.page.eyebrow === 'Lotes para empresas' ||
+      this.page.eyebrow === 'Lots per a empreses'
+    );
+  }
+
+  get isHistoryPage(): boolean {
+    const slug = this.pageSlug();
+    return (
+      slug === 'historia' || this.page.eyebrow === 'Historia' || this.page.eyebrow === 'Història'
+    );
+  }
+
+  get page(): PageDefinition {
+    const slug = this.pageSlug();
+    const base = this.pages[slug] ?? this.pages['historia'];
+    if (this.i18n.currentLang() === 'ca') {
+      const overrides = this.pagesCaOverrides[slug] ?? {};
+      return { ...base, ...overrides };
+    }
+    return base;
+  }
 
   private readonly pages: Record<string, PageDefinition> = {
     historia: {
@@ -647,6 +686,164 @@ export class BrandPage {
     },
   };
 
+  private readonly pagesCaOverrides: Record<string, Partial<PageDefinition>> = {
+    historia: {
+      eyebrow: 'Història',
+      title: 'La nostra història',
+      intro: 'Més de 90 anys al servei del barri',
+      cta: {
+        label: 'Visita la botiga',
+        route: '/tienda-online',
+      },
+    },
+    'botiga-en-linia': {
+      eyebrow: 'Botiga online',
+      title: 'Productes de sempre, seleccionats amb cura.',
+      intro:
+        'A Cal Sardà trobaràs productes gurmet com torrons, vins, xocolates, conserves i fruits secs. Una selecció per gaudir a casa, completar la taula o preparar un regal.',
+      highlight: 'Tria entre enviament a domicili o recollida a la botiga.',
+      cta: {
+        label: 'Veure productes',
+        route: '/',
+        fragment: 'tienda',
+      },
+    },
+    galeria: {
+      eyebrow: 'Galeria',
+      title: 'Un espai que recull el nostre dia a dia.',
+      intro:
+        'Cal Sardà és una botiga de barri, un lloc de trobada i cura. Aquesta galeria reuneix moments, productes i detalls que reflecteixen la nostra identitat i el nostre caràcter.',
+      highlight: 'Sabor, història i autenticitat a cada moment.',
+      cta: {
+        label: 'Contacta amb nosaltres',
+        route: '/contacto',
+      },
+    },
+    newsletter: {
+      eyebrow: 'Butlletí',
+      title: 'Les novetats de Cal Sardà, directament al teu correu.',
+      intro:
+        'Deixa’ns la teva adreça per sol·licitar que t’afegim al butlletí de Cal Sardà amb novetats i ofertes gastronòmiques.',
+      highlight: 'La subscripció requereix confirmació per correu.',
+      cta: {
+        label: 'Anar a l’inici',
+        route: '/',
+      },
+    },
+    'descobreix-el-territori': {
+      eyebrow: 'Descobreix el territori',
+      title: 'Sabors de la terra amb identitat pròpia.',
+      intro:
+        'Cal Sardà selecciona productes gurmet i especialitats de diferents indrets. Pregunta’ns a la botiga per l’origen i la disponibilitat de cada producte.',
+      highlight: 'Consulta l’origen i la disponibilitat de cada producte.',
+      cta: {
+        label: 'Anar a l’inici',
+        route: '/',
+      },
+    },
+    'lots-per-a-empreses': {
+      eyebrow: 'Lots per a empreses',
+      title: 'Detalls gastronòmics per a empreses i equips.',
+      intro:
+        'Seleccionem productes gurmet de qualitat per preparar lots a mida per a les festes de Nadal o per a qualsevol compromís empresarial.',
+      highlight: 'Lots personalitzats per a la teva empresa.',
+      cta: {
+        label: 'Demana el teu lot',
+        route: '/contacto',
+      },
+    },
+    'lots-i-cistelles-gurmet': {
+      eyebrow: 'Lots i cistelles gurmet',
+      title: 'Una selecció especial per regalar o compartir.',
+      intro:
+        'Pots triar una de les nostres propostes amb preu tancat o demanar-nos un lot personalitzat amb els productes que prefereixis.',
+      highlight: 'Regals gurmet preparats a mà.',
+      cta: {
+        label: 'Posa’t en contacte',
+        route: '/contacto',
+      },
+    },
+    faq: {
+      eyebrow: 'Preguntes freqüents',
+      title: 'Resolem els teus dubtes sobre Cal Sardà.',
+      intro:
+        'Aquí trobaràs respostes sobre compres, comandes, mètodes de lliurament i atenció a la nostra botiga de Barcelona.',
+      highlight: 'Preguntes habituals sobre serveis i comandes.',
+      cta: {
+        label: 'Escriu-nos si tens més dubtes',
+        route: '/contacto',
+      },
+    },
+    'avis-legal': {
+      eyebrow: 'Avís legal',
+      title: 'Informació legal sobre el lloc web de Cal Sardà.',
+      intro: 'Condicions i informació d’acord amb la legislació vigent.',
+      highlight: 'Informació legal transparent.',
+      cta: {
+        label: 'Inici',
+        route: '/',
+      },
+    },
+    'politica-de-privacitat': {
+      eyebrow: 'Política de privacitat',
+      title: 'El tractament de les teves dades a Cal Sardà.',
+      intro: 'Tractem les dades personals amb la màxima confidencialitat i segons el RGPD.',
+      highlight: 'Privacitat i protecció de dades garantides.',
+      cta: {
+        label: 'Inici',
+        route: '/',
+      },
+    },
+    'politica-de-cookies': {
+      eyebrow: 'Política de cookies',
+      title: 'Ús de cookies al nostre lloc web.',
+      intro: 'Informació sobre les cookies que fem servir i com gestionar les teves preferències.',
+      highlight: 'Transparència en l’ús de cookies.',
+      cta: {
+        label: 'Inici',
+        route: '/',
+      },
+    },
+    'condicions-generals': {
+      eyebrow: 'Condicions generals',
+      title: 'Termes i condicions de compra i ús.',
+      intro: 'Coneix els termes aplicables a les teves consultes i encàrrecs.',
+      highlight: 'Condicions clares per a la teva tranquil·litat.',
+      cta: {
+        label: 'Inici',
+        route: '/',
+      },
+    },
+    'mapa-web': {
+      eyebrow: 'Mapa web',
+      title: 'Totes les seccions del nostre web, ordenades i accessibles.',
+      intro:
+        'Aquí tens una visió clara de les seccions principals i complementàries del web per trobar ràpidament la informació que busques.',
+      highlight: 'Navegació clara i ràpida per accedir a la informació essencial.',
+      siteLinks: [
+        { label: 'Inici', route: '/' },
+        { label: 'Història', route: '/historia' },
+        { label: 'Botiga online', route: '/tienda-online' },
+        { label: 'Galeria', route: '/galeria' },
+        { label: 'Contacte', route: '/contacto' },
+        { label: 'Butlletí', route: '/boletin' },
+        { label: 'Descobreix el territori', route: '/descubre-el-territorio' },
+        { label: 'Lots per a empreses', route: '/lotes-para-empresas' },
+        { label: 'Lots i cistelles gurmet', route: '/lotes-y-cestas-gourmet' },
+        { label: 'Preguntes freqüents', route: '/faq' },
+        { label: 'Blog', route: '/blog' },
+        { label: 'Avís legal', route: '/aviso-legal' },
+        { label: 'Política de privacitat', route: '/politica-de-privacidad' },
+        { label: 'Política de cookies', route: '/politica-de-cookies' },
+        { label: 'Condicions generals', route: '/condiciones-generales' },
+      ],
+      cta: {
+        label: 'Inici',
+        route: '/',
+      },
+    },
+  };
+
   constructor(
     private readonly route: ActivatedRoute,
     private readonly meta: Meta,
@@ -655,7 +852,7 @@ export class BrandPage {
   ) {
     this.route.data.pipe(takeUntilDestroyed(destroyRef)).subscribe((data) => {
       const slug = data['page'] ?? this.route.snapshot.routeConfig?.path ?? 'historia';
-      this.page = this.pages[slug] ?? this.pages['historia'];
+      this.pageSlug.set(slug);
       this.meta.updateTag({
         name: 'description',
         content: this.page.intro,

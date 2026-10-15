@@ -4,44 +4,55 @@
     <div class="confirmation-container" role="region" aria-labelledby="confirmation-title">
       <header class="confirmation-header">
         <a [routerLink]="['/tienda-online']" class="checkout-back" (click)="resetOrderState()"
-          >← VOLVER A LA TIENDA</a
+          >← {{ i18n.t('checkout.back_to_shop') }}</a
         >
-        <span class="preview-kicker">CAL SARDÀ · ENCARGO REGISTRADO</span>
-        <h1 id="confirmation-title">¡Encargo confirmado<br />con éxito!</h1>
+        <span class="preview-kicker">{{ i18n.t('checkout.success_kicker') }}</span>
+        <h1 id="confirmation-title">
+          @if (i18n.currentLang() === 'ca') {
+            Encàrrec confirmat<br />amb èxit!
+          } @else {
+            ¡Encargo confirmado<br />con éxito!
+          }
+        </h1>
         <p class="confirmation-lead">
-          Muchas gracias, <strong>{{ order.customer.name }}</strong
-          >. Hemos recibido tu solicitud con total éxito. Nuestro equipo en tienda ya se encuentra
-          preparando tus productos artesanos.
+          @if (i18n.currentLang() === 'ca') {
+            Moltes gràcies, <strong>{{ order.customer.name }}</strong
+            >. Hem rebut la teva sol·licitud amb total èxit. El nostre equip a la botiga ja es troba
+            preparant els teus productes artesans.
+          } @else {
+            Muchas gracias, <strong>{{ order.customer.name }}</strong
+            >. Hemos recibido tu solicitud con total éxito. Nuestro equipo en tienda ya se encuentra
+            preparando tus productos artesanos.
+          }
         </p>
       </header>
 
       <!-- TARJETA DESTACADA DEL CÓDIGO IDENTIFICADOR -->
       <section class="confirmation-hero-card" aria-label="Código identificador del encargo">
         <div class="reference-badge-group">
-          <span class="reference-label">CÓDIGO DE REFERENCIA</span>
+          <span class="reference-label">{{ i18n.t('checkout.ref_label') }}</span>
           <div class="reference-code-row">
             <span class="reference-code" id="order-reference-code">{{ order.reference }}</span>
             <button
               type="button"
               class="copy-ref-btn"
               (click)="copyReference(order.reference!)"
-              [attr.aria-label]="'Copiar código de referencia ' + order.reference"
+              [attr.aria-label]="i18n.t('checkout.copy_code') + ' ' + order.reference"
             >
               @if (copied()) {
-                <span class="copied-indicator">✓ ¡Copiado!</span>
+                <span class="copied-indicator">{{ i18n.t('checkout.copied') }}</span>
               } @else {
-                <span>Copiar código</span>
+                <span>{{ i18n.t('checkout.copy_code') }}</span>
               }
             </button>
           </div>
           <p class="reference-hint">
-            Conserva este código de referencia único para cualquier consulta o para recoger tu
-            encargo en tienda.
+            {{ i18n.t('checkout.ref_hint') }}
           </p>
         </div>
         <div class="status-pill">
           <span class="status-dot"></span>
-          <span>ESTADO: CONFIRMADO</span>
+          <span>{{ i18n.t('checkout.status_label') }}</span>
         </div>
       </section>
 
@@ -57,19 +68,27 @@
             }
           </div>
           <h2>
-            {{ order.fulfillment === 'pickup' ? 'Recogida en tienda física' : 'Envío a domicilio' }}
+            {{
+              order.fulfillment === 'pickup'
+                ? i18n.currentLang() === 'ca'
+                  ? 'Recollida a la botiga física'
+                  : 'Recogida en tienda física'
+                : i18n.currentLang() === 'ca'
+                  ? 'Enviament a domicili'
+                  : 'Envío a domicilio'
+            }}
           </h2>
           <div class="card-content">
             @if (order.fulfillment === 'pickup') {
               <div class="info-group">
-                <span class="info-label">PUNTO DE RECOGIDA</span>
+                <span class="info-label">{{ i18n.t('checkout.pickup_point') }}</span>
                 <p><strong>Cal Sardà</strong></p>
                 <p>Carrer de Marina, 237 · 08013 Barcelona</p>
-                <p class="store-hours">Lunes a sábado: 9:00 - 14:00 y 17:00 - 20:30</p>
+                <p class="store-hours">{{ i18n.t('checkout.pickup_hours') }}</p>
               </div>
             } @else {
               <div class="info-group">
-                <span class="info-label">DIRECCIÓN DE ENTREGA</span>
+                <span class="info-label">{{ i18n.t('checkout.delivery_address') }}</span>
                 <p>
                   <strong>{{ order.customer.name }}</strong>
                 </p>
@@ -80,19 +99,21 @@
             }
 
             <div class="info-group highlight-box">
-              <span class="info-label">FECHA / PLAZO ESTIMADO</span>
+              <span class="info-label">{{ i18n.t('checkout.estimated_date_label') }}</span>
               <p class="estimated-time">
                 {{ order.estimatedDate }}
               </p>
             </div>
 
             <div class="info-group">
-              <span class="info-label">DATOS DE CONTACTO</span>
+              <span class="info-label">{{ i18n.t('checkout.contact_data_label') }}</span>
               <p>
-                Email de confirmación: <strong>{{ order.customer.email }}</strong>
+                {{ i18n.t('checkout.confirm_email_label') }}
+                <strong>{{ order.customer.email }}</strong>
               </p>
               <p>
-                Teléfono de aviso: <strong>{{ order.customer.phone }}</strong>
+                {{ i18n.t('checkout.warning_phone_label') }}
+                <strong>{{ order.customer.phone }}</strong>
               </p>
             </div>
           </div>
@@ -101,22 +122,28 @@
         <!-- RECORDATORIO MÉTODO DE PAGO Y PASOS SIGUIENTES -->
         <article class="confirmation-card">
           <div class="card-icon">💶</div>
-          <h2>Método de pago</h2>
+          <h2>{{ i18n.t('checkout.payment_method_label') }}</h2>
           <div class="card-content">
             <div class="info-group highlight-box">
-              <span class="info-label">INSTRUCCIONES DE PAGO</span>
+              <span class="info-label">{{ i18n.t('checkout.payment_instructions') }}</span>
               <p class="payment-instructions">{{ order.paymentMethod }}</p>
             </div>
             <div class="payment-notice">
               <p>
-                <strong>Sin cobros anticipados en la web:</strong> El importe de
-                <strong>{{ order.total.toFixed(2) }} €</strong> se abona según la modalidad indicada
-                (en tienda física al recoger o Bizum/contra reembolso en domicilio).
+                @if (i18n.currentLang() === 'ca') {
+                  <strong>Sense cobraments anticipats al web:</strong> L'import de
+                  <strong>{{ order.total.toFixed(2) }} €</strong> s'abona segons la modalitat
+                  indicada (a la botiga física en recollir o Bizum/contra reemborsament a domicili).
+                } @else {
+                  <strong>Sin cobros anticipados en la web:</strong> El importe de
+                  <strong>{{ order.total.toFixed(2) }} €</strong> se abona según la modalidad
+                  indicada (en tienda física al recoger o Bizum/contra reembolso en domicilio).
+                }
               </p>
             </div>
             <div class="support-info">
-              <span class="info-label">¿DUDAS CON TU ENCARGO?</span>
-              <p>Contacta directamente con nuestro obrador:</p>
+              <span class="info-label">{{ i18n.t('checkout.support_title') }}</span>
+              <p>{{ i18n.t('checkout.support_text') }}</p>
               <p class="phone-link"><a href="tel:+34932325508">📞 93 232 55 08</a></p>
             </div>
           </div>
@@ -125,13 +152,13 @@
 
       <!-- DESGLOSE Y RESUMEN DE PRODUCTOS -->
       <section class="confirmation-items-section" aria-labelledby="items-summary-title">
-        <h2 id="items-summary-title">Resumen de productos solicitados</h2>
+        <h2 id="items-summary-title">{{ i18n.t('checkout.summary_items_title') }}</h2>
         <div class="confirmation-items-table">
           <div class="table-header">
-            <span>Producto</span>
-            <span class="text-center">Cant.</span>
-            <span class="text-right">Precio unitario</span>
-            <span class="text-right">Total</span>
+            <span>{{ i18n.t('checkout.th_product') }}</span>
+            <span class="text-center">{{ i18n.t('checkout.th_quantity') }}</span>
+            <span class="text-right">{{ i18n.t('checkout.th_unit_price') }}</span>
+            <span class="text-right">{{ i18n.t('checkout.th_total') }}</span>
           </div>
           @for (item of order.items; track item.name) {
             <div class="table-row">
@@ -159,19 +186,23 @@
 
         <div class="confirmation-financials">
           <div class="fin-row">
-            <span>Subtotal productos</span>
+            <span>{{ i18n.t('checkout.subtotal_products') }}</span>
             <span
               >{{ (order.subtotal ?? order.total - (order.shippingCost ?? 0)).toFixed(2) }} €</span
             >
           </div>
           <div class="fin-row">
-            <span>Gastos de envío ({{ order.shippingZoneLabel }})</span>
+            <span>{{ i18n.t('checkout.shipping_fees') }} ({{ order.shippingZoneLabel }})</span>
             <span>{{
-              order.shippingCost === 0 ? '0,00 € (Gratis)' : order.shippingCost?.toFixed(2) + ' €'
+              order.shippingCost === 0
+                ? i18n.currentLang() === 'ca'
+                  ? '0,00 € (Gratuït)'
+                  : '0,00 € (Gratis)'
+                : order.shippingCost?.toFixed(2) + ' €'
             }}</span>
           </div>
           <div class="fin-row total-row">
-            <span>TOTAL FINAL (IVA incluido)</span>
+            <span>{{ i18n.t('checkout.final_total') }}</span>
             <strong>{{ order.total.toFixed(2) }} €</strong>
           </div>
         </div>
@@ -180,44 +211,49 @@
       <!-- BOTONES DE ACCIÓN -->
       <footer class="confirmation-actions">
         <button type="button" class="action-btn print-btn" (click)="printOrder()">
-          🖨️ IMPRIMIR / DESCARGAR COMPROBANTE
+          {{ i18n.t('checkout.print_receipt') }}
         </button>
         <a
           [routerLink]="['/tienda-online']"
           class="action-btn store-btn"
           (click)="resetOrderState()"
         >
-          VOLVER A LA TIENDA ONLINE →
+          {{ i18n.t('checkout.back_to_shop_btn') }}
         </a>
       </footer>
     </div>
   } @else {
     <header class="checkout-heading">
-      <a [routerLink]="['/tienda-online']" class="checkout-back">← VOLVER A LA TIENDA</a>
-      <span>CAL SARDÀ · COMPRA</span>
-      <h1 id="checkout-title">Prepara tu<br />pedido.</h1>
-      <p>Completa tus datos para revisar una vista previa y formalizar tu encargo.</p>
+      <a [routerLink]="['/tienda-online']" class="checkout-back"
+        >← {{ i18n.t('checkout.back_to_shop') }}</a
+      >
+      <span>{{ i18n.t('checkout.kicker') }}</span>
+      <h1 id="checkout-title">
+        {{ i18n.t('checkout.title_line1') }}<br />
+        {{ i18n.t('checkout.title_line2') }}
+      </h1>
+      <p>{{ i18n.t('checkout.desc') }}</p>
     </header>
 
     @if (cartService.products().length === 0) {
       <section class="checkout-empty">
-        <h2>Tu cesta está vacía</h2>
-        <p>Vuelve a la tienda y añade los productos que quieras incluir.</p>
-        <a [routerLink]="['/tienda-online']">VER LA TIENDA →</a>
+        <h2>{{ i18n.t('checkout.empty_title') }}</h2>
+        <p>{{ i18n.t('checkout.empty_desc') }}</p>
+        <a [routerLink]="['/tienda-online']">{{ i18n.t('checkout.view_shop') }}</a>
       </section>
     } @else {
       <div class="checkout-layout">
         <section class="checkout-form-panel">
           <div class="checkout-step">
             <span>01</span>
-            <h2>Tus datos</h2>
+            <h2>{{ i18n.t('checkout.step1_title') }}</h2>
           </div>
 
           @if (!previewReady()) {
             <form #orderForm="ngForm" (ngSubmit)="preparePreview()" novalidate>
               <div class="checkout-fields">
                 <label>
-                  Nombre y apellidos
+                  {{ i18n.t('checkout.name_label') }}
                   <input
                     name="name"
                     [(ngModel)]="customer.name"
@@ -232,7 +268,7 @@
                   }
                 </label>
                 <label>
-                  Correo electrónico
+                  {{ i18n.t('checkout.email_label') }}
                   <input
                     name="email"
                     [(ngModel)]="customer.email"
@@ -248,7 +284,7 @@
                   }
                 </label>
                 <label>
-                  Teléfono
+                  {{ i18n.t('checkout.phone_label') }}
                   <input
                     name="phone"
                     [(ngModel)]="customer.phone"
@@ -266,7 +302,7 @@
               </div>
 
               <fieldset class="fulfillment-options">
-                <legend>¿Cómo quieres recibirlo?</legend>
+                <legend>{{ i18n.t('checkout.fulfillment_legend') }}</legend>
                 <label class="fulfillment-choice">
                   <input
                     type="radio"
@@ -277,8 +313,8 @@
                     required
                   />
                   <span
-                    ><strong>Recogida en tienda</strong
-                    ><small>C/ Marina, 237 · Barcelona (Gratis)</small></span
+                    ><strong>{{ i18n.t('checkout.pickup_title') }}</strong
+                    ><small>{{ i18n.t('checkout.pickup_desc') }}</small></span
                   >
                 </label>
                 <label class="fulfillment-choice">
@@ -291,8 +327,8 @@
                     required
                   />
                   <span
-                    ><strong>Envío a domicilio</strong
-                    ><small>7,99 € Cataluña · 8,99 € resto de la península</small></span
+                    ><strong>{{ i18n.t('checkout.delivery_title') }}</strong
+                    ><small>{{ i18n.t('checkout.delivery_desc') }}</small></span
                   >
                 </label>
               </fieldset>
@@ -300,7 +336,7 @@
               @if (fulfillment === 'delivery') {
                 <div class="checkout-fields delivery-fields">
                   <label class="field-wide">
-                    Dirección
+                    {{ i18n.t('checkout.address_label') }}
                     <input
                       name="address"
                       [(ngModel)]="customer.address"
@@ -317,7 +353,7 @@
                     }
                   </label>
                   <label>
-                    Código postal
+                    {{ i18n.t('checkout.postal_code_label') }}
                     <input
                       name="postalCode"
                       [(ngModel)]="customer.postalCode"
@@ -334,7 +370,7 @@
                     }
                   </label>
                   <label>
-                    Ciudad
+                    {{ i18n.t('checkout.city_label') }}
                     <input
                       name="city"
                       [(ngModel)]="customer.city"
@@ -352,16 +388,20 @@
               }
 
               <button class="checkout-submit" type="submit">
-                PREPARAR VISTA PREVIA <span>→</span>
+                {{ i18n.t('checkout.prepare_preview') }} <span>→</span>
               </button>
             </form>
           } @else {
             <section class="order-preview" aria-live="polite">
-              <span class="preview-kicker">VISTA PREVIA LISTA</span>
-              <h2>Gracias, {{ customer.name }}.</h2>
+              <span class="preview-kicker">{{ i18n.t('checkout.preview_ready') }}</span>
+              <h2>{{ i18n.t('checkout.preview_thanks') }} {{ customer.name }}.</h2>
               <p>
-                La selección está preparada para
-                {{ fulfillment === 'pickup' ? 'recogida en tienda' : 'envío a domicilio' }}.
+                {{ i18n.t('checkout.preview_prep_for') }}
+                {{
+                  fulfillment === 'pickup'
+                    ? i18n.t('checkout.preview_pickup')
+                    : i18n.t('checkout.preview_delivery')
+                }}.
               </p>
               <p class="preview-contact">{{ customer.email }} · {{ customer.phone }}</p>
               @if (fulfillment === 'delivery') {
@@ -372,9 +412,7 @@
                 </p>
               }
               <div class="preview-notice">
-                Revisa los datos antes de formalizar tu pedido. Al pulsar «Confirmar encargo»,
-                registraremos tu solicitud y te facilitaremos tu comprobante con el código de
-                referencia.
+                {{ i18n.t('checkout.preview_notice') }}
               </div>
               <div class="preview-actions">
                 <button
@@ -384,13 +422,13 @@
                   (click)="confirmOrder()"
                 >
                   @if (submitting()) {
-                    PROCESANDO ENCARGO...
+                    {{ i18n.t('checkout.confirming') }}
                   } @else {
-                    CONFIRMAR ENCARGO <span>✓</span>
+                    {{ i18n.t('checkout.confirm_button') }} <span>✓</span>
                   }
                 </button>
                 <button class="edit-details" type="button" (click)="editDetails()">
-                  EDITAR DATOS
+                  {{ i18n.t('checkout.edit_button') }}
                 </button>
               </div>
             </section>
@@ -400,7 +438,7 @@
         <aside class="checkout-summary">
           <div class="checkout-step">
             <span>02</span>
-            <h2>Tu selección</h2>
+            <h2>{{ i18n.t('checkout.step2_title') }}</h2>
           </div>
           <div class="summary-products">
             @for (product of cartService.products(); track product.name) {
@@ -415,18 +453,19 @@
             }
           </div>
           <div class="summary-total">
-            <span>Subtotal</span><strong>{{ cartService.getTotal().toFixed(2) }} €</strong>
+            <span>{{ i18n.t('checkout.subtotal') }}</span
+            ><strong>{{ cartService.getTotal().toFixed(2) }} €</strong>
           </div>
           <div class="summary-total shipping-total">
-            <span>Gastos de envío ({{ shippingZoneLabel }})</span>
+            <span>{{ i18n.t('checkout.shipping_fees') }} ({{ shippingZoneLabel }})</span>
             <strong>{{ shippingCost === 0 ? '0,00 €' : shippingCost.toFixed(2) + ' €' }}</strong>
           </div>
           <div class="summary-total final-total">
-            <span>Total estimado</span><strong>{{ finalTotal.toFixed(2) }} €</strong>
+            <span>{{ i18n.t('checkout.estimated_total') }}</span
+            ><strong>{{ finalTotal.toFixed(2) }} €</strong>
           </div>
           <p class="demo-note">
-            Precios con IVA incluido. Al confirmar el encargo recibirás los detalles para recogida
-            en tienda o entrega refrigerada.
+            {{ i18n.t('checkout.demo_note') }}
           </p>
         </aside>
       </div>

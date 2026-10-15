@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { I18nService } from '../../services/i18n';
 
 @Component({
   selector: 'app-account-page',
@@ -9,6 +10,8 @@ import { RouterLink } from '@angular/router';
   styleUrl: './account-page.css',
 })
 export class AccountPage {
+  public readonly i18n = inject(I18nService);
+
   email = '';
   password = '';
   showPassword = false;

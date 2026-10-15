@@ -3,7 +3,7 @@
     ngSrc="/images/hero.jpg"
     fill
     priority
-    alt="Cal Sardà desde 1930"
+    [alt]="i18n.t('hero.subtitle')"
     class="hero-bg-image"
     sizes="100vw"
   />
@@ -13,19 +13,19 @@
   <!-- CONTENIDO PRINCIPAL -->
 
   <div class="hero-content">
-    <p class="hero-subtitle">CAL SARDÀ · DESDE 1930</p>
+    <p class="hero-subtitle">{{ i18n.t('hero.subtitle') }}</p>
 
     <h1>
-      El sabor de<br />
-      toda una vida
+      {{ i18n.t('hero.title_line1') }}<br />
+      {{ i18n.t('hero.title_line2') }}
     </h1>
 
     <p class="hero-text">
-      Productos seleccionados, tradición y calidad en el corazón de Barcelona.
+      {{ i18n.t('hero.text') }}
     </p>
 
     <button class="hero-button" type="button" (click)="goToStore()">
-      VER PRODUCTOS
+      {{ i18n.t('hero.button') }}
 
       <span> → </span>
     </button>
@@ -34,26 +34,26 @@
   <!-- FILOSOFÍA -->
 
   <div class="hero-philosophy">
-    <span class="philosophy-label"> NUESTRA FILOSOFÍA </span>
+    <span class="philosophy-label"> {{ i18n.t('hero.philosophy_label') }} </span>
 
     <div class="philosophy-text">
-      <p>El "colmado" gourmet de Sagrada Familia.</p>
+      <p>{{ i18n.t('hero.point1') }}</p>
 
-      <p>Desde 1930 ofrecemos un trato cercano y familiar.</p>
+      <p>{{ i18n.t('hero.point2') }}</p>
 
-      <p>Los productos de siempre y de la mejor calidad.</p>
+      <p>{{ i18n.t('hero.point3') }}</p>
 
-      <p>4 generaciones.</p>
+      <p>{{ i18n.t('hero.point4') }}</p>
 
-      <p>Más de 90 años ofreciendo un cuidado exquisito en la selección de productos.</p>
+      <p>{{ i18n.t('hero.point5') }}</p>
 
-      <p>Productos auténticos.</p>
+      <p>{{ i18n.t('hero.point6') }}</p>
 
-      <p>Buscamos lo mejor de cada región.</p>
+      <p>{{ i18n.t('hero.point7') }}</p>
 
-      <p>La calidad es nuestro valor añadido.</p>
+      <p>{{ i18n.t('hero.point8') }}</p>
 
-      <p>Productos de ahora y de siempre.</p>
+      <p>{{ i18n.t('hero.point9') }}</p>
     </div>
   </div>
 

@@ -1,10 +1,11 @@
 import { isPlatformBrowser } from '@angular/common';
-import { Component, Inject, PLATFORM_ID, signal } from '@angular/core';
+import { Component, inject, Inject, PLATFORM_ID, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import type { FulfillmentMethod } from '@cal-sarda/domain';
 
 import { CartService } from '../../services/cart';
+import { I18nService } from '../../services/i18n';
 import { OrdersService, type Order } from '../../services/orders';
 
 export type { FulfillmentMethod };
@@ -32,6 +33,8 @@ export class CheckoutPage {
   readonly confirmedOrder = signal<Order | null>(null);
   readonly copied = signal(false);
   readonly errors = signal<CheckoutFormErrors>({});
+
+  public readonly i18n = inject(I18nService);
 
   customer = {
     name: '',
@@ -64,14 +67,18 @@ export class CheckoutPage {
   }
 
   get shippingZoneLabel(): string {
+    const isCa = this.i18n.currentLang() === 'ca';
     if (this.fulfillment === 'pickup') {
-      return 'Recogida en tienda (gratis)';
+      return isCa ? 'Recollida a la botiga (gratuït)' : 'Recogida en tienda (gratis)';
     }
     const cp = this.customer.postalCode.trim();
     if (this.isValidPostalCode(cp)) {
-      return this.isCataloniaPostalCode(cp) ? 'Cataluña (7,99 €)' : 'Resto península (8,99 €)';
+      if (this.isCataloniaPostalCode(cp)) {
+        return isCa ? 'Catalunya (7,99 €)' : 'Cataluña (7,99 €)';
+      }
+      return isCa ? 'Resta península (8,99 €)' : 'Resto península (8,99 €)';
     }
-    return 'Estimado (Cataluña / Península)';
+    return isCa ? 'Estimat (Catalunya / Península)' : 'Estimado (Cataluña / Península)';
   }
 
   get finalTotal(): number {

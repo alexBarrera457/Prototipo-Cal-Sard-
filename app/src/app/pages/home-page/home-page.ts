@@ -2,6 +2,7 @@ import { Component, DestroyRef, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
 import { Hero } from '../../components/hero/hero';
+import { I18nService } from '../../services/i18n';
 import { SeoService } from '../../services/seo';
 
 type HomeCategory = {
@@ -19,6 +20,7 @@ type HomeCategory = {
   styleUrl: './home-page.css',
 })
 export class HomePage {
+  public readonly i18n = inject(I18nService);
   private readonly seo = inject(SeoService);
   private readonly destroyRef = inject(DestroyRef);
 

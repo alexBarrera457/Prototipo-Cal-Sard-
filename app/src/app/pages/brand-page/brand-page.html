@@ -1,4 +1,4 @@
-@if (page.eyebrow === 'Lotes y cestas gourmet') {
+@if (isGiftLotsPage) {
   <article class="brand-page gift-lots-page">
     <header class="gift-lots-hero">
       <div class="gift-lots-hero-copy">
@@ -112,7 +112,7 @@
       }
     </section>
   </article>
-} @else if (page.eyebrow === 'Lotes para empresas') {
+} @else if (isBusinessPage) {
   <article class="brand-page business-page">
     <header class="business-hero">
       <div class="business-hero-copy">
@@ -228,7 +228,7 @@
       }
     </section>
   </article>
-} @else if (page.eyebrow === 'Historia') {
+} @else if (isHistoryPage) {
   <article class="brand-page history-page">
     <header class="brand-page-header history-intro">
       <div class="history-intro-heading">
@@ -290,7 +290,7 @@
       }
     </header>
 
-    @if (page.eyebrow === 'Historia' && page.stats.length > 0) {
+    @if (isHistoryPage && page.stats.length > 0) {
       <section class="brand-page-stats" aria-label="Estadísticas">
         @for (stat of page.stats; track stat.label) {
           <div class="stat-item">
