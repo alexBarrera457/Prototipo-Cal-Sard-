@@ -16,6 +16,20 @@ export interface ProductEditForm {
   featured: boolean;
 }
 
+export interface ProductCreateForm {
+  number: string;
+  name: string;
+  category: string;
+  price: number;
+  priceLabel: string;
+  image: string;
+  shortDescription: string;
+  description: string;
+  allergensText: string;
+  inStock: boolean;
+  featured: boolean;
+}
+
 @Component({
   selector: 'app-admin-catalog',
   standalone: true,
@@ -52,6 +66,27 @@ export class AdminCatalog implements OnInit {
     inStock: true,
     featured: false,
   };
+
+  // Estado del modal de creación de nuevo producto
+  readonly isCreatingProduct = signal<boolean>(false);
+  createForm: ProductCreateForm = {
+    number: '',
+    name: '',
+    category: 'CAFÉ GOURMET',
+    price: 0,
+    priceLabel: '',
+    image: '',
+    shortDescription: '',
+    description: '',
+    allergensText: '',
+    inStock: true,
+    featured: false,
+  };
+
+  // Estado del diálogo de confirmación de eliminación
+  readonly deletingProduct = signal<StoreProduct | null>(null);
+  readonly isDeleting = signal<boolean>(false);
+
   readonly isSaving = signal<boolean>(false);
   readonly feedbackMessage = signal<{ type: 'success' | 'error'; text: string } | null>(null);
   readonly updatingProductNumber = signal<string | null>(null);
@@ -297,5 +332,105 @@ export class AdminCatalog implements OnInit {
       return '0,00 €';
     }
     return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(value);
+  }
+
+  // --- Creación de nuevo producto ---
+  openCreateModal(): void {
+    const nextNum = this.generateNextProductNumber();
+    this.createForm = {
+      number: nextNum,
+      name: '',
+      category: this.categories()[0]?.value ?? 'CAFÉ GOURMET',
+      price: 0,
+      priceLabel: '',
+      image: '',
+      shortDescription: '',
+      description: '',
+      allergensText: '',
+      inStock: true,
+      featured: false,
+    };
+    this.isCreatingProduct.set(true);
+  }
+
+  closeCreateModal(): void {
+    this.isCreatingProduct.set(false);
+  }
+
+  async createProduct(): Promise<void> {
+    if (!this.createForm.name.trim() || !this.createForm.number.trim()) {
+      return;
+    }
+
+    this.isSaving.set(true);
+    const allergens = this.createForm.allergensText
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean);
+
+    const newProd: StoreProduct = {
+      number: this.createForm.number.trim(),
+      name: this.createForm.name.trim(),
+      category: this.createForm.category,
+      price: Number(this.createForm.price) || 0,
+      priceLabel: this.createForm.priceLabel.trim() || undefined,
+      image: this.createForm.image.trim() || '',
+      images: this.createForm.image.trim() ? [this.createForm.image.trim()] : [],
+      shortDescription: this.createForm.shortDescription.trim(),
+      description: this.createForm.description.trim() || this.createForm.shortDescription.trim(),
+      allergens,
+      inStock: this.createForm.inStock,
+      featured: this.createForm.featured,
+    };
+
+    try {
+      const created = await this.productsService.createProduct(newProd);
+      this.allProducts.update((items) => [
+        created,
+        ...items.filter((p) => p.number !== created.number),
+      ]);
+      this.showToast('success', this.i18n.t('admin.create_success'));
+      this.closeCreateModal();
+    } catch {
+      this.showToast('error', this.i18n.t('admin.create_error'));
+    } finally {
+      this.isSaving.set(false);
+    }
+  }
+
+  // --- Eliminación de producto con confirmación ---
+  openDeleteConfirm(product: StoreProduct): void {
+    this.deletingProduct.set(product);
+  }
+
+  closeDeleteConfirm(): void {
+    this.deletingProduct.set(null);
+  }
+
+  async confirmDeleteProduct(): Promise<void> {
+    const target = this.deletingProduct();
+    if (!target) return;
+
+    this.isDeleting.set(true);
+    try {
+      await this.productsService.deleteProduct(target.number);
+      this.allProducts.update((items) => items.filter((p) => p.number !== target.number));
+      this.showToast('success', this.i18n.t('admin.delete_success'));
+      this.closeDeleteConfirm();
+    } catch {
+      this.showToast('error', this.i18n.t('admin.delete_error'));
+    } finally {
+      this.isDeleting.set(false);
+    }
+  }
+
+  generateNextProductNumber(): string {
+    const products = this.allProducts();
+    const numericValues = products
+      .map((p) => parseInt(p.number, 10))
+      .filter((n) => !isNaN(n) && n > 0);
+    const max = numericValues.length ? Math.max(...numericValues) : 0;
+    const next = max + 1;
+    return next < 10 ? `0${next}` : String(next);
   }
 }

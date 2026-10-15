@@ -133,4 +133,77 @@ test.describe('Gestión de Catálogo y Stock en Backoffice (Issue #42)', () => {
     // El nuevo precio debe verse en la fila
     await expect(firstRow.locator('.price-val')).toContainText('29,95');
   });
+
+  test('6. Permite dar de alta un nuevo producto mediante el modal de creación y visualizarlo', async ({
+    page,
+  }) => {
+    // Abrir modal de creación
+    const addBtn = page.locator('.btn-add-product');
+    await expect(addBtn).toBeVisible();
+    await addBtn.click();
+
+    const createModal = page.locator('.edit-modal');
+    await expect(createModal).toBeVisible();
+    await expect(createModal.locator('#create-dialog-title')).toContainText(
+      /Añadir Nuevo Producto|Afegir Nou Producte/,
+    );
+
+    // Rellenar formulario
+    await createModal.locator('#create-number').fill('999');
+    await createModal.locator('#create-name').fill('Pan Artesano de Centeno 1kg');
+    await createModal.locator('#create-price').fill('4.75');
+    await createModal
+      .locator('#create-short-desc')
+      .fill('Pan de centeno 100% de masa madre fermentado en piedra');
+
+    // Guardar nuevo producto
+    await createModal.locator('button[type="submit"].btn-submit').click();
+
+    // Modal se cierra y aparece toast
+    await expect(createModal).not.toBeVisible();
+    const toast = page.locator('.catalog-toast');
+    await expect(toast).toBeVisible();
+    await expect(toast).toContainText(/añadido al catálogo|afegit al catàleg/);
+
+    // Buscar el producto recién creado
+    const searchInput = page.locator('.search-input');
+    await searchInput.fill('Pan Artesano de Centeno');
+    const rows = page.locator('.catalog-table tbody tr');
+    await expect(rows.first()).toBeVisible();
+    await expect(rows.first()).toContainText('Pan Artesano de Centeno 1kg');
+    await expect(rows.first().locator('.price-val')).toContainText('4,75');
+  });
+
+  test('7. Permite eliminar un producto del catálogo tras confirmación', async ({ page }) => {
+    // Buscar un producto específico para eliminarlo de prueba
+    const searchInput = page.locator('.search-input');
+    await searchInput.fill('Ventresca de bonito');
+    const rows = page.locator('.catalog-table tbody tr');
+    await expect(rows).toHaveCount(1);
+
+    // Pulsar botón de eliminar (papelera)
+    const deleteBtn = rows.first().locator('.btn-delete-product');
+    await expect(deleteBtn).toBeVisible();
+    await deleteBtn.click();
+
+    // Comprobar diálogo de confirmación
+    const confirmModal = page.locator('.delete-confirm-modal');
+    await expect(confirmModal).toBeVisible();
+    await expect(confirmModal.locator('#delete-dialog-title')).toContainText(
+      /Eliminar Producto|Eliminar Producte/,
+    );
+    await expect(confirmModal.locator('.delete-name')).toContainText('Ventresca de bonito');
+
+    // Confirmar eliminación
+    await confirmModal.locator('.btn-danger-confirm').click();
+
+    // Modal se cierra y aparece toast
+    await expect(confirmModal).not.toBeVisible();
+    const toast = page.locator('.catalog-toast');
+    await expect(toast).toBeVisible();
+    await expect(toast).toContainText(/eliminado del catálogo|eliminat del catàleg/);
+
+    // Ya no debe aparecer en la búsqueda
+    await expect(page.locator('.catalog-empty')).toBeVisible();
+  });
 });

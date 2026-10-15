@@ -472,6 +472,19 @@ export const TRANSLATIONS = {
     'admin.empty_catalog': 'No se encontraron productos con los filtros aplicados.',
     'admin.save_success': 'Producto actualizado con éxito',
     'admin.save_error': 'Error al actualizar el producto',
+    'admin.btn_add_product': 'Añadir Producto',
+    'admin.create_product_title': 'Añadir Nuevo Producto',
+    'admin.create_product_desc':
+      'Introduce los datos para publicar un nuevo producto en el catálogo oficial de Cal Sardà.',
+    'admin.btn_create': 'Dar de alta producto',
+    'admin.create_success': 'Producto añadido al catálogo con éxito',
+    'admin.create_error': 'Error al crear el producto',
+    'admin.delete_product_title': 'Eliminar Producto del Catálogo',
+    'admin.delete_confirm_msg':
+      '¿Estás seguro de que deseas retirar este producto? Dejará de estar visible en la tienda online.',
+    'admin.delete_btn_confirm': 'Sí, eliminar',
+    'admin.delete_success': 'Producto eliminado del catálogo con éxito',
+    'admin.delete_error': 'Error al eliminar el producto',
 
     // Admin Invoicing
     'admin.invoicing_title': 'Facturación y Series Fiscales',
@@ -1008,6 +1021,19 @@ export const TRANSLATIONS = {
     'admin.empty_catalog': 'No s’han trobat productes amb els filtres aplicats.',
     'admin.save_success': 'Producte actualitzat amb èxit',
     'admin.save_error': 'Error en actualitzar el producte',
+    'admin.btn_add_product': 'Afegir Producte',
+    'admin.create_product_title': 'Afegir Nou Producte',
+    'admin.create_product_desc':
+      'Introdueix les dades per publicar un nou producte al catàleg oficial de Cal Sardà.',
+    'admin.btn_create': 'Donar d’alta producte',
+    'admin.create_success': 'Producte afegit al catàleg amb èxit',
+    'admin.create_error': 'Error en crear el producte',
+    'admin.delete_product_title': 'Eliminar Producte del Catàleg',
+    'admin.delete_confirm_msg':
+      'Segur que vols retirar aquest producte? Deixarà d’estar visible a la botiga online.',
+    'admin.delete_btn_confirm': 'Sí, eliminar',
+    'admin.delete_success': 'Producte eliminat del catàleg amb èxit',
+    'admin.delete_error': 'Error en eliminar el producte',
 
     // Admin Invoicing
     'admin.invoicing_title': 'Facturació i Sèries Fiscals',

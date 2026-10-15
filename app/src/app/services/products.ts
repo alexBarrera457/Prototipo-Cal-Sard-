@@ -119,6 +119,8 @@ export interface ProductsRepository {
   getProducts(): Promise<StoreProduct[]>;
   getProductByNumber(number: string): Promise<StoreProduct | null>;
   updateProduct?(number: string, updates: Partial<StoreProduct>): Promise<StoreProduct | null>;
+  createProduct?(product: StoreProduct): Promise<StoreProduct>;
+  deleteProduct?(number: string): Promise<boolean>;
 }
 
 export type ProductsStorageAdapter = ProductsRepository;
@@ -194,6 +196,29 @@ export class StaticProductsAdapter implements ProductsRepository {
     };
     products[index] = updated;
     return updated;
+  }
+
+  async createProduct(product: StoreProduct): Promise<StoreProduct> {
+    const products = await this.getProducts();
+    const newProduct: StoreProduct = {
+      ...product,
+      slug: product.slug || slugify(product.name),
+      inStock: product.inStock !== false,
+      featured: Boolean(product.featured),
+      allergens: product.allergens ? [...product.allergens] : [],
+    };
+    products.unshift(newProduct);
+    return newProduct;
+  }
+
+  async deleteProduct(number: string): Promise<boolean> {
+    const products = await this.getProducts();
+    const index = products.findIndex((p) => p.number === number);
+    if (index === -1) {
+      return false;
+    }
+    products.splice(index, 1);
+    return true;
   }
 }
 
@@ -323,6 +348,82 @@ export class SupabaseProductsAdapter implements ProductsRepository {
       return this.fallbackUpdate(number, updates);
     }
   }
+
+  async createProduct(product: StoreProduct): Promise<StoreProduct> {
+    if (!this.supabase) {
+      return this.fallbackAdapter.createProduct
+        ? this.fallbackAdapter.createProduct(product)
+        : product;
+    }
+
+    try {
+      const dbPayload: Record<string, unknown> = {
+        number: product.number,
+        name: product.name,
+        category_name: product.category,
+        description: product.description,
+        short_description: product.shortDescription,
+        price: product.price,
+        price_label: product.priceLabel ?? null,
+        image: product.image ?? null,
+        images: product.images ?? (product.image ? [product.image] : []),
+        in_stock: product.inStock !== false,
+        featured: Boolean(product.featured),
+        allergens: product.allergens ?? [],
+        is_active: true,
+      };
+
+      const { data, error } = await this.supabase
+        .from('products')
+        .insert(dbPayload)
+        .select()
+        .single();
+
+      if (error || !data) {
+        return this.fallbackAdapter.createProduct
+          ? this.fallbackAdapter.createProduct(product)
+          : product;
+      }
+
+      this.cachedProducts = null;
+      return mapDatabaseProductToProduct(data);
+    } catch {
+      return this.fallbackAdapter.createProduct
+        ? this.fallbackAdapter.createProduct(product)
+        : product;
+    }
+  }
+
+  async deleteProduct(number: string): Promise<boolean> {
+    if (!this.supabase) {
+      return this.fallbackAdapter.deleteProduct
+        ? this.fallbackAdapter.deleteProduct(number)
+        : false;
+    }
+
+    try {
+      const { error } = await this.supabase
+        .from('products')
+        .update({ is_active: false })
+        .eq('number', number);
+
+      if (error) {
+        return this.fallbackAdapter.deleteProduct
+          ? this.fallbackAdapter.deleteProduct(number)
+          : false;
+      }
+
+      this.cachedProducts = null;
+      if (this.fallbackAdapter.deleteProduct) {
+        await this.fallbackAdapter.deleteProduct(number);
+      }
+      return true;
+    } catch {
+      return this.fallbackAdapter.deleteProduct
+        ? this.fallbackAdapter.deleteProduct(number)
+        : false;
+    }
+  }
 }
 
 @Injectable({
@@ -354,6 +455,26 @@ export class ProductsService {
    */
   getProducts(): Promise<StoreProduct[]> {
     return this.repository.getProducts();
+  }
+
+  /**
+   * Da de alta un nuevo producto artesanal en el catálogo.
+   */
+  async createProduct(product: StoreProduct): Promise<StoreProduct> {
+    if (this.repository.createProduct) {
+      return this.repository.createProduct(product);
+    }
+    return product;
+  }
+
+  /**
+   * Elimina un producto del catálogo por su número de referencia.
+   */
+  async deleteProduct(number: string): Promise<boolean> {
+    if (this.repository.deleteProduct) {
+      return this.repository.deleteProduct(number);
+    }
+    return false;
   }
 
   /**

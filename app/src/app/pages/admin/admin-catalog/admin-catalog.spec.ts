@@ -71,6 +71,16 @@ describe('AdminCatalog', () => {
           mockProducts[idx] = { ...mockProducts[idx], ...updates };
           return mockProducts[idx];
         }),
+      createProduct: vi.fn().mockImplementation(async (prod: StoreProduct) => {
+        mockProducts.unshift(prod);
+        return prod;
+      }),
+      deleteProduct: vi.fn().mockImplementation(async (num: string) => {
+        const idx = mockProducts.findIndex((p) => p.number === num);
+        if (idx === -1) return false;
+        mockProducts.splice(idx, 1);
+        return true;
+      }),
     };
 
     await TestBed.configureTestingModule({
@@ -209,5 +219,55 @@ describe('AdminCatalog', () => {
     expect(formatted).toContain('€');
 
     expect(component.formatCurrency(undefined)).toBe('0,00 €');
+  });
+
+  it('opens and closes the create product modal with next available number', () => {
+    component.openCreateModal();
+    expect(component.isCreatingProduct()).toBe(true);
+    expect(component.createForm.number).toBe('04');
+
+    component.closeCreateModal();
+    expect(component.isCreatingProduct()).toBe(false);
+  });
+
+  it('creates a new product and prepends it to the catalog', async () => {
+    component.openCreateModal();
+    component.createForm.number = '04';
+    component.createForm.name = 'Pa de Pagès Tradicional de Fusta';
+    component.createForm.category = 'Víveres gourmet';
+    component.createForm.price = 4.2;
+    component.createForm.shortDescription = 'Pan tradicional de 1kg fermentado 24h';
+    component.createForm.allergensText = 'Gluten';
+    component.createForm.inStock = true;
+    component.createForm.featured = true;
+
+    await component.createProduct();
+
+    expect(mockRepo.createProduct).toHaveBeenCalledWith(
+      expect.objectContaining({
+        number: '04',
+        name: 'Pa de Pagès Tradicional de Fusta',
+        price: 4.2,
+        allergens: ['Gluten'],
+        inStock: true,
+        featured: true,
+      }),
+    );
+    expect(component.isCreatingProduct()).toBe(false);
+    expect(component.allProducts().length).toBe(4);
+    expect(component.allProducts()[0].name).toBe('Pa de Pagès Tradicional de Fusta');
+  });
+
+  it('opens delete confirmation and deletes product from catalog', async () => {
+    const target = component.allProducts().find((p) => p.number === '02')!;
+    component.openDeleteConfirm(target);
+    expect(component.deletingProduct()).toBe(target);
+
+    await component.confirmDeleteProduct();
+
+    expect(mockRepo.deleteProduct).toHaveBeenCalledWith('02');
+    expect(component.deletingProduct()).toBeNull();
+    expect(component.allProducts().length).toBe(2);
+    expect(component.allProducts().find((p) => p.number === '02')).toBeUndefined();
   });
 });

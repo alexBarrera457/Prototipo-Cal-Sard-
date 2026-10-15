@@ -20,16 +20,28 @@
       <p class="catalog-subtitle">{{ i18n.t('admin.catalog_subtitle') }}</p>
     </div>
 
-    <button
-      type="button"
-      class="refresh-btn"
-      (click)="loadCatalog()"
-      [disabled]="isLoading()"
-      title="Recargar catálogo oficial"
-    >
-      <span class="refresh-icon" [class.spinning]="isLoading()">🔄</span>
-      <span>Actualizar</span>
-    </button>
+    <div class="header-actions">
+      <button
+        type="button"
+        class="btn-add-product"
+        (click)="openCreateModal()"
+        title="Dar de alta un nuevo producto"
+      >
+        <span>➕</span>
+        <span>{{ i18n.t('admin.btn_add_product') }}</span>
+      </button>
+
+      <button
+        type="button"
+        class="refresh-btn"
+        (click)="loadCatalog()"
+        [disabled]="isLoading()"
+        title="Recargar catálogo oficial"
+      >
+        <span class="refresh-icon" [class.spinning]="isLoading()">🔄</span>
+        <span>Actualizar</span>
+      </button>
+    </div>
   </header>
 
   <!-- Tarjetas KPI de resumen -->
@@ -248,17 +260,28 @@
                 </button>
               </td>
 
-              <!-- Acciones: Modal de edición completa -->
+              <!-- Acciones: Modal de edición completa y eliminación -->
               <td class="td-actions">
-                <button
-                  type="button"
-                  class="btn-edit-product"
-                  (click)="openEditModal(product)"
-                  [attr.aria-label]="i18n.t('admin.action_edit') + ' ' + product.name"
-                >
-                  <span>✏️</span>
-                  <span>{{ i18n.t('admin.action_edit') }}</span>
-                </button>
+                <div class="row-action-buttons">
+                  <button
+                    type="button"
+                    class="btn-edit-product"
+                    (click)="openEditModal(product)"
+                    [attr.aria-label]="i18n.t('admin.action_edit') + ' ' + product.name"
+                  >
+                    <span>✏️</span>
+                    <span>{{ i18n.t('admin.action_edit') }}</span>
+                  </button>
+                  <button
+                    type="button"
+                    class="btn-delete-product"
+                    (click)="openDeleteConfirm(product)"
+                    [attr.aria-label]="i18n.t('admin.delete_btn_confirm') + ' ' + product.name"
+                    title="Eliminar producto"
+                  >
+                    <span>🗑️</span>
+                  </button>
+                </div>
               </td>
             </tr>
           }
@@ -445,6 +468,262 @@
           </button>
         </footer>
       </form>
+    </div>
+  }
+
+  <!-- Modal de Creación de Nuevo Producto -->
+  @if (isCreatingProduct()) {
+    <div class="modal-backdrop" (click)="closeCreateModal()" role="presentation"></div>
+
+    <div class="edit-modal" role="dialog" aria-modal="true" aria-labelledby="create-dialog-title">
+      <header class="modal-header">
+        <div>
+          <span class="modal-kicker">NUEVA ENTRADA DE CATÁLOGO</span>
+          <h2 id="create-dialog-title">{{ i18n.t('admin.create_product_title') }}</h2>
+        </div>
+        <button
+          type="button"
+          class="modal-close-btn"
+          (click)="closeCreateModal()"
+          aria-label="Cerrar ventana de creación"
+        >
+          ✕
+        </button>
+      </header>
+
+      <form class="modal-form" (ngSubmit)="createProduct()">
+        <!-- Número de Referencia y Precio -->
+        <div class="form-row">
+          <div class="form-group">
+            <label for="create-number">Referencia / Código *</label>
+            <input
+              id="create-number"
+              type="text"
+              name="number"
+              [(ngModel)]="createForm.number"
+              required
+              class="form-input"
+              placeholder="Ej: 145"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="create-price">{{ i18n.t('admin.field_price') }} *</label>
+            <input
+              id="create-price"
+              type="number"
+              name="price"
+              step="0.05"
+              min="0"
+              [(ngModel)]="createForm.price"
+              required
+              class="form-input"
+            />
+          </div>
+        </div>
+
+        <!-- Nombre del Producto -->
+        <div class="form-group">
+          <label for="create-name">{{ i18n.t('admin.field_name') }} *</label>
+          <input
+            id="create-name"
+            type="text"
+            name="name"
+            [(ngModel)]="createForm.name"
+            required
+            class="form-input"
+            placeholder="Ej: Pa de Pagès Especial d’Espelta"
+          />
+        </div>
+
+        <!-- Categoría y Etiqueta de Precio -->
+        <div class="form-row">
+          <div class="form-group">
+            <label for="create-category">{{ i18n.t('admin.field_category') }} *</label>
+            <select
+              id="create-category"
+              name="category"
+              [(ngModel)]="createForm.category"
+              required
+              class="form-select"
+            >
+              @for (cat of categories(); track cat.value) {
+                <option [value]="cat.value">{{ i18n.translateCategory(cat.value) }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="create-price-label">Etiqueta Precio (Opcional)</label>
+            <input
+              id="create-price-label"
+              type="text"
+              name="priceLabel"
+              [(ngModel)]="createForm.priceLabel"
+              placeholder="Ej: /unidad o /kg"
+              class="form-input"
+            />
+          </div>
+        </div>
+
+        <!-- URL de Imagen -->
+        <div class="form-group">
+          <label for="create-image">URL de Imagen (Opcional)</label>
+          <input
+            id="create-image"
+            type="url"
+            name="image"
+            [(ngModel)]="createForm.image"
+            placeholder="https://... o ruta relativa de imagen"
+            class="form-input"
+          />
+        </div>
+
+        <!-- Descripción Corta -->
+        <div class="form-group">
+          <label for="create-short-desc">{{ i18n.t('admin.field_short_desc') }} *</label>
+          <input
+            id="create-short-desc"
+            type="text"
+            name="shortDescription"
+            [(ngModel)]="createForm.shortDescription"
+            required
+            class="form-input"
+            placeholder="Resumen del producto visible en la tienda..."
+          />
+        </div>
+
+        <!-- Descripción Completa -->
+        <div class="form-group">
+          <label for="create-desc">{{ i18n.t('admin.field_desc') }}</label>
+          <textarea
+            id="create-desc"
+            name="description"
+            rows="3"
+            [(ngModel)]="createForm.description"
+            class="form-textarea"
+            placeholder="Detalles sobre ingredientes, elaboración tradicional o maridaje..."
+          ></textarea>
+        </div>
+
+        <!-- Alérgenos -->
+        <div class="form-group">
+          <label for="create-allergens">{{ i18n.t('admin.field_allergens') }}</label>
+          <input
+            id="create-allergens"
+            type="text"
+            name="allergensText"
+            [(ngModel)]="createForm.allergensText"
+            [placeholder]="i18n.t('admin.field_allergens_placeholder')"
+            class="form-input"
+          />
+        </div>
+
+        <!-- Toggles de Stock y Destacado -->
+        <div class="modal-toggles">
+          <label class="toggle-checkbox-label">
+            <input
+              type="checkbox"
+              name="inStock"
+              [(ngModel)]="createForm.inStock"
+              class="checkbox-input"
+            />
+            <span>{{ i18n.t('admin.field_in_stock') }}</span>
+          </label>
+
+          <label class="toggle-checkbox-label">
+            <input
+              type="checkbox"
+              name="featured"
+              [(ngModel)]="createForm.featured"
+              class="checkbox-input"
+            />
+            <span>{{ i18n.t('admin.field_featured') }}</span>
+          </label>
+        </div>
+
+        <!-- Botones de acción del modal de creación -->
+        <footer class="modal-footer">
+          <button type="button" class="btn-cancel" (click)="closeCreateModal()">
+            {{ i18n.t('admin.btn_cancel') }}
+          </button>
+
+          <button type="submit" class="btn-submit" [disabled]="isSaving()">
+            @if (isSaving()) {
+              <span class="spinner-small" aria-hidden="true"></span>
+              <span>Guardando...</span>
+            } @else {
+              <span>➕ {{ i18n.t('admin.btn_create') }}</span>
+            }
+          </button>
+        </footer>
+      </form>
+    </div>
+  }
+
+  <!-- Modal de Confirmación de Eliminación -->
+  @if (deletingProduct(); as target) {
+    <div class="modal-backdrop" (click)="closeDeleteConfirm()" role="presentation"></div>
+
+    <div
+      class="delete-confirm-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="delete-dialog-title"
+    >
+      <header class="modal-header header-danger">
+        <div>
+          <span class="modal-kicker text-danger">CONFIRMAR BAJA DE PRODUCTO</span>
+          <h2 id="delete-dialog-title">{{ i18n.t('admin.delete_product_title') }}</h2>
+        </div>
+        <button
+          type="button"
+          class="modal-close-btn"
+          (click)="closeDeleteConfirm()"
+          aria-label="Cerrar diálogo de eliminación"
+        >
+          ✕
+        </button>
+      </header>
+
+      <div class="delete-modal-body">
+        <div class="delete-product-preview">
+          @if (target.image) {
+            <img [src]="target.image" [alt]="target.name" class="delete-thumb" />
+          } @else {
+            <div class="delete-thumb-placeholder">📦</div>
+          }
+          <div class="delete-product-meta">
+            <span class="delete-number">#{{ target.number }}</span>
+            <strong class="delete-name">{{ target.name }}</strong>
+            <span class="delete-price">
+              {{ formatCurrency(target.price) }} · {{ i18n.translateCategory(target.category) }}
+            </span>
+          </div>
+        </div>
+
+        <p class="delete-warning-text">⚠️ {{ i18n.t('admin.delete_confirm_msg') }}</p>
+      </div>
+
+      <footer class="modal-footer">
+        <button type="button" class="btn-cancel" (click)="closeDeleteConfirm()">
+          {{ i18n.t('admin.btn_cancel') }}
+        </button>
+
+        <button
+          type="button"
+          class="btn-danger-confirm"
+          [disabled]="isDeleting()"
+          (click)="confirmDeleteProduct()"
+        >
+          @if (isDeleting()) {
+            <span class="spinner-small" aria-hidden="true"></span>
+            <span>Eliminando...</span>
+          } @else {
+            <span>🗑️ {{ i18n.t('admin.delete_btn_confirm') }}</span>
+          }
+        </button>
+      </footer>
     </div>
   }
 </section>
