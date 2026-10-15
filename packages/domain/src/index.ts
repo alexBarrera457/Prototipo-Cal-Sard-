@@ -18,6 +18,7 @@ export interface Product {
   slug?: string;
   inStock?: boolean;
   featured?: boolean;
+  featuredOrder?: number;
   allergens?: string[];
 }
 

@@ -72,10 +72,18 @@
       <span class="kpi-hint">⚠️ Clic para ver reposición</span>
     </div>
 
-    <div class="kpi-card card-accent">
+    <div
+      class="kpi-card card-accent kpi-clickable"
+      [class.kpi-active]="featuredFilter()"
+      (click)="toggleFeaturedFilter()"
+      role="button"
+      tabindex="0"
+      [attr.aria-pressed]="featuredFilter()"
+      title="Filtrar productos destacados en el escaparate de portada"
+    >
       <span class="kpi-label">Destacados Portada</span>
       <strong class="kpi-value text-accent">{{ catalogStats().featured }}</strong>
-      <span class="kpi-hint">Selección de obrador</span>
+      <span class="kpi-hint">⭐ Clic para ver escaparate</span>
     </div>
   </div>
 
@@ -166,11 +174,42 @@
       </button>
     </div>
   } @else {
+    <!-- Banner de gestión de escaparate de portada -->
+    @if (featuredFilter()) {
+      <div class="escaparate-banner" [class]="'banner-' + featuredStatus().type">
+        <div class="escaparate-info">
+          <span class="escaparate-icon">{{ featuredStatus().icon }}</span>
+          <div>
+            <strong class="escaparate-title">
+              {{
+                i18n.currentLang() === 'ca'
+                  ? "Gestió de l'Escaparador de Portada"
+                  : 'Gestión del Escaparate de Portada'
+              }}
+              ({{ catalogStats().featured }})
+            </strong>
+            <p class="escaparate-msg">{{ featuredStatus().message }}</p>
+          </div>
+        </div>
+        <div class="escaparate-actions">
+          <button type="button" class="btn-exit-escaparate" (click)="toggleFeaturedFilter()">
+            <span>✕</span>
+            <span>{{
+              i18n.currentLang() === 'ca' ? 'Veure tot el catàleg' : 'Ver todo el catálogo'
+            }}</span>
+          </button>
+        </div>
+      </div>
+    }
+
     <!-- Tabla de productos -->
     <div class="table-container">
       <table class="catalog-table">
         <thead>
           <tr>
+            @if (featuredFilter()) {
+              <th scope="col" class="th-priority">Prioridad</th>
+            }
             <th scope="col">{{ i18n.t('admin.th_product') }}</th>
             <th scope="col">{{ i18n.t('admin.th_category') }}</th>
             <th scope="col">{{ i18n.t('admin.th_price') }}</th>
@@ -180,8 +219,37 @@
           </tr>
         </thead>
         <tbody>
-          @for (product of paginatedProducts(); track product.number) {
+          @for (product of paginatedProducts(); track product.number; let idx = $index) {
             <tr [class.row-paused]="product.inStock === false">
+              @if (featuredFilter()) {
+                <td class="td-priority">
+                  <div class="priority-controls">
+                    <span class="priority-badge">#{{ idx + 1 }}</span>
+                    <div class="priority-buttons">
+                      <button
+                        type="button"
+                        class="btn-priority-up"
+                        [disabled]="idx === 0"
+                        (click)="reorderFeatured(product, 'up')"
+                        title="Subir posición en portada"
+                        aria-label="Subir prioridad"
+                      >
+                        ▲
+                      </button>
+                      <button
+                        type="button"
+                        class="btn-priority-down"
+                        [disabled]="idx === paginatedProducts().length - 1"
+                        (click)="reorderFeatured(product, 'down')"
+                        title="Bajar posición en portada"
+                        aria-label="Bajar prioridad"
+                      >
+                        ▼
+                      </button>
+                    </div>
+                  </div>
+                </td>
+              }
               <!-- Información de producto con miniatura -->
               <td class="td-product">
                 <div class="product-info-cell">

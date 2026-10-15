@@ -163,9 +163,25 @@ describe('AdminCatalog', () => {
     expect(product.featured).toBe(false);
 
     await component.toggleFeatured(product);
-    expect(mockRepo.updateProduct).toHaveBeenCalledWith('01', { featured: true });
+    expect(mockRepo.updateProduct).toHaveBeenCalledWith('01', { featured: true, featuredOrder: 3 });
     const updated = component.allProducts().find((p) => p.number === '01');
     expect(updated?.featured).toBe(true);
+    expect(updated?.featuredOrder).toBe(3);
+  });
+
+  it('provides status recommendation for featured products count', () => {
+    // Inicialmente 2 productos destacados en mockProducts -> < 4 es warning
+    expect(component.featuredStatus().type).toBe('warning');
+    expect(component.featuredStatus().message).toContain('2');
+  });
+
+  it('reorders featured products and updates priority', async () => {
+    component.toggleFeaturedFilter();
+    const product2 = component.filteredProducts()[0]; // number '02'
+
+    await component.reorderFeatured(product2, 'down');
+    expect(mockRepo.updateProduct).toHaveBeenCalledWith('02', { featuredOrder: 2 });
+    expect(mockRepo.updateProduct).toHaveBeenCalledWith('03', { featuredOrder: 1 });
   });
 
   it('opens edit modal and populates form', () => {

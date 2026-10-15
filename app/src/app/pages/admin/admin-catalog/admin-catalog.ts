@@ -181,6 +181,39 @@ export class AdminCatalog implements OnInit {
     return { total, inStock, outOfStock, featured };
   });
 
+  // Estado y recomendación visual del escaparate de portada (4 a 8 productos óptimo)
+  readonly featuredStatus = computed(() => {
+    const count = this.catalogStats().featured;
+    if (count < 4) {
+      return {
+        type: 'warning' as const,
+        message:
+          this.i18n.currentLang() === 'ca'
+            ? `Hi ha ${count} productes destacats. Es recomanen entre 4 i 8 per a un disseny equilibrat.`
+            : `Hay ${count} productos destacados. Se recomiendan entre 4 y 8 para un diseño equilibrado.`,
+        icon: '⚠️',
+      };
+    }
+    if (count <= 8) {
+      return {
+        type: 'success' as const,
+        message:
+          this.i18n.currentLang() === 'ca'
+            ? `Escaparador equilibrat: ${count} productes seleccionats per a la portada.`
+            : `Escaparate equilibrado: ${count} productos seleccionados para la portada.`,
+        icon: '✨',
+      };
+    }
+    return {
+      type: 'info' as const,
+      message:
+        this.i18n.currentLang() === 'ca'
+          ? `Hi ha ${count} productes destacats. Més de 8 peces poden sobrecarregar la portada.`
+          : `Hay ${count} productos destacados. Más de 8 piezas pueden sobrecargar la portada.`,
+      icon: 'ℹ️',
+    };
+  });
+
   // Productos filtrados según búsqueda, categoría y disponibilidad
   readonly filteredProducts = computed(() => {
     const products = this.allProducts();
@@ -189,7 +222,7 @@ export class AdminCatalog implements OnInit {
     const stock = this.stockFilter();
     const featuredOnly = this.featuredFilter();
 
-    return products.filter((product) => {
+    const filtered = products.filter((product) => {
       // 1. Categoría
       if (cat !== 'todos' && product.category !== cat) {
         return false;
@@ -221,6 +254,12 @@ export class AdminCatalog implements OnInit {
 
       return true;
     });
+
+    if (featuredOnly) {
+      return [...filtered].sort((a, b) => (a.featuredOrder ?? 999) - (b.featuredOrder ?? 999));
+    }
+
+    return filtered;
   });
 
   readonly totalFiltered = computed(() => this.filteredProducts().length);
@@ -301,15 +340,22 @@ export class AdminCatalog implements OnInit {
   // Toggle rápido de destacado
   async toggleFeatured(product: StoreProduct): Promise<void> {
     const newFeatured = !product.featured;
+    const currentFeaturedCount = this.allProducts().filter((p) => Boolean(p.featured)).length;
+    const newOrder = newFeatured ? (product.featuredOrder ?? currentFeaturedCount + 1) : undefined;
     this.updatingProductNumber.set(product.number);
 
     // Actualización optimista local
     this.allProducts.update((items) =>
-      items.map((p) => (p.number === product.number ? { ...p, featured: newFeatured } : p)),
+      items.map((p) =>
+        p.number === product.number ? { ...p, featured: newFeatured, featuredOrder: newOrder } : p,
+      ),
     );
 
     try {
-      await this.productsService.updateProduct(product.number, { featured: newFeatured });
+      await this.productsService.updateProduct(product.number, {
+        featured: newFeatured,
+        ...(newOrder !== undefined ? { featuredOrder: newOrder } : {}),
+      });
       this.showToast(
         'success',
         `${product.name}: ${newFeatured ? this.i18n.t('admin.badge_featured') : 'No destacado'}`,
@@ -317,11 +363,57 @@ export class AdminCatalog implements OnInit {
     } catch {
       // Revertir
       this.allProducts.update((items) =>
-        items.map((p) => (p.number === product.number ? { ...p, featured: !newFeatured } : p)),
+        items.map((p) =>
+          p.number === product.number
+            ? { ...p, featured: !newFeatured, featuredOrder: product.featuredOrder }
+            : p,
+        ),
       );
       this.showToast('error', this.i18n.t('admin.save_error'));
     } finally {
       this.updatingProductNumber.set(null);
+    }
+  }
+
+  // Ajuste de orden / prioridad en el escaparate de portada
+  async reorderFeatured(product: StoreProduct, direction: 'up' | 'down'): Promise<void> {
+    const featuredList = this.allProducts()
+      .filter((p) => Boolean(p.featured))
+      .sort((a, b) => (a.featuredOrder ?? 999) - (b.featuredOrder ?? 999));
+
+    const currentIndex = featuredList.findIndex((p) => p.number === product.number);
+    if (currentIndex === -1) return;
+
+    const targetIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
+    if (targetIndex < 0 || targetIndex >= featuredList.length) return;
+
+    const targetProduct = featuredList[targetIndex];
+    const currentOrder = currentIndex + 1;
+    const targetOrder = targetIndex + 1;
+
+    this.allProducts.update((items) =>
+      items.map((p) => {
+        if (p.number === product.number) {
+          return { ...p, featuredOrder: targetOrder };
+        }
+        if (p.number === targetProduct.number) {
+          return { ...p, featuredOrder: currentOrder };
+        }
+        return p;
+      }),
+    );
+
+    try {
+      await Promise.all([
+        this.productsService.updateProduct(product.number, { featuredOrder: targetOrder }),
+        this.productsService.updateProduct(targetProduct.number, { featuredOrder: currentOrder }),
+      ]);
+      this.showToast(
+        'success',
+        `Prioridad actualizada: ${product.name} (posición #${targetOrder})`,
+      );
+    } catch {
+      this.showToast('error', this.i18n.t('admin.save_error'));
     }
   }
 

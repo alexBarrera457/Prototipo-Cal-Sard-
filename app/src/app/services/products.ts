@@ -527,7 +527,9 @@ export class ProductsService {
    */
   async getFeaturedProducts(): Promise<StoreProduct[]> {
     const products = await this.getProducts();
-    return products.filter((product) => Boolean(product.featured) && product.inStock !== false);
+    return products
+      .filter((product) => Boolean(product.featured) && product.inStock !== false)
+      .sort((a, b) => (a.featuredOrder ?? 999) - (b.featuredOrder ?? 999));
   }
 
   /**
