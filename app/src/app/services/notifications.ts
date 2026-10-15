@@ -1,5 +1,57 @@
-import { Inject, inject, Injectable, InjectionToken, Optional } from '@angular/core';
-import type { Order } from '@cal-sarda/domain';
+import { Inject, inject, Injectable, InjectionToken, Optional, signal } from '@angular/core';
+import type { Order, OrderStatus } from '@cal-sarda/domain';
+
+export interface OrderStatusWebhookPayload {
+  event: 'order.status_changed';
+  orderReference: string;
+  customer: {
+    name: string;
+    email: string;
+    phone?: string;
+  };
+  previousStatus?: OrderStatus;
+  newStatus: OrderStatus;
+  fulfillment?: string;
+  total: number;
+  timestamp: string;
+  alertMessage: string;
+}
+
+export interface StatusAlertCopy {
+  subject: string;
+  badge: string;
+  headline: string;
+  message: string;
+  instructions: string;
+}
+
+export interface WebhookSenderAdapter {
+  dispatchWebhook(payload: OrderStatusWebhookPayload): Promise<boolean>;
+  getDispatchedWebhooks?(): OrderStatusWebhookPayload[];
+  clearDispatchedWebhooks?(): void;
+}
+
+export const WEBHOOK_SENDER_ADAPTER = new InjectionToken<WebhookSenderAdapter>(
+  'WEBHOOK_SENDER_ADAPTER',
+);
+
+@Injectable()
+export class InMemoryWebhookAdapter implements WebhookSenderAdapter {
+  private readonly dispatches: OrderStatusWebhookPayload[] = [];
+
+  async dispatchWebhook(payload: OrderStatusWebhookPayload): Promise<boolean> {
+    this.dispatches.push({ ...payload });
+    return true;
+  }
+
+  getDispatchedWebhooks(): OrderStatusWebhookPayload[] {
+    return [...this.dispatches];
+  }
+
+  clearDispatchedWebhooks(): void {
+    this.dispatches.length = 0;
+  }
+}
 
 export interface EmailMessage {
   to: string;
@@ -152,7 +204,10 @@ export class HttpEmailAdapter implements EmailSenderAdapter {
 })
 export class NotificationService {
   private readonly adapter: EmailSenderAdapter;
+  private readonly webhookAdapter: WebhookSenderAdapter;
   private readonly config: NotificationConfig;
+
+  readonly lastDispatchedAlert = signal<OrderStatusWebhookPayload | null>(null);
 
   constructor(
     @Optional()
@@ -161,9 +216,13 @@ export class NotificationService {
     @Optional()
     @Inject(NOTIFICATION_CONFIG)
     private readonly customConfig?: NotificationConfig,
+    @Optional()
+    @Inject(WEBHOOK_SENDER_ADAPTER)
+    private readonly customWebhookAdapter?: WebhookSenderAdapter,
   ) {
     this.config = this.customConfig ?? DEFAULT_NOTIFICATION_CONFIG;
     this.adapter = this.customAdapter ?? new InMemoryEmailAdapter();
+    this.webhookAdapter = this.customWebhookAdapter ?? new InMemoryWebhookAdapter();
   }
 
   /**
@@ -453,6 +512,325 @@ TOTAL ENCARGO: ${order.total.toFixed(2)} €
     };
   }
 
+  /**
+   * Obtiene los textos y etiquetas bilingües según el estado del pedido y modalidad.
+   */
+  getStatusAlertCopy(
+    status: OrderStatus,
+    fulfillment: string = 'pickup',
+    lang: 'ca' | 'es' = 'es',
+  ): StatusAlertCopy {
+    const isPickup = fulfillment === 'pickup';
+
+    if (lang === 'ca') {
+      switch (status) {
+        case 'en_preparacion':
+          return {
+            subject: "La teva comanda s'està preparant a l'obrador",
+            badge: 'EN PREPARACIÓ',
+            headline: 'Obrador fil a l’agulla',
+            message:
+              'Els nostres mestres artesans estan seleccionant i preparant els teus productes amb la màxima cura.',
+            instructions: isPickup
+              ? 'Molt aviat rebràs l’avís definitiu per passar-la a recollir pel Carrer de Marina, 237.'
+              : 'Un cop enllestida, sortirà amb el nostre servei de transport refrigerat urgent.',
+          };
+        case 'listo_recogida':
+          return {
+            subject: 'La teva comanda està a punt per recollir a la botiga!',
+            badge: 'A PUNT PER RECOLLIR',
+            headline: 'Ja pots venir a recollir la teva comanda',
+            message:
+              'La teva comanda ja està empaquetada i reservada al teu nom al nostre establiment.',
+            instructions:
+              'Punt de recollida: Cal Sardà · Carrer de Marina, 237, 08013 Barcelona. Horari: De dilluns a dissabte de 9:00 a 14:00 i de 17:00 a 20:30.',
+          };
+        case 'enviado':
+          return {
+            subject: 'La teva comanda ha sortit en repartiment',
+            badge: 'EN REPARTIMENT',
+            headline: 'La teva comanda està en camí',
+            message:
+              'El teu paquet viatja en vehicle refrigerat per garantir la màxima frescor i conservació dels productes.',
+            instructions:
+              'Lliurament estimat en les properes 24 hores feineres a l’adreça indicada al formulari.',
+          };
+        case 'entregado':
+          return {
+            subject: 'La teva comanda ha estat lliurada',
+            badge: 'LLIURADA',
+            headline: 'Comanda lliurada amb èxit!',
+            message:
+              'Esperem que gaudeixis dels sabors artesans i de tradició de Cal Sardà. Moltes gràcies per la teva confiança!',
+            instructions:
+              'Si tens qualsevol consulta o suggeriment sobre els productes rebuts, estem a la teva disposició.',
+          };
+        case 'cancelado':
+          return {
+            subject: 'Actualització sobre la teva comanda',
+            badge: 'CANCEL·LADA',
+            headline: 'La teva comanda ha estat cancel·lada',
+            message:
+              'Et confirmem que la comanda ha estat cancel·lada segons s’ha sol·licitat o acordat.',
+            instructions:
+              'Si creus que és un error o vols formalitzar una nova comanda, truca’ns al 93 232 55 08.',
+          };
+        case 'recibido':
+        case 'confirmed':
+        default:
+          return {
+            subject: 'Comanda rebuda i confirmada',
+            badge: 'REBUDA',
+            headline: 'Hem rebut la teva comanda',
+            message:
+              'La teva comanda ha quedat registrada correctament i està pendent de ser processada pel nostre obrador.',
+            instructions: isPickup
+              ? 'T’avisarem quan comencem a preparar-la i tan bon punt estigui a punt per recollir.'
+              : 'T’avisarem quan comenci la preparació i quan surti en repartiment refrigerat.',
+          };
+      }
+    }
+
+    // Castellano por defecto
+    switch (status) {
+      case 'en_preparacion':
+        return {
+          subject: 'Tu encargo está en preparación en el obrador',
+          badge: 'EN PREPARACIÓN',
+          headline: 'Obrador manos a la obra',
+          message:
+            'Nuestros maestros artesanos están seleccionando y preparando tus productos con el máximo cuidado.',
+          instructions: isPickup
+            ? 'En breve recibirás el aviso definitivo cuando puedas pasar a recogerlo por Carrer de Marina, 237.'
+            : 'Una vez preparado, saldrá con nuestro servicio de transporte refrigerado urgente.',
+        };
+      case 'listo_recogida':
+        return {
+          subject: '¡Tu encargo está listo para recoger en tienda!',
+          badge: 'LISTO PARA RECOGER',
+          headline: 'Ya puedes venir a buscar tu encargo',
+          message:
+            'Tu encargo ya está empaquetado y reservado a tu nombre en nuestro establecimiento.',
+          instructions:
+            'Punto de recogida: Cal Sardà · Carrer de Marina, 237, 08013 Barcelona. Horario: Lunes a sábado de 9:00 a 14:00 y de 17:00 a 20:30.',
+        };
+      case 'enviado':
+        return {
+          subject: 'Tu encargo ha salido en reparto',
+          badge: 'EN REPARTO',
+          headline: 'Tu pedido está en camino',
+          message:
+            'Tu paquete viaja en vehículo refrigerado para mantener la máxima frescura y calidad de los productos artesanos.',
+          instructions:
+            'Entrega estimada en las próximas 24 horas laborables en la dirección indicada.',
+        };
+      case 'entregado':
+        return {
+          subject: 'Tu encargo ha sido entregado',
+          badge: 'ENTREGADO',
+          headline: '¡Encargo entregado con éxito!',
+          message:
+            'Esperamos que disfrutes de los sabores artesanos de Cal Sardà. ¡Muchas gracias por tu confianza!',
+          instructions:
+            'Si tienes cualquier consulta o sugerencia sobre los productos recibidos, estamos a tu entera disposición.',
+        };
+      case 'cancelado':
+        return {
+          subject: 'Actualización sobre tu encargo',
+          badge: 'CANCELADO',
+          headline: 'Tu encargo ha sido cancelado',
+          message:
+            'Te confirmamos que el encargo ha sido cancelado según lo solicitado o convenido.',
+          instructions:
+            'Si crees que se trata de un error o deseas realizar un nuevo encargo, por favor llámanos al 93 232 55 08.',
+        };
+      case 'recibido':
+      case 'confirmed':
+      default:
+        return {
+          subject: 'Encargo recibido y confirmado',
+          badge: 'RECIBIDO',
+          headline: 'Hemos recibido tu encargo',
+          message:
+            'Tu encargo ha quedado registrado correctamente y está a la espera de ser procesado por nuestro obrador.',
+          instructions: isPickup
+            ? 'Te avisaremos cuando empecemos a prepararlo y en cuanto esté listo para recoger.'
+            : 'Te avisaremos cuando empiece la preparación y cuando salga en reparto refrigerado.',
+        };
+    }
+  }
+
+  /**
+   * Genera el email transaccional para comunicar al cliente una actualización de estado de su pedido.
+   */
+  buildStatusChangeEmail(
+    order: Order,
+    newStatus: OrderStatus,
+    lang: 'ca' | 'es' = 'es',
+  ): EmailMessage {
+    const copy = this.getStatusAlertCopy(newStatus, order.fulfillment, lang);
+    const fromAddress = `${this.config.senderName} <${this.config.senderEmail}>`;
+    const subject = `[Cal Sardà] ${copy.subject} - Ref: ${order.reference}`;
+
+    const itemsSummaryHtml = order.items
+      .map(
+        (it) => `
+        <tr>
+          <td style="padding: 6px 0; border-bottom: 1px solid #f0eae1; color: #251c15;">
+            ${it.quantity}x ${it.name}
+          </td>
+          <td style="padding: 6px 0; border-bottom: 1px solid #f0eae1; text-align: right; font-weight: bold; color: #251c15;">
+            ${(it.quantity * it.price).toFixed(2)} €
+          </td>
+        </tr>`,
+      )
+      .join('');
+
+    const html = `
+<!DOCTYPE html>
+<html lang="${lang}">
+<head>
+  <meta charset="utf-8">
+  <title>${subject}</title>
+</head>
+<body style="font-family: Georgia, 'Times New Roman', serif; background-color: #f6f1ea; margin: 0; padding: 24px; color: #251c15;">
+  <table width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border: 1px solid #e5ded3;">
+    <!-- Cabecera corporativa -->
+    <tr>
+      <td style="background-color: #251c15; padding: 28px 32px; text-align: center; color: #f6f1ea;">
+        <span style="font-size: 10px; letter-spacing: 3px; color: #c4a47c; font-weight: bold; font-family: sans-serif;">CAL SARDÀ · DESDE 1930</span>
+        <h1 style="margin: 10px 0 0; font-size: 24px; font-weight: normal;">${copy.headline}</h1>
+      </td>
+    </tr>
+    <!-- Contenido y estado -->
+    <tr>
+      <td style="padding: 28px 32px;">
+        <p style="font-size: 16px; margin-top: 0;">
+          Hola, <strong>${order.customer.name}</strong>:
+        </p>
+
+        <!-- Insignia de estado -->
+        <div style="text-align: center; margin: 20px 0;">
+          <span style="display: inline-block; background-color: #795548; color: #ffffff; padding: 6px 16px; font-family: sans-serif; font-size: 12px; font-weight: bold; letter-spacing: 1.5px; border-radius: 4px;">
+            ${copy.badge}
+          </span>
+        </div>
+
+        <p style="font-size: 15px; line-height: 1.6; color: #433830;">
+          ${copy.message}
+        </p>
+
+        <!-- Bloque de instrucciones y ubicación -->
+        <div style="background-color: #f7f3ed; border-left: 4px solid #aa845c; padding: 14px 18px; margin: 20px 0; font-family: sans-serif; font-size: 13px; line-height: 1.6; color: #251c15;">
+          ${copy.instructions}
+        </div>
+
+        <!-- Referencia destacada -->
+        <div style="background-color: #251c15; color: #ffffff; padding: 14px 20px; text-align: center; margin: 22px 0;">
+          <span style="font-size: 10px; letter-spacing: 2px; color: #c4a47c; font-family: sans-serif; display: block; margin-bottom: 2px;">CÓDIGO DE REFERENCIA</span>
+          <strong style="font-size: 24px; letter-spacing: 2px;">${order.reference}</strong>
+        </div>
+
+        <!-- Resumen de productos -->
+        <h3 style="font-size: 16px; margin: 24px 0 10px; border-bottom: 2px solid #251c15; padding-bottom: 6px;">Resumen del encargo</h3>
+        <table width="100%" border="0" cellspacing="0" cellpadding="0" style="font-family: sans-serif; font-size: 13px; margin-bottom: 16px;">
+          <tbody>
+            ${itemsSummaryHtml}
+          </tbody>
+        </table>
+
+        <div style="text-align: right; font-family: sans-serif; font-size: 15px; font-weight: bold; color: #251c15; margin-bottom: 24px;">
+          Total: ${order.total.toFixed(2)} €
+        </div>
+
+        <div style="border-top: 1px solid #e5ded3; padding-top: 16px; font-size: 12px; color: #6e5f52; font-family: sans-serif; line-height: 1.5;">
+          ¿Dudas con tu encargo? Llámanos al obrador: <a href="tel:+34932325508" style="color: #251c15; font-weight: bold; text-decoration: none;">93 232 55 08</a> o escribe a <a href="mailto:${this.config.storeEmail}" style="color: #251c15;">${this.config.storeEmail}</a>.
+        </div>
+      </td>
+    </tr>
+    <!-- Pie -->
+    <tr>
+      <td style="background-color: #f7f3ed; padding: 16px 32px; text-align: center; font-size: 11px; color: #7a6b5e; font-family: sans-serif; border-top: 1px solid #e5ded3;">
+        Cal Sardà · Carrer de Marina, 237 · 08013 Barcelona
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`.trim();
+
+    const text = `
+CAL SARDÀ · DESDE 1930
+=========================================
+${copy.headline.toUpperCase()}
+Estado: ${copy.badge}
+Referencia: ${order.reference}
+
+Hola, ${order.customer.name}:
+${copy.message}
+
+${copy.instructions}
+
+PRODUCTOS:
+${order.items.map((it) => `- ${it.quantity}x ${it.name} (${(it.quantity * it.price).toFixed(2)} €)`).join('\n')}
+
+TOTAL: ${order.total.toFixed(2)} €
+
+Atención: 93 232 55 08 · ${this.config.storeEmail}
+    `.trim();
+
+    return {
+      to: order.customer.email,
+      from: fromAddress,
+      subject,
+      html,
+      text,
+      replyTo: this.config.storeEmail,
+    };
+  }
+
+  /**
+   * Envía la alerta por cambio de estado al cliente y emite el webhook/SMS simulado.
+   */
+  async sendOrderStatusChangeNotification(
+    order: Order,
+    previousStatus?: OrderStatus,
+    lang: 'ca' | 'es' = 'es',
+  ): Promise<{
+    emailSent: boolean;
+    webhookDispatched: boolean;
+    payload: OrderStatusWebhookPayload;
+  }> {
+    const alertCopy = this.getStatusAlertCopy(order.status, order.fulfillment, lang);
+    const emailMessage = this.buildStatusChangeEmail(order, order.status, lang);
+
+    const emailResult = await this.adapter.sendEmail(emailMessage);
+
+    const payload: OrderStatusWebhookPayload = {
+      event: 'order.status_changed',
+      orderReference: order.reference ?? order.id ?? 'UNKNOWN',
+      customer: {
+        name: order.customer.name,
+        email: order.customer.email,
+        phone: order.customer.phone,
+      },
+      previousStatus,
+      newStatus: order.status,
+      fulfillment: order.fulfillment,
+      total: order.total,
+      timestamp: new Date().toISOString(),
+      alertMessage: alertCopy.message,
+    };
+
+    const webhookDispatched = await this.webhookAdapter.dispatchWebhook(payload);
+    this.lastDispatchedAlert.set(payload);
+
+    return {
+      emailSent: emailResult.success,
+      webhookDispatched,
+      payload,
+    };
+  }
+
   getSentEmails(): EmailMessage[] {
     return this.adapter.getSentEmails ? this.adapter.getSentEmails() : [];
   }
@@ -461,5 +839,18 @@ TOTAL ENCARGO: ${order.total.toFixed(2)} €
     if (this.adapter.clearSentEmails) {
       this.adapter.clearSentEmails();
     }
+  }
+
+  getDispatchedWebhooks(): OrderStatusWebhookPayload[] {
+    return this.webhookAdapter.getDispatchedWebhooks
+      ? this.webhookAdapter.getDispatchedWebhooks()
+      : [];
+  }
+
+  clearDispatchedWebhooks(): void {
+    if (this.webhookAdapter.clearDispatchedWebhooks) {
+      this.webhookAdapter.clearDispatchedWebhooks();
+    }
+    this.lastDispatchedAlert.set(null);
   }
 }

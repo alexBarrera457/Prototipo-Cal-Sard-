@@ -3,6 +3,7 @@ import {
   DEFAULT_NOTIFICATION_CONFIG,
   HttpEmailAdapter,
   InMemoryEmailAdapter,
+  InMemoryWebhookAdapter,
   NotificationConfig,
   NotificationService,
 } from './notifications';
@@ -235,5 +236,95 @@ describe('NotificationService', () => {
     expect(fallback.getSentEmails().length).toBe(1);
 
     fetchSpy.mockRestore();
+  });
+
+  describe('Order Status Change Alerts & Webhooks', () => {
+    it('returns appropriate bilingual copy for each order status', () => {
+      const service = new NotificationService();
+
+      // Spanish copies
+      const prepEs = service.getStatusAlertCopy('en_preparacion', 'pickup', 'es');
+      expect(prepEs.badge).toBe('EN PREPARACIÓN');
+      expect(prepEs.instructions).toContain('Marina, 237');
+
+      const readyEs = service.getStatusAlertCopy('listo_recogida', 'pickup', 'es');
+      expect(readyEs.badge).toBe('LISTO PARA RECOGER');
+      expect(readyEs.instructions).toContain('Lunes a sábado de 9:00 a 14:00');
+
+      const shippedEs = service.getStatusAlertCopy('enviado', 'delivery', 'es');
+      expect(shippedEs.badge).toBe('EN REPARTO');
+      expect(shippedEs.instructions).toContain('24 horas');
+
+      const deliveredEs = service.getStatusAlertCopy('entregado', 'delivery', 'es');
+      expect(deliveredEs.badge).toBe('ENTREGADO');
+
+      // Catalan copies
+      const prepCa = service.getStatusAlertCopy('en_preparacion', 'pickup', 'ca');
+      expect(prepCa.badge).toBe('EN PREPARACIÓ');
+      expect(prepCa.headline).toContain('Obrador fil a l’agulla');
+
+      const readyCa = service.getStatusAlertCopy('listo_recogida', 'pickup', 'ca');
+      expect(readyCa.badge).toBe('A PUNT PER RECOLLIR');
+      expect(readyCa.instructions).toContain('De dilluns a dissabte');
+
+      const shippedCa = service.getStatusAlertCopy('enviado', 'delivery', 'ca');
+      expect(shippedCa.badge).toBe('EN REPARTIMENT');
+      expect(shippedCa.instructions).toContain('24 hores feineres');
+    });
+
+    it('builds a responsive status change email with reference, items, and instructions', () => {
+      const service = new NotificationService();
+      const email = service.buildStatusChangeEmail(samplePickupOrder, 'listo_recogida', 'es');
+
+      expect(email.to).toBe('maria.garcia@test.cat');
+      expect(email.subject).toContain('[Cal Sardà]');
+      expect(email.subject).toContain('CS-2026-1042');
+      expect(email.subject).toContain('listo para recoger');
+      expect(email.html).toContain('LISTO PARA RECOGER');
+      expect(email.html).toContain('Marina, 237');
+      expect(email.html).toContain('Secallona artesana');
+      expect(email.html).toContain('23.10 €');
+      expect(email.text).toContain('Estado: LISTO PARA RECOGER');
+      expect(email.text).toContain('CS-2026-1042');
+    });
+
+    it('dispatches status change notification via email and webhook adapter', async () => {
+      const emailAdapter = new InMemoryEmailAdapter();
+      const webhookAdapter = new InMemoryWebhookAdapter();
+      const service = new NotificationService(emailAdapter, undefined, webhookAdapter);
+
+      const modifiedOrder: Order = {
+        ...samplePickupOrder,
+        status: 'en_preparacion',
+      };
+
+      const result = await service.sendOrderStatusChangeNotification(
+        modifiedOrder,
+        'recibido',
+        'es',
+      );
+
+      expect(result.emailSent).toBe(true);
+      expect(result.webhookDispatched).toBe(true);
+      expect(result.payload.event).toBe('order.status_changed');
+      expect(result.payload.orderReference).toBe('CS-2026-1042');
+      expect(result.payload.previousStatus).toBe('recibido');
+      expect(result.payload.newStatus).toBe('en_preparacion');
+      expect(result.payload.customer.name).toBe('Maria Garcia');
+      expect(result.payload.alertMessage).toContain('maestros artesanos');
+
+      // Verify email sent
+      expect(emailAdapter.getSentEmails().length).toBe(1);
+      expect(emailAdapter.getSentEmails()[0].subject).toContain('preparación en el obrador');
+
+      // Verify webhook stored in adapter and signal
+      expect(webhookAdapter.getDispatchedWebhooks().length).toBe(1);
+      expect(service.lastDispatchedAlert()?.newStatus).toBe('en_preparacion');
+
+      // Clear webhooks
+      service.clearDispatchedWebhooks();
+      expect(webhookAdapter.getDispatchedWebhooks().length).toBe(0);
+      expect(service.lastDispatchedAlert()).toBeNull();
+    });
   });
 });

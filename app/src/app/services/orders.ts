@@ -575,6 +575,9 @@ export class OrdersService {
    * Actualiza el estado operativo de un encargo y refresca el signal allOrders.
    */
   async updateOrderStatus(referenceOrId: string, status: OrderStatus): Promise<Order | null> {
+    const previousOrder = await this.repository.getOrder(referenceOrId);
+    const previousStatus = previousOrder?.status;
+
     const updated = (await this.repository.updateOrderStatus?.(referenceOrId, status)) ?? null;
     if (updated) {
       this.allOrders.update((orders) =>
@@ -587,6 +590,12 @@ export class OrdersService {
         this.latestOrder()?.id === updated.id
       ) {
         this.latestOrder.set({ ...updated });
+      }
+
+      try {
+        await this.notificationService.sendOrderStatusChangeNotification(updated, previousStatus);
+      } catch (err) {
+        console.warn('Fallo al despachar notificación de cambio de estado:', err);
       }
     }
     return updated;
