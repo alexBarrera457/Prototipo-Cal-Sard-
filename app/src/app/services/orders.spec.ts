@@ -396,4 +396,37 @@ describe('SupabaseOrdersRepository', () => {
     expect(capturedItemsPayload[0].order_id).toBe(saved.id);
     expect(capturedItemsPayload[0].product_name).toBe('Sobrassada de Mallorca');
   });
+
+  it('updates order status in InMemoryOrdersRepository and in OrdersService signal', async () => {
+    const memoryRepo = new InMemoryOrdersRepository();
+    const service = new OrdersService(memoryRepo);
+
+    const created = await service.submitOrder({
+      customer: { name: 'Marta Roca', email: 'marta@test.cat' },
+      items: [{ name: 'Pa de Pagès', price: 3.5, quantity: 1 }],
+      fulfillment: 'pickup',
+    });
+
+    expect(created.status).toBe('confirmed');
+
+    // Actualizar estado a 'en_preparacion'
+    const updated1 = await service.updateOrderStatus(created.reference!, 'en_preparacion');
+    expect(updated1).not.toBeNull();
+    expect(updated1?.status).toBe('en_preparacion');
+    expect(service.allOrders().find((o) => o.reference === created.reference)?.status).toBe(
+      'en_preparacion',
+    );
+    expect(service.latestOrder()?.status).toBe('en_preparacion');
+
+    // Actualizar a 'listo_recogida'
+    const updated2 = await service.updateOrderStatus(created.reference!, 'listo_recogida');
+    expect(updated2?.status).toBe('listo_recogida');
+    expect(service.allOrders().find((o) => o.reference === created.reference)?.status).toBe(
+      'listo_recogida',
+    );
+
+    // Intentar actualizar pedido inexistente
+    const notFound = await service.updateOrderStatus('CS-UNKNOWN-999', 'cancelado');
+    expect(notFound).toBeNull();
+  });
 });

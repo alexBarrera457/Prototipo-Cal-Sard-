@@ -1,0 +1,488 @@
+<div class="admin-orders-page" role="region" aria-label="Gestión de pedidos del backoffice">
+  <!-- Cabecera de la sección -->
+  <header class="orders-header">
+    <div class="orders-title-group">
+      <span class="orders-kicker">{{ i18n.t('admin.obrador_badge') }}</span>
+      <h1 class="orders-title">{{ i18n.t('admin.orders_title') }}</h1>
+      <p class="orders-subtitle">{{ i18n.t('admin.orders_subtitle') }}</p>
+    </div>
+    <div class="orders-header-actions">
+      <button
+        type="button"
+        class="btn-refresh"
+        (click)="refreshOrders()"
+        [disabled]="isRefreshing()"
+        [attr.aria-label]="i18n.t('admin.action_refresh')"
+      >
+        <span class="refresh-icon" [class.spinning]="isRefreshing()">🔄</span>
+        <span>{{ i18n.t('admin.action_refresh') }}</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Barra de Filtros y Búsqueda -->
+  <section class="orders-toolbar" aria-label="Filtros y búsqueda de encargos">
+    <!-- Buscador en tiempo real -->
+    <div class="search-box">
+      <span class="search-icon" aria-hidden="true">🔍</span>
+      <input
+        type="search"
+        class="search-input"
+        [placeholder]="i18n.t('admin.search_placeholder')"
+        [(ngModel)]="searchQueryModel"
+        (ngModelChange)="onSearchInput($event)"
+        aria-label="Buscar pedidos por referencia, cliente o teléfono"
+      />
+      @if (searchQuery()) {
+        <button
+          type="button"
+          class="search-clear-btn"
+          (click)="clearSearch()"
+          aria-label="Limpiar búsqueda"
+        >
+          ✕
+        </button>
+      }
+    </div>
+
+    <!-- Filtro de modalidad de cumplimiento -->
+    <div class="fulfillment-filter-group">
+      <label for="fulfillment-select" class="visually-hidden">{{
+        i18n.t('admin.order_type')
+      }}</label>
+      <select
+        id="fulfillment-select"
+        class="fulfillment-select"
+        [value]="fulfillmentFilter()"
+        (change)="setFulfillmentFilter($any($event.target).value)"
+      >
+        <option value="todos">{{ i18n.t('admin.fulfillment_all') }}</option>
+        <option value="pickup">🏪 {{ i18n.t('admin.fulfillment_pickup') }}</option>
+        <option value="delivery">🚚 {{ i18n.t('admin.fulfillment_delivery') }}</option>
+      </select>
+    </div>
+  </section>
+
+  <!-- Píldoras de filtro por estado operacional -->
+  <nav class="status-pills" aria-label="Filtro por estado de encargo">
+    <button
+      type="button"
+      class="status-pill"
+      [class.active]="statusFilter() === 'todos'"
+      (click)="setStatusFilter('todos')"
+    >
+      <span>{{ i18n.t('admin.status_all') }}</span>
+      <span class="pill-count">{{ statusCounts().todos }}</span>
+    </button>
+    <button
+      type="button"
+      class="status-pill pill-received"
+      [class.active]="statusFilter() === 'recibido'"
+      (click)="setStatusFilter('recibido')"
+    >
+      <span>{{ i18n.t('admin.status_recibido') }}</span>
+      <span class="pill-count">{{ statusCounts().recibido }}</span>
+    </button>
+    <button
+      type="button"
+      class="status-pill pill-prep"
+      [class.active]="statusFilter() === 'en_preparacion'"
+      (click)="setStatusFilter('en_preparacion')"
+    >
+      <span>{{ i18n.t('admin.status_en_preparacion') }}</span>
+      <span class="pill-count">{{ statusCounts().en_preparacion }}</span>
+    </button>
+    <button
+      type="button"
+      class="status-pill pill-ready"
+      [class.active]="statusFilter() === 'listo_recogida'"
+      (click)="setStatusFilter('listo_recogida')"
+    >
+      <span>{{ i18n.t('admin.status_listo_recogida') }}</span>
+      <span class="pill-count">{{ statusCounts().listo_recogida }}</span>
+    </button>
+    <button
+      type="button"
+      class="status-pill pill-shipped"
+      [class.active]="statusFilter() === 'enviado'"
+      (click)="setStatusFilter('enviado')"
+    >
+      <span>{{ i18n.t('admin.status_enviado') }}</span>
+      <span class="pill-count">{{ statusCounts().enviado }}</span>
+    </button>
+    <button
+      type="button"
+      class="status-pill pill-delivered"
+      [class.active]="statusFilter() === 'entregado'"
+      (click)="setStatusFilter('entregado')"
+    >
+      <span>{{ i18n.t('admin.status_entregado') }}</span>
+      <span class="pill-count">{{ statusCounts().entregado }}</span>
+    </button>
+    <button
+      type="button"
+      class="status-pill pill-cancelled"
+      [class.active]="statusFilter() === 'cancelado'"
+      (click)="setStatusFilter('cancelado')"
+    >
+      <span>{{ i18n.t('admin.status_cancelado') }}</span>
+      <span class="pill-count">{{ statusCounts().cancelado }}</span>
+    </button>
+  </nav>
+
+  <!-- Listado / Tabla de Pedidos -->
+  <section class="orders-table-wrapper" aria-label="Tabla de encargos">
+    @if (filteredOrders().length === 0) {
+      <div class="empty-orders-card">
+        <span class="empty-icon" aria-hidden="true">📦</span>
+        <h3>{{ i18n.t('admin.empty_orders') }}</h3>
+        <p>Prueba a cambiar el filtro de estado o la búsqueda por texto.</p>
+        @if (statusFilter() !== 'todos' || fulfillmentFilter() !== 'todos' || searchQuery()) {
+          <button
+            type="button"
+            class="btn-reset-filters"
+            (click)="setStatusFilter('todos'); setFulfillmentFilter('todos'); clearSearch()"
+          >
+            Restablecer todos los filtros
+          </button>
+        }
+      </div>
+    } @else {
+      <div class="table-container">
+        <table class="orders-table">
+          <thead>
+            <tr>
+              <th scope="col">{{ i18n.t('admin.order_ref') }}</th>
+              <th scope="col">{{ i18n.t('admin.date_label') }}</th>
+              <th scope="col">{{ i18n.t('admin.order_customer') }}</th>
+              <th scope="col">{{ i18n.t('admin.order_type') }}</th>
+              <th scope="col">{{ i18n.t('admin.order_total') }}</th>
+              <th scope="col">{{ i18n.t('admin.order_status') }}</th>
+              <th scope="col" class="th-actions">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (order of filteredOrders(); track order.reference || order.id) {
+              <tr class="order-row" [class.updating]="updatingOrderRef() === order.reference">
+                <!-- Referencia -->
+                <td class="td-ref">
+                  <button
+                    type="button"
+                    class="ref-button"
+                    (click)="openOrderDetail(order)"
+                    [attr.aria-label]="'Ver detalle del encargo ' + order.reference"
+                  >
+                    <code>{{ order.reference }}</code>
+                  </button>
+                </td>
+
+                <!-- Fecha / Hora -->
+                <td class="td-date">
+                  <span class="date-main">{{ order.createdAt | date: 'dd/MM/yyyy' }}</span>
+                  <span class="date-time">{{ order.createdAt | date: 'HH:mm' }}h</span>
+                </td>
+
+                <!-- Cliente -->
+                <td class="td-customer">
+                  <div class="customer-info">
+                    <span class="customer-name">{{ order.customer.name }}</span>
+                    @if (order.customer.phone) {
+                      <span class="customer-phone">📞 {{ order.customer.phone }}</span>
+                    }
+                  </div>
+                </td>
+
+                <!-- Modalidad -->
+                <td class="td-fulfillment">
+                  <span
+                    class="fulfillment-tag"
+                    [class.tag-pickup]="order.fulfillment === 'pickup'"
+                    [class.tag-delivery]="order.fulfillment === 'delivery'"
+                  >
+                    @if (order.fulfillment === 'pickup') {
+                      🏪 {{ getFulfillmentLabel('pickup') }}
+                    } @else {
+                      🚚 {{ getFulfillmentLabel('delivery') }}
+                    }
+                  </span>
+                </td>
+
+                <!-- Total -->
+                <td class="td-total">
+                  <strong>{{ formatCurrency(order.total) }}</strong>
+                </td>
+
+                <!-- Estado con Badge -->
+                <td class="td-status">
+                  <span class="status-badge" [ngClass]="getStatusBadgeClass(order.status)">
+                    {{ getStatusLabel(order.status) }}
+                  </span>
+                </td>
+
+                <!-- Acciones Rápidas -->
+                <td class="td-actions">
+                  <div class="action-buttons-group">
+                    <!-- Botón de avance según estado actual -->
+                    @if (normalizeStatus(order.status) === 'recibido') {
+                      <button
+                        type="button"
+                        class="btn-action btn-advance"
+                        (click)="advanceStatus(order, 'en_preparacion')"
+                        [disabled]="updatingOrderRef() === order.reference"
+                        title="Avanzar a preparación"
+                      >
+                        ⚡ {{ i18n.t('admin.action_prepare') }}
+                      </button>
+                    } @else if (normalizeStatus(order.status) === 'en_preparacion') {
+                      @if (order.fulfillment === 'pickup') {
+                        <button
+                          type="button"
+                          class="btn-action btn-advance"
+                          (click)="advanceStatus(order, 'listo_recogida')"
+                          [disabled]="updatingOrderRef() === order.reference"
+                          title="Marcar listo para recogida"
+                        >
+                          ✅ {{ i18n.t('admin.action_ready') }}
+                        </button>
+                      } @else {
+                        <button
+                          type="button"
+                          class="btn-action btn-advance"
+                          (click)="advanceStatus(order, 'enviado')"
+                          [disabled]="updatingOrderRef() === order.reference"
+                          title="Marcar como enviado"
+                        >
+                          🚚 {{ i18n.t('admin.action_ship') }}
+                        </button>
+                      }
+                    } @else if (
+                      normalizeStatus(order.status) === 'listo_recogida' ||
+                      normalizeStatus(order.status) === 'enviado'
+                    ) {
+                      <button
+                        type="button"
+                        class="btn-action btn-advance"
+                        (click)="advanceStatus(order, 'entregado')"
+                        [disabled]="updatingOrderRef() === order.reference"
+                        title="Marcar entregado"
+                      >
+                        🏁 {{ i18n.t('admin.action_deliver') }}
+                      </button>
+                    }
+
+                    <!-- Ver Detalle -->
+                    <button
+                      type="button"
+                      class="btn-action btn-detail"
+                      (click)="openOrderDetail(order)"
+                      [attr.aria-label]="i18n.t('admin.action_view_detail')"
+                    >
+                      👁️ {{ i18n.t('admin.action_view_detail') }}
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
+
+  <!-- Modal / Diálogo Desplegable de Detalle del Pedido -->
+  @if (selectedOrder(); as order) {
+    <div class="order-modal-backdrop" (click)="closeOrderDetail()" aria-hidden="true"></div>
+
+    <div class="order-modal" role="dialog" aria-modal="true" aria-labelledby="modal-order-title">
+      <header class="modal-header">
+        <div class="modal-title-box">
+          <span class="modal-kicker">{{ i18n.t('admin.modal_title') }}</span>
+          <h2 id="modal-order-title">{{ order.reference }}</h2>
+          <span class="status-badge" [ngClass]="getStatusBadgeClass(order.status)">
+            {{ getStatusLabel(order.status) }}
+          </span>
+        </div>
+        <button
+          type="button"
+          class="modal-close-btn"
+          (click)="closeOrderDetail()"
+          [attr.aria-label]="i18n.t('admin.close_modal')"
+        >
+          ✕
+        </button>
+      </header>
+
+      <div class="modal-body">
+        <!-- Bloque Cliente y Modalidad -->
+        <div class="modal-grid-two">
+          <div class="modal-card">
+            <h3>👤 {{ i18n.t('admin.customer_info') }}</h3>
+            <p>
+              <strong>{{ order.customer.name }}</strong>
+            </p>
+            <p>
+              ✉️ <a [href]="'mailto:' + order.customer.email">{{ order.customer.email }}</a>
+            </p>
+            @if (order.customer.phone) {
+              <p>
+                📞 <a [href]="'tel:' + order.customer.phone">{{ order.customer.phone }}</a>
+              </p>
+            }
+          </div>
+
+          <div class="modal-card">
+            <h3>
+              @if (order.fulfillment === 'pickup') {
+                🏪 {{ getFulfillmentLabel('pickup') }}
+              } @else {
+                🚚 {{ getFulfillmentLabel('delivery') }}
+              }
+            </h3>
+            @if (order.fulfillment === 'pickup') {
+              <p><strong>Carrer de Marina, 237</strong>, 08013 Barcelona</p>
+              <p class="modal-muted-text">Horario: Lu-Sá 9:00-14:00 y 17:00-20:30</p>
+            } @else {
+              <p>
+                <strong>{{ order.customer.address }}</strong>
+              </p>
+              <p>{{ order.customer.postalCode }} {{ order.customer.city }}</p>
+              @if (order.shippingZoneLabel) {
+                <p class="modal-muted-text">{{ order.shippingZoneLabel }}</p>
+              }
+            }
+            @if (order.estimatedDate) {
+              <p class="modal-estimated">⏳ {{ order.estimatedDate }}</p>
+            }
+          </div>
+        </div>
+
+        <!-- Notas del Cliente si existen -->
+        @if (order.notes) {
+          <div class="modal-notes-card">
+            <h3>📝 {{ i18n.t('admin.customer_notes') }}</h3>
+            <p class="notes-content">«{{ order.notes }}»</p>
+          </div>
+        }
+
+        <!-- Desglose de Productos -->
+        <div class="modal-items-card">
+          <h3>🧺 {{ i18n.t('admin.order_items') }} ({{ order.items.length }})</h3>
+          <table class="modal-items-table">
+            <thead>
+              <tr>
+                <th scope="col">Producto</th>
+                <th scope="col" class="text-center">Cant.</th>
+                <th scope="col" class="text-right">Precio unitario</th>
+                <th scope="col" class="text-right">Subtotal</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (item of order.items; track item.name) {
+                <tr>
+                  <td class="item-name">{{ item.name }}</td>
+                  <td class="text-center">{{ item.quantity }}</td>
+                  <td class="text-right">
+                    {{ formatCurrency(item.price) }}
+                  </td>
+                  <td class="text-right item-subtotal">
+                    {{ formatCurrency(item.price * item.quantity) }}
+                  </td>
+                </tr>
+              }
+            </tbody>
+            <tfoot>
+              @if (order.subtotal) {
+                <tr>
+                  <td colspan="3" class="text-right">Subtotal productos:</td>
+                  <td class="text-right">
+                    {{ formatCurrency(order.subtotal) }}
+                  </td>
+                </tr>
+              }
+              @if (order.shippingCost !== undefined && order.shippingCost > 0) {
+                <tr>
+                  <td colspan="3" class="text-right">Gastos de envío refrigerado:</td>
+                  <td class="text-right">
+                    {{ formatCurrency(order.shippingCost) }}
+                  </td>
+                </tr>
+              }
+              <tr class="total-row">
+                <td colspan="3" class="text-right"><strong>TOTAL (IVA incluido):</strong></td>
+                <td class="text-right total-amount">
+                  {{ formatCurrency(order.total) }}
+                </td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+
+        <!-- Método de Pago -->
+        @if (order.paymentMethod) {
+          <div class="modal-payment-card">
+            <h4>💳 {{ i18n.t('admin.payment_method_label') }}</h4>
+            <p>{{ order.paymentMethod }}</p>
+          </div>
+        }
+      </div>
+
+      <!-- Footer con transiciones de estado -->
+      <footer class="modal-footer">
+        <div class="modal-footer-status-actions">
+          <span class="actions-label">Avanzar estado:</span>
+          @if (normalizeStatus(order.status) === 'recibido') {
+            <button
+              type="button"
+              class="btn-modal-action btn-prep"
+              (click)="advanceStatus(order, 'en_preparacion')"
+            >
+              ⚡ {{ i18n.t('admin.action_prepare') }}
+            </button>
+          } @else if (normalizeStatus(order.status) === 'en_preparacion') {
+            @if (order.fulfillment === 'pickup') {
+              <button
+                type="button"
+                class="btn-modal-action btn-ready"
+                (click)="advanceStatus(order, 'listo_recogida')"
+              >
+                ✅ {{ i18n.t('admin.action_ready') }}
+              </button>
+            } @else {
+              <button
+                type="button"
+                class="btn-modal-action btn-shipped"
+                (click)="advanceStatus(order, 'enviado')"
+              >
+                🚚 {{ i18n.t('admin.action_ship') }}
+              </button>
+            }
+          } @else if (
+            normalizeStatus(order.status) === 'listo_recogida' ||
+            normalizeStatus(order.status) === 'enviado'
+          ) {
+            <button
+              type="button"
+              class="btn-modal-action btn-delivered"
+              (click)="advanceStatus(order, 'entregado')"
+            >
+              🏁 {{ i18n.t('admin.action_deliver') }}
+            </button>
+          }
+
+          @if (
+            normalizeStatus(order.status) !== 'cancelado' &&
+            normalizeStatus(order.status) !== 'entregado'
+          ) {
+            <button type="button" class="btn-modal-action btn-cancel" (click)="cancelOrder(order)">
+              🚫 {{ i18n.t('admin.action_cancel') }}
+            </button>
+          }
+        </div>
+
+        <button type="button" class="btn-modal-close" (click)="closeOrderDetail()">
+          {{ i18n.t('admin.close_modal') }}
+        </button>
+      </footer>
+    </div>
+  }
+</div>

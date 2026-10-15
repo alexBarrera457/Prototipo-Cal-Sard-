@@ -65,6 +65,12 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./pages/admin/admin-dashboard/admin-dashboard').then((m) => m.AdminDashboard),
       },
+      {
+        path: 'pedidos',
+        title: 'Gestión de Pedidos | Cal Sardà',
+        loadComponent: () =>
+          import('./pages/admin/admin-orders/admin-orders').then((m) => m.AdminOrders),
+      },
     ],
   },
   {

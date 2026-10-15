@@ -1,9 +1,15 @@
 import { Inject, Injectable, InjectionToken, Optional, signal } from '@angular/core';
-import type { CartItem, FulfillmentMethod, Order, OrderCustomer } from '@cal-sarda/domain';
+import type {
+  CartItem,
+  FulfillmentMethod,
+  Order,
+  OrderCustomer,
+  OrderStatus,
+} from '@cal-sarda/domain';
 import { NotificationService } from './notifications';
 import { SUPABASE_CLIENT, type SupabaseClient } from './supabase';
 
-export type { CartItem, FulfillmentMethod, Order, OrderCustomer };
+export type { CartItem, FulfillmentMethod, Order, OrderCustomer, OrderStatus };
 
 export interface CreateOrderInput {
   customer: OrderCustomer;
@@ -24,9 +30,137 @@ export interface OrdersRepository {
   saveOrder(order: Order): Promise<Order>;
   getOrder(referenceOrId: string): Promise<Order | null>;
   getAllOrders?(): Promise<Order[]>;
+  updateOrderStatus?(referenceOrId: string, status: OrderStatus): Promise<Order | null>;
 }
 
 export const ORDERS_REPOSITORY = new InjectionToken<OrdersRepository>('ORDERS_REPOSITORY');
+
+export const DEFAULT_INITIAL_ORDERS: Order[] = [
+  {
+    id: 'b6f2f310-7214-4c42-b062-817366304101',
+    reference: 'CS-2026-1042',
+    customer: {
+      name: 'Montserrat Puig',
+      email: 'montserrat.puig@gmail.com',
+      phone: '612 345 678',
+    },
+    items: [
+      { name: 'Pa de Pagès Tradicional (1kg)', price: 3.5, quantity: 2 },
+      { name: 'Cafè de Finca Torrat Artesanal 250g', price: 8.5, quantity: 1 },
+      { name: 'Oli d’Oliva Verge Extra Siurana 500ml', price: 13.5, quantity: 2 },
+    ],
+    subtotal: 42.5,
+    shippingCost: 0,
+    total: 42.5,
+    fulfillment: 'pickup',
+    status: 'listo_recogida',
+    estimatedDate: 'Disponible para recogida hoy en Carrer de Marina, 237, Barcelona',
+    paymentMethod: 'Pago en tienda física en el momento de la recogida.',
+    notes: 'Por favor, el pan cortado en rebanadas gruesas.',
+    createdAt: new Date(Date.now() - 15 * 60 * 1000).toISOString(),
+  },
+  {
+    id: 'b6f2f310-7214-4c42-b062-817366304102',
+    reference: 'CS-2026-1041',
+    customer: {
+      name: 'Jaume Sardà',
+      email: 'cliente@calsarda.com',
+      phone: '633 456 789',
+      address: 'Carrer de Mallorca, 184, 3º 2ª',
+      postalCode: '08036',
+      city: 'Barcelona',
+    },
+    items: [
+      { name: 'Cistella Selecció Formatges Artesans', price: 42.0, quantity: 1 },
+      { name: 'Llonganissa de Vic Tradicional', price: 9.8, quantity: 2 },
+      { name: 'Vi Negre Selecció Priorat 75cl', price: 17.3, quantity: 1 },
+    ],
+    subtotal: 78.9,
+    shippingCost: 4.9,
+    total: 83.8,
+    fulfillment: 'delivery',
+    shippingZoneLabel: 'Barcelona ciutat (08001 - 08042)',
+    status: 'en_preparacion',
+    estimatedDate: 'Entrega estimada en 24-48 horas laborables',
+    paymentMethod: 'Pago por Bizum al confirmar el encargo telefónicamente.',
+    notes: 'Timbre número 2. Llamar al móvil si no contesta.',
+    createdAt: new Date(Date.now() - 45 * 60 * 1000).toISOString(),
+  },
+  {
+    id: 'b6f2f310-7214-4c42-b062-817366304103',
+    reference: 'CS-2026-1040',
+    customer: {
+      name: 'Laia Vidal',
+      email: 'laia.vidal@empresa.cat',
+      phone: '677 889 900',
+    },
+    items: [
+      { name: 'Mel Ecològica de Romaní 500g', price: 7.2, quantity: 2 },
+      { name: 'Carquinyolis Artesans d’Ametlla 250g', price: 8.4, quantity: 2 },
+    ],
+    subtotal: 31.2,
+    shippingCost: 0,
+    total: 31.2,
+    fulfillment: 'pickup',
+    status: 'recibido',
+    estimatedDate: 'Disponible para recogida a partir de mañana en Carrer de Marina, 237',
+    paymentMethod: 'Pago en tienda al recoger.',
+    notes: 'Recogerá mi hermana por la tarde.',
+    createdAt: new Date(Date.now() - 75 * 60 * 1000).toISOString(),
+  },
+  {
+    id: 'b6f2f310-7214-4c42-b062-817366304104',
+    reference: 'CS-2026-1039',
+    customer: {
+      name: 'Marc Rovira',
+      email: 'marc.rovira@bcn.cat',
+      phone: '655 123 456',
+      address: 'Passeig de Sant Joan, 56, 1r 1a',
+      postalCode: '08010',
+      city: 'Barcelona',
+    },
+    items: [
+      { name: 'Llot de Nadal Gastronòmic Especial Cal Sardà', price: 95.0, quantity: 1 },
+      { name: 'Torró d’Agramunt Artesanal 300g', price: 10.0, quantity: 2 },
+    ],
+    subtotal: 115.0,
+    shippingCost: 0,
+    total: 115.0,
+    fulfillment: 'delivery',
+    shippingZoneLabel: 'Barcelona ciutat (08001 - 08042)',
+    status: 'entregado',
+    estimatedDate: 'Entregado hoy a las 11:30h',
+    paymentMethod: 'Tarjeta de crédito / Bizum.',
+    notes: 'Entregar en conserjería.',
+    createdAt: new Date(Date.now() - 180 * 60 * 1000).toISOString(),
+  },
+  {
+    id: 'b6f2f310-7214-4c42-b062-817366304105',
+    reference: 'CS-2026-1038',
+    customer: {
+      name: 'Carme Soler',
+      email: 'carme.soler@gencat.cat',
+      phone: '644 998 877',
+      address: 'Carrer d’Aragó, 312, 4º',
+      postalCode: '08009',
+      city: 'Barcelona',
+    },
+    items: [
+      { name: 'Formatge d’Obrador Madurat de Cabra 400g', price: 16.5, quantity: 1 },
+      { name: 'Pernil Ibèric d’Engreix Tallat a Ganivet 100g', price: 14.0, quantity: 2 },
+    ],
+    subtotal: 44.5,
+    shippingCost: 4.9,
+    total: 49.4,
+    fulfillment: 'delivery',
+    shippingZoneLabel: 'Barcelona ciutat',
+    status: 'enviado',
+    estimatedDate: 'En reparto urgente hoy antes de las 19:00h',
+    paymentMethod: 'Bizum',
+    notes: 'Avisar antes de subir.',
+    createdAt: new Date(Date.now() - 120 * 60 * 1000).toISOString(),
+  },
+];
 
 /**
  * Adaptador en memoria para pruebas unitarias, SSR y modo sin conexión.
@@ -41,7 +175,7 @@ export class InMemoryOrdersRepository implements OrdersRepository {
 
   async saveOrder(order: Order): Promise<Order> {
     const saved: Order = { ...order };
-    this.orders.push(saved);
+    this.orders.unshift(saved);
     return saved;
   }
 
@@ -51,6 +185,20 @@ export class InMemoryOrdersRepository implements OrdersRepository {
 
   async getAllOrders(): Promise<Order[]> {
     return [...this.orders];
+  }
+
+  async updateOrderStatus(referenceOrId: string, status: OrderStatus): Promise<Order | null> {
+    const orderIndex = this.orders.findIndex(
+      (o) => o.reference === referenceOrId || o.id === referenceOrId,
+    );
+    if (orderIndex === -1) {
+      return null;
+    }
+    this.orders[orderIndex] = {
+      ...this.orders[orderIndex],
+      status,
+    };
+    return { ...this.orders[orderIndex] };
   }
 }
 
@@ -291,6 +439,41 @@ export class SupabaseOrdersRepository implements OrdersRepository {
       return this.fallbackRepo.getAllOrders ? this.fallbackRepo.getAllOrders() : [];
     }
   }
+
+  async updateOrderStatus(referenceOrId: string, status: OrderStatus): Promise<Order | null> {
+    if (!this.supabase) {
+      return this.fallbackRepo.updateOrderStatus
+        ? this.fallbackRepo.updateOrderStatus(referenceOrId, status)
+        : null;
+    }
+
+    try {
+      const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+        referenceOrId,
+      );
+
+      let query = this.supabase.from('orders').update({ status });
+      if (isUuid) {
+        query = query.eq('id', referenceOrId);
+      } else {
+        query = query.filter('shipping_address->>reference', 'eq', referenceOrId);
+      }
+
+      const { data, error } = await query.select().single();
+      if (error || !data) {
+        return this.fallbackRepo.updateOrderStatus
+          ? this.fallbackRepo.updateOrderStatus(referenceOrId, status)
+          : null;
+      }
+
+      await this.fallbackRepo.updateOrderStatus?.(referenceOrId, status);
+      return this.getOrder(referenceOrId);
+    } catch {
+      return this.fallbackRepo.updateOrderStatus
+        ? this.fallbackRepo.updateOrderStatus(referenceOrId, status)
+        : null;
+    }
+  }
 }
 
 /**
@@ -304,6 +487,8 @@ export class OrdersService {
   private readonly notificationService: NotificationService;
   private orderCounter = 1042;
   readonly latestOrder = signal<Order | null>(null);
+  readonly allOrders = signal<Order[]>([]);
+  readonly loading = signal<boolean>(false);
 
   constructor(
     @Optional()
@@ -320,13 +505,55 @@ export class OrdersService {
     } else if (supabaseClient) {
       this.repository = new SupabaseOrdersRepository(supabaseClient);
     } else {
-      this.repository = new InMemoryOrdersRepository();
+      this.repository = new InMemoryOrdersRepository(DEFAULT_INITIAL_ORDERS);
     }
     this.notificationService = notificationService ?? new NotificationService();
+
+    // Carga inicial reactiva de pedidos
+    this.loadAllOrders();
   }
 
   get notifications(): NotificationService {
     return this.notificationService;
+  }
+
+  /**
+   * Carga la lista completa de pedidos en el signal reactivo allOrders.
+   */
+  async loadAllOrders(): Promise<Order[]> {
+    this.loading.set(true);
+    try {
+      const orders = (await this.repository.getAllOrders?.()) ?? [];
+      this.allOrders.set(orders);
+      return orders;
+    } finally {
+      this.loading.set(false);
+    }
+  }
+
+  async getAllOrders(): Promise<Order[]> {
+    return this.loadAllOrders();
+  }
+
+  /**
+   * Actualiza el estado operativo de un encargo y refresca el signal allOrders.
+   */
+  async updateOrderStatus(referenceOrId: string, status: OrderStatus): Promise<Order | null> {
+    const updated = (await this.repository.updateOrderStatus?.(referenceOrId, status)) ?? null;
+    if (updated) {
+      this.allOrders.update((orders) =>
+        orders.map((o) =>
+          o.reference === updated.reference || o.id === updated.id ? { ...updated } : o,
+        ),
+      );
+      if (
+        this.latestOrder()?.reference === updated.reference ||
+        this.latestOrder()?.id === updated.id
+      ) {
+        this.latestOrder.set({ ...updated });
+      }
+    }
+    return updated;
   }
 
   /**
@@ -381,12 +608,17 @@ export class OrdersService {
       shippingZoneLabel: input.shippingZoneLabel,
       estimatedDate,
       paymentMethod,
+      notes: input.notes,
       status: 'confirmed',
       createdAt: new Date().toISOString(),
     };
 
     const saved = await this.repository.saveOrder(order);
     this.latestOrder.set(saved);
+    this.allOrders.update((orders) => [
+      saved,
+      ...orders.filter((o) => o.reference !== saved.reference && o.id !== saved.id),
+    ]);
 
     try {
       await this.notificationService.sendOrderConfirmationNotifications(saved);

@@ -37,6 +37,18 @@ export interface OrderCustomer {
   city?: string;
 }
 
+export type OrderStatus =
+  | 'recibido'
+  | 'en_preparacion'
+  | 'listo_recogida'
+  | 'enviado'
+  | 'entregado'
+  | 'cancelado'
+  | 'pending'
+  | 'confirmed'
+  | 'shipped'
+  | 'cancelled';
+
 export interface Order {
   id?: string;
   reference?: string;
@@ -49,7 +61,8 @@ export interface Order {
   shippingZoneLabel?: string;
   estimatedDate?: string;
   paymentMethod?: string;
-  status: 'pending' | 'confirmed' | 'shipped' | 'cancelled';
+  status: OrderStatus;
+  notes?: string;
   createdAt?: string;
 }
 

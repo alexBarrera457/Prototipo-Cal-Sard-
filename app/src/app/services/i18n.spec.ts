@@ -1,4 +1,6 @@
+// @vitest-environment jsdom
 import { TestBed } from '@angular/core/testing';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { I18nService } from './i18n';
 
 describe('I18nService', () => {
@@ -90,5 +92,19 @@ describe('I18nService', () => {
     expect(service.translateCategory('CAFÉ GOURMET')).toBe('Cafè gourmet');
     expect(service.translateCategory('CONSERVAS DE MAR')).toBe('Conserves de mar');
     expect(service.translateCategory('EMBUTIDOS')).toBe('Embotits');
+  });
+
+  it('translates admin orders keys in both languages', () => {
+    service.setLanguage('es');
+    expect(service.t('admin.orders_title')).toBe('Gestión de Pedidos y Encargos');
+    expect(service.t('admin.status_recibido')).toBe('Recibido');
+    expect(service.t('admin.status_en_preparacion')).toBe('En preparación');
+    expect(service.t('admin.action_prepare')).toBe('Pasar a preparación');
+
+    service.setLanguage('ca');
+    expect(service.t('admin.orders_title')).toBe('Gestió de Comandes i Encàrrecs');
+    expect(service.t('admin.status_recibido')).toBe('Rebut');
+    expect(service.t('admin.status_en_preparacion')).toBe('En preparació');
+    expect(service.t('admin.action_prepare')).toBe('Passar a preparació');
   });
 });
