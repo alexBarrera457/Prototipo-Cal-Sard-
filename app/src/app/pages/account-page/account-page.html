@@ -2,36 +2,106 @@
   <div class="account-layout">
     <section class="account-copy">
       <span class="eyebrow">{{ i18n.t('account.kicker') }}</span>
-      <h1 id="account-title">{{ i18n.t('account.welcome_back') }}</h1>
-      <p>{{ i18n.t('account.welcome_desc') }}</p>
-      <div class="preview-note">
-        <span aria-hidden="true">✳</span>
-        <p>
-          {{ i18n.t('account.demo_note') }}
-        </p>
-      </div>
+      <h1 id="account-title">
+        @if (auth.currentUser(); as user) {
+          {{ i18n.currentLang() === 'ca' ? 'El teu compte' : 'Tu cuenta' }}
+        } @else {
+          {{ i18n.t('account.welcome_back') }}
+        }
+      </h1>
+      <p>
+        @if (auth.currentUser(); as user) {
+          {{
+            i18n.currentLang() === 'ca'
+              ? 'Benvingut/da a la teva àrea de Cal Sardà. Des d’aquí pots revisar les teves dades personals i accedir als serveis de la botiga.'
+              : 'Bienvenido/a a tu área de Cal Sardà. Desde aquí puedes consultar tus datos de cliente y acceder a los servicios de la tienda.'
+          }}
+        } @else {
+          {{ i18n.t('account.welcome_desc') }}
+        }
+      </p>
+
+      @if (!auth.currentUser()) {
+        <div class="preview-note">
+          <span aria-hidden="true">✳</span>
+          <div>
+            <p>
+              <strong>{{ i18n.t('account.demo_quick_access') }}:</strong>
+            </p>
+            <p>
+              • Admin: <code>admin&#64;calsarda.com</code> / <code>admin1930</code><br />
+              • Cliente: <code>cliente&#64;calsarda.com</code> / <code>cliente1930</code>
+            </p>
+          </div>
+        </div>
+      }
     </section>
 
-    <section class="login-card" aria-label="Formulario de inicio de sesión">
-      @if (loginDemoCompleted) {
-        <div class="login-result" role="status" aria-live="polite">
-          <span class="result-mark" aria-hidden="true">✓</span>
-          <h2>
-            {{ i18n.currentLang() === 'ca' ? 'Formulari completat' : 'Formulario completado' }}
-          </h2>
-          <p>
-            {{
-              i18n.currentLang() === 'ca'
-                ? 'L’accés encara no està connectat. No s’ha iniciat sessió ni s’han enviat o desat les teves dades.'
-                : 'El acceso aún no está conectado. No se ha iniciado sesión ni se han enviado o guardado tus datos.'
-            }}
-          </p>
-          <button type="button" class="submit-button" (click)="returnToLogin()">
-            {{
-              i18n.currentLang() === 'ca' ? 'TORNAR A INICIAR SESSIÓ' : 'VOLVER A INICIAR SESIÓN'
-            }}
-            <span aria-hidden="true">→</span>
-          </button>
+    <section class="login-card" aria-label="Área de usuario o formulario de inicio de sesión">
+      @if (auth.currentUser(); as user) {
+        <div class="user-dashboard" role="region" aria-labelledby="user-dashboard-title">
+          <div class="user-header">
+            <div class="user-avatar" aria-hidden="true">
+              {{ user.name.charAt(0).toUpperCase() }}
+            </div>
+            <div class="user-info">
+              <span class="user-role-badge" [class.badge-admin]="user.role === 'admin'">
+                {{
+                  user.role === 'admin'
+                    ? i18n.t('account.admin_badge')
+                    : i18n.t('account.customer_badge')
+                }}
+              </span>
+              <h2 id="user-dashboard-title">{{ user.name }}</h2>
+              <p class="user-email">{{ user.email }}</p>
+            </div>
+          </div>
+
+          <div class="dashboard-details">
+            <div class="detail-item">
+              <span class="detail-label">{{ i18n.t('account.phone_mobile') }}</span>
+              <span class="detail-value">{{ user.phone || i18n.t('account.no_phone') }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">{{ i18n.t('account.address') }}</span>
+              <span class="detail-value">
+                {{
+                  user.address
+                    ? user.address + ', ' + (user.postalCode || '') + ' ' + (user.city || '')
+                    : i18n.t('account.no_address')
+                }}
+              </span>
+            </div>
+          </div>
+
+          @if (auth.isAdmin()) {
+            <div class="admin-cta-card">
+              <div class="admin-cta-copy">
+                <h3>{{ i18n.t('account.admin_badge') }} · Cal Sardà</h3>
+                <p>
+                  {{
+                    i18n.currentLang() === 'ca'
+                      ? 'Accedeix al tauler de gestió d’encàrrecs i catàleg de l’obrador.'
+                      : 'Accede al panel de control para gestionar pedidos y el catálogo del obrador.'
+                  }}
+                </p>
+              </div>
+              <a class="admin-cta-link" [routerLink]="['/admin']">
+                {{ i18n.t('account.admin_panel_button') }} <span aria-hidden="true">→</span>
+              </a>
+            </div>
+          }
+
+          <div class="dashboard-footer">
+            <button
+              type="button"
+              class="sign-out-button"
+              (click)="returnToLogin()"
+              [disabled]="auth.loading()"
+            >
+              {{ i18n.t('account.sign_out') }}
+            </button>
+          </div>
         </div>
       } @else {
         <div class="form-heading">
@@ -39,6 +109,12 @@
           <h2>{{ i18n.t('account.login_title') }}</h2>
           <p>{{ i18n.t('account.login_desc') }}</p>
         </div>
+
+        @if (errorMessage) {
+          <div class="form-error-alert" role="alert">
+            <span aria-hidden="true">⚠️</span> {{ errorMessage }}
+          </div>
+        }
 
         <form #loginForm="ngForm" (ngSubmit)="signIn(loginForm)" novalidate>
           <div class="field">
@@ -55,7 +131,7 @@
               email
               [(ngModel)]="email"
               #emailField="ngModel"
-              (ngModelChange)="recoveryNotice = false"
+              (ngModelChange)="recoveryNotice = false; errorMessage = ''"
             />
             @if (emailField.invalid && (emailField.touched || loginForm.submitted)) {
               <span class="field-error" role="alert">
@@ -89,6 +165,7 @@
                 required
                 [(ngModel)]="password"
                 #passwordField="ngModel"
+                (ngModelChange)="errorMessage = ''"
               />
               <button
                 type="button"
@@ -122,24 +199,51 @@
           </div>
 
           <div class="account-actions">
-            <button type="button" class="text-action" (click)="recoveryNotice = !recoveryNotice">
+            <button type="button" class="text-action" (click)="requestPasswordReset()">
               {{ i18n.t('account.forgot_password') }}
             </button>
             <a [routerLink]="['/crear-cuenta']">{{ i18n.t('account.create_link') }}</a>
           </div>
+
           @if (recoveryNotice) {
             <p class="recovery-notice" role="status">
-              {{
-                i18n.currentLang() === 'ca'
-                  ? 'La recuperació de contrasenya encara no està connectada. No s’ha enviat cap correu.'
-                  : 'La recuperación de contraseña todavía no está conectada. No se ha enviado ningún correo.'
-              }}
+              @if (recoverySuccess) {
+                {{ i18n.t('account.email_sent_desc') }}
+              } @else {
+                {{
+                  i18n.currentLang() === 'ca'
+                    ? 'Introdueix un correu electrònic vàlid per sol·licitar l’enllaç de restabliment.'
+                    : 'Introduce un correo electrónico válido para solicitar el enlace de restablecimiento.'
+                }}
+              }
             </p>
           }
 
-          <button class="submit-button" type="submit">
-            {{ i18n.t('account.submit_login') }} <span aria-hidden="true">→</span>
+          <button class="submit-button" type="submit" [disabled]="auth.loading()">
+            {{ auth.loading() ? i18n.t('account.login_loading') : i18n.t('account.submit_login') }}
+            <span aria-hidden="true">→</span>
           </button>
+
+          <div class="demo-buttons">
+            <span class="demo-buttons-label">{{ i18n.t('account.demo_quick_access') }}:</span>
+            <div class="demo-buttons-group">
+              <button
+                type="button"
+                class="demo-chip"
+                (click)="quickSignIn('admin@calsarda.com', 'admin1930', loginForm)"
+              >
+                🛡️ {{ i18n.t('account.demo_login_admin') }}
+              </button>
+              <button
+                type="button"
+                class="demo-chip"
+                (click)="quickSignIn('cliente@calsarda.com', 'cliente1930', loginForm)"
+              >
+                🥖 {{ i18n.t('account.demo_login_customer') }}
+              </button>
+            </div>
+          </div>
+
           <p class="required-note">
             <span aria-hidden="true">*</span> {{ i18n.t('account.required_note') }}
           </p>

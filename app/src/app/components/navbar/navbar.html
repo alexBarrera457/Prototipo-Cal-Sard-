@@ -221,14 +221,18 @@
         <a
           class="account-button"
           [routerLink]="['/cuenta']"
-          [attr.aria-label]="i18n.t('nav.my_account')"
-          [title]="i18n.t('nav.my_account')"
+          [attr.aria-label]="
+            auth.currentUser() ? auth.currentUser()!.name : i18n.t('nav.my_account')
+          "
+          [title]="auth.currentUser() ? auth.currentUser()!.name : i18n.t('nav.my_account')"
         >
           <svg viewBox="0 0 24 24" aria-hidden="true">
             <circle cx="12" cy="8" r="3.5" />
             <path d="M4.5 21a7.5 7.5 0 0 1 15 0" />
           </svg>
-          <span>{{ i18n.t('nav.my_account') }}</span>
+          <span>{{
+            auth.currentUser() ? auth.currentUser()!.name.split(' ')[0] : i18n.t('nav.my_account')
+          }}</span>
         </a>
 
         <button

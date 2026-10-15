@@ -20,18 +20,29 @@
         <div class="success-message" role="status" aria-live="polite">
           <span class="success-mark" aria-hidden="true">✓</span>
           <h2>
-            {{ i18n.currentLang() === 'ca' ? 'Formulari completat' : 'Formulario completado' }}
-          </h2>
-          <p>
             {{
               i18n.currentLang() === 'ca'
-                ? 'Aquesta demostració no ha creat cap compte. Les teves dades no s’han enviat ni desat.'
-                : 'Esta demostración no ha creado una cuenta. Tus datos no se han enviado ni guardado.'
+                ? 'Compte creat correctament!'
+                : '¡Cuenta creada correctamente!'
             }}
+          </h2>
+          <p>
+            @if (requiresConfirmation) {
+              {{ i18n.t('account.email_sent_desc') }}
+            } @else {
+              {{
+                i18n.currentLang() === 'ca'
+                  ? 'La teva sessió s’ha iniciat automàticament. Ja pots gaudir de tots els avantatges a Cal Sardà.'
+                  : 'Tu sesión se ha iniciado automáticamente. Ya puedes disfrutar de todas las ventajas en Cal Sardà.'
+              }}
+            }
           </p>
-          <a [routerLink]="['/tienda-online']"
-            >{{ i18n.t('checkout.back_to_shop') }} <span aria-hidden="true">→</span></a
-          >
+          <div class="success-actions">
+            <a class="submit-button" [routerLink]="['/cuenta']">
+              {{ i18n.currentLang() === 'ca' ? 'EL MEU COMPTE' : 'MI CUENTA' }}
+              <span aria-hidden="true">→</span>
+            </a>
+          </div>
         </div>
       } @else {
         <div class="form-heading">
@@ -46,6 +57,12 @@
           </p>
         </div>
 
+        @if (errorMessage) {
+          <div class="form-error-alert" role="alert">
+            <span aria-hidden="true">⚠️</span> {{ errorMessage }}
+          </div>
+        }
+
         <form #registrationForm="ngForm" (ngSubmit)="createAccount(registrationForm)" novalidate>
           <div class="field">
             <label for="account-name"
@@ -59,7 +76,6 @@
               required
               [(ngModel)]="name"
               #nameField="ngModel"
-              (ngModelChange)="accountCreated = false"
             />
             @if (nameField.invalid && (nameField.touched || registrationForm.submitted)) {
               <span class="field-error" role="alert">
@@ -82,7 +98,6 @@
               email
               [(ngModel)]="email"
               #emailField="ngModel"
-              (ngModelChange)="accountCreated = false"
             />
             @if (emailField.invalid && (emailField.touched || registrationForm.submitted)) {
               <span class="field-error" role="alert">
@@ -113,7 +128,6 @@
                   autocomplete="tel"
                   placeholder="600 000 000"
                   [(ngModel)]="phone"
-                  (ngModelChange)="accountCreated = false"
                 />
               </div>
               <div class="field field-full">
@@ -125,7 +139,6 @@
                   autocomplete="street-address"
                   placeholder="Calle, número, piso"
                   [(ngModel)]="address"
-                  (ngModelChange)="accountCreated = false"
                 />
               </div>
               <div class="field">
@@ -136,7 +149,6 @@
                   type="text"
                   autocomplete="postal-code"
                   [(ngModel)]="postalCode"
-                  (ngModelChange)="accountCreated = false"
                 />
               </div>
               <div class="field">
@@ -147,7 +159,6 @@
                   type="text"
                   autocomplete="address-level2"
                   [(ngModel)]="city"
-                  (ngModelChange)="accountCreated = false"
                 />
               </div>
               <div class="field">
@@ -158,7 +169,6 @@
                   type="text"
                   autocomplete="address-level1"
                   [(ngModel)]="province"
-                  (ngModelChange)="accountCreated = false"
                 />
               </div>
               <div class="field">
@@ -169,7 +179,6 @@
                   type="text"
                   autocomplete="country-name"
                   [(ngModel)]="country"
-                  (ngModelChange)="accountCreated = false"
                 />
               </div>
             </div>
@@ -189,7 +198,6 @@
                 minlength="8"
                 [(ngModel)]="password"
                 #passwordField="ngModel"
-                (ngModelChange)="accountCreated = false"
               />
               <button
                 type="button"
@@ -234,7 +242,6 @@
               required
               [(ngModel)]="confirmPassword"
               #confirmPasswordField="ngModel"
-              (ngModelChange)="accountCreated = false"
             />
             @if (confirmPasswordField.touched && passwordsMismatch) {
               <span class="field-error" role="alert">
@@ -255,7 +262,6 @@
               required
               [(ngModel)]="acceptedPrivacy"
               #privacyField="ngModel"
-              (ngModelChange)="accountCreated = false"
             />
             <label for="account-privacy"
               >{{ i18n.t('account.read_privacy') }}
@@ -278,9 +284,12 @@
           <button
             class="submit-button"
             type="submit"
-            [disabled]="registrationForm.invalid || passwordsMismatch"
+            [disabled]="registrationForm.invalid || passwordsMismatch || auth.loading()"
           >
-            {{ i18n.t('account.submit_create') }} <span aria-hidden="true">→</span>
+            {{
+              auth.loading() ? i18n.t('account.register_loading') : i18n.t('account.submit_create')
+            }}
+            <span aria-hidden="true">→</span>
           </button>
           <p class="login-prompt">
             {{ i18n.t('account.already_account') }}

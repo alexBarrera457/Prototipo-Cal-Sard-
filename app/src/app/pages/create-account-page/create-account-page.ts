@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { AuthService } from '../../services/auth';
 import { I18nService } from '../../services/i18n';
 
 @Component({
@@ -10,6 +11,7 @@ import { I18nService } from '../../services/i18n';
   styleUrl: './create-account-page.css',
 })
 export class CreateAccountPage {
+  public readonly auth = inject(AuthService);
   public readonly i18n = inject(I18nService);
 
   name = '';
@@ -25,17 +27,44 @@ export class CreateAccountPage {
   acceptedPrivacy = false;
   showPassword = false;
   accountCreated = false;
+  requiresConfirmation = false;
+  errorMessage = '';
 
   get passwordsMismatch(): boolean {
     return this.confirmPassword.length > 0 && this.password !== this.confirmPassword;
   }
 
-  createAccount(form: NgForm): void {
-    if (form.invalid || this.passwordsMismatch) return;
+  async createAccount(form: NgForm): Promise<void> {
+    if (form.invalid || this.passwordsMismatch) {
+      if (form.form) {
+        form.form.markAllAsTouched();
+      }
+      return;
+    }
 
-    // Frontend preview only: no account is created and no form data is sent or saved.
-    this.accountCreated = true;
-    form.resetForm();
+    this.errorMessage = '';
+    const result = await this.auth.signUp({
+      name: this.name,
+      email: this.email,
+      phone: this.phone,
+      address: this.address,
+      postalCode: this.postalCode,
+      city: this.city,
+      province: this.province,
+      country: this.country,
+      password: this.password,
+    });
+
+    if (result.success) {
+      this.requiresConfirmation = Boolean(result.requiresEmailConfirmation);
+      this.clearFields();
+      this.accountCreated = true;
+    } else {
+      this.errorMessage = result.error || 'Error al crear la cuenta.';
+    }
+  }
+
+  private clearFields(): void {
     this.name = '';
     this.email = '';
     this.phone = '';

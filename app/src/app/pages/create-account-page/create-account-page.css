@@ -328,6 +328,30 @@
   text-align: left;
 }
 
+.success-actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 24px;
+}
+
+.success-actions .submit-button {
+  max-width: 260px;
+}
+
+/* Error Alert */
+.form-error-alert {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 20px;
+  padding: 12px 14px;
+  border-left: 3px solid #b34033;
+  color: #7a2218;
+  background: #fbeae8;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
 @media (max-width: 900px) {
   .create-account-page {
     padding-right: 6vw;

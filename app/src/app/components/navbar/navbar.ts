@@ -4,6 +4,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { debounceTime, distinctUntilChanged, Subject, switchMap } from 'rxjs';
 import { CartService } from '../../services/cart';
+import { AuthService } from '../../services/auth';
 import { I18nService } from '../../services/i18n';
 import { getProductSlug, ProductsService, StoreProduct } from '../../services/products';
 
@@ -32,6 +33,7 @@ export class Navbar {
   private menuTriggerElement: HTMLElement | null = null;
   public readonly cartLiveMessage = signal<string>('');
 
+  public readonly auth = inject(AuthService);
   public readonly i18n = inject(I18nService);
 
   get selectedLanguage(): string {
