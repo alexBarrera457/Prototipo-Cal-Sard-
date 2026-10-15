@@ -6,7 +6,7 @@
 
 .blog-hero {
   background: linear-gradient(180deg, #f4eee7 0%, rgba(244, 238, 231, 0.4) 100%);
-  padding: 4.5rem 1.5rem 3.5rem;
+  padding: calc(var(--navbar-height, 124px) + 2.5rem) 1.5rem 3.5rem;
   text-align: center;
   border-bottom: 1px solid rgba(122, 30, 40, 0.08);
 }

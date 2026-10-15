@@ -4,7 +4,7 @@
 
 .create-account-page {
   min-height: 100vh;
-  padding: 160px 8vw 100px;
+  padding: calc(var(--navbar-height, 124px) + 36px) 8vw 100px;
   color: #f7f0e6;
   background: #2d241e;
 }

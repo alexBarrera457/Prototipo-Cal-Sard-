@@ -1,6 +1,6 @@
 .product-page-status {
   max-width: 800px;
-  margin: 80px auto;
+  margin: calc(var(--navbar-height, 124px) + 40px) auto 80px;
   padding: 60px 24px;
   text-align: center;
   background: #fcf9f2;

@@ -130,7 +130,7 @@
 
 .product-detail-number {
   position: absolute;
-  top: 35px;
+  top: calc(var(--navbar-height, 124px) + 20px);
   left: 35px;
 
   z-index: 2;
@@ -164,7 +164,7 @@
   flex-direction: column;
   justify-content: center;
 
-  padding: 70px 80px;
+  padding: calc(var(--navbar-height, 124px) + 30px) 80px 70px;
 
   position: relative;
 }
@@ -180,7 +180,7 @@
   background: #241b15;
 
   position: absolute;
-  top: 70px;
+  top: calc(var(--navbar-height, 124px) + 30px);
   right: 80px;
 }
 
@@ -376,10 +376,11 @@
   }
 
   .product-detail-content {
-    padding: 50px;
+    padding: calc(var(--navbar-height, 124px) + 24px) 50px 50px;
   }
 
   .product-detail-content::before {
+    top: calc(var(--navbar-height, 124px) + 24px);
     right: 50px;
   }
 

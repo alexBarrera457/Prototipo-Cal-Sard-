@@ -3,7 +3,7 @@
 }
 
 .shop-intro {
-  padding: 150px 7vw 82px;
+  padding: calc(var(--navbar-height, 124px) + 26px) 7vw 82px;
   background: #2d241e;
   color: #fff;
 }

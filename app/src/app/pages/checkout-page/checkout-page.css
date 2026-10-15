@@ -4,8 +4,12 @@
 
 .checkout-page {
   min-height: 80vh;
-  padding: 140px 7vw 110px;
-  background: linear-gradient(to bottom, #2d241e 0 92px, #f6f1ea 92px);
+  padding: calc(var(--navbar-height, 124px) + 26px) 7vw 110px;
+  background: linear-gradient(
+    to bottom,
+    #2d241e 0 calc(var(--navbar-height, 124px) + 10px),
+    #f6f1ea calc(var(--navbar-height, 124px) + 10px)
+  );
   color: #221a14;
 }
 

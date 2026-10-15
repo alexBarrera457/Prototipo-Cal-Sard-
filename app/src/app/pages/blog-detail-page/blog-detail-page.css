@@ -1,7 +1,7 @@
 .blog-detail-main {
   min-height: 80vh;
   background-color: var(--color-bg, #fbf8f5);
-  padding: 2.5rem 1.5rem 5rem;
+  padding: calc(var(--navbar-height, 124px) + 2rem) 1.5rem 5rem;
 }
 
 .article-container {

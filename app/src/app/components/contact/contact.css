@@ -6,7 +6,7 @@
   background: #f3eee5;
   color: #2d211a;
 
-  padding: 140px 9%;
+  padding: calc(var(--navbar-height, 124px) + 24px) 9% 100px;
 }
 
 /* HEADER */

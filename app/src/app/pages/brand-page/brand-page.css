@@ -5,18 +5,18 @@
 .brand-page {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 110px 5vw 120px;
+  padding: calc(var(--navbar-height, 124px) + 24px) 5vw 120px;
   color: #1f1712;
 }
 
 .brand-page.business-page {
   max-width: 1380px;
-  padding-top: 150px;
+  padding-top: calc(var(--navbar-height, 124px) + 24px);
 }
 
 .brand-page.gift-lots-page {
   max-width: 1380px;
-  padding-top: 150px;
+  padding-top: calc(var(--navbar-height, 124px) + 24px);
 }
 
 .brand-page-header {
@@ -447,19 +447,19 @@
 
 @media (max-width: 900px) {
   .brand-page {
-    padding-top: 90px;
+    padding-top: calc(var(--navbar-height, 124px) + 20px);
   }
 
   .brand-page.business-page {
-    padding-top: 142px;
+    padding-top: calc(var(--navbar-height, 124px) + 20px);
   }
 
   .brand-page.gift-lots-page {
-    padding-top: 142px;
+    padding-top: calc(var(--navbar-height, 124px) + 20px);
   }
 
   .history-page {
-    padding-top: 176px;
+    padding-top: calc(var(--navbar-height, 124px) + 36px);
   }
 
   .brand-page-grid,
@@ -529,12 +529,9 @@
     margin-top: 18px;
   }
 
-  .business-page {
-    padding-top: 126px;
-  }
-
+  .business-page,
   .brand-page.gift-lots-page {
-    padding-top: 126px;
+    padding-top: calc(var(--navbar-height, 146px) + 16px);
   }
 
   .business-hero {

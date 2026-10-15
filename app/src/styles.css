@@ -10,6 +10,7 @@
 
 html {
   scroll-behavior: smooth;
+  scroll-padding-top: var(--navbar-height);
 }
 
 body {
@@ -30,6 +31,13 @@ body {
   --luxury-gold-soft: #d6bc93;
   --luxury-line: rgba(23, 18, 13, 0.12);
   --luxury-muted: #554b45;
+  --navbar-height: 124px;
+}
+
+@media (max-width: 760px) {
+  :root {
+    --navbar-height: 146px;
+  }
 }
 
 body.menu-open {
