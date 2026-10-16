@@ -14,8 +14,10 @@ import { I18nService } from '../../services/i18n';
 import { OrdersService, type Order, type OrderStatus } from '../../services/orders';
 import { CartService } from '../../services/cart';
 import { InvoicingService } from '../../services/invoicing';
+import { FavoritesService } from '../../services/favorites';
+import type { StoreProduct } from '../../services/products';
 
-export type AccountTab = 'perfil' | 'direcciones' | 'pedidos' | 'preferencias';
+export type AccountTab = 'perfil' | 'direcciones' | 'pedidos' | 'preferencias' | 'favoritos';
 
 @Component({
   selector: 'app-account-page',
@@ -30,6 +32,7 @@ export class AccountPage implements OnInit {
   public readonly ordersService = inject(OrdersService);
   public readonly cartService = inject(CartService);
   public readonly invoicingService = inject(InvoicingService);
+  public readonly favoritesService = inject(FavoritesService);
 
   // Pestaña activa en el área privada
   readonly activeTab = signal<AccountTab>('pedidos');
@@ -95,6 +98,10 @@ export class AccountPage implements OnInit {
   readonly preferenceSaving = signal<boolean>(false);
   readonly preferenceError = signal<string | null>(null);
   readonly preferenceSuccess = signal<boolean>(false);
+
+  // Favoritos / Cesta Habitual
+  readonly favoriteProductsList = signal<StoreProduct[]>([]);
+  readonly loadingFavorites = signal<boolean>(false);
 
   // Formulario de inicio de sesión
   email = '';
@@ -196,6 +203,54 @@ export class AccountPage implements OnInit {
     this.activeTab.set(tab);
     if (tab === 'preferencias') {
       this.loadUserPreferences();
+    } else if (tab === 'favoritos') {
+      void this.loadFavoriteProducts();
+    }
+  }
+
+  async loadFavoriteProducts(): Promise<void> {
+    this.loadingFavorites.set(true);
+    try {
+      const items = await this.favoritesService.getFavoriteProducts();
+      this.favoriteProductsList.set(items);
+    } finally {
+      this.loadingFavorites.set(false);
+    }
+  }
+
+  async removeFavorite(productNumber: string): Promise<void> {
+    await this.favoritesService.removeFavorite(productNumber);
+    this.favoriteProductsList.update((list) => list.filter((p) => p.number !== productNumber));
+    this.showToast(this.i18n.t('favorites.toast_removed'));
+  }
+
+  async toggleOrderFavorite(productNumber: string): Promise<void> {
+    const isNowFav = await this.favoritesService.toggleFavorite(productNumber);
+    this.showToast(
+      isNowFav ? this.i18n.t('favorites.toast_added') : this.i18n.t('favorites.toast_removed'),
+    );
+    if (this.activeTab() === 'favoritos') {
+      await this.loadFavoriteProducts();
+    }
+  }
+
+  addFavoriteToCart(product: StoreProduct): void {
+    this.cartService.addToCart(product.name, product.price, 1, product.number, product.image);
+    this.showToast(
+      this.i18n.currentLang() === 'ca'
+        ? `${product.name} afegit a la cistella`
+        : `${product.name} añadido a la cesta`,
+    );
+  }
+
+  async addAllFavoritesToCart(): Promise<void> {
+    const { addedCount, outOfStockCount } = await this.favoritesService.addAllFavoritesToCart();
+    if (addedCount > 0) {
+      if (outOfStockCount > 0) {
+        this.showToast(this.i18n.t('favorites.toast_some_out_of_stock'));
+      } else {
+        this.showToast(this.i18n.t('favorites.toast_all_added'));
+      }
     }
   }
 

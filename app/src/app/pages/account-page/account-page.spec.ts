@@ -371,4 +371,68 @@ describe('AccountPage', () => {
       );
     });
   });
+
+  describe('customer favorites & habitual basket (El Meu Cistell Habitual)', () => {
+    beforeEach(async () => {
+      await component.quickSignIn('cliente@calsarda.com', 'cliente1930');
+    });
+
+    it('switches to favoritos tab and loads favorite products', async () => {
+      component.setTab('favoritos');
+      expect(component.activeTab()).toBe('favoritos');
+
+      await component.loadFavoriteProducts();
+      expect(component.favoriteProductsList().length).toBeGreaterThan(0);
+      expect(component.favoritesService.isFavorite('01')).toBe(true);
+    });
+
+    it('toggles favorite on past order line item and shows feedback toast', async () => {
+      await component.toggleOrderFavorite('02');
+      expect(component.favoritesService.isFavorite('02')).toBe(true);
+      expect(component.toastMessage()).toContain('productos habituales');
+
+      // Toggle off
+      await component.toggleOrderFavorite('02');
+      expect(component.favoritesService.isFavorite('02')).toBe(false);
+    });
+
+    it('removes a favorite and updates the visible list', async () => {
+      await component.loadFavoriteProducts();
+      const initialCount = component.favoriteProductsList().length;
+
+      await component.removeFavorite('01');
+      expect(component.favoriteProductsList().some((p) => p.number === '01')).toBe(false);
+      expect(component.toastMessage()).toContain('Eliminado');
+    });
+
+    it('adds single favorite to cart and displays notification', () => {
+      const cartSpy = vi.spyOn(component.cartService, 'addToCart');
+      component.addFavoriteToCart({
+        number: '01',
+        name: 'Jamón Bellota 100%',
+        price: 18.5,
+        category: 'EMBUTIDOS',
+        image: '/images/products/jamon.webp',
+        description: 'Jamón curado',
+        shortDescription: '100g cortado fino',
+      });
+
+      expect(cartSpy).toHaveBeenCalledWith(
+        'Jamón Bellota 100%',
+        18.5,
+        1,
+        '01',
+        '/images/products/jamon.webp',
+      );
+      expect(component.toastMessage()).toMatch(/afegit|añadido/);
+    });
+
+    it('adds all habitual favorites to cart in batch', async () => {
+      const cartSpy = vi.spyOn(component.cartService, 'addToCart');
+      await component.addAllFavoritesToCart();
+
+      expect(cartSpy).toHaveBeenCalled();
+      expect(component.toastMessage()).toBeTruthy();
+    });
+  });
 });

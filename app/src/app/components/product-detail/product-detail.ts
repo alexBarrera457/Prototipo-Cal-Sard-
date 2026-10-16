@@ -18,6 +18,7 @@ import {
 } from '../../services/products';
 
 import { AuthService } from '../../services/auth';
+import { FavoritesService } from '../../services/favorites';
 
 @Component({
   selector: 'app-product-detail',
@@ -28,6 +29,7 @@ import { AuthService } from '../../services/auth';
 export class ProductDetail implements OnChanges {
   public readonly i18n = inject(I18nService);
   public readonly auth = inject(AuthService, { optional: true });
+  public readonly favoritesService = inject(FavoritesService);
 
   get isGlutenFree(): boolean {
     return isGlutenFree(this.product);
@@ -141,6 +143,12 @@ export class ProductDetail implements OnChanges {
         ? this.i18n.t('product.added_single')
         : this.i18n.t('product.added_multiple');
     this.addedToCartMessage = `${this.quantity} ${unitLabel}`;
+  }
+
+  async toggleFavorite(): Promise<void> {
+    if (this.product?.number) {
+      await this.favoritesService.toggleFavorite(this.product.number);
+    }
   }
 
   goBack(): void {

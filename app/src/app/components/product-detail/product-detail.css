@@ -445,6 +445,38 @@
   line-height: 1.5;
 }
 
+.product-detail-favorite-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 18px;
+  border: 1px solid rgba(36, 27, 21, 0.35);
+  background: transparent;
+  color: #241b15;
+  cursor: pointer;
+  font-size: 10px;
+  font-weight: bold;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  transition: all 0.25s ease;
+}
+
+.product-detail-favorite-button:hover {
+  border-color: #8b3a2b;
+  color: #8b3a2b;
+  background: #fdfaf6;
+}
+
+.product-detail-favorite-button.is-favorite {
+  border-color: #8b3a2b;
+  background: #fbf0e4;
+  color: #8b3a2b;
+}
+
+.fav-heart {
+  font-size: 14px;
+}
+
 /* =========================
    TABLET
    ========================= */

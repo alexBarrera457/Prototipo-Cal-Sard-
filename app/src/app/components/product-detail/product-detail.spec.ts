@@ -131,4 +131,23 @@ describe('ProductDetail', () => {
 
     expect(component.userAllergenConflict).toEqual([]);
   });
+
+  it('toggles product favorite status via FavoritesService', async () => {
+    component.product = {
+      number: '01',
+      name: 'Jamón Bellota',
+      price: 18.0,
+      category: 'EMBUTIDOS',
+      image: 'jamon.jpg',
+      description: 'Jamón 100% ibérico',
+      shortDescription: '100g',
+    };
+
+    expect(component.favoritesService.isFavorite('01')).toBe(false);
+    await component.toggleFavorite();
+    expect(component.favoritesService.isFavorite('01')).toBe(true);
+
+    await component.toggleFavorite();
+    expect(component.favoritesService.isFavorite('01')).toBe(false);
+  });
 });

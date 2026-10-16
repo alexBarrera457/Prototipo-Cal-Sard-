@@ -115,6 +115,22 @@
               <span> {{ i18n.t('store.view_product') }} </span>
             </a>
 
+            <button
+              type="button"
+              class="btn-store-fav"
+              [class.is-favorite]="favoritesService.isFavorite(product.number)"
+              [attr.aria-label]="
+                favoritesService.isFavorite(product.number)
+                  ? i18n.t('favorites.btn_remove')
+                  : i18n.t('favorites.btn_add')
+              "
+              (click)="toggleFavorite(product.number, $event)"
+            >
+              <span aria-hidden="true">{{
+                favoritesService.isFavorite(product.number) ? '❤️' : '🤍'
+              }}</span>
+            </button>
+
             <span class="store-product-number">
               {{ product.number }}
             </span>

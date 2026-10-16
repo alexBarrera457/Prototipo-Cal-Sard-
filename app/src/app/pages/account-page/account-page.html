@@ -145,6 +145,21 @@
               <span>⚙️</span>
               <span>{{ i18n.t('account.tab_preferences') }}</span>
             </button>
+
+            <button
+              type="button"
+              class="account-tab-btn"
+              [class.active]="activeTab() === 'favoritos'"
+              (click)="setTab('favoritos')"
+              [attr.aria-selected]="activeTab() === 'favoritos'"
+              role="tab"
+            >
+              <span>❤️</span>
+              <span>{{ i18n.t('account.tab_favorites') }}</span>
+              @if (favoritesService.favoritesCount() > 0) {
+                <span class="tab-badge">{{ favoritesService.favoritesCount() }}</span>
+              }
+            </button>
           </nav>
 
           <!-- Pestaña 1: Mis Pedidos -->
@@ -294,7 +309,32 @@
                               <tbody>
                                 @for (it of order.items; track it.name) {
                                   <tr>
-                                    <td>{{ it.name }}</td>
+                                    <td>
+                                      <div class="order-item-with-fav">
+                                        <span>{{ it.name }}</span>
+                                        @if (it.productNumber) {
+                                          <button
+                                            type="button"
+                                            class="btn-item-fav"
+                                            [class.active]="
+                                              favoritesService.isFavorite(it.productNumber)
+                                            "
+                                            [title]="
+                                              favoritesService.isFavorite(it.productNumber)
+                                                ? 'En tus favoritos'
+                                                : 'Añadir a tus favoritos'
+                                            "
+                                            (click)="toggleOrderFavorite(it.productNumber)"
+                                          >
+                                            {{
+                                              favoritesService.isFavorite(it.productNumber)
+                                                ? '❤️'
+                                                : '🤍'
+                                            }}
+                                          </button>
+                                        }
+                                      </div>
+                                    </td>
                                     <td style="text-align: center">{{ it.quantity }}</td>
                                     <td style="text-align: right; font-weight: 600">
                                       {{ formatCurrency(it.price * it.quantity) }}
@@ -1262,6 +1302,95 @@
                   </div>
                 </form>
               </div>
+            </div>
+          }
+
+          <!-- Pestaña 5: Favoritos / El Meu Cistell Habitual -->
+          @if (activeTab() === 'favoritos') {
+            <div class="tab-content tab-favorites" role="tabpanel">
+              <div class="addresses-section-header">
+                <div>
+                  <h3>❤️ {{ i18n.t('favorites.title') }}</h3>
+                  <p>{{ i18n.t('favorites.subtitle') }}</p>
+                </div>
+                @if (favoriteProductsList().length > 0) {
+                  <button
+                    type="button"
+                    class="btn-add-all-favorites"
+                    (click)="addAllFavoritesToCart()"
+                  >
+                    <span>🛍️</span>
+                    <span>{{ i18n.t('favorites.add_all') }}</span>
+                  </button>
+                }
+              </div>
+
+              @if (loadingFavorites()) {
+                <div class="orders-loading">
+                  <span class="spinner" aria-hidden="true"></span>
+                  <p>Cargando tus productos habituales...</p>
+                </div>
+              } @else if (favoriteProductsList().length === 0) {
+                <div class="orders-empty-state">
+                  <span class="empty-icon" aria-hidden="true">❤️</span>
+                  <h4>{{ i18n.t('favorites.empty_title') }}</h4>
+                  <p>{{ i18n.t('favorites.empty_desc') }}</p>
+                  <a [routerLink]="['/tienda-online']" class="btn-shop-cta">
+                    Visitar la tienda online →
+                  </a>
+                </div>
+              } @else {
+                <div class="favorites-grid">
+                  @for (product of favoriteProductsList(); track product.number) {
+                    <article class="favorite-item-card">
+                      <div class="favorite-card-media">
+                        <img [src]="product.image" [alt]="product.name" />
+                        <button
+                          type="button"
+                          class="btn-fav-remove"
+                          [attr.aria-label]="i18n.t('favorites.btn_remove') + ': ' + product.name"
+                          (click)="removeFavorite(product.number)"
+                          title="Quitar de favoritos"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                      <div class="favorite-card-body">
+                        <span class="favorite-card-category">
+                          {{ i18n.translateCategory(product.category) }}
+                        </span>
+                        <h4 class="favorite-card-title">
+                          <a
+                            [routerLink]="[
+                              '/tienda-online/producto',
+                              product.slug || product.number,
+                            ]"
+                          >
+                            {{ product.name }}
+                          </a>
+                        </h4>
+                        <p class="favorite-card-desc">{{ product.shortDescription }}</p>
+                        <div class="favorite-card-footer">
+                          <strong class="favorite-card-price">{{
+                            formatCurrency(product.price)
+                          }}</strong>
+                          @if (product.inStock === false) {
+                            <span class="badge-out-of-stock">Agotado</span>
+                          } @else {
+                            <button
+                              type="button"
+                              class="btn-fav-add-cart"
+                              (click)="addFavoriteToCart(product)"
+                            >
+                              + {{ i18n.t('favorites.btn_add_cart') }}
+                            </button>
+                          }
+                        </div>
+                      </div>
+                    </article>
+                  }
+                </div>
+              }
             </div>
           }
         </div>

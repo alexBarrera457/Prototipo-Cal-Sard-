@@ -359,6 +359,37 @@
   transform: translateY(0);
 }
 
+.btn-store-fav {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 3;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(4px);
+  cursor: pointer;
+  font-size: 15px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease;
+}
+
+.btn-store-fav:hover {
+  transform: scale(1.15);
+  background: #fff;
+}
+
+.btn-store-fav.is-favorite {
+  background: #fff;
+  border-color: #8b3a2b;
+}
+
 .store-product-number {
   position: absolute;
   top: 22px;

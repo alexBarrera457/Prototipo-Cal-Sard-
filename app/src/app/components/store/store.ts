@@ -28,6 +28,7 @@ import {
   StoreSortOrder,
 } from '../../services/products';
 import { AuthService } from '../../services/auth';
+import { FavoritesService } from '../../services/favorites';
 
 @Component({
   selector: 'app-store',
@@ -38,6 +39,7 @@ import { AuthService } from '../../services/auth';
 export class Store implements AfterViewInit, OnDestroy {
   public readonly i18n = inject(I18nService);
   public readonly auth = inject(AuthService, { optional: true });
+  public readonly favoritesService = inject(FavoritesService);
   searchTerm = model<string>('');
   products = signal<StoreProduct[]>([]);
   catalogLoading = signal(true);
@@ -226,6 +228,12 @@ export class Store implements AfterViewInit, OnDestroy {
 
   getProductSlug(product: StoreProduct): string {
     return getProductSlug(product);
+  }
+
+  async toggleFavorite(productNumber: string, event: Event): Promise<void> {
+    event.preventDefault();
+    event.stopPropagation();
+    await this.favoritesService.toggleFavorite(productNumber);
   }
 
   showProduct(product: StoreProduct): void {

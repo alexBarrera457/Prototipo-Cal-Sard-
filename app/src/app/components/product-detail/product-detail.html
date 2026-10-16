@@ -169,6 +169,29 @@
       >
         {{ i18n.t('product.add_to_cart') }} →
       </button>
+
+      <button
+        type="button"
+        class="product-detail-favorite-button"
+        [class.is-favorite]="favoritesService.isFavorite(product.number)"
+        [attr.aria-label]="
+          favoritesService.isFavorite(product.number)
+            ? i18n.t('favorites.btn_remove')
+            : i18n.t('favorites.btn_add')
+        "
+        (click)="toggleFavorite()"
+      >
+        <span class="fav-heart" aria-hidden="true">{{
+          favoritesService.isFavorite(product.number) ? '❤️' : '🤍'
+        }}</span>
+        <span class="fav-label">
+          {{
+            favoritesService.isFavorite(product.number)
+              ? i18n.t('favorites.in_habitual')
+              : i18n.t('favorites.btn_add')
+          }}
+        </span>
+      </button>
     </div>
 
     <div class="product-cart-feedback-region" role="status" aria-live="polite">

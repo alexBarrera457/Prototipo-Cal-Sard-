@@ -401,6 +401,23 @@ export const TRANSLATIONS = {
       'Ej: Separar lonchas con film protector, jamón bien reposado...',
     'account.pref_save_btn': 'Guardar Preferencias',
     'account.pref_saved_success': 'Tus preferencias de obrador han sido guardadas correctamente.',
+    'account.tab_favorites': 'Cesta Habitual / Favoritos',
+    'favorites.title': 'Mi Cesta Habitual',
+    'favorites.subtitle':
+      'Tus productos de colmado preferidos para repetir tu compra habitual en un solo clic.',
+    'favorites.add_all': 'Añadir toda mi compra habitual a la cesta',
+    'favorites.empty_title': 'Aún no tienes favoritos guardados',
+    'favorites.empty_desc':
+      'Pulsa el corazón de cualquier producto para guardarlo en tu cesta habitual.',
+    'favorites.btn_add_cart': 'Añadir a la cesta',
+    'favorites.btn_remove': 'Quitar de favoritos',
+    'favorites.btn_add': 'Guardar en habitual',
+    'favorites.toast_added': 'Añadido a tus productos habituales',
+    'favorites.toast_removed': 'Eliminado de tus productos habituales',
+    'favorites.toast_all_added': 'Se han añadido tus productos habituales a la cesta',
+    'favorites.toast_some_out_of_stock':
+      'Algunos productos habituales están agotados temporalmente',
+    'favorites.in_habitual': 'En tu cesta habitual',
 
     // Admin Backoffice
     'admin.title': 'Panel de Administración',
@@ -980,6 +997,22 @@ export const TRANSLATIONS = {
       'Ex: Separar llesques amb film protector, pernil ben reposat...',
     'account.pref_save_btn': 'Desar Preferències',
     'account.pref_saved_success': 'Les teves preferències d’obrador s’han desat correctament.',
+    'account.tab_favorites': 'El Meu Cistell Habitual',
+    'favorites.title': 'El Meu Cistell Habitual',
+    'favorites.subtitle':
+      'Els productes que més t’agraden del colmado per repetir la teva compra en 1 clic.',
+    'favorites.add_all': 'Afegir tota la compra habitual a la cistella',
+    'favorites.empty_title': 'Encara no tens favorits guardats',
+    'favorites.empty_desc':
+      'Prem el cor de qualsevol producte per guardar-lo a la teva cistella habitual.',
+    'favorites.btn_add_cart': 'Afegir a la cistella',
+    'favorites.btn_remove': 'Treure de favorits',
+    'favorites.btn_add': 'Desar a l’habitual',
+    'favorites.toast_added': 'Afegit als teus productes habituals',
+    'favorites.toast_removed': 'Eliminat dels teus productes habituals',
+    'favorites.toast_all_added': 'S’han afegit els teus productes habituals a la cistella',
+    'favorites.toast_some_out_of_stock': 'Alguns productes habituals estan esgotats temporalment',
+    'favorites.in_habitual': 'Al teu cistell habitual',
 
     // Admin Backoffice
     'admin.title': 'Panell d’Administració',

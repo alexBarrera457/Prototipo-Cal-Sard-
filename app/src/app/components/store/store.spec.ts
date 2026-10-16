@@ -105,4 +105,21 @@ describe('Store', () => {
     expect(component.lactoseFreeFilter()).toBe(false);
     expect(component.filteredProducts().length).toBe(totalInitial);
   });
+
+  it('toggles product favorite status when clicking heart button', async () => {
+    const mockEvent = {
+      preventDefault: vi.fn(),
+      stopPropagation: vi.fn(),
+    } as unknown as Event;
+
+    expect(component.favoritesService.isFavorite('01')).toBe(false);
+    await component.toggleFavorite('01', mockEvent);
+
+    expect(mockEvent.preventDefault).toHaveBeenCalled();
+    expect(mockEvent.stopPropagation).toHaveBeenCalled();
+    expect(component.favoritesService.isFavorite('01')).toBe(true);
+
+    await component.toggleFavorite('01', mockEvent);
+    expect(component.favoritesService.isFavorite('01')).toBe(false);
+  });
 });

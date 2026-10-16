@@ -57,6 +57,7 @@ export interface UserProfile {
   addresses?: UserAddress[];
   fiscalData?: FiscalData;
   preferences?: CustomerPreferences;
+  favorites?: string[];
 }
 
 export interface SignUpInput {
@@ -165,6 +166,7 @@ export class InMemoryAuthAdapter implements AuthAdapter {
         packaging: 'vacio_100g',
         obradorNotes: 'Embutidos cortados muy finos para aperitivo.',
       },
+      favorites: ['01', '03'],
     },
   ];
 
