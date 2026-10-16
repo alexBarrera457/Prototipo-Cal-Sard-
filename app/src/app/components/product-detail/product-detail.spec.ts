@@ -1,18 +1,23 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ProductDetail } from './product-detail';
 import { CartService } from '../../services/cart';
+import { AuthService, InMemoryAuthAdapter, AUTH_ADAPTER } from '../../services/auth';
 
 describe('ProductDetail', () => {
   let component: ProductDetail;
   let fixture: ComponentFixture<ProductDetail>;
+  let authService: AuthService;
 
   beforeEach(async () => {
+    const mockAuthAdapter = new InMemoryAuthAdapter();
     await TestBed.configureTestingModule({
       imports: [ProductDetail],
+      providers: [AuthService, { provide: AUTH_ADAPTER, useValue: mockAuthAdapter }],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ProductDetail);
     component = fixture.componentInstance;
+    authService = TestBed.inject(AuthService);
     await fixture.whenStable();
   });
 
@@ -86,5 +91,44 @@ describe('ProductDetail', () => {
 
     expect(component.isGlutenFree).toBe(true);
     expect(component.isLactoseFree).toBe(true);
+  });
+
+  it('detects user allergen conflicts based on authenticated customer preferences', () => {
+    authService.currentUser.set({
+      id: 'cust-1',
+      name: 'Maria',
+      email: 'maria@test.cat',
+      role: 'customer',
+      preferences: {
+        allergens: ['Gluten', 'Frutos de cáscara'],
+      },
+    });
+
+    component.product = {
+      number: 'P-01',
+      name: 'Pa Artesanal',
+      price: 2.5,
+      category: 'OBRADOR',
+      image: 'pan.jpg',
+      description: 'Pa de pagès artesanal',
+      shortDescription: 'Peça de 500g',
+      allergens: ['Gluten', 'Sésamo'],
+    };
+
+    expect(component.userAllergenConflict).toEqual(['Gluten']);
+
+    // When product doesn't contain user allergens
+    component.product = {
+      number: 'P-02',
+      name: 'Pernil Ibèric',
+      price: 18.0,
+      category: 'EMBUTIDOS',
+      image: 'pernil.jpg',
+      description: 'Pernil de gla 100% ibèric',
+      shortDescription: 'Sobre de 100g',
+      allergens: [],
+    };
+
+    expect(component.userAllergenConflict).toEqual([]);
   });
 });

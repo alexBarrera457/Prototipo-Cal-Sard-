@@ -133,6 +133,18 @@
               <span>📍</span>
               <span>{{ i18n.t('account.tab_addresses') }}</span>
             </button>
+
+            <button
+              type="button"
+              class="account-tab-btn"
+              [class.active]="activeTab() === 'preferencias'"
+              (click)="setTab('preferencias')"
+              [attr.aria-selected]="activeTab() === 'preferencias'"
+              role="tab"
+            >
+              <span>⚙️</span>
+              <span>{{ i18n.t('account.tab_preferences') }}</span>
+            </button>
           </nav>
 
           <!-- Pestaña 1: Mis Pedidos -->
@@ -1049,6 +1061,206 @@
                     </div>
                   </form>
                 }
+              </div>
+            </div>
+          }
+
+          <!-- Pestaña 4: Preferencias y Obrador -->
+          @if (activeTab() === 'preferencias') {
+            <div class="tab-content tab-preferences" role="tabpanel">
+              <div class="addresses-section-header">
+                <div>
+                  <h3>{{ i18n.t('account.pref_title') }}</h3>
+                  <p>{{ i18n.t('account.pref_subtitle') }}</p>
+                </div>
+              </div>
+
+              <div class="profile-card preference-card">
+                <form (ngSubmit)="saveCustomerPreferences()" class="preferences-form">
+                  <!-- Bloque 1: Grosor de corte -->
+                  <div class="pref-group">
+                    <span class="pref-group-title">
+                      🔪 {{ i18n.t('account.pref_cut_label') }}
+                    </span>
+                    <div class="pref-options-grid">
+                      <label
+                        class="pref-option-card"
+                        [class.selected]="prefCutThickness() === 'muy_fino'"
+                      >
+                        <input
+                          type="radio"
+                          name="cutThickness"
+                          value="muy_fino"
+                          [checked]="prefCutThickness() === 'muy_fino'"
+                          (change)="prefCutThickness.set('muy_fino')"
+                        />
+                        <div class="pref-option-content">
+                          <strong>{{
+                            i18n.currentLang() === 'ca' ? 'Molt fi' : 'Muy fino'
+                          }}</strong>
+                          <small>{{ i18n.t('account.pref_cut_muy_fino') }}</small>
+                        </div>
+                      </label>
+
+                      <label
+                        class="pref-option-card"
+                        [class.selected]="prefCutThickness() === 'estandar'"
+                      >
+                        <input
+                          type="radio"
+                          name="cutThickness"
+                          value="estandar"
+                          [checked]="prefCutThickness() === 'estandar'"
+                          (change)="prefCutThickness.set('estandar')"
+                        />
+                        <div class="pref-option-content">
+                          <strong>{{
+                            i18n.currentLang() === 'ca' ? 'Estàndard' : 'Estándar'
+                          }}</strong>
+                          <small>{{ i18n.t('account.pref_cut_estandar') }}</small>
+                        </div>
+                      </label>
+
+                      <label
+                        class="pref-option-card"
+                        [class.selected]="prefCutThickness() === 'grueso'"
+                      >
+                        <input
+                          type="radio"
+                          name="cutThickness"
+                          value="grueso"
+                          [checked]="prefCutThickness() === 'grueso'"
+                          (change)="prefCutThickness.set('grueso')"
+                        />
+                        <div class="pref-option-content">
+                          <strong>{{ i18n.currentLang() === 'ca' ? 'Gruixut' : 'Grueso' }}</strong>
+                          <small>{{ i18n.t('account.pref_cut_grueso') }}</small>
+                        </div>
+                      </label>
+                    </div>
+                  </div>
+
+                  <!-- Bloque 2: Envasado -->
+                  <div class="pref-group">
+                    <span class="pref-group-title">
+                      📦 {{ i18n.t('account.pref_pack_label') }}
+                    </span>
+                    <div class="pref-options-grid">
+                      <label
+                        class="pref-option-card"
+                        [class.selected]="prefPackaging() === 'vacio_100g'"
+                      >
+                        <input
+                          type="radio"
+                          name="packaging"
+                          value="vacio_100g"
+                          [checked]="prefPackaging() === 'vacio_100g'"
+                          (change)="prefPackaging.set('vacio_100g')"
+                        />
+                        <div class="pref-option-content">
+                          <strong>{{
+                            i18n.currentLang() === 'ca' ? 'Al buit (100 g)' : 'Al vacío (100 g)'
+                          }}</strong>
+                          <small>{{ i18n.t('account.pref_pack_vacio_100g') }}</small>
+                        </div>
+                      </label>
+
+                      <label
+                        class="pref-option-card"
+                        [class.selected]="prefPackaging() === 'vacio_200g'"
+                      >
+                        <input
+                          type="radio"
+                          name="packaging"
+                          value="vacio_200g"
+                          [checked]="prefPackaging() === 'vacio_200g'"
+                          (change)="prefPackaging.set('vacio_200g')"
+                        />
+                        <div class="pref-option-content">
+                          <strong>{{
+                            i18n.currentLang() === 'ca' ? 'Al buit (200 g)' : 'Al vacío (200 g)'
+                          }}</strong>
+                          <small>{{ i18n.t('account.pref_pack_vacio_200g') }}</small>
+                        </div>
+                      </label>
+
+                      <label
+                        class="pref-option-card"
+                        [class.selected]="prefPackaging() === 'papel_colmado'"
+                      >
+                        <input
+                          type="radio"
+                          name="packaging"
+                          value="papel_colmado"
+                          [checked]="prefPackaging() === 'papel_colmado'"
+                          (change)="prefPackaging.set('papel_colmado')"
+                        />
+                        <div class="pref-option-content">
+                          <strong>{{
+                            i18n.currentLang() === 'ca' ? 'Paper tradicional' : 'Papel tradicional'
+                          }}</strong>
+                          <small>{{ i18n.t('account.pref_pack_papel') }}</small>
+                        </div>
+                      </label>
+                    </div>
+                  </div>
+
+                  <!-- Bloque 3: Alérgenos e intolerancias -->
+                  <div class="pref-group">
+                    <span class="pref-group-title">
+                      🌾 {{ i18n.t('account.pref_allergens_label') }}
+                    </span>
+                    <p class="section-subtitle">{{ i18n.t('account.pref_allergens_desc') }}</p>
+
+                    <div class="allergens-selection-grid">
+                      @for (allergen of commonAllergens; track allergen) {
+                        <button
+                          type="button"
+                          class="allergen-chip"
+                          [class.selected]="hasAllergen(allergen)"
+                          (click)="toggleAllergen(allergen)"
+                        >
+                          <span class="chip-status">{{ hasAllergen(allergen) ? '✓' : '+' }}</span>
+                          <span>{{ allergen }}</span>
+                        </button>
+                      }
+                    </div>
+                  </div>
+
+                  <!-- Bloque 4: Notas para el obrador -->
+                  <div class="pref-group">
+                    <label class="pref-group-title" for="obrador-notes-input">
+                      📝 {{ i18n.t('account.pref_obrador_notes_label') }}
+                    </label>
+                    <textarea
+                      id="obrador-notes-input"
+                      name="obradorNotes"
+                      class="form-control"
+                      rows="2"
+                      [(ngModel)]="prefObradorNotes"
+                      [placeholder]="i18n.t('account.pref_obrador_notes_placeholder')"
+                    ></textarea>
+                  </div>
+
+                  @if (preferenceError(); as err) {
+                    <div class="form-alert-error" role="alert">
+                      <span>⚠️</span>
+                      <span>{{ err }}</span>
+                    </div>
+                  }
+
+                  <div class="form-actions">
+                    <button type="submit" class="btn-save-profile" [disabled]="preferenceSaving()">
+                      {{
+                        preferenceSaving()
+                          ? i18n.currentLang() === 'ca'
+                            ? 'Desant...'
+                            : 'Guardando...'
+                          : i18n.t('account.pref_save_btn')
+                      }}
+                    </button>
+                  </div>
+                </form>
               </div>
             </div>
           }

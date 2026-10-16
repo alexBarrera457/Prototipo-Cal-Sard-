@@ -259,21 +259,29 @@
   flex-wrap: wrap;
   gap: 8px;
 }
-.demo-chip {
-  padding: 6px 12px;
+.demo-chip,
+.btn-addr-action,
+.allergen-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
   border: 1px solid #d4cabc;
+  border-radius: 4px;
+  background: #faf8f5;
   color: #5c4a39;
-  background: #f0ebe2;
   cursor: pointer;
   font: inherit;
   font-size: 11px;
   font-weight: 600;
   transition: all 0.2s ease;
 }
-.demo-chip:hover {
-  border-color: #977541;
+.demo-chip:hover,
+.btn-addr-action:hover,
+.allergen-chip:hover {
+  background: #f0ebe2;
+  border-color: #845f39;
   color: #2d241e;
-  background: #e6dfd3;
 }
 .wide-layout {
   grid-template-columns: minmax(0, 1fr) !important;
@@ -422,16 +430,25 @@
     opacity: 1;
   }
 }
-.orders-section-header h3 {
+.orders-section-header,
+.addresses-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+.orders-section-header h3,
+.addresses-section-header h3 {
   font-family: Georgia, serif;
   font-size: 20px;
   margin: 0 0 4px;
   color: #2d241e;
 }
-.orders-section-header p {
+.orders-section-header p,
+.addresses-section-header p {
   color: #75695e;
   font-size: 13px;
-  margin: 0 0 18px;
+  margin: 0;
 }
 .orders-loading,
 .orders-empty-state {
@@ -471,7 +488,9 @@
   flex-direction: column;
   gap: 18px;
 }
-.customer-order-card {
+.customer-order-card,
+.profile-card,
+.address-card {
   background: #fff;
   border: 1px solid #e5ded3;
   border-radius: 8px;
@@ -566,8 +585,8 @@
   z-index: 2;
 }
 .step-dot {
-  width: 24px;
-  height: 24px;
+  width: 22px;
+  height: 22px;
   border-radius: 50%;
   background: #e5ded3;
   color: #665b51;
@@ -575,7 +594,6 @@
   place-items: center;
   font-size: 11px;
   font-weight: 700;
-  transition: all 0.2s;
 }
 .step-active .step-dot {
   background: #15803d;
@@ -596,8 +614,7 @@
   flex: 1;
   height: 2px;
   background: #e5ded3;
-  margin: 0 6px;
-  margin-bottom: 16px;
+  margin: 0 6px 14px;
 }
 .timeline-line.line-active {
   background: #15803d;
@@ -630,15 +647,12 @@
   border-collapse: collapse;
   font-size: 12px;
 }
-.items-expanded-table th {
+.items-expanded-table th,
+.items-expanded-table td {
   text-align: left;
   padding: 6px;
-  border-bottom: 1px solid #ddd;
-  color: #666;
-}
-.items-expanded-table td {
-  padding: 6px;
   border-bottom: 1px solid #eee;
+  color: #666;
 }
 .order-notes-box {
   margin-top: 8px;
@@ -676,7 +690,7 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 7px 12px;
+  padding: 6px 12px;
   border-radius: 4px;
   font-size: 11px;
   font-weight: 600;
@@ -699,13 +713,6 @@
 .btn-invoice:hover {
   background: #8b3a2b;
   color: #fff;
-}
-.profile-card,
-.address-card {
-  background: #fff;
-  border: 1px solid #e5ded3;
-  border-radius: 8px;
-  padding: 20px;
 }
 .addresses-grid {
   display: grid;
@@ -735,23 +742,6 @@
   font-size: 11px;
   color: #15803d;
   font-weight: 600;
-}
-.addresses-section-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-}
-.addresses-section-header h3 {
-  font-family: Georgia, serif;
-  font-size: 20px;
-  margin: 0 0 4px;
-  color: #2d241e;
-}
-.addresses-section-header p {
-  color: #75695e;
-  font-size: 13px;
-  margin: 0;
 }
 .address-form-card {
   margin-bottom: 20px;
@@ -799,20 +789,6 @@
   margin-top: 14px;
   padding-top: 10px;
   border-top: 1px dashed #e5ded3;
-}
-.btn-addr-action {
-  padding: 4px 8px;
-  background: #fbf8f4;
-  border: 1px solid #d4cabc;
-  border-radius: 3px;
-  font: inherit;
-  font-size: 11px;
-  color: #5c4a39;
-  cursor: pointer;
-}
-.btn-addr-action:hover {
-  background: #f0ebe2;
-  border-color: #845f39;
 }
 .btn-addr-delete:hover {
   background: #fef2f2;
@@ -913,19 +889,19 @@
   flex-direction: column;
   gap: 12px;
 }
-.profile-edit-form .form-group {
+.form-group {
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
-.profile-edit-form label {
+.form-group label {
   font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   color: #6e5845;
 }
-.profile-edit-form .form-control {
+.form-control {
   padding: 7px 10px;
   border: 1px solid #c8beaf;
   border-radius: 4px;
@@ -934,17 +910,17 @@
   background: #fff;
   color: #2d241e;
 }
-.profile-edit-form .form-control:focus {
+.form-control:focus {
   outline: none;
   border-color: #845f39;
   box-shadow: 0 0 0 2px rgba(132, 95, 57, 0.15);
 }
-.profile-edit-form .disabled-input {
+.disabled-input {
   background: #f5f2ed;
   color: #8c7e72;
   cursor: not-allowed;
 }
-.profile-edit-form .form-hint {
+.form-hint {
   font-size: 11px;
   color: #8c7e72;
 }
@@ -1023,6 +999,78 @@
   border-color: #3e3024;
   color: #3e3024;
   background: #ece5d9;
+}
+.preference-card {
+  margin-top: 10px;
+}
+.preferences-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.pref-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.pref-group-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #2d241e;
+}
+.pref-options-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 10px;
+}
+.pref-option-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 10px 12px;
+  background: #faf8f5;
+  border: 1px solid #e5ded3;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.pref-option-card:hover {
+  background: #f5efe6;
+  border-color: #845f39;
+}
+.pref-option-card.selected {
+  background: #fdf8f2;
+  border-color: #845f39;
+  box-shadow: 0 0 0 1px #845f39;
+}
+.pref-option-card input {
+  margin-top: 3px;
+}
+.pref-option-content strong {
+  display: block;
+  font-size: 13px;
+  color: #2d241e;
+}
+.pref-option-content small {
+  display: block;
+  font-size: 11px;
+  color: #75695e;
+  margin-top: 2px;
+}
+.allergens-selection-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.allergen-chip.selected {
+  background: #fbf0e4;
+  border-color: #845f39;
+  color: #845f39;
+  font-weight: 700;
+}
+.chip-status {
+  font-size: 10.5px;
+  font-weight: 700;
 }
 @media (max-width: 900px) {
   .account-page {

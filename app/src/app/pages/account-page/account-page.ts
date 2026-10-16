@@ -2,13 +2,20 @@ import { Component, effect, inject, OnInit, signal } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule, NgForm } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { AuthService, type UserAddress, type FiscalData } from '../../services/auth';
+import {
+  AuthService,
+  type UserAddress,
+  type FiscalData,
+  type CustomerPreferences,
+  type CutThicknessPreference,
+  type PackagingPreference,
+} from '../../services/auth';
 import { I18nService } from '../../services/i18n';
 import { OrdersService, type Order, type OrderStatus } from '../../services/orders';
 import { CartService } from '../../services/cart';
 import { InvoicingService } from '../../services/invoicing';
 
-export type AccountTab = 'perfil' | 'direcciones' | 'pedidos';
+export type AccountTab = 'perfil' | 'direcciones' | 'pedidos' | 'preferencias';
 
 @Component({
   selector: 'app-account-page',
@@ -70,6 +77,25 @@ export class AccountPage implements OnInit {
   readonly fiscalSaving = signal<boolean>(false);
   readonly fiscalError = signal<string | null>(null);
 
+  // Preferencias y Obrador
+  readonly commonAllergens = [
+    'Gluten',
+    'Lactosa',
+    'Frutos secos',
+    'Huevo',
+    'Soja',
+    'Sulfitos',
+    'Pescado / Marisco',
+    'Sésamo',
+  ];
+  readonly prefAllergens = signal<string[]>([]);
+  readonly prefCutThickness = signal<CutThicknessPreference>('muy_fino');
+  readonly prefPackaging = signal<PackagingPreference>('vacio_100g');
+  prefObradorNotes = '';
+  readonly preferenceSaving = signal<boolean>(false);
+  readonly preferenceError = signal<string | null>(null);
+  readonly preferenceSuccess = signal<boolean>(false);
+
   // Formulario de inicio de sesión
   email = '';
   password = '';
@@ -80,11 +106,12 @@ export class AccountPage implements OnInit {
   errorMessage = '';
 
   constructor() {
-    // Al cambiar el usuario autenticado, recargar sus pedidos
+    // Al cambiar el usuario autenticado, recargar sus pedidos y preferencias
     effect(() => {
       const user = this.auth.currentUser();
       if (user?.email) {
         void this.loadCustomerOrders(user.email);
+        this.loadUserPreferences();
       } else {
         this.customerOrders.set([]);
       }
@@ -95,6 +122,63 @@ export class AccountPage implements OnInit {
     const user = this.auth.currentUser();
     if (user?.email) {
       await this.loadCustomerOrders(user.email);
+      this.loadUserPreferences();
+    }
+  }
+
+  loadUserPreferences(): void {
+    const prefs = this.auth.currentUser()?.preferences;
+    if (prefs) {
+      this.prefAllergens.set(prefs.allergens ? [...prefs.allergens] : []);
+      this.prefCutThickness.set(prefs.cutThickness || 'muy_fino');
+      this.prefPackaging.set(prefs.packaging || 'vacio_100g');
+      this.prefObradorNotes = prefs.obradorNotes || '';
+    } else {
+      this.prefAllergens.set([]);
+      this.prefCutThickness.set('muy_fino');
+      this.prefPackaging.set('vacio_100g');
+      this.prefObradorNotes = '';
+    }
+    this.preferenceError.set(null);
+    this.preferenceSuccess.set(false);
+  }
+
+  toggleAllergen(allergen: string): void {
+    const current = this.prefAllergens();
+    if (current.includes(allergen)) {
+      this.prefAllergens.set(current.filter((a) => a !== allergen));
+    } else {
+      this.prefAllergens.set([...current, allergen]);
+    }
+  }
+
+  hasAllergen(allergen: string): boolean {
+    return this.prefAllergens().includes(allergen);
+  }
+
+  async saveCustomerPreferences(): Promise<void> {
+    this.preferenceSaving.set(true);
+    this.preferenceError.set(null);
+    this.preferenceSuccess.set(false);
+
+    try {
+      const res = await this.auth.savePreferences({
+        allergens: this.prefAllergens(),
+        cutThickness: this.prefCutThickness(),
+        packaging: this.prefPackaging(),
+        obradorNotes: this.prefObradorNotes.trim(),
+      });
+
+      if (res.success) {
+        this.preferenceSuccess.set(true);
+        this.showToast(this.i18n.t('account.pref_saved_success'));
+      } else {
+        this.preferenceError.set(res.error || 'Error al guardar preferencias.');
+      }
+    } catch {
+      this.preferenceError.set('Error inesperado al guardar preferencias.');
+    } finally {
+      this.preferenceSaving.set(false);
     }
   }
 
@@ -110,6 +194,9 @@ export class AccountPage implements OnInit {
 
   setTab(tab: AccountTab): void {
     this.activeTab.set(tab);
+    if (tab === 'preferencias') {
+      this.loadUserPreferences();
+    }
   }
 
   startEditProfile(): void {

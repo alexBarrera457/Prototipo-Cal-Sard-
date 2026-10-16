@@ -151,6 +151,24 @@
                     🥛 {{ i18n.currentLang() === 'ca' ? 'Sense Lactosa' : 'Sin Lactosa' }}
                   </span>
                 }
+                @if (getUserAllergenConflicts(product); as conflicts) {
+                  @if (conflicts.length > 0) {
+                    <span
+                      class="badge-allergen-conflict"
+                      [title]="
+                        i18n.currentLang() === 'ca'
+                          ? 'Atenció: conté al·lèrgens registrats a les teves preferències (' +
+                            conflicts.join(', ') +
+                            ')'
+                          : 'Atención: contiene alérgenos registrados en tus preferencias (' +
+                            conflicts.join(', ') +
+                            ')'
+                      "
+                    >
+                      ⚠️ {{ conflicts.join(', ') }}
+                    </span>
+                  }
+                }
               </div>
 
               <h3>

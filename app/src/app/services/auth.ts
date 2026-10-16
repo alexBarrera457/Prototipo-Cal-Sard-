@@ -11,6 +11,14 @@ import {
 import { isPlatformBrowser } from '@angular/common';
 import { SUPABASE_CLIENT, type SupabaseClient } from './supabase';
 
+import type {
+  CustomerPreferences,
+  CutThicknessPreference,
+  PackagingPreference,
+} from '@cal-sarda/domain';
+
+export type { CustomerPreferences, CutThicknessPreference, PackagingPreference };
+
 export type UserRole = 'customer' | 'admin' | 'staff';
 
 export interface UserAddress {
@@ -48,6 +56,7 @@ export interface UserProfile {
   updatedAt?: string;
   addresses?: UserAddress[];
   fiscalData?: FiscalData;
+  preferences?: CustomerPreferences;
 }
 
 export interface SignUpInput {
@@ -149,6 +158,12 @@ export class InMemoryAuthAdapter implements AuthAdapter {
         postalCode: '08009',
         city: 'Barcelona',
         province: 'Barcelona',
+      },
+      preferences: {
+        allergens: ['Gluten'],
+        cutThickness: 'muy_fino',
+        packaging: 'vacio_100g',
+        obradorNotes: 'Embutidos cortados muy finos para aperitivo.',
       },
     },
   ];
@@ -805,5 +820,9 @@ export class AuthService {
 
   async saveFiscalData(fiscalData: FiscalData): Promise<AuthResult> {
     return this.updateProfile({ fiscalData });
+  }
+
+  async savePreferences(preferences: CustomerPreferences): Promise<AuthResult> {
+    return this.updateProfile({ preferences });
   }
 }

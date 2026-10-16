@@ -327,4 +327,48 @@ describe('AccountPage', () => {
       expect(component.toastMessage()).toContain('correctamente');
     });
   });
+
+  describe('customer obrador preferences & allergens', () => {
+    beforeEach(async () => {
+      await component.quickSignIn('cliente@calsarda.com', 'cliente1930');
+    });
+
+    it('loads initial preferences from authenticated user profile', () => {
+      component.setTab('preferencias');
+      expect(component.activeTab()).toBe('preferencias');
+      expect(component.prefCutThickness()).toBe('muy_fino');
+      expect(component.prefPackaging()).toBe('vacio_100g');
+      expect(component.hasAllergen('Gluten')).toBe(true);
+      expect(component.hasAllergen('Lactosa')).toBe(false);
+      expect(component.hasAllergen('Sulfitos')).toBe(false);
+      expect(component.prefObradorNotes).toContain('aperitivo');
+    });
+
+    it('toggles allergens in and out of the selection list', () => {
+      expect(component.hasAllergen('Frutos secos')).toBe(false);
+      component.toggleAllergen('Frutos secos');
+      expect(component.hasAllergen('Frutos secos')).toBe(true);
+
+      // Toggle off
+      component.toggleAllergen('Frutos secos');
+      expect(component.hasAllergen('Frutos secos')).toBe(false);
+    });
+
+    it('saves updated preferences to AuthService and triggers confirmation toast', async () => {
+      component.prefCutThickness.set('grueso');
+      component.prefPackaging.set('papel_colmado');
+      component.toggleAllergen('Sulfitos');
+      component.prefObradorNotes = 'Llom envasat amb paper pernil';
+
+      await component.saveCustomerPreferences();
+
+      expect(component.toastMessage()).toContain('correctamente');
+      expect(authService.currentUser()?.preferences?.cutThickness).toBe('grueso');
+      expect(authService.currentUser()?.preferences?.packaging).toBe('papel_colmado');
+      expect(authService.currentUser()?.preferences?.allergens).toContain('Sulfitos');
+      expect(authService.currentUser()?.preferences?.obradorNotes).toBe(
+        'Llom envasat amb paper pernil',
+      );
+    });
+  });
 });

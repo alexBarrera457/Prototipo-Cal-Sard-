@@ -32,6 +32,16 @@ export interface CartItem {
 
 export type FulfillmentMethod = 'pickup' | 'delivery';
 
+export type CutThicknessPreference = 'muy_fino' | 'estandar' | 'grueso';
+export type PackagingPreference = 'vacio_100g' | 'vacio_200g' | 'papel_colmado';
+
+export interface CustomerPreferences {
+  allergens?: string[];
+  cutThickness?: CutThicknessPreference;
+  packaging?: PackagingPreference;
+  obradorNotes?: string;
+}
+
 export interface OrderCustomer {
   name: string;
   email: string;

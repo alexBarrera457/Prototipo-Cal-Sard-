@@ -27,6 +27,7 @@ import {
   StoreProduct,
   StoreSortOrder,
 } from '../../services/products';
+import { AuthService } from '../../services/auth';
 
 @Component({
   selector: 'app-store',
@@ -36,6 +37,7 @@ import {
 })
 export class Store implements AfterViewInit, OnDestroy {
   public readonly i18n = inject(I18nService);
+  public readonly auth = inject(AuthService, { optional: true });
   searchTerm = model<string>('');
   products = signal<StoreProduct[]>([]);
   catalogLoading = signal(true);
@@ -184,15 +186,42 @@ export class Store implements AfterViewInit, OnDestroy {
     }
   }
 
+  getUserAllergenConflicts(product: StoreProduct): string[] {
+    const user = this.auth?.currentUser();
+    const userAllergens = user?.preferences?.allergens;
+    if (
+      !userAllergens ||
+      userAllergens.length === 0 ||
+      !product.allergens ||
+      product.allergens.length === 0
+    ) {
+      return [];
+    }
+    return product.allergens.filter((pa) =>
+      userAllergens.some(
+        (ua) =>
+          pa.toLowerCase().includes(ua.toLowerCase()) ||
+          ua.toLowerCase().includes(pa.toLowerCase()),
+      ),
+    );
+  }
+
   addToCart(product: StoreProduct): void {
     this.cartService.addToCart(product.name, product.price, 1, product.number, product.image);
     const quantity =
       this.cartService.products().find((item) => item.name === product.name)?.quantity ?? 1;
     this.addedProductNumber = product.number;
+    const conflicts = this.getUserAllergenConflicts(product);
     const isCa = this.i18n.currentLang() === 'ca';
-    this.addedProductMessage = isCa
-      ? `${product.name} afegit a la cistella. Quantitat: ${quantity}.`
-      : `${product.name} añadido a la cesta. Cantidad: ${quantity}.`;
+    if (conflicts.length > 0) {
+      this.addedProductMessage = isCa
+        ? `⚠️ Atenció: ${product.name} conté ${conflicts.join(', ')} (al·lèrgen marcat). Afegit a la cistella (${quantity}).`
+        : `⚠️ Atención: ${product.name} contiene ${conflicts.join(', ')} (alérgeno registrado). Añadido a la cesta (${quantity}).`;
+    } else {
+      this.addedProductMessage = isCa
+        ? `${product.name} afegit a la cistella. Quantitat: ${quantity}.`
+        : `${product.name} añadido a la cesta. Cantidad: ${quantity}.`;
+    }
   }
 
   getProductSlug(product: StoreProduct): string {

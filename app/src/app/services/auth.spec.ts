@@ -165,6 +165,38 @@ describe('InMemoryAuthAdapter', () => {
     expect(loginNew.success).toBe(true);
     await adapter.signOut();
   });
+
+  it('saves customer preferences and updates profile', async () => {
+    await adapter.signIn({
+      email: 'cliente@calsarda.com',
+      password: 'cliente1930',
+    });
+
+    const prefRes = await adapter.updateProfile({
+      preferences: {
+        cutThickness: 'muy_fino',
+        packaging: 'vacio_100g',
+        allergens: ['Gluten', 'Lactosa'],
+        obradorNotes: 'Tallat ben prim per a degustació',
+      },
+    });
+
+    expect(prefRes.success).toBe(true);
+    expect(prefRes.user?.preferences?.cutThickness).toBe('muy_fino');
+    expect(prefRes.user?.preferences?.packaging).toBe('vacio_100g');
+    expect(prefRes.user?.preferences?.allergens).toEqual(['Gluten', 'Lactosa']);
+    expect(prefRes.user?.preferences?.obradorNotes).toBe('Tallat ben prim per a degustació');
+
+    // Fails when signed out
+    await adapter.signOut();
+    const noUserRes = await adapter.updateProfile({
+      preferences: {
+        cutThickness: 'estandar',
+        packaging: 'papel_colmado',
+      },
+    });
+    expect(noUserRes.success).toBe(false);
+  });
 });
 
 describe('SupabaseAuthAdapter', () => {
@@ -335,5 +367,24 @@ describe('AuthService', () => {
 
     const res = await service.changePassword('cliente1930', 'nuevaClave456');
     expect(res.success).toBe(true);
+  });
+
+  it('delegates savePreferences to adapter and updates currentUser signal', async () => {
+    await service.signIn({
+      email: 'cliente@calsarda.com',
+      password: 'cliente1930',
+    });
+
+    const prefRes = await service.savePreferences({
+      cutThickness: 'grueso',
+      packaging: 'papel_colmado',
+      allergens: ['Frutos secos'],
+      obradorNotes: 'Embolicar per separat',
+    });
+
+    expect(prefRes.success).toBe(true);
+    expect(service.currentUser()?.preferences?.cutThickness).toBe('grueso');
+    expect(service.currentUser()?.preferences?.packaging).toBe('papel_colmado');
+    expect(service.currentUser()?.preferences?.allergens).toEqual(['Frutos secos']);
   });
 });

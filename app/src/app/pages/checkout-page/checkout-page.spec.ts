@@ -417,4 +417,28 @@ describe('CheckoutPage', () => {
     expect(component.customer.taxId).toBe('B-67891234');
     expect(component.customer.companyName).toBe('Jaume Sardà i Fills SL');
   });
+
+  it('prefills obrador notes from customer preferences and detects allergen warnings', () => {
+    const authService = TestBed.inject(AuthService);
+    authService.currentUser.set({
+      id: 'usr-customer-01',
+      name: 'Jaume Sardà',
+      email: 'cliente@calsarda.com',
+      phone: '611 223 344',
+      role: 'customer',
+      preferences: {
+        cutThickness: 'muy_fino',
+        packaging: 'vacio_100g',
+        allergens: ['Gluten'],
+        obradorNotes: 'Embolicar amb cura',
+      },
+    });
+
+    component.ngOnInit();
+
+    expect(component.orderNotes).toContain('Corte muy fino');
+    expect(component.orderNotes).toContain('Al vacío (100g)');
+    expect(component.orderNotes).toContain('Alérgenos: Gluten');
+    expect(component.orderNotes).toContain('Embolicar amb cura');
+  });
 });

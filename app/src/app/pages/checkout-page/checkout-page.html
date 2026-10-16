@@ -279,6 +279,35 @@
             <h2>{{ i18n.t('checkout.step1_title') }}</h2>
           </div>
 
+          @if (detectedAllergenWarnings().length > 0) {
+            <div class="checkout-allergen-alert" role="alert">
+              <span class="alert-icon">⚠️</span>
+              <div>
+                <strong
+                  >{{
+                    i18n.currentLang() === 'ca'
+                      ? 'Avís de salut (Al·lèrgens registrats al teu compte)'
+                      : 'Aviso de salud (Alérgenos registrados en tu cuenta)'
+                  }}:</strong
+                >
+                <p>
+                  {{
+                    i18n.currentLang() === 'ca'
+                      ? 'La teva comanda conté productes amb els següents al·lèrgens que tens marcats a les teves preferències: '
+                      : 'Tu pedido contiene productos con los siguientes alérgenos que tienes marcados en tus preferencias: '
+                  }}
+                  <strong>{{ detectedAllergenWarnings().join(', ') }}</strong
+                  >.
+                  {{
+                    i18n.currentLang() === 'ca'
+                      ? 'El nostre equip d’obrador prendrà les màximes precaucions en la preparació.'
+                      : 'Nuestro equipo de obrador tomará las máximas precauciones en la preparación.'
+                  }}
+                </p>
+              </div>
+            </div>
+          }
+
           @if (!previewReady()) {
             <form #orderForm="ngForm" (ngSubmit)="preparePreview()" novalidate>
               <div class="checkout-fields">
@@ -540,6 +569,29 @@
                 }
               </fieldset>
 
+              <label class="field-wide order-notes-field">
+                {{
+                  i18n.currentLang() === 'ca'
+                    ? 'Instruccions per a l’obrador i preparació'
+                    : 'Instrucciones para el obrador y preparación'
+                }}
+                <textarea
+                  name="orderNotes"
+                  [(ngModel)]="orderNotes"
+                  rows="2"
+                  [placeholder]="
+                    i18n.currentLang() === 'ca'
+                      ? 'Ex: Tall molt fi, envasat al buit en racions...'
+                      : 'Ej: Corte muy fino, envasar al vacío en raciones...'
+                  "
+                ></textarea>
+                <small class="field-hint">{{
+                  i18n.currentLang() === 'ca'
+                    ? 'Les teves preferències de tall i envasat es carreguen automàticament.'
+                    : 'Tus preferencias de corte y envasado se cargan automáticamente.'
+                }}</small>
+              </label>
+
               <button class="checkout-submit" type="submit">
                 {{ i18n.t('checkout.prepare_preview') }} <span>→</span>
               </button>
@@ -563,6 +615,20 @@
                     shippingZoneLabel
                   }})
                 </p>
+              }
+
+              @if (orderNotes) {
+                <div class="preview-notes">
+                  <span class="preview-notes-label">
+                    📋
+                    {{
+                      i18n.currentLang() === 'ca'
+                        ? 'Instruccions obrador:'
+                        : 'Instrucciones obrador:'
+                    }}
+                  </span>
+                  <p>{{ orderNotes }}</p>
+                </div>
               }
 
               <!-- Método de pago seleccionado en vista previa -->

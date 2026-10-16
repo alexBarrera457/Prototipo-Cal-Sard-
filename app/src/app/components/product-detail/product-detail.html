@@ -102,6 +102,28 @@
           }
         </div>
       }
+
+      @if (userAllergenConflict.length > 0) {
+        <div class="user-allergen-alert" role="alert">
+          <span class="alert-icon">⚠️</span>
+          <span>
+            <strong>{{
+              i18n.currentLang() === 'ca'
+                ? 'Atenció d’al·lèrgens personals:'
+                : 'Atención de alérgenos personales:'
+            }}</strong>
+            {{
+              i18n.currentLang() === 'ca'
+                ? 'Aquest producte conté ' +
+                  userAllergenConflict.join(', ') +
+                  ' (marcat a les teves preferències).'
+                : 'Este producto contiene ' +
+                  userAllergenConflict.join(', ') +
+                  ' (registrado en tus intolerancias).'
+            }}
+          </span>
+        </div>
+      }
     </div>
 
     <div class="product-detail-price">

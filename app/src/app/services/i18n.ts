@@ -381,6 +381,26 @@ export const TRANSLATIONS = {
     'account.address_default_shipping': 'Dirección habitual de entrega a domicilio',
     'account.address_default_pickup': 'Punto oficial de recogida en tienda',
     'account.address_pickup_details': 'Carrer de la Marina, 237, 08013 Barcelona (Sagrada Família)',
+    'account.tab_preferences': 'Preferencias y Obrador',
+    'account.pref_title': 'Preferencias para el Obrador de Cal Sardà',
+    'account.pref_subtitle':
+      'Personaliza el corte de los embutidos, el envasado y tus intolerancias para que el maestro artesano prepare tus encargos a tu gusto.',
+    'account.pref_cut_label': 'Grosor de corte preferido en embutidos y quesos',
+    'account.pref_cut_muy_fino': 'Muy fino (al punto de degustación y aperitivo)',
+    'account.pref_cut_estandar': 'Estándar (corte tradicional de colmado)',
+    'account.pref_cut_grueso': 'Grueso (para bocadillos o cocina)',
+    'account.pref_pack_label': 'Formato habitual de envasado',
+    'account.pref_pack_vacio_100g': 'Al vacío en raciones de 100 g',
+    'account.pref_pack_vacio_200g': 'Al vacío en raciones de 200 g',
+    'account.pref_pack_papel': 'Papel parafinado tradicional de colmado (consumo inmediato)',
+    'account.pref_allergens_label': 'Registro de Alérgenos e Intolerancias Personales',
+    'account.pref_allergens_desc':
+      'Te avisaremos preventivamente si añades a la cesta algún producto con estos ingredientes.',
+    'account.pref_obrador_notes_label': 'Notas fijas de preparación para el obrador',
+    'account.pref_obrador_notes_placeholder':
+      'Ej: Separar lonchas con film protector, jamón bien reposado...',
+    'account.pref_save_btn': 'Guardar Preferencias',
+    'account.pref_saved_success': 'Tus preferencias de obrador han sido guardadas correctamente.',
 
     // Admin Backoffice
     'admin.title': 'Panel de Administración',
@@ -940,6 +960,26 @@ export const TRANSLATIONS = {
     'account.address_default_shipping': 'Adreça habitual d’entrega a domicili',
     'account.address_default_pickup': 'Punt oficial de recollida a botiga',
     'account.address_pickup_details': 'Carrer de la Marina, 237, 08013 Barcelona (Sagrada Família)',
+    'account.tab_preferences': 'Preferències i Obrador',
+    'account.pref_title': 'Preferències per a l’Obrador de Cal Sardà',
+    'account.pref_subtitle':
+      'Personalitza el tall dels embotits, l’envasat i les teves intoleràncies perquè el mestre artesà prepari els teus encàrrecs al teu gust.',
+    'account.pref_cut_label': 'Gruix de tall preferit en embotits i formatges',
+    'account.pref_cut_muy_fino': 'Molt fi (al punt de degustació i aperitiu)',
+    'account.pref_cut_estandar': 'Estàndard (tall tradicional de colmado)',
+    'account.pref_cut_grueso': 'Gruixut (per a entrepans o cuinar)',
+    'account.pref_pack_label': 'Format habitual d’envasat',
+    'account.pref_pack_vacio_100g': 'Al buit en racions de 100 g',
+    'account.pref_pack_vacio_200g': 'Al buit en racions de 200 g',
+    'account.pref_pack_papel': 'Paper parafinat tradicional de colmado (consum immediat)',
+    'account.pref_allergens_label': 'Registre d’Al·lèrgens i Intoleràncies Personals',
+    'account.pref_allergens_desc':
+      'T’avisarem preventivament si afegeixes a la cistella algun producte amb aquests ingredients.',
+    'account.pref_obrador_notes_label': 'Notes fixes de preparació per a l’obrador',
+    'account.pref_obrador_notes_placeholder':
+      'Ex: Separar llesques amb film protector, pernil ben reposat...',
+    'account.pref_save_btn': 'Desar Preferències',
+    'account.pref_saved_success': 'Les teves preferències d’obrador s’han desat correctament.',
 
     // Admin Backoffice
     'admin.title': 'Panell d’Administració',

@@ -1,5 +1,5 @@
 import { isPlatformBrowser } from '@angular/common';
-import { Component, inject, Inject, OnInit, PLATFORM_ID, signal } from '@angular/core';
+import { Component, computed, inject, Inject, OnInit, PLATFORM_ID, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import type {
@@ -14,6 +14,7 @@ import { I18nService } from '../../services/i18n';
 import { InvoicingService } from '../../services/invoicing';
 import { OrdersService, type Order } from '../../services/orders';
 import { PaymentsService } from '../../services/payments';
+import { ProductsService, type StoreProduct } from '../../services/products';
 
 export type { FulfillmentMethod, PaymentMethodType };
 
@@ -54,6 +55,40 @@ export class CheckoutPage implements OnInit {
   private readonly invoicingService = inject(InvoicingService);
   public readonly paymentsService = inject(PaymentsService);
   public readonly authService = inject(AuthService, { optional: true });
+  public readonly productsService = inject(ProductsService, { optional: true });
+
+  readonly catalogProducts = signal<StoreProduct[]>([]);
+  orderNotes = '';
+
+  readonly detectedAllergenWarnings = computed<string[]>(() => {
+    const user = this.authService?.currentUser();
+    const userAllergens = user?.preferences?.allergens;
+    if (!userAllergens || userAllergens.length === 0) return [];
+
+    const cartItems = this.cartService.products();
+    const prods = this.catalogProducts();
+    const conflicts = new Set<string>();
+
+    for (const item of cartItems) {
+      const prod = prods.find(
+        (p) => (item.productNumber && p.number === item.productNumber) || p.name === item.name,
+      );
+      if (prod?.allergens) {
+        for (const pa of prod.allergens) {
+          for (const ua of userAllergens) {
+            if (
+              pa.toLowerCase().includes(ua.toLowerCase()) ||
+              ua.toLowerCase().includes(pa.toLowerCase())
+            ) {
+              conflicts.add(`${item.name} (${pa})`);
+            }
+          }
+        }
+      }
+    }
+
+    return Array.from(conflicts);
+  });
 
   customer: {
     name: string;
@@ -92,6 +127,12 @@ export class CheckoutPage implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    if (this.productsService) {
+      void this.productsService.getProducts().then((prods) => {
+        this.catalogProducts.set(prods);
+      });
+    }
+
     const user = this.authService?.currentUser();
     if (user) {
       if (!this.customer.name && user.name) this.customer.name = user.name;
@@ -115,6 +156,34 @@ export class CheckoutPage implements OnInit {
           this.customer.taxId = user.fiscalData.taxId;
         if (!this.customer.companyName && user.fiscalData.companyName) {
           this.customer.companyName = user.fiscalData.companyName;
+        }
+      }
+
+      if (user.preferences) {
+        if (!this.orderNotes) {
+          const cutLabels: Record<string, string> = {
+            muy_fino: 'Corte muy fino',
+            estandar: 'Corte estándar',
+            grueso: 'Corte grueso',
+          };
+          const packLabels: Record<string, string> = {
+            vacio_100g: 'Al vacío (100g)',
+            vacio_200g: 'Al vacío (200g)',
+            papel_colmado: 'Papel parafinado',
+          };
+          const parts: string[] = [];
+          if (user.preferences.cutThickness) {
+            parts.push(cutLabels[user.preferences.cutThickness] || user.preferences.cutThickness);
+          }
+          if (user.preferences.packaging) {
+            parts.push(packLabels[user.preferences.packaging] || user.preferences.packaging);
+          }
+          if (user.preferences.allergens && user.preferences.allergens.length > 0) {
+            parts.push(`Alérgenos: ${user.preferences.allergens.join(', ')}`);
+          }
+          const basePref = parts.length > 0 ? `[Obrador: ${parts.join(' | ')}]` : '';
+          const customNote = user.preferences.obradorNotes?.trim() || '';
+          this.orderNotes = [basePref, customNote].filter(Boolean).join(' ');
         }
       }
     }
@@ -345,6 +414,7 @@ export class CheckoutPage implements OnInit {
         shippingZoneLabel: this.shippingZoneLabel,
         subtotal: this.cartService.getTotal(),
         total: this.finalTotal,
+        notes: this.orderNotes.trim() || undefined,
         paymentMethod: this.paymentsService.getMethodLabel(
           this.paymentMethod,
           this.i18n.currentLang() === 'ca' ? 'ca' : 'es',

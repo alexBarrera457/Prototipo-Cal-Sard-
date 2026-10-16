@@ -173,6 +173,20 @@
   border: 1px solid #bfdbfe;
 }
 
+.badge-allergen-conflict {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 9.5px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 2px;
+  background: #fef2f2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+  letter-spacing: 0.3px;
+}
+
 .store-results-row {
   display: flex;
   align-items: center;

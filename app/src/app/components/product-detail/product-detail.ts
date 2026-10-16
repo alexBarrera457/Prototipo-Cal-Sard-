@@ -17,6 +17,8 @@ import {
   StoreProduct,
 } from '../../services/products';
 
+import { AuthService } from '../../services/auth';
+
 @Component({
   selector: 'app-product-detail',
   imports: [NgOptimizedImage],
@@ -25,6 +27,7 @@ import {
 })
 export class ProductDetail implements OnChanges {
   public readonly i18n = inject(I18nService);
+  public readonly auth = inject(AuthService, { optional: true });
 
   get isGlutenFree(): boolean {
     return isGlutenFree(this.product);
@@ -32,6 +35,26 @@ export class ProductDetail implements OnChanges {
 
   get isLactoseFree(): boolean {
     return isLactoseFree(this.product);
+  }
+
+  get userAllergenConflict(): string[] {
+    const user = this.auth?.currentUser();
+    const userAllergens = user?.preferences?.allergens;
+    if (
+      !userAllergens ||
+      userAllergens.length === 0 ||
+      !this.product.allergens ||
+      this.product.allergens.length === 0
+    ) {
+      return [];
+    }
+    return this.product.allergens.filter((productAllergen) =>
+      userAllergens.some(
+        (userAllergen) =>
+          productAllergen.toLowerCase().includes(userAllergen.toLowerCase()) ||
+          userAllergen.toLowerCase().includes(productAllergen.toLowerCase()),
+      ),
+    );
   }
 
   @Input() product: StoreProduct = {
