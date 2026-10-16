@@ -181,6 +181,21 @@
                     [attr.aria-label]="'Ver detalle del encargo ' + order.reference"
                   >
                     <code>{{ order.reference }}</code>
+                    @if (order.reference?.startsWith('PRF-')) {
+                      <span
+                        class="proforma-order-badge"
+                        style="
+                          display: block;
+                          font-size: 10px;
+                          background: #8c2423;
+                          color: white;
+                          border-radius: 3px;
+                          padding: 1px 4px;
+                          margin-top: 2px;
+                        "
+                        >B2B PROFORMA</span
+                      >
+                    }
                   </button>
                 </td>
 
@@ -193,7 +208,9 @@
                 <!-- Cliente -->
                 <td class="td-customer">
                   <div class="customer-info">
-                    <span class="customer-name">{{ order.customer.name }}</span>
+                    <span class="customer-name">{{
+                      order.customer.companyName || order.customer.name
+                    }}</span>
                     @if (order.customer.phone) {
                       <span class="customer-phone">📞 {{ order.customer.phone }}</span>
                     }

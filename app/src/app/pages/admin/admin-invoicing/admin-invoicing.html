@@ -211,6 +211,21 @@
           <tr class="invoice-row">
             <td>
               <strong class="invoice-number">{{ inv.invoiceNumber }}</strong>
+              @if (inv.invoiceNumber.startsWith('PRF-')) {
+                <span
+                  class="proforma-badge-pill"
+                  style="
+                    margin-left: 6px;
+                    font-size: 10px;
+                    background: #8c2423;
+                    color: white;
+                    padding: 2px 6px;
+                    border-radius: 4px;
+                    font-weight: 700;
+                  "
+                  >PROFORMA B2B</span
+                >
+              }
             </td>
             <td>
               <span class="order-ref-pill">{{ inv.orderReference }}</span>

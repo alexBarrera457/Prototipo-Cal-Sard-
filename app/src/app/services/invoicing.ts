@@ -74,7 +74,7 @@ export class InvoicingService {
     },
   ): Invoice {
     const ref = order.reference ?? 'CS-DEMO-001';
-    const invoiceNumber = `FS-${ref.replace(/^CS-/, '')}`;
+    const invoiceNumber = ref.startsWith('PRF-') ? ref : `FS-${ref.replace(/^CS-/, '')}`;
     const issuedAt = order.createdAt ?? new Date().toISOString();
 
     // 1. Procesar líneas de pedido
@@ -227,11 +227,17 @@ export class InvoicingService {
       )
       .join('');
 
+    const isProforma = invoice.invoiceNumber.startsWith('PRF-');
+    const docTitle = isProforma
+      ? `Factura Proforma ${invoice.invoiceNumber} - Cal Sardà`
+      : `Factura Simplificada ${invoice.invoiceNumber} - Cal Sardà`;
+    const docHeading = isProforma ? 'FACTURA PROFORMA (B2B)' : 'FACTURA SIMPLIFICADA';
+
     return `<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="utf-8">
-  <title>Factura Simplificada ${invoice.invoiceNumber} - Cal Sardà</title>
+  <title>${docTitle}</title>
   <style>
     @page { size: A4; margin: 20mm; }
     body {
@@ -367,10 +373,11 @@ export class InvoicingService {
         <div class="brand-sub">OBRADOR GASTRONÒMIC DES DE 1930</div>
       </div>
       <div class="invoice-meta">
-        <h2>FACTURA SIMPLIFICADA</h2>
+        <h2>${docHeading}</h2>
         <p><strong>Nº:</strong> ${invoice.invoiceNumber}</p>
         <p><strong>Fecha:</strong> ${formattedDate}</p>
         <p><strong>Pedido:</strong> ${invoice.orderReference}</p>
+        ${isProforma ? '<p style="color:#8c2423; font-weight:600; font-size:11px;">VALIDEZ: 30 DÍAS NATURALES</p>' : ''}
       </div>
     </div>
 
@@ -386,11 +393,12 @@ export class InvoicingService {
       <div class="box">
         <div class="box-title">Cliente / Destinatario</div>
         <strong>${invoice.customer.name}</strong><br>
+        ${invoice.customer.companyName && invoice.customer.companyName !== invoice.customer.name ? `Empresa: ${invoice.customer.companyName}<br>` : ''}
         ${invoice.customer.taxId ? `NIF/CIF: <strong>${invoice.customer.taxId}</strong><br>` : ''}
         ${invoice.customer.email ? `Email: ${invoice.customer.email}<br>` : ''}
         ${invoice.customer.phone ? `Tel: ${invoice.customer.phone}<br>` : ''}
         ${invoice.customer.address ? `${invoice.customer.address}, ${invoice.customer.postalCode || ''} ${invoice.customer.city || ''}<br>` : ''}
-        Modalidad: ${invoice.fulfillment === 'delivery' ? 'Entrega a domicilio' : 'Recogida en tienda (Marina 237)'}
+        Modalidad: ${invoice.fulfillment === 'delivery' ? 'Entrega a domicilio / Envíos empresa' : 'Recogida en tienda (Marina 237)'}
       </div>
     </div>
 
@@ -429,18 +437,38 @@ export class InvoicingService {
       <div>
         <p style="margin:0; font-size:12px; color:#666;">
           Régimen General de IVA español.<br>
-          Método de pago: <strong>${invoice.paymentMethod || 'Abono en tienda / contra reembolso'}</strong>
+          Método de pago: <strong>${invoice.paymentMethod || 'Transferencia bancaria B2B'}</strong>
         </p>
       </div>
       <div class="grand-total">
-        <span style="font-size:12px; font-weight:600; text-transform:uppercase; color:#666;">TOTAL FACTURA</span><br>
+        <span style="font-size:12px; font-weight:600; text-transform:uppercase; color:#666;">${isProforma ? 'TOTAL PRESUPUESTO PROFORMA' : 'TOTAL FACTURA'}</span><br>
         <span class="grand-total-val">${formatCurrency(invoice.total)}</span>
       </div>
     </div>
 
+    ${
+      isProforma
+        ? `
+    <div class="box" style="margin-top: 22px; background: #fffcf7; border: 1.5px solid #d4c3b3; border-left: 5px solid #8c2423;">
+      <div class="box-title" style="color: #8c2423; font-size: 12px; margin-bottom: 8px;">DATOS BANCARIOS PARA TRANSFERENCIA (PAGO B2B)</div>
+      <p style="margin: 4px 0; font-size: 13px;"><strong>Entidad Bancaria:</strong> CaixaBank</p>
+      <p style="margin: 4px 0; font-size: 13px;"><strong>Titular:</strong> Cal Sardà Obrador Gastronòmic S.L.</p>
+      <p style="margin: 4px 0; font-size: 13px;"><strong>IBAN:</strong> <strong style="font-family: monospace; font-size: 14px; color: #8c2423; letter-spacing: 1px;">ES66 2100 0418 4502 0005 1930</strong></p>
+      <p style="margin: 4px 0; font-size: 13px;"><strong>BIC / SWIFT:</strong> <span style="font-family: monospace;">CAIXESBBXXX</span></p>
+      <p style="margin: 4px 0; font-size: 13px;"><strong>Concepto obligatorio:</strong> <span style="font-weight: 600;">${invoice.invoiceNumber} - ${invoice.customer.companyName || invoice.customer.name}</span></p>
+      <small style="display: block; margin-top: 8px; color: #666; font-size: 11px;">
+        * Este documento proforma es un presupuesto oficial previo. Al recibir la transferencia bancaria, el obrador procederá a la preparación y entrega de los lotes junto con la factura oficial definitiva.
+      </small>
+    </div>`
+        : ''
+    }
+
     <div class="footer-note">
-      Documento válido como justificante y factura simplificada según el RD 1619/2012 de facturación.<br>
-      Cal Sardà · Carrer de la Marina, 237 · 08013 Barcelona · Gràcies per la vostra confiança!
+      ${
+        isProforma
+          ? 'Factura Proforma B2B para pedidos corporativos de lotes gourmet. Validez: 30 días naturales.<br>Cal Sardà · Carrer de la Marina, 237 · 08013 Barcelona · Tel: 93 245 67 89 · obrador@calsarda.com'
+          : 'Documento válido como justificante y factura simplificada según el RD 1619/2012 de facturación.<br>Cal Sardà · Carrer de la Marina, 237 · 08013 Barcelona · Gràcies per la vostra confiança!'
+      }
     </div>
   </div>
 </body>

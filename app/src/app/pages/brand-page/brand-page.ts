@@ -3,6 +3,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Meta } from '@angular/platform-browser';
 import { HistoryBookComponent } from '../../components/history-book/history-book';
+import { B2bQuoteGeneratorComponent } from '../../components/b2b-quote-generator/b2b-quote-generator';
 import { CartService } from '../../services/cart';
 import { I18nService } from '../../services/i18n';
 import { NewsletterService } from '../../services/newsletter';
@@ -39,7 +40,7 @@ export type PageDefinition = {
 
 @Component({
   selector: 'app-brand-page',
-  imports: [RouterLink, HistoryBookComponent],
+  imports: [RouterLink, HistoryBookComponent, B2bQuoteGeneratorComponent],
   templateUrl: './brand-page.html',
   styleUrl: './brand-page.css',
 })

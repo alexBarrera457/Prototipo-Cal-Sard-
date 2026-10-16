@@ -667,6 +667,33 @@ export const TRANSLATIONS = {
     'stock_alert.admin_restock_notified': 'Clientes notificados por reposición:',
     'stock_alert.close': 'Cerrar',
 
+    // Presupuestos y Proformas B2B (#69)
+    'b2b.quote_title': 'Generador de Presupuestos y Proformas B2B',
+    'b2b.quote_subtitle':
+      'Calcula al instante el coste de tus lotes corporativos de empresa y descarga la factura proforma oficial con desglose de IVA y datos bancarios para transferencia.',
+    'b2b.select_lot': '1. Selecciona el lote para tu equipo',
+    'b2b.quantity_label': '2. Cantidad de lotes',
+    'b2b.quantity_hint': 'Descuento especial por volumen a partir de 1.800 €',
+    'b2b.company_fiscal_title': '3. Datos fiscales de la empresa',
+    'b2b.company_name': 'Razón Social / Empresa',
+    'b2b.cif': 'NIF / CIF',
+    'b2b.address': 'Dirección fiscal',
+    'b2b.postal_code': 'Código Postal',
+    'b2b.city': 'Población / Ciudad',
+    'b2b.contact_person': 'Persona de contacto',
+    'b2b.email': 'Email de administración / compras',
+    'b2b.phone': 'Teléfono de contacto',
+    'b2b.notes': 'Observaciones o fecha deseada de entrega',
+    'b2b.btn_generate': 'Generar Factura Proforma B2B (PDF)',
+    'b2b.btn_submitting': 'Generando proforma oficial…',
+    'b2b.success_title': '¡Factura Proforma Generada con Éxito!',
+    'b2b.success_desc': 'Hemos registrado tu solicitud con referencia',
+    'b2b.btn_print': 'Descargar / Imprimir Factura Proforma (PDF)',
+    'b2b.btn_new': 'Crear nuevo presupuesto',
+    'b2b.bank_info_title': 'Datos para transferencia bancaria',
+    'b2b.validation_error':
+      'Por favor completa todos los datos fiscales obligatorios (Empresa, CIF, Email y Dirección).',
+
     // Categories
     'cat.CAFE_GOURMET': 'Café gourmet',
     'cat.CONSERVAS_DE_MAR': 'Conservas de mar',
@@ -1340,6 +1367,33 @@ export const TRANSLATIONS = {
     'stock_alert.admin_waiting_badge': 'en espera',
     'stock_alert.admin_restock_notified': 'Clients notificats per reposició:',
     'stock_alert.close': 'Tancar',
+
+    // Presupuestos y Proformas B2B (#69)
+    'b2b.quote_title': 'Generador de Pressupostos i Proformes B2B',
+    'b2b.quote_subtitle':
+      "Calcula a l'instant el cost dels teus lots corporatius d'empresa i descarrega la factura proforma oficial amb desglossament d'IVA i dades bancàries per a transferència.",
+    'b2b.select_lot': '1. Selecciona el lot per al teu equip',
+    'b2b.quantity_label': '2. Quantitat de lots',
+    'b2b.quantity_hint': 'Descompte especial per volum a partir de 1.800 €',
+    'b2b.company_fiscal_title': "3. Dades fiscals de l'empresa",
+    'b2b.company_name': 'Raó Social / Empresa',
+    'b2b.cif': 'NIF / CIF',
+    'b2b.address': 'Adreça fiscal',
+    'b2b.postal_code': 'Codi Postal',
+    'b2b.city': 'Població / Ciutat',
+    'b2b.contact_person': 'Persona de contacte',
+    'b2b.email': "Correu d'administració / compres",
+    'b2b.phone': 'Telèfon de contacte',
+    'b2b.notes': 'Observacions o data desitjada de lliurament',
+    'b2b.btn_generate': 'Generar Factura Proforma B2B (PDF)',
+    'b2b.btn_submitting': 'Generant proforma oficial…',
+    'b2b.success_title': 'Factura Proforma Generada amb Èxit!',
+    'b2b.success_desc': 'Hem registrat la teva sol·licitud amb referència',
+    'b2b.btn_print': 'Descarregar / Imprimir Factura Proforma (PDF)',
+    'b2b.btn_new': 'Crear nou pressupost',
+    'b2b.bank_info_title': 'Dades per a transferència bancària',
+    'b2b.validation_error':
+      'Si us plau completa totes les dades fiscals obligatòries (Empresa, CIF, Correu i Adreça).',
 
     // Categories
     'cat.CAFE_GOURMET': 'Cafè gourmet',

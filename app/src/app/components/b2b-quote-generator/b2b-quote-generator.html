@@ -1,0 +1,351 @@
+<section class="b2b-quote-section" id="generador-proformas" aria-labelledby="b2b-generator-title">
+  <div class="b2b-container">
+    <header class="b2b-header">
+      <span class="b2b-eyebrow">OBRADOR CAL SARDÀ · SERVICIO A EMPRESAS</span>
+      <h2 id="b2b-generator-title">{{ i18n.t('b2b.quote_title') }}</h2>
+      <p class="b2b-subtitle">
+        {{ i18n.t('b2b.quote_subtitle') }}
+      </p>
+    </header>
+
+    @if (generatedInvoice(); as inv) {
+      <!-- Estado de Éxito: Proforma Generada -->
+      <div class="b2b-success-card" role="region" aria-labelledby="b2b-success-heading">
+        <div class="b2b-success-icon" aria-hidden="true">✓</div>
+        <h3 id="b2b-success-heading">{{ i18n.t('b2b.success_title') }}</h3>
+        <p class="b2b-success-message">
+          {{ i18n.t('b2b.success_desc') }}:
+          <strong class="proforma-badge">{{ inv.invoiceNumber }}</strong>
+        </p>
+
+        <div class="b2b-summary-proforma">
+          <div class="proforma-detail-grid">
+            <div>
+              <span>Empresa:</span>
+              <strong>{{ inv.customer.companyName || companyName }}</strong>
+            </div>
+            <div>
+              <span>CIF / NIF:</span>
+              <strong>{{ inv.customer.taxId || cif }}</strong>
+            </div>
+            <div>
+              <span>Lote:</span>
+              <strong>{{ selectedLot().name }} (x{{ quantity() }})</strong>
+            </div>
+            <div>
+              <span>Importe total:</span>
+              <strong class="proforma-total-amount">{{ formatCurrency(inv.total) }}</strong>
+            </div>
+          </div>
+
+          <div class="bank-details-box">
+            <h4>{{ i18n.t('b2b.bank_info_title') }}</h4>
+            <div class="bank-row">
+              <span>Entidad bancaria:</span>
+              <strong>CaixaBank</strong>
+            </div>
+            <div class="bank-row">
+              <span>Beneficiario:</span>
+              <strong>Cal Sardà Obrador Gastronòmic S.L.</strong>
+            </div>
+            <div class="bank-row">
+              <span>IBAN:</span>
+              <strong class="bank-iban">ES66 2100 0418 4502 0005 1930</strong>
+            </div>
+            <div class="bank-row">
+              <span>BIC / SWIFT:</span>
+              <strong>CAIXESBBXXX</strong>
+            </div>
+            <div class="bank-row">
+              <span>Concepto a indicar:</span>
+              <strong class="bank-concept">{{ inv.invoiceNumber }} - {{ companyName }}</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="b2b-success-actions">
+          <button type="button" class="btn-primary-proforma" (click)="printProforma()">
+            📄 {{ i18n.t('b2b.btn_print') }}
+          </button>
+          <button type="button" class="btn-secondary-proforma" (click)="reset()">
+            ↺ {{ i18n.t('b2b.btn_new') }}
+          </button>
+        </div>
+      </div>
+    } @else {
+      <!-- Generador Interactivo de Proformas -->
+      <div class="b2b-flow-grid">
+        <!-- Columna Izquierda: Configuración del Lote y Datos Fiscales -->
+        <div class="b2b-config-col">
+          <!-- Paso 1: Selección de Lote -->
+          <div class="b2b-step">
+            <div class="b2b-step-header">
+              <span class="step-num">1</span>
+              <h3>{{ i18n.t('b2b.select_lot') }}</h3>
+            </div>
+            <div class="lots-selection-grid">
+              @for (lot of lots; track lot.id) {
+                <div
+                  class="lot-select-card"
+                  [class.active]="selectedLot().id === lot.id"
+                  (click)="selectLot(lot)"
+                  tabindex="0"
+                  role="button"
+                  [attr.aria-pressed]="selectedLot().id === lot.id"
+                  (keydown.enter)="selectLot(lot)"
+                  (keydown.space)="selectLot(lot)"
+                >
+                  @if (lot.badge) {
+                    <span class="lot-badge">{{ lot.badge }}</span>
+                  }
+                  <div class="lot-img-wrapper">
+                    <img [src]="lot.image" [alt]="lot.name" loading="lazy" />
+                  </div>
+                  <div class="lot-card-info">
+                    <h4>{{ lot.name }}</h4>
+                    <p class="lot-desc">{{ lot.description }}</p>
+                    <div class="lot-highlights">
+                      @for (hl of lot.highlights; track hl) {
+                        <span class="hl-tag">{{ hl }}</span>
+                      }
+                    </div>
+                    <div class="lot-price-tag">
+                      <strong>{{ formatCurrency(lot.price) }}</strong> / unidad
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+
+          <!-- Paso 2: Cantidad y Descuento -->
+          <div class="b2b-step">
+            <div class="b2b-step-header">
+              <span class="step-num">2</span>
+              <h3>{{ i18n.t('b2b.quantity_label') }}</h3>
+            </div>
+            <div class="quantity-controller">
+              <div class="quantity-pills" role="group" aria-label="Cantidades frecuentes">
+                @for (preset of [15, 30, 50, 100]; track preset) {
+                  <button
+                    type="button"
+                    class="qty-pill"
+                    [class.active]="quantity() === preset"
+                    (click)="setQuantity(preset)"
+                  >
+                    {{ preset }} lotes
+                  </button>
+                }
+              </div>
+              <div class="quantity-custom">
+                <label for="b2b-qty-input">O introduce otra cantidad:</label>
+                <div class="qty-input-group">
+                  <button
+                    type="button"
+                    class="qty-btn"
+                    (click)="setQuantity(quantity() - 1)"
+                    [disabled]="quantity() <= 1"
+                    aria-label="Restar 1"
+                  >
+                    -
+                  </button>
+                  <input
+                    id="b2b-qty-input"
+                    type="number"
+                    min="1"
+                    [value]="quantity()"
+                    (change)="setQuantity(+$any($event.target).value)"
+                  />
+                  <button
+                    type="button"
+                    class="qty-btn"
+                    (click)="setQuantity(quantity() + 1)"
+                    aria-label="Sumar 1"
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Indicador de descuentos corporativos -->
+            <div class="b2b-discount-indicator">
+              <div class="discount-pill" [class.highlight]="discountPercent() === 5">
+                <span class="discount-pct">-{{ discountPercent() }}%</span>
+                <span class="discount-txt">
+                  @if (discountPercent() === 5) {
+                    Descuento aplicado: 3% encargo anticipado + 2% volumen (+1.800 €)
+                  } @else {
+                    Descuento aplicado: 3% encargo anticipado (Supera 1.800 € para +2% adicional)
+                  }
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Paso 3: Datos Fiscales para Proforma Oficial -->
+          <div class="b2b-step">
+            <div class="b2b-step-header">
+              <span class="step-num">3</span>
+              <h3>{{ i18n.t('b2b.company_fiscal_title') }}</h3>
+            </div>
+            <div class="fiscal-form-grid">
+              <div class="form-group span-2">
+                <label for="companyName">{{ i18n.t('b2b.company_name') }} *</label>
+                <input
+                  id="companyName"
+                  type="text"
+                  [(ngModel)]="companyName"
+                  placeholder="Ej. Nova Solucions Tecnològiques S.L."
+                  required
+                />
+              </div>
+
+              <div class="form-group">
+                <label for="cif">{{ i18n.t('b2b.cif') }} *</label>
+                <input
+                  id="cif"
+                  type="text"
+                  [(ngModel)]="cif"
+                  placeholder="Ej. B67123456"
+                  required
+                />
+              </div>
+
+              <div class="form-group">
+                <label for="contactEmail">{{ i18n.t('b2b.email') }} *</label>
+                <input
+                  id="contactEmail"
+                  type="email"
+                  [(ngModel)]="contactEmail"
+                  placeholder="compras@empresa.com"
+                  required
+                />
+              </div>
+
+              <div class="form-group span-2">
+                <label for="fiscalAddress">{{ i18n.t('b2b.address') }} *</label>
+                <input
+                  id="fiscalAddress"
+                  type="text"
+                  [(ngModel)]="fiscalAddress"
+                  placeholder="Calle, número, piso"
+                  required
+                />
+              </div>
+
+              <div class="form-group">
+                <label for="postalCode">{{ i18n.t('b2b.postal_code') }} *</label>
+                <input
+                  id="postalCode"
+                  type="text"
+                  [(ngModel)]="postalCode"
+                  placeholder="08013"
+                  required
+                />
+              </div>
+
+              <div class="form-group">
+                <label for="city">{{ i18n.t('b2b.city') }}</label>
+                <input id="city" type="text" [(ngModel)]="city" placeholder="Barcelona" />
+              </div>
+
+              <div class="form-group">
+                <label for="contactPerson">{{ i18n.t('b2b.contact_person') }}</label>
+                <input
+                  id="contactPerson"
+                  type="text"
+                  [(ngModel)]="contactPerson"
+                  placeholder="Marta Garcia"
+                />
+              </div>
+
+              <div class="form-group">
+                <label for="contactPhone">{{ i18n.t('b2b.phone') }}</label>
+                <input
+                  id="contactPhone"
+                  type="tel"
+                  [(ngModel)]="contactPhone"
+                  placeholder="93 123 45 67"
+                />
+              </div>
+
+              <div class="form-group span-2">
+                <label for="deliveryNotes">{{ i18n.t('b2b.notes') }}</label>
+                <textarea
+                  id="deliveryNotes"
+                  rows="2"
+                  [(ngModel)]="deliveryNotes"
+                  placeholder="Especificaciones de entrega, horario preferente o dedicatoria..."
+                ></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Columna Derecha: Resumen Económico Sticky y Generación -->
+        <aside class="b2b-summary-col">
+          <div class="budget-sticky-card">
+            <h3>Resumen del Presupuesto B2B</h3>
+
+            <div class="budget-lot-preview">
+              <div class="preview-img">
+                <img [src]="selectedLot().image" [alt]="selectedLot().name" />
+              </div>
+              <div class="preview-info">
+                <strong>{{ selectedLot().name }}</strong>
+                <p>{{ quantity() }} unidades × {{ formatCurrency(selectedLot().price) }}</p>
+              </div>
+            </div>
+
+            <div class="budget-lines">
+              <div class="line-row">
+                <span>Subtotal PVP:</span>
+                <span>{{ formatCurrency(grossSubtotal()) }}</span>
+              </div>
+              <div class="line-row discount-row">
+                <span>Descuento B2B ({{ discountPercent() }}%):</span>
+                <span>-{{ formatCurrency(discountAmount()) }}</span>
+              </div>
+              <div class="line-row total-row">
+                <span>Base total neta:</span>
+                <span class="total-price">{{ formatCurrency(netBase()) }}</span>
+              </div>
+            </div>
+
+            <div class="budget-features">
+              <div class="feat-item">✓ Factura proforma con validez de 30 días</div>
+              <div class="feat-item">✓ IVA desglosado en PDF</div>
+              <div class="feat-item">✓ Pago por transferencia bancaria</div>
+              <div class="feat-item">✓ Entrega en sede corporativa o tienda</div>
+            </div>
+
+            @if (errorMessage()) {
+              <div class="budget-error-msg" role="alert">
+                {{ errorMessage() }}
+              </div>
+            }
+
+            <button
+              type="button"
+              class="btn-generate-proforma"
+              (click)="generateProforma()"
+              [disabled]="isSubmitting()"
+            >
+              @if (isSubmitting()) {
+                {{ i18n.t('b2b.btn_submitting') }}
+              } @else {
+                📥 {{ i18n.t('b2b.btn_generate') }}
+              }
+            </button>
+            <p class="budget-legal-hint">
+              * El pedido quedará registrado en el obrador como
+              <em>Pendiente de transferencia B2B</em>. Podrás descargar la proforma en PDF al
+              instante.
+            </p>
+          </div>
+        </aside>
+      </div>
+    }
+  </div>
+</section>
