@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ProductsService, type StoreProduct, type StoreCategory } from '../../../services/products';
 import { I18nService } from '../../../services/i18n';
+import { StockAlertService } from '../../../services/stock-alerts';
 
 export interface ProductEditForm {
   number: string;
@@ -65,6 +66,26 @@ export class AdminCatalog implements OnInit {
   readonly officialAllergens = OFFICIAL_ALLERGENS;
   readonly productsService = inject(ProductsService);
   readonly i18n = inject(I18nService);
+  readonly stockAlertService = inject(StockAlertService);
+  readonly viewingWaitingListProduct = signal<StoreProduct | null>(null);
+
+  openWaitingListModal(product: StoreProduct): void {
+    this.viewingWaitingListProduct.set(product);
+  }
+
+  closeWaitingListModal(): void {
+    this.viewingWaitingListProduct.set(null);
+  }
+
+  async notifyManualRestock(product: StoreProduct): Promise<void> {
+    const res = await this.stockAlertService.notifyRestock(product.number, product.name);
+    if (res.notifiedCount > 0) {
+      this.showToast(
+        'success',
+        `${product.name}: ${this.i18n.t('stock_alert.admin_restock_notified')} ${res.notifiedCount}`,
+      );
+    }
+  }
 
   isAllergenSelected(allergenDef: AllergenDef, isCreate: boolean = false): boolean {
     const text = (isCreate ? this.createForm.allergensText : this.editForm.allergensText) || '';
@@ -326,6 +347,15 @@ export class AdminCatalog implements OnInit {
         'success',
         `${product.name}: ${newStock ? this.i18n.t('admin.badge_in_stock') : this.i18n.t('admin.badge_out_of_stock')}`,
       );
+      if (newStock) {
+        const alertRes = await this.stockAlertService.notifyRestock(product.number, product.name);
+        if (alertRes.notifiedCount > 0) {
+          this.showToast(
+            'success',
+            `${product.name}: ${this.i18n.t('stock_alert.admin_restock_notified')} ${alertRes.notifiedCount}`,
+          );
+        }
+      }
     } catch {
       // Revertir
       this.allProducts.update((items) =>
@@ -468,6 +498,18 @@ export class AdminCatalog implements OnInit {
         );
       }
       this.showToast('success', this.i18n.t('admin.save_success'));
+      if (original.inStock === false && updates.inStock === true) {
+        const alertRes = await this.stockAlertService.notifyRestock(
+          original.number,
+          updates.name || original.name,
+        );
+        if (alertRes.notifiedCount > 0) {
+          this.showToast(
+            'success',
+            `${updates.name || original.name}: ${this.i18n.t('stock_alert.admin_restock_notified')} ${alertRes.notifiedCount}`,
+          );
+        }
+      }
       this.closeEditModal();
     } catch {
       this.showToast('error', this.i18n.t('admin.save_error'));

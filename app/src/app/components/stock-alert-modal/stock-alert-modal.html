@@ -1,0 +1,172 @@
+@if (stockAlertService.activeAlertProduct(); as prod) {
+  <div
+    class="modal-backdrop"
+    (click)="closeModal()"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="stock-alert-modal-title"
+  >
+    <div class="modal-card" (click)="$event.stopPropagation()">
+      <header class="modal-header">
+        <div class="header-icon" aria-hidden="true">🔔</div>
+        <div class="header-titles">
+          <span class="modal-kicker">CAL SARDÀ · DESDE 1930</span>
+          <h2 id="stock-alert-modal-title" class="modal-title">
+            {{ i18n.t('stock_alert.modal_title') }}
+          </h2>
+        </div>
+        <button
+          type="button"
+          class="btn-close"
+          (click)="closeModal()"
+          [attr.aria-label]="i18n.t('stock_alert.close')"
+        >
+          ✕
+        </button>
+      </header>
+
+      <div class="modal-body">
+        <!-- Resumen del producto agotado -->
+        <div class="product-summary-card">
+          @if (prod.image) {
+            <img [src]="prod.image" [alt]="prod.name" class="prod-thumb" loading="lazy" />
+          } @else {
+            <div class="prod-thumb-placeholder" aria-hidden="true">📦</div>
+          }
+          <div class="prod-info">
+            <span class="prod-category">{{ i18n.translateCategory(prod.category) }}</span>
+            <strong class="prod-name">{{ prod.name }}</strong>
+            <span class="prod-badge-out">⚠️ {{ i18n.t('stock_alert.badge_out_of_stock') }}</span>
+          </div>
+        </div>
+
+        <p class="modal-desc">
+          {{ i18n.t('stock_alert.modal_desc') }}
+        </p>
+
+        @if (submissionState() === 'success') {
+          <div class="status-alert alert-success" role="alert">
+            <span class="status-icon">✓</span>
+            <div>
+              <strong>{{ getSuccessMessage() }}</strong>
+              <p class="status-sub">Gràcies per la teva confiança en el nostre colmado artesà.</p>
+            </div>
+          </div>
+        } @else if (submissionState() === 'duplicate') {
+          <div class="status-alert alert-info" role="alert">
+            <span class="status-icon">ℹ️</span>
+            <div>
+              <strong>{{ i18n.t('stock_alert.already_subscribed') }}</strong>
+              <p class="status-sub">
+                No et preocupis, rebràs l'avís automàticament tan bon punt el tendero reactivi
+                l'estoc.
+              </p>
+            </div>
+          </div>
+        } @else {
+          <!-- Formulario de suscripción -->
+          <div class="form-section">
+            <label class="form-label" id="channel-group-label">
+              {{ i18n.t('stock_alert.channel_label') }}
+            </label>
+
+            <div class="channel-selector" role="radiogroup" aria-labelledby="channel-group-label">
+              <button
+                type="button"
+                class="channel-btn"
+                [class.selected]="selectedChannel() === 'whatsapp'"
+                (click)="setChannel('whatsapp')"
+                role="radio"
+                [attr.aria-checked]="selectedChannel() === 'whatsapp'"
+              >
+                <span class="channel-icon">💬</span>
+                <span class="channel-text">WhatsApp</span>
+              </button>
+
+              <button
+                type="button"
+                class="channel-btn"
+                [class.selected]="selectedChannel() === 'email'"
+                (click)="setChannel('email')"
+                role="radio"
+                [attr.aria-checked]="selectedChannel() === 'email'"
+              >
+                <span class="channel-icon">✉️</span>
+                <span class="channel-text">Email</span>
+              </button>
+            </div>
+
+            <!-- Campo de contacto -->
+            <div class="form-field">
+              <label for="contact-input" class="field-label">
+                {{
+                  selectedChannel() === 'whatsapp'
+                    ? i18n.t('stock_alert.input_whatsapp')
+                    : i18n.t('stock_alert.input_email')
+                }}
+                <span class="required-star">*</span>
+              </label>
+              <input
+                id="contact-input"
+                [type]="selectedChannel() === 'whatsapp' ? 'tel' : 'email'"
+                [(ngModel)]="contactValue"
+                name="contactValue"
+                [placeholder]="
+                  selectedChannel() === 'whatsapp'
+                    ? i18n.t('stock_alert.input_whatsapp_placeholder')
+                    : i18n.t('stock_alert.input_email_placeholder')
+                "
+                class="field-input"
+                [class.has-error]="submissionState() === 'error'"
+                required
+              />
+            </div>
+
+            <!-- Campo de nombre opcional -->
+            <div class="form-field">
+              <label for="name-input" class="field-label">
+                {{ i18n.t('stock_alert.input_name') }}
+              </label>
+              <input
+                id="name-input"
+                type="text"
+                [(ngModel)]="customerName"
+                name="customerName"
+                [placeholder]="i18n.t('stock_alert.input_name_placeholder')"
+                class="field-input"
+              />
+            </div>
+
+            @if (errorMessage()) {
+              <div class="field-error-msg" role="alert">⚠️ {{ errorMessage() }}</div>
+            }
+          </div>
+        }
+      </div>
+
+      <footer class="modal-footer">
+        @if (submissionState() === 'success' || submissionState() === 'duplicate') {
+          <button type="button" class="btn-primary" (click)="closeModal()">
+            {{ i18n.t('stock_alert.close') }}
+          </button>
+        } @else {
+          <button type="button" class="btn-secondary" (click)="closeModal()">
+            {{ i18n.t('stock_alert.close') }}
+          </button>
+          <button
+            type="button"
+            class="btn-primary"
+            (click)="submitAlert()"
+            [disabled]="isSubmitting() || !contactValue.trim()"
+          >
+            {{
+              isSubmitting()
+                ? i18n.t('stock_alert.btn_submitting')
+                : i18n.t('stock_alert.btn_submit')
+            }}
+          </button>
+        }
+      </footer>
+    </div>
+  </div>
+}

@@ -19,6 +19,7 @@ import {
 
 import { AuthService } from '../../services/auth';
 import { FavoritesService } from '../../services/favorites';
+import { StockAlertService } from '../../services/stock-alerts';
 
 @Component({
   selector: 'app-product-detail',
@@ -30,6 +31,7 @@ export class ProductDetail implements OnChanges {
   public readonly i18n = inject(I18nService);
   public readonly auth = inject(AuthService, { optional: true });
   public readonly favoritesService = inject(FavoritesService);
+  public readonly stockAlertService = inject(StockAlertService);
 
   get isGlutenFree(): boolean {
     return isGlutenFree(this.product);

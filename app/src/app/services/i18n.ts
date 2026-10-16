@@ -640,6 +640,33 @@ export const TRANSLATIONS = {
     'admin.settings_saved_toast': 'Ajustes guardados correctamente en el sistema.',
     'admin.settings_reset_toast': 'Se han restablecido los ajustes predeterminados.',
 
+    // Alertas de Stock y Lista de Espera (#68)
+    'stock_alert.btn_notify': 'Avisarme cuando haya stock',
+    'stock_alert.badge_out_of_stock': 'Temporalmente agotado',
+    'stock_alert.modal_title': 'Avisarme cuando vuelva a haber existencias',
+    'stock_alert.modal_desc':
+      'En Cal Sardà elaboramos y seleccionamos partidas artesanales de producción limitada. Déjanos tus datos y te avisaremos en cuanto repongamos stock en el obrador.',
+    'stock_alert.channel_label': '¿Por qué vía prefieres recibir el aviso?',
+    'stock_alert.channel_whatsapp': 'WhatsApp',
+    'stock_alert.channel_email': 'Correo electrónico',
+    'stock_alert.input_whatsapp': 'Número de teléfono o WhatsApp',
+    'stock_alert.input_whatsapp_placeholder': 'Ej. 612 34 56 78',
+    'stock_alert.input_email': 'Tu correo electrónico',
+    'stock_alert.input_email_placeholder': 'ejemplo@correo.com',
+    'stock_alert.input_name': 'Tu nombre (opcional)',
+    'stock_alert.input_name_placeholder': 'Ej. Maria',
+    'stock_alert.btn_submit': 'Avisarme cuando esté disponible',
+    'stock_alert.btn_submitting': 'Guardando preferencia…',
+    'stock_alert.success_msg':
+      '¡Anotado! Te avisaremos por {channel} tan pronto como el producto vuelva a estar disponible en nuestro colmado.',
+    'stock_alert.already_subscribed':
+      'Ya te habías apuntado previamente a la lista de espera de este producto con este contacto.',
+    'stock_alert.error_invalid_contact':
+      'Por favor, introduce un teléfono o correo electrónico válido.',
+    'stock_alert.admin_waiting_badge': 'en espera',
+    'stock_alert.admin_restock_notified': 'Clientes notificados por reposición:',
+    'stock_alert.close': 'Cerrar',
+
     // Categories
     'cat.CAFE_GOURMET': 'Café gourmet',
     'cat.CONSERVAS_DE_MAR': 'Conservas de mar',
@@ -1286,6 +1313,33 @@ export const TRANSLATIONS = {
     'admin.settings_btn_reset': 'Restablir Valors Predeterminats',
     'admin.settings_saved_toast': 'Ajustos desats correctament al sistema.',
     'admin.settings_reset_toast': 'S’han restablert els ajustos predeterminats.',
+
+    // Alertas de Stock y Lista de Espera (#68)
+    'stock_alert.btn_notify': "Avisa'm quan hi hagi estoc",
+    'stock_alert.badge_out_of_stock': 'Temporàriament exhaurit',
+    'stock_alert.modal_title': "Avisa'm quan torni a haver-hi existències",
+    'stock_alert.modal_desc':
+      "A Cal Sardà elaborem i seleccionem partides artesanals de producció limitada. Deixa'ns les teves dades i t'avisarem tan aviat com reposem estoc a l'obrador.",
+    'stock_alert.channel_label': "Per quina via prefereixes rebre l'avís?",
+    'stock_alert.channel_whatsapp': 'WhatsApp',
+    'stock_alert.channel_email': 'Correu electrònic',
+    'stock_alert.input_whatsapp': 'Número de telèfon o WhatsApp',
+    'stock_alert.input_whatsapp_placeholder': 'Ex. 612 34 56 78',
+    'stock_alert.input_email': 'El teu correu electrònic',
+    'stock_alert.input_email_placeholder': 'exemple@correu.cat',
+    'stock_alert.input_name': 'El teu nom (opcional)',
+    'stock_alert.input_name_placeholder': 'Ex. Maria',
+    'stock_alert.btn_submit': "Avisa'm quan estigui disponible",
+    'stock_alert.btn_submitting': 'Desant preferència…',
+    'stock_alert.success_msg':
+      "Anotat! T'avisarem per {channel} tan bon punt el producte torni a estar disponible al nostre colmado.",
+    'stock_alert.already_subscribed':
+      "Ja t'havies apuntat prèviament a la llista d'espera d'aquest producte amb aquest contacte.",
+    'stock_alert.error_invalid_contact':
+      'Si us plau, introdueix un telèfon o correu electrònic vàlid.',
+    'stock_alert.admin_waiting_badge': 'en espera',
+    'stock_alert.admin_restock_notified': 'Clients notificats per reposició:',
+    'stock_alert.close': 'Tancar',
 
     // Categories
     'cat.CAFE_GOURMET': 'Cafè gourmet',

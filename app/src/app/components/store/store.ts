@@ -29,6 +29,7 @@ import {
 } from '../../services/products';
 import { AuthService } from '../../services/auth';
 import { FavoritesService } from '../../services/favorites';
+import { StockAlertService } from '../../services/stock-alerts';
 
 @Component({
   selector: 'app-store',
@@ -40,6 +41,7 @@ export class Store implements AfterViewInit, OnDestroy {
   public readonly i18n = inject(I18nService);
   public readonly auth = inject(AuthService, { optional: true });
   public readonly favoritesService = inject(FavoritesService);
+  public readonly stockAlertService = inject(StockAlertService);
   searchTerm = model<string>('');
   products = signal<StoreProduct[]>([]);
   catalogLoading = signal(true);

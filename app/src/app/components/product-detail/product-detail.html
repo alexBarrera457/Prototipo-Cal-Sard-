@@ -130,45 +130,63 @@
       {{ formatPrice() }}
     </div>
 
-    <div class="product-detail-purchase">
-      <div class="quantity">
-        <button
-          type="button"
-          (click)="decreaseQuantity()"
-          [attr.aria-label]="'Restar una unidad de ' + product.name"
-        >
-          −
-        </button>
-
-        <span>
-          {{ quantity }}
-        </span>
-
-        <button
-          type="button"
-          (click)="increaseQuantity()"
-          [attr.aria-label]="'Añadir una unidad de ' + product.name"
-        >
-          +
-        </button>
+    @if (product.inStock === false) {
+      <div class="product-out-of-stock-alert">
+        <span>⚠️</span>
+        <span>{{ i18n.t('stock_alert.badge_out_of_stock') }}</span>
       </div>
+    }
 
-      <button
-        type="button"
-        class="product-detail-button"
-        (click)="addToCart()"
-        [attr.aria-label]="
-          'Añadir ' +
-          quantity +
-          ' ' +
-          (quantity === 1 ? 'unidad' : 'unidades') +
-          ' de ' +
-          product.name +
-          ' a la cesta'
-        "
-      >
-        {{ i18n.t('product.add_to_cart') }} →
-      </button>
+    <div class="product-detail-purchase">
+      @if (product.inStock !== false) {
+        <div class="quantity">
+          <button
+            type="button"
+            (click)="decreaseQuantity()"
+            [attr.aria-label]="'Restar una unidad de ' + product.name"
+          >
+            −
+          </button>
+
+          <span>
+            {{ quantity }}
+          </span>
+
+          <button
+            type="button"
+            (click)="increaseQuantity()"
+            [attr.aria-label]="'Añadir una unidad de ' + product.name"
+          >
+            +
+          </button>
+        </div>
+
+        <button
+          type="button"
+          class="product-detail-button"
+          (click)="addToCart()"
+          [attr.aria-label]="
+            'Añadir ' +
+            quantity +
+            ' ' +
+            (quantity === 1 ? 'unidad' : 'unidades') +
+            ' de ' +
+            product.name +
+            ' a la cesta'
+          "
+        >
+          {{ i18n.t('product.add_to_cart') }} →
+        </button>
+      } @else {
+        <button
+          type="button"
+          class="product-detail-button product-detail-alert-button"
+          (click)="stockAlertService.openAlertModal(product)"
+          [attr.aria-label]="i18n.t('stock_alert.btn_notify') + ' ' + product.name"
+        >
+          🔔 {{ i18n.t('stock_alert.btn_notify') }}
+        </button>
+      }
 
       <button
         type="button"

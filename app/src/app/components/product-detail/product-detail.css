@@ -438,6 +438,32 @@
   transform: translateY(-2px);
 }
 
+.product-out-of-stock-alert {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #fff1f2;
+  color: #9f1239;
+  border: 1px solid #fecdd3;
+  padding: 8px 14px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.product-detail-button.product-detail-alert-button {
+  background: #d97706;
+  border-color: #d97706;
+  color: #ffffff;
+}
+
+.product-detail-button.product-detail-alert-button:hover {
+  background: #b45309;
+  border-color: #b45309;
+  color: #ffffff;
+}
+
 .product-cart-feedback {
   margin: 14px 0 0;
   color: #526247;

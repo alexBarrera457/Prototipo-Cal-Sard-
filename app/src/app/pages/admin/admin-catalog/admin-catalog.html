@@ -320,6 +320,22 @@
                     }}
                   </span>
                 </button>
+
+                @if (stockAlertService.getWaitingCount(product.number) > 0) {
+                  <button
+                    type="button"
+                    class="badge-waiting-list"
+                    (click)="openWaitingListModal(product)"
+                    [title]="
+                      'Ver lista de espera (' +
+                      stockAlertService.getWaitingCount(product.number) +
+                      ' clientes)'
+                    "
+                  >
+                    👥 {{ stockAlertService.getWaitingCount(product.number) }}
+                    {{ i18n.t('stock_alert.admin_waiting_badge') }}
+                  </button>
+                }
               </td>
 
               <!-- Toggle directo de destacado -->
@@ -859,6 +875,85 @@
           }
         </button>
       </footer>
+    </div>
+  }
+
+  <!-- Modal de Visualización de Lista de Espera (#68) -->
+  @if (viewingWaitingListProduct(); as waitProd) {
+    <div
+      class="modal-backdrop"
+      (click)="closeWaitingListModal()"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="waiting-list-title"
+    >
+      <div class="modal-card waiting-list-card" (click)="$event.stopPropagation()">
+        <header class="modal-header">
+          <div class="modal-title-group">
+            <span class="modal-badge-info">👥 LISTA DE ESPERA DE OBRADOR</span>
+            <h3 id="waiting-list-title" class="modal-title">
+              {{ waitProd.name }} (#{{ waitProd.number }})
+            </h3>
+          </div>
+          <button
+            type="button"
+            class="btn-close-modal"
+            (click)="closeWaitingListModal()"
+            aria-label="Cerrar modal de lista de espera"
+          >
+            ✕
+          </button>
+        </header>
+
+        <div class="modal-body">
+          <p class="waiting-list-desc">
+            Clientes registrados para recibir notificación automática por WhatsApp o Email cuando se
+            restaure el stock:
+          </p>
+
+          <div class="waiting-subscribers-table-wrap">
+            <table class="waiting-subscribers-table">
+              <thead>
+                <tr>
+                  <th>Fecha</th>
+                  <th>Cliente</th>
+                  <th>Contacto</th>
+                  <th>Canal</th>
+                  <th>Estado</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (sub of stockAlertService.getPendingAlerts(waitProd.number); track sub.id) {
+                  <tr>
+                    <td>{{ sub.createdAt | date: 'short' }}</td>
+                    <td>{{ sub.customerName || 'Cliente' }}</td>
+                    <td>
+                      <code>{{ sub.contact }}</code>
+                    </td>
+                    <td>
+                      <span class="channel-chip" [class.channel-wa]="sub.channel === 'whatsapp'">
+                        {{ sub.channel === 'whatsapp' ? '💬 WhatsApp' : '✉️ Email' }}
+                      </span>
+                    </td>
+                    <td>
+                      <span class="status-badge-pending">Pendiente</span>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <footer class="modal-footer">
+          <button type="button" class="btn-cancel" (click)="closeWaitingListModal()">
+            {{ i18n.t('admin.btn_cancel') }}
+          </button>
+          <button type="button" class="btn-primary" (click)="notifyManualRestock(waitProd)">
+            📢 Avisar a todos ahora
+          </button>
+        </footer>
+      </div>
     </div>
   }
 </section>

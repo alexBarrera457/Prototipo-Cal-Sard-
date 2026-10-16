@@ -185,6 +185,14 @@
                     </span>
                   }
                 }
+                @if (product.inStock === false) {
+                  <span
+                    class="badge-out-of-stock"
+                    [title]="i18n.t('stock_alert.badge_out_of_stock')"
+                  >
+                    ⚠️ {{ i18n.t('stock_alert.badge_out_of_stock') }}
+                  </span>
+                }
               </div>
 
               <h3>
@@ -201,14 +209,25 @@
             </span>
           </div>
 
-          <button
-            class="store-button"
-            type="button"
-            (click)="addToCart(product)"
-            [attr.aria-label]="i18n.t('store.add_to_cart') + ' ' + product.name"
-          >
-            {{ i18n.t('store.add_to_cart') }}
-          </button>
+          @if (product.inStock !== false) {
+            <button
+              class="store-button"
+              type="button"
+              (click)="addToCart(product)"
+              [attr.aria-label]="i18n.t('store.add_to_cart') + ' ' + product.name"
+            >
+              {{ i18n.t('store.add_to_cart') }}
+            </button>
+          } @else {
+            <button
+              class="store-button store-alert-button"
+              type="button"
+              (click)="stockAlertService.openAlertModal(product)"
+              [attr.aria-label]="i18n.t('stock_alert.btn_notify') + ' ' + product.name"
+            >
+              🔔 {{ i18n.t('stock_alert.btn_notify') }}
+            </button>
+          }
 
           <div class="store-feedback-region" role="status" aria-live="polite">
             @if (addedProductNumber === product.number) {

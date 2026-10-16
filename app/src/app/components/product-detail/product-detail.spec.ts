@@ -2,22 +2,29 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ProductDetail } from './product-detail';
 import { CartService } from '../../services/cart';
 import { AuthService, InMemoryAuthAdapter, AUTH_ADAPTER } from '../../services/auth';
+import { StockAlertService } from '../../services/stock-alerts';
 
 describe('ProductDetail', () => {
   let component: ProductDetail;
   let fixture: ComponentFixture<ProductDetail>;
   let authService: AuthService;
+  let stockAlertService: StockAlertService;
 
   beforeEach(async () => {
     const mockAuthAdapter = new InMemoryAuthAdapter();
     await TestBed.configureTestingModule({
       imports: [ProductDetail],
-      providers: [AuthService, { provide: AUTH_ADAPTER, useValue: mockAuthAdapter }],
+      providers: [
+        AuthService,
+        StockAlertService,
+        { provide: AUTH_ADAPTER, useValue: mockAuthAdapter },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ProductDetail);
     component = fixture.componentInstance;
     authService = TestBed.inject(AuthService);
+    stockAlertService = TestBed.inject(StockAlertService);
     await fixture.whenStable();
   });
 
@@ -149,5 +156,29 @@ describe('ProductDetail', () => {
 
     await component.toggleFavorite();
     expect(component.favoritesService.isFavorite('01')).toBe(false);
+  });
+
+  it('opens stock alert modal when product is out-of-stock', () => {
+    const openModalSpy = vi.spyOn(stockAlertService, 'openAlertModal');
+
+    const outOfStockProd = {
+      number: '99',
+      name: 'Miel de Romero de Temporada',
+      price: 8.5,
+      category: 'VÍVERES GOURMET',
+      image: '/images/products/miel.jpg',
+      inStock: false,
+      shortDescription: 'Partida agotada',
+      description: 'Miel artesanal del obrador',
+    };
+
+    fixture.componentRef.setInput('product', outOfStockProd);
+    fixture.detectChanges();
+
+    const alertBtn = fixture.nativeElement.querySelector('.product-detail-alert-button');
+    expect(alertBtn).toBeTruthy();
+    alertBtn.click();
+
+    expect(openModalSpy).toHaveBeenCalledWith(outOfStockProd);
   });
 });

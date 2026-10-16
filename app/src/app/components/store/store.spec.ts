@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { Store } from './store';
 import { loadStoreProducts } from '../../services/products';
+import { StockAlertService } from '../../services/stock-alerts';
 
 describe('Store', () => {
   let component: Store;
@@ -121,5 +122,21 @@ describe('Store', () => {
 
     await component.toggleFavorite('01', mockEvent);
     expect(component.favoritesService.isFavorite('01')).toBe(false);
+  });
+
+  it('opens stock alert modal when clicking stock alert button on out-of-stock product', () => {
+    const stockAlertService = TestBed.inject(StockAlertService);
+    const openModalSpy = vi.spyOn(stockAlertService, 'openAlertModal');
+
+    component.products.update((items) =>
+      items.map((p) => (p.number === '01' ? { ...p, inStock: false } : p)),
+    );
+    fixture.detectChanges();
+
+    const alertBtn = fixture.nativeElement.querySelector('.store-alert-button');
+    expect(alertBtn).toBeTruthy();
+    alertBtn.click();
+
+    expect(openModalSpy).toHaveBeenCalled();
   });
 });

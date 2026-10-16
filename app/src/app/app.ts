@@ -5,10 +5,11 @@ import { filter } from 'rxjs/operators';
 import { Navbar } from './components/navbar/navbar';
 import { Footer } from './components/footer/footer';
 import { CookieBanner } from './components/cookie-banner/cookie-banner';
+import { StockAlertModalComponent } from './components/stock-alert-modal/stock-alert-modal';
 
 @Component({
   selector: 'app-root',
-  imports: [Navbar, RouterOutlet, Footer, CookieBanner],
+  imports: [Navbar, RouterOutlet, Footer, CookieBanner, StockAlertModalComponent],
   templateUrl: './app.html',
   styleUrl: './app.css',
 })

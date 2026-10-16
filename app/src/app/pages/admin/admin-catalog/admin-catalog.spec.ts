@@ -9,6 +9,7 @@ import {
   type StoreProduct,
 } from '../../../services/products';
 import { I18nService } from '../../../services/i18n';
+import { StockAlertService } from '../../../services/stock-alerts';
 
 describe('AdminCatalog', () => {
   let component: AdminCatalog;
@@ -89,6 +90,7 @@ describe('AdminCatalog', () => {
         provideRouter([]),
         ProductsService,
         I18nService,
+        StockAlertService,
         { provide: PRODUCTS_REPOSITORY, useValue: mockRepo },
       ],
     }).compileComponents();
@@ -311,5 +313,36 @@ describe('AdminCatalog', () => {
     component.toggleAllergen(glutenDef, true);
     expect(component.createForm.allergensText).toContain('Gluten');
     expect(component.isAllergenSelected(glutenDef, true)).toBe(true);
+  });
+
+  it('notifies waiting list customers when out-of-stock product is restored to in-stock', async () => {
+    const stockAlertService = TestBed.inject(StockAlertService);
+    stockAlertService.subscribe({
+      productNumber: '02',
+      productName: 'Bonito del Norte en Aceite de Oliva',
+      contact: 'cliente@calsarda.com',
+      channel: 'email',
+    });
+
+    expect(stockAlertService.getWaitingCount('02')).toBe(1);
+
+    const product02 = component.allProducts().find((p) => p.number === '02')!;
+    expect(product02.inStock).toBe(false);
+
+    await component.toggleStock(product02);
+
+    expect(mockRepo.updateProduct).toHaveBeenCalledWith('02', { inStock: true });
+    expect(stockAlertService.getWaitingCount('02')).toBe(0);
+    expect(component.feedbackMessage()?.type).toBe('success');
+    expect(component.feedbackMessage()?.text).toContain('1');
+  });
+
+  it('opens and closes waiting list modal', () => {
+    const product02 = component.allProducts().find((p) => p.number === '02')!;
+    component.openWaitingListModal(product02);
+    expect(component.viewingWaitingListProduct()).toEqual(product02);
+
+    component.closeWaitingListModal();
+    expect(component.viewingWaitingListProduct()).toBeNull();
   });
 });
