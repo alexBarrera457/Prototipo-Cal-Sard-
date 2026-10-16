@@ -160,6 +160,21 @@
                 <span class="tab-badge">{{ favoritesService.favoritesCount() }}</span>
               }
             </button>
+
+            <button
+              type="button"
+              class="account-tab-btn"
+              [class.active]="activeTab() === 'facturas'"
+              (click)="setTab('facturas')"
+              [attr.aria-selected]="activeTab() === 'facturas'"
+              role="tab"
+            >
+              <span>📄</span>
+              <span>{{ i18n.t('account.tab_invoices') }}</span>
+              @if (customerInvoices().length > 0) {
+                <span class="tab-badge">{{ customerInvoices().length }}</span>
+              }
+            </button>
           </nav>
 
           <!-- Pestaña 1: Mis Pedidos -->
@@ -1389,6 +1404,328 @@
                       </div>
                     </article>
                   }
+                </div>
+              }
+            </div>
+          }
+
+          <!-- Pestaña 6: Mis Facturas -->
+          @if (activeTab() === 'facturas') {
+            <div class="tab-content tab-invoices" role="tabpanel">
+              <div class="invoices-section-header">
+                <div class="invoices-header-copy">
+                  <h3>{{ i18n.t('invoices.title') }}</h3>
+                  <p>{{ i18n.t('invoices.subtitle') }}</p>
+                </div>
+
+                <div class="invoices-header-controls">
+                  <div class="fiscal-year-selector">
+                    <label for="fiscal-year-select">{{ i18n.t('invoices.fiscal_year') }}:</label>
+                    <select
+                      id="fiscal-year-select"
+                      [value]="selectedFiscalYear()"
+                      (change)="setFiscalYear($any($event.target).value)"
+                    >
+                      <option value="all">{{ i18n.t('invoices.all_years') }}</option>
+                      @for (year of availableFiscalYears(); track year) {
+                        <option [value]="year">{{ year }}</option>
+                      }
+                    </select>
+                  </div>
+
+                  @if (filteredInvoices().length > 0) {
+                    <button
+                      type="button"
+                      class="btn-export-csv"
+                      (click)="exportInvoicesCsv()"
+                      title="Descargar libro de facturas en formato CSV para tu asesor o gestoría"
+                    >
+                      📊 {{ i18n.t('invoices.export_csv') }}
+                    </button>
+                  }
+                </div>
+              </div>
+
+              <!-- Tarjetas Resumen de Totales Fiscales -->
+              @if (filteredInvoices().length > 0) {
+                <div class="invoices-kpi-grid">
+                  <div class="invoice-kpi-card">
+                    <span class="kpi-label">{{ i18n.t('invoices.summary_total') }}</span>
+                    <strong class="kpi-value highlight">{{
+                      formatCurrency(invoiceAggregates().totalInvoiced)
+                    }}</strong>
+                    <span class="kpi-meta"
+                      >{{ invoiceAggregates().count }}
+                      {{ invoiceAggregates().count === 1 ? 'documento' : 'documentos' }}</span
+                    >
+                  </div>
+                  <div class="invoice-kpi-card">
+                    <span class="kpi-label">{{ i18n.t('invoices.summary_base') }}</span>
+                    <strong class="kpi-value">{{
+                      formatCurrency(invoiceAggregates().totalBase)
+                    }}</strong>
+                    <span class="kpi-meta">Sin impuestos</span>
+                  </div>
+                  <div class="invoice-kpi-card">
+                    <span class="kpi-label">{{ i18n.t('invoices.summary_vat') }}</span>
+                    <strong class="kpi-value">{{
+                      formatCurrency(invoiceAggregates().totalVat)
+                    }}</strong>
+                    <span class="kpi-meta">Cuota total IVA</span>
+                  </div>
+                </div>
+              }
+
+              <!-- Listado de Facturas -->
+              @if (loadingOrders()) {
+                <div class="orders-loading">
+                  <span class="spinner" aria-hidden="true"></span>
+                  <p>Cargando tus facturas...</p>
+                </div>
+              } @else if (filteredInvoices().length === 0) {
+                <div class="empty-favorites">
+                  <span class="empty-icon" aria-hidden="true">📄</span>
+                  <h4>{{ i18n.t('invoices.empty_title') }}</h4>
+                  <p>{{ i18n.t('invoices.empty_desc') }}</p>
+                  <button type="button" class="btn-start-shopping" (click)="setTab('pedidos')">
+                    Ver mis pedidos
+                  </button>
+                </div>
+              } @else {
+                <div class="invoices-table-container">
+                  <table class="invoices-table" aria-label="Listado de Facturas Oficiales">
+                    <thead>
+                      <tr>
+                        <th>{{ i18n.t('invoices.number') }}</th>
+                        <th>{{ i18n.t('invoices.date') }}</th>
+                        <th>{{ i18n.t('invoices.order_ref') }}</th>
+                        <th>{{ i18n.t('invoices.recipient') }}</th>
+                        <th class="text-right">{{ i18n.t('invoices.base') }}</th>
+                        <th class="text-right">{{ i18n.t('invoices.vat') }}</th>
+                        <th class="text-right">{{ i18n.t('invoices.total') }}</th>
+                        <th class="text-center">Acciones</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (inv of filteredInvoices(); track inv.invoiceNumber) {
+                        <tr class="invoice-row">
+                          <td class="cell-invoice-number">
+                            <strong>{{ inv.invoiceNumber }}</strong>
+                          </td>
+                          <td class="cell-date">
+                            {{ inv.issuedAt | date: 'dd/MM/yyyy' }}
+                          </td>
+                          <td class="cell-order-ref">
+                            <code>{{ inv.orderReference }}</code>
+                          </td>
+                          <td class="cell-recipient">
+                            <span class="recipient-name">{{
+                              inv.customer.companyName || inv.customer.name
+                            }}</span>
+                            @if (inv.customer.taxId) {
+                              <span class="recipient-tax-id">NIF: {{ inv.customer.taxId }}</span>
+                            }
+                          </td>
+                          <td class="cell-base text-right">
+                            {{ formatCurrency(inv.subtotalBase) }}
+                          </td>
+                          <td class="cell-vat text-right">
+                            {{ formatCurrency(inv.totalVat) }}
+                            <div class="vat-chips">
+                              @for (t of inv.taxBreakdown; track t.vatRate) {
+                                <span class="vat-chip"
+                                  >{{ t.vatRate }}%: {{ formatCurrency(t.vatAmount) }}</span
+                                >
+                              }
+                            </div>
+                          </td>
+                          <td class="cell-total text-right">
+                            <strong class="invoice-grand-total">{{
+                              formatCurrency(inv.total)
+                            }}</strong>
+                          </td>
+                          <td class="cell-actions text-center">
+                            <div class="invoice-action-buttons">
+                              <button
+                                type="button"
+                                class="btn-download-invoice"
+                                (click)="downloadInvoice(inv)"
+                                [title]="i18n.t('invoices.download_pdf')"
+                              >
+                                🖨️ {{ i18n.t('invoices.download_pdf') }}
+                              </button>
+                              <button
+                                type="button"
+                                class="btn-preview-invoice"
+                                (click)="openInvoicePreview(inv)"
+                                [title]="i18n.t('invoices.preview')"
+                              >
+                                🔍 {{ i18n.t('invoices.preview') }}
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              }
+
+              <!-- Modal de Previsualización y Desglose de Factura -->
+              @if (selectedInvoiceForModal(); as selectedInv) {
+                <div class="invoice-modal-backdrop" (click)="closeInvoicePreview()">
+                  <div
+                    class="invoice-modal-card"
+                    (click)="$event.stopPropagation()"
+                    role="dialog"
+                    aria-modal="true"
+                  >
+                    <div class="invoice-modal-header">
+                      <div>
+                        <h3>{{ i18n.t('invoices.modal_title') }}</h3>
+                        <p>
+                          Factura <strong>{{ selectedInv.invoiceNumber }}</strong> ·
+                          {{ selectedInv.issuedAt | date: 'dd/MM/yyyy HH:mm' }}
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        class="btn-close-modal"
+                        (click)="closeInvoicePreview()"
+                        aria-label="Cerrar modal"
+                      >
+                        ✕
+                      </button>
+                    </div>
+
+                    <div class="invoice-modal-body">
+                      <!-- Datos Fiscales -->
+                      <div class="modal-parties-grid">
+                        <div class="party-box">
+                          <span class="party-title">Emisor</span>
+                          <strong>{{ selectedInv.company.legalName }}</strong>
+                          <p>
+                            NIF: {{ selectedInv.company.cif }}<br />
+                            {{ selectedInv.company.address }}, {{ selectedInv.company.postalCode }}
+                            {{ selectedInv.company.city }}
+                          </p>
+                        </div>
+                        <div class="party-box">
+                          <span class="party-title">Destinatario</span>
+                          <strong>{{
+                            selectedInv.customer.companyName || selectedInv.customer.name
+                          }}</strong>
+                          @if (selectedInv.customer.taxId) {
+                            <p>
+                              <strong>NIF/CIF: {{ selectedInv.customer.taxId }}</strong>
+                            </p>
+                          }
+                          @if (selectedInv.customer.address) {
+                            <p>
+                              {{ selectedInv.customer.address }},
+                              {{ selectedInv.customer.postalCode || '' }}
+                              {{ selectedInv.customer.city || '' }}
+                            </p>
+                          }
+                        </div>
+                      </div>
+
+                      <!-- Artículos -->
+                      <table class="modal-items-table">
+                        <thead>
+                          <tr>
+                            <th>Concepto</th>
+                            <th class="text-center">Cant.</th>
+                            <th class="text-right">Precio Ud.</th>
+                            <th class="text-center">IVA</th>
+                            <th class="text-right">Total</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          @for (item of selectedInv.items; track item.name) {
+                            <tr>
+                              <td>{{ item.name }}</td>
+                              <td class="text-center">{{ item.quantity }}</td>
+                              <td class="text-right">{{ formatCurrency(item.unitPrice) }}</td>
+                              <td class="text-center">{{ item.vatRate }}%</td>
+                              <td class="text-right">
+                                <strong>{{ formatCurrency(item.total) }}</strong>
+                              </td>
+                            </tr>
+                          }
+                          @if (selectedInv.shippingTotal > 0) {
+                            <tr>
+                              <td>Gastos de envío refrigerado a domicilio</td>
+                              <td class="text-center">1</td>
+                              <td class="text-right">
+                                {{ formatCurrency(selectedInv.shippingTotal) }}
+                              </td>
+                              <td class="text-center">21%</td>
+                              <td class="text-right">
+                                <strong>{{ formatCurrency(selectedInv.shippingTotal) }}</strong>
+                              </td>
+                            </tr>
+                          }
+                        </tbody>
+                      </table>
+
+                      <!-- Desglose por tipo de IVA -->
+                      <div class="modal-tax-breakdown">
+                        <h5>Desglose Impositivo Oficial</h5>
+                        <table class="modal-tax-table">
+                          <thead>
+                            <tr>
+                              <th>Tipo</th>
+                              <th class="text-right">Base Imponible</th>
+                              <th class="text-right">Cuota IVA</th>
+                              <th class="text-right">Total</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            @for (tax of selectedInv.taxBreakdown; track tax.vatRate) {
+                              <tr>
+                                <td>IVA {{ tax.vatRate }}%</td>
+                                <td class="text-right">{{ formatCurrency(tax.baseAmount) }}</td>
+                                <td class="text-right">{{ formatCurrency(tax.vatAmount) }}</td>
+                                <td class="text-right">
+                                  <strong>{{ formatCurrency(tax.total) }}</strong>
+                                </td>
+                              </tr>
+                            }
+                          </tbody>
+                        </table>
+                      </div>
+
+                      <!-- Totales del modal -->
+                      <div class="modal-totals-footer">
+                        <div>
+                          <span
+                            >Método de pago:
+                            <strong>{{
+                              selectedInv.paymentMethod || 'Abono en tienda / contra reembolso'
+                            }}</strong></span
+                          >
+                        </div>
+                        <div class="modal-grand-total">
+                          <span>Total Factura:</span>
+                          <strong>{{ formatCurrency(selectedInv.total) }}</strong>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="invoice-modal-footer">
+                      <button type="button" class="btn-secondary" (click)="closeInvoicePreview()">
+                        {{ i18n.t('invoices.close_modal') }}
+                      </button>
+                      <button
+                        type="button"
+                        class="btn-primary"
+                        (click)="downloadInvoice(selectedInv)"
+                      >
+                        🖨️ {{ i18n.t('invoices.download_pdf') }}
+                      </button>
+                    </div>
+                  </div>
                 </div>
               }
             </div>

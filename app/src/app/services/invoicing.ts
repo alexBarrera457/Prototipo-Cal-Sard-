@@ -63,7 +63,16 @@ export class InvoicingService {
   /**
    * Genera el desglose fiscal formal de una factura simplificada / ticket a partir de un pedido.
    */
-  generateInvoice(order: Order): Invoice {
+  generateInvoice(
+    order: Order,
+    fiscalData?: {
+      companyName?: string;
+      taxId?: string;
+      address?: string;
+      postalCode?: string;
+      city?: string;
+    },
+  ): Invoice {
     const ref = order.reference ?? 'CS-DEMO-001';
     const invoiceNumber = `FS-${ref.replace(/^CS-/, '')}`;
     const issuedAt = order.createdAt ?? new Date().toISOString();
@@ -127,18 +136,31 @@ export class InvoicingService {
     const totalVat = round2(taxBreakdown.reduce((sum, t) => sum + t.vatAmount, 0));
     const grandTotal = round2(order.total ?? subtotalBase + totalVat);
 
+    const customerName =
+      fiscalData?.companyName ||
+      order.customer?.companyName ||
+      order.customer?.name ||
+      'Cliente Particular';
+    const customerTaxId = fiscalData?.taxId || order.customer?.taxId;
+    const customerCompanyName = fiscalData?.companyName || order.customer?.companyName;
+    const customerAddress = fiscalData?.address || order.customer?.address;
+    const customerPostalCode = fiscalData?.postalCode || order.customer?.postalCode;
+    const customerCity = fiscalData?.city || order.customer?.city;
+
     return {
       invoiceNumber,
       orderReference: ref,
       issuedAt,
       company: this.company,
       customer: {
-        name: order.customer?.name ?? 'Cliente Particular',
+        name: customerName,
         email: order.customer?.email ?? '',
         phone: order.customer?.phone,
-        address: order.customer?.address,
-        postalCode: order.customer?.postalCode,
-        city: order.customer?.city,
+        address: customerAddress,
+        postalCode: customerPostalCode,
+        city: customerCity,
+        taxId: customerTaxId,
+        companyName: customerCompanyName,
       },
       items: invoiceItems,
       taxBreakdown,
@@ -364,6 +386,7 @@ export class InvoicingService {
       <div class="box">
         <div class="box-title">Cliente / Destinatario</div>
         <strong>${invoice.customer.name}</strong><br>
+        ${invoice.customer.taxId ? `NIF/CIF: <strong>${invoice.customer.taxId}</strong><br>` : ''}
         ${invoice.customer.email ? `Email: ${invoice.customer.email}<br>` : ''}
         ${invoice.customer.phone ? `Tel: ${invoice.customer.phone}<br>` : ''}
         ${invoice.customer.address ? `${invoice.customer.address}, ${invoice.customer.postalCode || ''} ${invoice.customer.city || ''}<br>` : ''}

@@ -128,4 +128,41 @@ describe('InvoicingService', () => {
     expect(html).toContain('Desglose de Impuestos (IVA)');
     expect(html).toContain('Turrón Blando');
   });
+
+  it('incorporates customer fiscal data (company name, NIF/CIF, address) when provided', () => {
+    const order: Order = {
+      reference: 'CS-2026-0099',
+      customer: {
+        name: 'Particular Nombre',
+        email: 'empresa@example.com',
+      },
+      items: [
+        {
+          name: 'Lote Gourmet Especial',
+          price: 50.0,
+          quantity: 1,
+        },
+      ],
+      total: 50.0,
+      status: 'confirmed',
+    };
+
+    const fiscalData = {
+      companyName: 'Gourmet BCN S.L.',
+      taxId: 'B-12345678',
+      address: 'Passeig de Gràcia, 100',
+      postalCode: '08008',
+      city: 'Barcelona',
+    };
+
+    const invoice = service.generateInvoice(order, fiscalData);
+    expect(invoice.customer.name).toBe('Gourmet BCN S.L.');
+    expect(invoice.customer.taxId).toBe('B-12345678');
+    expect(invoice.customer.companyName).toBe('Gourmet BCN S.L.');
+    expect(invoice.customer.address).toBe('Passeig de Gràcia, 100');
+
+    const html = service.generateInvoiceHtml(invoice);
+    expect(html).toContain('Gourmet BCN S.L.');
+    expect(html).toContain('B-12345678');
+  });
 });

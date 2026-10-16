@@ -1,7 +1,8 @@
-import { Component, effect, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, effect, inject, OnInit, signal } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule, NgForm } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import type { Invoice, TaxBreakdownItem } from '@cal-sarda/domain';
 import {
   AuthService,
   type UserAddress,
@@ -17,7 +18,8 @@ import { InvoicingService } from '../../services/invoicing';
 import { FavoritesService } from '../../services/favorites';
 import type { StoreProduct } from '../../services/products';
 
-export type AccountTab = 'perfil' | 'direcciones' | 'pedidos' | 'preferencias' | 'favoritos';
+export type AccountTab =
+  'perfil' | 'direcciones' | 'pedidos' | 'preferencias' | 'favoritos' | 'facturas';
 
 @Component({
   selector: 'app-account-page',
@@ -102,6 +104,63 @@ export class AccountPage implements OnInit {
   // Favoritos / Cesta Habitual
   readonly favoriteProductsList = signal<StoreProduct[]>([]);
   readonly loadingFavorites = signal<boolean>(false);
+
+  // Facturas y Justificantes Fiscales
+  readonly selectedFiscalYear = signal<string>('all');
+  readonly selectedInvoiceForModal = signal<Invoice | null>(null);
+
+  readonly customerInvoices = computed<Invoice[]>(() => {
+    const orders = this.customerOrders();
+    const fiscal = this.auth.currentUser()?.fiscalData;
+    return orders.map((order) => this.invoicingService.generateInvoice(order, fiscal));
+  });
+
+  readonly availableFiscalYears = computed<string[]>(() => {
+    const invoices = this.customerInvoices();
+    const yearsSet = new Set<string>();
+    for (const inv of invoices) {
+      if (inv.issuedAt) {
+        const year = new Date(inv.issuedAt).getFullYear().toString();
+        if (!isNaN(Number(year))) {
+          yearsSet.add(year);
+        }
+      }
+    }
+    const currentYear = new Date().getFullYear().toString();
+    yearsSet.add(currentYear);
+    return Array.from(yearsSet).sort((a, b) => b.localeCompare(a));
+  });
+
+  readonly filteredInvoices = computed<Invoice[]>(() => {
+    const invoices = this.customerInvoices();
+    const selected = this.selectedFiscalYear();
+    if (selected === 'all') {
+      return invoices;
+    }
+    return invoices.filter((inv) => {
+      const year = new Date(inv.issuedAt).getFullYear().toString();
+      return year === selected;
+    });
+  });
+
+  readonly invoiceAggregates = computed(() => {
+    const list = this.filteredInvoices();
+    let totalInvoiced = 0;
+    let totalBase = 0;
+    let totalVat = 0;
+    for (const inv of list) {
+      totalInvoiced += inv.total;
+      totalBase += inv.subtotalBase;
+      totalVat += inv.totalVat;
+    }
+    const round = (val: number) => Math.round((val + Number.EPSILON) * 100) / 100;
+    return {
+      count: list.length,
+      totalInvoiced: round(totalInvoiced),
+      totalBase: round(totalBase),
+      totalVat: round(totalVat),
+    };
+  });
 
   // Formulario de inicio de sesión
   email = '';
@@ -563,9 +622,103 @@ export class AccountPage implements OnInit {
   /**
    * Genera y abre el diálogo de impresión/descarga de factura simplificada en PDF.
    */
-  downloadInvoice(order: Order): void {
-    const invoice = this.invoicingService.generateInvoice(order);
+  downloadInvoice(item: Order | Invoice): void {
+    const invoice =
+      'invoiceNumber' in item
+        ? item
+        : this.invoicingService.generateInvoice(item, this.auth.currentUser()?.fiscalData);
     this.invoicingService.printInvoice(invoice);
+  }
+
+  setFiscalYear(year: string): void {
+    this.selectedFiscalYear.set(year);
+  }
+
+  openInvoicePreview(invoice: Invoice): void {
+    this.selectedInvoiceForModal.set(invoice);
+  }
+
+  closeInvoicePreview(): void {
+    this.selectedInvoiceForModal.set(null);
+  }
+
+  exportInvoicesCsv(): void {
+    const invoices = this.filteredInvoices();
+    const isCa = this.i18n.currentLang() === 'ca';
+    const headers = isCa
+      ? [
+          'Núm. Factura',
+          'Comanda',
+          'Data Emissió',
+          'Client / Raó Social',
+          'NIF / CIF',
+          'Base Imposable (€)',
+          'IVA Total (€)',
+          'Total Factura (€)',
+          'Mètode de Pagament',
+          'Modalitat',
+        ]
+      : [
+          'Nº Factura',
+          'Pedido',
+          'Fecha Emisión',
+          'Cliente / Razón Social',
+          'NIF / CIF',
+          'Base Imponible (€)',
+          'IVA Total (€)',
+          'Total Factura (€)',
+          'Método de Pago',
+          'Modalidad',
+        ];
+
+    const rows = invoices.map((inv) =>
+      [
+        `"${inv.invoiceNumber}"`,
+        `"${inv.orderReference}"`,
+        `"${new Date(inv.issuedAt).toLocaleDateString('es-ES')}"`,
+        `"${(inv.customer.companyName || inv.customer.name || '').replace(/"/g, '""')}"`,
+        `"${(inv.customer.taxId || '').replace(/"/g, '""')}"`,
+        inv.subtotalBase.toFixed(2),
+        inv.totalVat.toFixed(2),
+        inv.total.toFixed(2),
+        `"${(inv.paymentMethod || '').replace(/"/g, '""')}"`,
+        `"${
+          inv.fulfillment === 'delivery'
+            ? isCa
+              ? 'Repartiment domicili'
+              : 'Entrega a domicilio'
+            : isCa
+              ? 'Recollida obrador'
+              : 'Recogida colmado'
+        }"`,
+      ].join(';'),
+    );
+
+    const csvContent = '\uFEFF' + [headers.join(';'), ...rows].join('\r\n');
+
+    if (typeof window !== 'undefined' && typeof document !== 'undefined') {
+      try {
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        if (typeof URL !== 'undefined' && typeof URL.createObjectURL === 'function') {
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          const yearLabel =
+            this.selectedFiscalYear() === 'all' ? 'todos' : this.selectedFiscalYear();
+          link.setAttribute('href', url);
+          link.setAttribute('download', `facturas-cal-sarda-${yearLabel}.csv`);
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          if (typeof URL.revokeObjectURL === 'function') {
+            URL.revokeObjectURL(url);
+          }
+        }
+      } catch {
+        // Fallback seguro en entornos sin soporte nativo de Blob/URL
+      }
+    }
+
+    this.showToast(this.i18n.t('invoices.toast_csv_exported'));
   }
 
   getOrderStep(status?: OrderStatus): number {

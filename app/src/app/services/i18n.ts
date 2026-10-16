@@ -419,6 +419,33 @@ export const TRANSLATIONS = {
       'Algunos productos habituales están agotados temporalmente',
     'favorites.in_habitual': 'En tu cesta habitual',
 
+    // Facturas en Área de Cliente
+    'account.tab_invoices': 'Mis Facturas',
+    'invoices.title': 'Facturas y Comprobantes Fiscales',
+    'invoices.subtitle':
+      'Descarga tus facturas oficiales con desglose de IVA (4%, 10%, 21%) para particulares o empresas.',
+    'invoices.fiscal_year': 'Ejercicio fiscal',
+    'invoices.all_years': 'Todos los años',
+    'invoices.export_csv': 'Exportar para Gestoría (CSV)',
+    'invoices.number': 'Nº Factura',
+    'invoices.date': 'Fecha',
+    'invoices.order_ref': 'Pedido',
+    'invoices.recipient': 'Destinatario / NIF',
+    'invoices.base': 'Base Imp.',
+    'invoices.vat': 'IVA Total',
+    'invoices.total': 'Total',
+    'invoices.download_pdf': 'Descargar PDF / Imprimir',
+    'invoices.preview': 'Ver Desglose',
+    'invoices.empty_title': 'No hay facturas emitidas',
+    'invoices.empty_desc':
+      'Cuando realices pedidos en Cal Sardà, podrás descargar aquí todas tus facturas oficiales.',
+    'invoices.summary_total': 'Total Facturado',
+    'invoices.summary_base': 'Base Imponible Total',
+    'invoices.summary_vat': 'IVA Total Deducible',
+    'invoices.toast_csv_exported': 'Listado fiscal descargado correctamente para tu gestoría.',
+    'invoices.modal_title': 'Detalle de Factura Simplificada',
+    'invoices.close_modal': 'Cerrar',
+
     // Admin Backoffice
     'admin.title': 'Panel de Administración',
     'admin.obrador_badge': 'OBRADOR & TIENDA',
@@ -1013,6 +1040,34 @@ export const TRANSLATIONS = {
     'favorites.toast_all_added': 'S’han afegit els teus productes habituals a la cistella',
     'favorites.toast_some_out_of_stock': 'Alguns productes habituals estan esgotats temporalment',
     'favorites.in_habitual': 'Al teu cistell habitual',
+
+    // Factures a l'Àrea de Client
+    'account.tab_invoices': 'Les meves Factures',
+    'invoices.title': 'Factures i Justificants Fiscals',
+    'invoices.subtitle':
+      'Descarrega les teves factures oficials amb desglossament d’IVA (4%, 10%, 21%) per a particulars o empreses.',
+    'invoices.fiscal_year': 'Exercici fiscal',
+    'invoices.all_years': 'Tots els anys',
+    'invoices.export_csv': 'Exportar per a Gestoria (CSV)',
+    'invoices.number': 'Núm. Factura',
+    'invoices.date': 'Data',
+    'invoices.order_ref': 'Comanda',
+    'invoices.recipient': 'Destinatari / NIF',
+    'invoices.base': 'Base Imp.',
+    'invoices.vat': 'IVA Total',
+    'invoices.total': 'Total',
+    'invoices.download_pdf': 'Descarregar PDF / Imprimir',
+    'invoices.preview': 'Veure Desglossament',
+    'invoices.empty_title': 'No hi ha factures emeses',
+    'invoices.empty_desc':
+      'Quan facis comandes a Cal Sardà, podràs descarregar aquí totes les teves factures oficials.',
+    'invoices.summary_total': 'Total Facturat',
+    'invoices.summary_base': 'Base Imposible Total',
+    'invoices.summary_vat': 'IVA Total Deduïble',
+    'invoices.toast_csv_exported':
+      'Llistat fiscal descarregat correctament per a la teva gestoria.',
+    'invoices.modal_title': 'Detall de Factura Simplificada',
+    'invoices.close_modal': 'Tancar',
 
     // Admin Backoffice
     'admin.title': 'Panell d’Administració',

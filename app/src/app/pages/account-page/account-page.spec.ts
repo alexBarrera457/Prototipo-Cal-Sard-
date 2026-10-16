@@ -375,6 +375,7 @@ describe('AccountPage', () => {
   describe('customer favorites & habitual basket (El Meu Cistell Habitual)', () => {
     beforeEach(async () => {
       await component.quickSignIn('cliente@calsarda.com', 'cliente1930');
+      await component.loadCustomerOrders('cliente@calsarda.com');
     });
 
     it('switches to favoritos tab and loads favorite products', async () => {
@@ -433,6 +434,67 @@ describe('AccountPage', () => {
 
       expect(cartSpy).toHaveBeenCalled();
       expect(component.toastMessage()).toBeTruthy();
+    });
+
+    it('switches to facturas tab and computes customer invoices with VAT breakdowns', () => {
+      component.setTab('facturas');
+      expect(component.activeTab()).toBe('facturas');
+
+      const invoices = component.customerInvoices();
+      expect(invoices.length).toBeGreaterThan(0);
+
+      const first = invoices[0];
+      expect(first.invoiceNumber).toMatch(/^FS-/);
+      expect(first.orderReference).toMatch(/^CS-/);
+      expect(first.subtotalBase).toBeGreaterThan(0);
+      expect(first.totalVat).toBeGreaterThanOrEqual(0);
+      expect(first.total).toBeGreaterThan(0);
+      expect(first.taxBreakdown.length).toBeGreaterThan(0);
+    });
+
+    it('filters customer invoices by fiscal year and calculates aggregates', () => {
+      component.setTab('facturas');
+      const years = component.availableFiscalYears();
+      expect(years.length).toBeGreaterThan(0);
+
+      const testYear = years[0];
+      component.setFiscalYear(testYear);
+      expect(component.selectedFiscalYear()).toBe(testYear);
+
+      const filtered = component.filteredInvoices();
+      for (const inv of filtered) {
+        expect(new Date(inv.issuedAt).getFullYear().toString()).toBe(testYear);
+      }
+
+      const aggregates = component.invoiceAggregates();
+      expect(aggregates.count).toBe(filtered.length);
+      expect(aggregates.totalInvoiced).toBeGreaterThan(0);
+      expect(aggregates.totalBase).toBeGreaterThan(0);
+    });
+
+    it('opens and closes the invoice preview modal', () => {
+      const invoice = component.customerInvoices()[0];
+      expect(invoice).toBeDefined();
+
+      component.openInvoicePreview(invoice);
+      expect(component.selectedInvoiceForModal()).toBe(invoice);
+
+      component.closeInvoicePreview();
+      expect(component.selectedInvoiceForModal()).toBeNull();
+    });
+
+    it('downloads/prints invoice using InvoicingService', () => {
+      const printSpy = vi.spyOn(component.invoicingService, 'printInvoice');
+      const invoice = component.customerInvoices()[0];
+
+      component.downloadInvoice(invoice);
+      expect(printSpy).toHaveBeenCalledWith(invoice);
+    });
+
+    it('exports annual invoices as CSV and displays feedback toast', () => {
+      component.exportInvoicesCsv();
+      expect(component.toastMessage()).toBeTruthy();
+      expect(component.toastMessage()).toMatch(/gestor/i);
     });
   });
 });
