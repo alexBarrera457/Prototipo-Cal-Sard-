@@ -446,6 +446,32 @@ export const TRANSLATIONS = {
     'invoices.modal_title': 'Detalle de Factura Simplificada',
     'invoices.close_modal': 'Cerrar',
 
+    // Canal preferido y guía de recogida en obrador
+    'account.pref_channel_title': 'Canal Preferido de Aviso y Seguimiento',
+    'account.pref_channel_desc':
+      'Elige cómo prefieres que el obrador te notifique las actualizaciones de tus pedidos.',
+    'account.pref_channel_wa': 'WhatsApp (Recomendado)',
+    'account.pref_channel_wa_desc':
+      'Avisos directos en tu móvil cuando tu encargo esté preparado o listo para recoger.',
+    'account.pref_channel_email': 'Correo Electrónico',
+    'account.pref_channel_email_desc':
+      'Notificaciones con albarán y detalles completos en tu buzón.',
+    'account.pref_channel_sms': 'SMS / Mensaje de texto',
+    'account.pref_channel_sms_desc':
+      'Avisos de texto breves a tu teléfono sin necesidad de datos móviles.',
+    'pickup.ready_title': '¡Tu encargo está listo en el colmado!',
+    'pickup.ready_subtitle': 'Ya puedes pasar a recogerlo en nuestro mostrador artesano.',
+    'pickup.prep_title': 'Encargo en preparación para recogida',
+    'pickup.prep_subtitle':
+      'Nuestros maestros artesanos están preparando tu pedido para tenerlo fresco.',
+    'pickup.pin_label': 'Código Mostrador',
+    'pickup.address_label': 'Punto de Recogida',
+    'pickup.open_maps': 'Cómo llegar (Google Maps)',
+    'pickup.hours_label': 'Horario del Obrador hoy',
+    'pickup.hours_hint': 'De lunes a sábado. Domingos cerrado por descanso.',
+    'pickup.on_my_way_btn': 'Avisar por WhatsApp: «Voy de camino»',
+    'pickup.toast_copied': 'Código de recogida copiado al portapapeles.',
+
     // Admin Backoffice
     'admin.title': 'Panel de Administración',
     'admin.obrador_badge': 'OBRADOR & TIENDA',
@@ -1068,6 +1094,31 @@ export const TRANSLATIONS = {
       'Llistat fiscal descarregat correctament per a la teva gestoria.',
     'invoices.modal_title': 'Detall de Factura Simplificada',
     'invoices.close_modal': 'Tancar',
+
+    // Canal preferit i guia de recollida a l'obrador
+    'account.pref_channel_title': 'Canal Preferit d’Avís i Seguiment',
+    'account.pref_channel_desc':
+      'Tria com prefereixes que l’obrador et notifiqui l’estat de les teves comandes.',
+    'account.pref_channel_wa': 'WhatsApp (Recomanat)',
+    'account.pref_channel_wa_desc':
+      'Avisos directes al teu mòbil quan l’encàrrec estigui preparat o a punt per recollir.',
+    'account.pref_channel_email': 'Correu Electrònic',
+    'account.pref_channel_email_desc':
+      'Notificacions amb albarà i tots els detalls a la teva bústia.',
+    'account.pref_channel_sms': 'SMS / Missatge de text',
+    'account.pref_channel_sms_desc':
+      'Avisos de text breus al teu telèfon sense necessitat de dades mòbils.',
+    'pickup.ready_title': 'El teu encàrrec està a punt al colmado!',
+    'pickup.ready_subtitle': 'Ja pots passar a recollir-lo al nostre taulell artesanal.',
+    'pickup.prep_title': 'Encàrrec en preparació per a recollida',
+    'pickup.prep_subtitle': 'Els nostres mestres artesans estan preparant la teva comanda.',
+    'pickup.pin_label': 'Codi Taulell',
+    'pickup.address_label': 'Punt de Recollida',
+    'pickup.open_maps': 'Com arribar-hi (Google Maps)',
+    'pickup.hours_label': 'Horari de l’Obrador avui',
+    'pickup.hours_hint': 'De dilluns a dissabte. Diumenges tancat per descans.',
+    'pickup.on_my_way_btn': 'Avisar per WhatsApp: «Ja vinc de camí»',
+    'pickup.toast_copied': 'Codi de recollida copiat al porta-retalls.',
 
     // Admin Backoffice
     'admin.title': 'Panell d’Administració',

@@ -34,12 +34,14 @@ export type FulfillmentMethod = 'pickup' | 'delivery';
 
 export type CutThicknessPreference = 'muy_fino' | 'estandar' | 'grueso';
 export type PackagingPreference = 'vacio_100g' | 'vacio_200g' | 'papel_colmado';
+export type NotificationChannelPreference = 'whatsapp' | 'email' | 'sms';
 
 export interface CustomerPreferences {
   allergens?: string[];
   cutThickness?: CutThicknessPreference;
   packaging?: PackagingPreference;
   obradorNotes?: string;
+  preferredChannel?: NotificationChannelPreference;
 }
 
 export interface OrderCustomer {

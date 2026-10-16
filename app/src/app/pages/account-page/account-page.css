@@ -1570,6 +1570,174 @@
   border-top: 1px solid #ebdccf;
 }
 
+/* Guía Interactiva de Recogida en Obrador */
+.pref-group-hint {
+  font-size: 12px;
+  color: #75695e;
+  margin: -4px 0 10px;
+}
+.pickup-guide-box {
+  background: #fdfaf6;
+  border: 1.5px solid #dfd2c4;
+  border-radius: 8px;
+  padding: 16px;
+  margin: 14px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.pickup-guide-box.ready-pickup {
+  background: #fdfbf7;
+  border-color: #2e7d32;
+  box-shadow: 0 2px 10px rgba(46, 125, 50, 0.08);
+}
+.pickup-guide-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 12px;
+  border-bottom: 1px solid #ebdccf;
+  padding-bottom: 12px;
+}
+.pickup-guide-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.pickup-icon {
+  font-size: 24px;
+}
+.pickup-headline {
+  display: block;
+  font-size: 14px;
+  color: #2d241e;
+  font-weight: 800;
+}
+.ready-pickup .pickup-headline {
+  color: #1b5e20;
+}
+.pickup-subheadline {
+  font-size: 12px;
+  color: #75695e;
+  margin: 2px 0 0;
+}
+.pickup-pin-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #2d241e;
+  color: #fff;
+  padding: 6px 12px;
+  border-radius: 6px;
+}
+.ready-pickup .pickup-pin-badge {
+  background: #2e7d32;
+}
+.pin-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #d7ccc8;
+}
+.pin-code {
+  font-size: 14px;
+  font-weight: 800;
+  font-family: monospace;
+  letter-spacing: 1px;
+}
+.btn-copy-pin {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 0;
+  margin-left: 2px;
+  color: #fff;
+  transition: transform 0.15s;
+}
+.btn-copy-pin:hover {
+  transform: scale(1.2);
+}
+.pickup-guide-content {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+}
+.pickup-info-item {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+.info-icon {
+  font-size: 18px;
+  margin-top: 1px;
+}
+.info-label {
+  display: block;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #8c7664;
+  letter-spacing: 0.04em;
+  margin-bottom: 2px;
+}
+.info-text {
+  font-size: 12.5px;
+  color: #2d241e;
+}
+.info-sub {
+  font-size: 11px;
+  color: #75695e;
+  margin: 1px 0 6px;
+}
+.btn-maps-link {
+  display: inline-flex;
+  align-items: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: #8b3a2b;
+  text-decoration: none;
+}
+.btn-maps-link:hover {
+  text-decoration: underline;
+}
+.hours-schedule {
+  font-size: 12.5px;
+  color: #55483f;
+}
+.hours-schedule.hours-open {
+  color: #2e7d32;
+  font-weight: 700;
+}
+.hours-hint {
+  font-size: 11px;
+  color: #8c7664;
+  margin: 2px 0 0;
+}
+.pickup-guide-actions {
+  display: flex;
+  justify-content: flex-end;
+  border-top: 1px dashed #ebdccf;
+  padding-top: 10px;
+}
+.btn-on-my-way-wa {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  background: #25d366;
+  color: #fff;
+  border-radius: 6px;
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 700;
+  transition: background 0.2s;
+}
+.btn-on-my-way-wa:hover {
+  background: #1eb855;
+}
+
 @media (max-width: 900px) {
   .account-page {
     padding-right: 6vw;

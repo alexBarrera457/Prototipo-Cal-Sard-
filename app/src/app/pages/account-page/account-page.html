@@ -290,6 +290,99 @@
                         </div>
                       }
 
+                      <!-- Guía Interactiva de Recogida en Obrador (Cal Sardà · Marina 237) -->
+                      @if (isPickupOrder(order)) {
+                        <div
+                          class="pickup-guide-box"
+                          [class.ready-pickup]="isReadyForPickup(order)"
+                        >
+                          <div class="pickup-guide-header">
+                            <div class="pickup-guide-title">
+                              <span class="pickup-icon" aria-hidden="true">🏪</span>
+                              <div>
+                                <strong class="pickup-headline">
+                                  {{
+                                    isReadyForPickup(order)
+                                      ? i18n.t('pickup.ready_title')
+                                      : i18n.t('pickup.prep_title')
+                                  }}
+                                </strong>
+                                <p class="pickup-subheadline">
+                                  {{
+                                    isReadyForPickup(order)
+                                      ? i18n.t('pickup.ready_subtitle')
+                                      : i18n.t('pickup.prep_subtitle')
+                                  }}
+                                </p>
+                              </div>
+                            </div>
+
+                            <div class="pickup-pin-badge">
+                              <span class="pin-label">{{ i18n.t('pickup.pin_label') }}</span>
+                              <strong class="pin-code">#{{ getPickupPin(order) }}</strong>
+                              <button
+                                type="button"
+                                class="btn-copy-pin"
+                                (click)="copyPickupCode(getPickupPin(order))"
+                                title="Copiar código PIN para el mostrador"
+                              >
+                                📋
+                              </button>
+                            </div>
+                          </div>
+
+                          <div class="pickup-guide-content">
+                            <div class="pickup-info-item">
+                              <span class="info-icon" aria-hidden="true">📍</span>
+                              <div>
+                                <span class="info-label">{{ i18n.t('pickup.address_label') }}</span>
+                                <strong class="info-text"
+                                  >Cal Sardà Colmado · Carrer de la Marina, 237</strong
+                                >
+                                <p class="info-sub">08013 Barcelona (Sagrada Família)</p>
+                                <a
+                                  href="https://maps.google.com/?q=Cal+Sarda+Carrer+de+la+Marina+237+Barcelona"
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  class="btn-maps-link"
+                                >
+                                  🗺️ {{ i18n.t('pickup.open_maps') }} ↗
+                                </a>
+                              </div>
+                            </div>
+
+                            <div class="pickup-info-item">
+                              <span class="info-icon" aria-hidden="true">⏰</span>
+                              <div>
+                                <span class="info-label"
+                                  >{{ i18n.t('pickup.hours_label') }} ({{
+                                    getStoreTodayHours().dayName
+                                  }})</span
+                                >
+                                <strong
+                                  class="hours-schedule"
+                                  [class.hours-open]="getStoreTodayHours().open"
+                                >
+                                  {{ getStoreTodayHours().hours }}
+                                </strong>
+                                <p class="hours-hint">{{ i18n.t('pickup.hours_hint') }}</p>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div class="pickup-guide-actions">
+                            <a
+                              [href]="getWhatsAppOnMyWayUrl(order)"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              class="btn-on-my-way-wa"
+                            >
+                              💬 {{ i18n.t('pickup.on_my_way_btn') }}
+                            </a>
+                          </div>
+                        </div>
+                      }
+
                       <!-- Desglose de productos (expandible) -->
                       <div class="order-items-preview">
                         <div class="items-summary-bar">
@@ -1132,6 +1225,62 @@
 
               <div class="profile-card preference-card">
                 <form (ngSubmit)="saveCustomerPreferences()" class="preferences-form">
+                  <!-- Bloque 0: Canal Preferido de Aviso y Seguimiento -->
+                  <div class="pref-group">
+                    <span class="pref-group-title">
+                      📱 {{ i18n.t('account.pref_channel_title') }}
+                    </span>
+                    <p class="pref-group-hint">
+                      {{ i18n.t('account.pref_channel_desc') }}
+                    </p>
+                    <div class="pref-options-grid">
+                      <label
+                        class="pref-option-card"
+                        [class.selected]="prefChannel() === 'whatsapp'"
+                      >
+                        <input
+                          type="radio"
+                          name="prefChannel"
+                          value="whatsapp"
+                          [checked]="prefChannel() === 'whatsapp'"
+                          (change)="prefChannel.set('whatsapp')"
+                        />
+                        <div class="pref-option-content">
+                          <strong>💬 {{ i18n.t('account.pref_channel_wa') }}</strong>
+                          <small>{{ i18n.t('account.pref_channel_wa_desc') }}</small>
+                        </div>
+                      </label>
+
+                      <label class="pref-option-card" [class.selected]="prefChannel() === 'email'">
+                        <input
+                          type="radio"
+                          name="prefChannel"
+                          value="email"
+                          [checked]="prefChannel() === 'email'"
+                          (change)="prefChannel.set('email')"
+                        />
+                        <div class="pref-option-content">
+                          <strong>✉️ {{ i18n.t('account.pref_channel_email') }}</strong>
+                          <small>{{ i18n.t('account.pref_channel_email_desc') }}</small>
+                        </div>
+                      </label>
+
+                      <label class="pref-option-card" [class.selected]="prefChannel() === 'sms'">
+                        <input
+                          type="radio"
+                          name="prefChannel"
+                          value="sms"
+                          [checked]="prefChannel() === 'sms'"
+                          (change)="prefChannel.set('sms')"
+                        />
+                        <div class="pref-option-content">
+                          <strong>📱 {{ i18n.t('account.pref_channel_sms') }}</strong>
+                          <small>{{ i18n.t('account.pref_channel_sms_desc') }}</small>
+                        </div>
+                      </label>
+                    </div>
+                  </div>
+
                   <!-- Bloque 1: Grosor de corte -->
                   <div class="pref-group">
                     <span class="pref-group-title">

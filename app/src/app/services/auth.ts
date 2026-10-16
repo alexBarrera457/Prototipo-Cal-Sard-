@@ -15,9 +15,15 @@ import type {
   CustomerPreferences,
   CutThicknessPreference,
   PackagingPreference,
+  NotificationChannelPreference,
 } from '@cal-sarda/domain';
 
-export type { CustomerPreferences, CutThicknessPreference, PackagingPreference };
+export type {
+  CustomerPreferences,
+  CutThicknessPreference,
+  PackagingPreference,
+  NotificationChannelPreference,
+};
 
 export type UserRole = 'customer' | 'admin' | 'staff';
 
@@ -165,6 +171,7 @@ export class InMemoryAuthAdapter implements AuthAdapter {
         cutThickness: 'muy_fino',
         packaging: 'vacio_100g',
         obradorNotes: 'Embutidos cortados muy finos para aperitivo.',
+        preferredChannel: 'whatsapp',
       },
       favorites: ['01', '03'],
     },

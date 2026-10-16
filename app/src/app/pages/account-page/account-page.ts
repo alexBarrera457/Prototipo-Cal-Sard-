@@ -10,6 +10,7 @@ import {
   type CustomerPreferences,
   type CutThicknessPreference,
   type PackagingPreference,
+  type NotificationChannelPreference,
 } from '../../services/auth';
 import { I18nService } from '../../services/i18n';
 import { OrdersService, type Order, type OrderStatus } from '../../services/orders';
@@ -96,6 +97,7 @@ export class AccountPage implements OnInit {
   readonly prefAllergens = signal<string[]>([]);
   readonly prefCutThickness = signal<CutThicknessPreference>('muy_fino');
   readonly prefPackaging = signal<PackagingPreference>('vacio_100g');
+  readonly prefChannel = signal<NotificationChannelPreference>('whatsapp');
   prefObradorNotes = '';
   readonly preferenceSaving = signal<boolean>(false);
   readonly preferenceError = signal<string | null>(null);
@@ -198,11 +200,13 @@ export class AccountPage implements OnInit {
       this.prefAllergens.set(prefs.allergens ? [...prefs.allergens] : []);
       this.prefCutThickness.set(prefs.cutThickness || 'muy_fino');
       this.prefPackaging.set(prefs.packaging || 'vacio_100g');
+      this.prefChannel.set(prefs.preferredChannel || 'whatsapp');
       this.prefObradorNotes = prefs.obradorNotes || '';
     } else {
       this.prefAllergens.set([]);
       this.prefCutThickness.set('muy_fino');
       this.prefPackaging.set('vacio_100g');
+      this.prefChannel.set('whatsapp');
       this.prefObradorNotes = '';
     }
     this.preferenceError.set(null);
@@ -232,6 +236,7 @@ export class AccountPage implements OnInit {
         allergens: this.prefAllergens(),
         cutThickness: this.prefCutThickness(),
         packaging: this.prefPackaging(),
+        preferredChannel: this.prefChannel(),
         obradorNotes: this.prefObradorNotes.trim(),
       });
 
@@ -719,6 +724,76 @@ export class AccountPage implements OnInit {
     }
 
     this.showToast(this.i18n.t('invoices.toast_csv_exported'));
+  }
+
+  isPickupOrder(order: Order): boolean {
+    return order.fulfillment === 'pickup' || order.status === 'listo_recogida';
+  }
+
+  isReadyForPickup(order: Order): boolean {
+    return order.status === 'listo_recogida';
+  }
+
+  getPickupPin(order: Order): string {
+    const digits = (order.reference || '').replace(/\D/g, '');
+    return digits ? digits.slice(-4).padStart(4, '0') : '1930';
+  }
+
+  getStoreTodayHours(): { open: boolean; hours: string; dayName: string } {
+    const day = new Date().getDay();
+    const isCa = this.i18n.currentLang() === 'ca';
+    const dayNamesEs = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+    const dayNamesCa = [
+      'Diumenge',
+      'Dilluns',
+      'Dimarts',
+      'Dimecres',
+      'Dijous',
+      'Divendres',
+      'Dissabte',
+    ];
+    const dayName = isCa ? dayNamesCa[day] : dayNamesEs[day];
+
+    if (day === 0) {
+      return {
+        open: false,
+        hours: isCa ? 'Tancat (descans setmanal)' : 'Cerrado (descanso semanal)',
+        dayName,
+      };
+    }
+    if (day === 6) {
+      return {
+        open: true,
+        hours: '08:30 - 14:30',
+        dayName,
+      };
+    }
+    return {
+      open: true,
+      hours: '08:30 - 14:00 · 17:00 - 20:30',
+      dayName,
+    };
+  }
+
+  async copyPickupCode(code: string): Promise<void> {
+    try {
+      if (typeof navigator !== 'undefined' && navigator.clipboard) {
+        await navigator.clipboard.writeText(code);
+      }
+    } catch {
+      // Fallback
+    }
+    this.showToast(this.i18n.t('pickup.toast_copied'));
+  }
+
+  getWhatsAppOnMyWayUrl(order: Order): string {
+    const isCa = this.i18n.currentLang() === 'ca';
+    const customerName = order.customer?.name || 'Cliente';
+    const ref = order.reference || 'Comanda';
+    const text = isCa
+      ? `Hola Cal Sardà! Sóc en/la ${customerName}. Ja vinc de camí a recollir el meu encàrrec ${ref}.`
+      : `Hola Cal Sardà! Soy ${customerName}. Voy de camino a recoger mi encargo ${ref}.`;
+    return `https://wa.me/34932325508?text=${encodeURIComponent(text)}`;
   }
 
   getOrderStep(status?: OrderStatus): number {

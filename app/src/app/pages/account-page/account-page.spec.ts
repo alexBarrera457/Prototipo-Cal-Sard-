@@ -497,4 +497,64 @@ describe('AccountPage', () => {
       expect(component.toastMessage()).toMatch(/gestor/i);
     });
   });
+
+  describe('customer notification channel & obrador pickup guide', () => {
+    beforeEach(async () => {
+      await component.quickSignIn('cliente@calsarda.com', 'cliente1930');
+      await component.loadCustomerOrders('cliente@calsarda.com');
+    });
+
+    it('loads preferred notification channel from user profile and allows updating to SMS or Email', async () => {
+      component.setTab('preferencias');
+      component.loadUserPreferences();
+
+      // Inicialmente en mock es whatsapp
+      expect(component.prefChannel()).toBe('whatsapp');
+
+      // Cambiar a SMS
+      component.prefChannel.set('sms');
+      await component.saveCustomerPreferences();
+
+      expect(authService.currentUser()?.preferences?.preferredChannel).toBe('sms');
+      expect(component.toastMessage()).toContain('correctamente');
+
+      // Cambiar a Email
+      component.prefChannel.set('email');
+      await component.saveCustomerPreferences();
+
+      expect(authService.currentUser()?.preferences?.preferredChannel).toBe('email');
+    });
+
+    it('detects pickup orders and provides pickup PIN, store hours, and WhatsApp link', () => {
+      const orders = component.customerOrders();
+      const pickupOrder = orders.find((o) => o.fulfillment === 'pickup') || {
+        reference: 'CS-2026-1043',
+        fulfillment: 'pickup' as const,
+        status: 'listo_recogida' as const,
+        total: 30.2,
+        customer: { name: 'Jaume Sardà', email: 'cliente@calsarda.com' },
+        items: [],
+      };
+
+      expect(component.isPickupOrder(pickupOrder)).toBe(true);
+      expect(component.isReadyForPickup(pickupOrder)).toBe(true);
+
+      const pin = component.getPickupPin(pickupOrder);
+      expect(pin).toHaveLength(4);
+      expect(pin).toMatch(/^\d{4}$/);
+
+      const hours = component.getStoreTodayHours();
+      expect(hours.dayName).toBeTruthy();
+      expect(hours.hours).toContain('08:30');
+
+      const waUrl = component.getWhatsAppOnMyWayUrl(pickupOrder);
+      expect(waUrl).toContain('wa.me/34932325508');
+      expect(waUrl).toContain(pickupOrder.reference!);
+    });
+
+    it('copies pickup code and shows notification toast', async () => {
+      await component.copyPickupCode('1043');
+      expect(component.toastMessage()).toContain('copiado');
+    });
+  });
 });

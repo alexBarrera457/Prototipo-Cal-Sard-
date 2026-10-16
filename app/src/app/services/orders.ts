@@ -102,6 +102,34 @@ export const DEFAULT_INITIAL_ORDERS: Order[] = [
     createdAt: new Date(Date.now() - 45 * 60 * 1000).toISOString(),
   },
   {
+    id: 'b6f2f310-7214-4c42-b062-817366304109',
+    reference: 'CS-2026-1043',
+    customer: {
+      name: 'Jaume Sardà',
+      email: 'cliente@calsarda.com',
+      phone: '611 223 344',
+    },
+    items: [
+      {
+        name: 'Formatge d’Ovella Curat Vell de Pastor',
+        price: 16.5,
+        quantity: 1,
+        productNumber: '03',
+      },
+      { name: 'Xoriço Ibèric de Bellota Artesà', price: 9.9, quantity: 1, productNumber: '02' },
+      { name: 'Pa de Pagès Tradicional d’Obrador', price: 3.8, quantity: 1, productNumber: '05' },
+    ],
+    subtotal: 30.2,
+    shippingCost: 0,
+    total: 30.2,
+    fulfillment: 'pickup',
+    status: 'listo_recogida',
+    estimatedDate: 'A punt per recollir al mostrador de Marina 237',
+    paymentMethod: 'Pago en tienda (Tarjeta o Efectivo)',
+    notes: 'Pa tallat a llesques per favor.',
+    createdAt: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
+  },
+  {
     id: 'b6f2f310-7214-4c42-b062-817366304106',
     reference: 'CS-2026-1035',
     customer: {
