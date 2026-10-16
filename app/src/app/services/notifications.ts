@@ -25,6 +25,15 @@ export interface StatusAlertCopy {
   instructions: string;
 }
 
+export interface AbandonedCartEmailPayload {
+  customerName: string;
+  customerEmail: string;
+  items: Array<{ name: string; price: number; quantity: number }>;
+  total: number;
+  recoveryUrl?: string;
+  lang?: 'ca' | 'es';
+}
+
 export interface WebhookSenderAdapter {
   dispatchWebhook(payload: OrderStatusWebhookPayload): Promise<boolean>;
   getDispatchedWebhooks?(): OrderStatusWebhookPayload[];
@@ -829,6 +838,139 @@ Atención: 93 232 55 08 · ${this.config.storeEmail}
       webhookDispatched,
       payload,
     };
+  }
+
+  /**
+   * Genera el email recordatorio de cesta abandonada.
+   */
+  buildAbandonedCartEmail(payload: AbandonedCartEmailPayload): EmailMessage {
+    const lang = payload.lang ?? 'es';
+    const fromAddress = `${this.config.senderName} <${this.config.senderEmail}>`;
+    const recoveryUrl = payload.recoveryUrl ?? 'https://calsarda.com/tienda-online';
+
+    const isCa = lang === 'ca';
+    const subject = isCa
+      ? "Cal Sardà · La teva selecció gourmet t'està esperant"
+      : 'Cal Sardà · Tu selección gourmet te está esperando';
+    const headline = isCa ? 'La teva cistella a Cal Sardà' : 'Tu selección en Cal Sardà';
+    const greeting = `Hola, ${payload.customerName}:`;
+    const intro = isCa
+      ? "Hem guardat la teva selecció de productes de l'obrador perquè puguis reprendre la teva compra quan vulguis. Els productes artesans tenen producció limitada i volem assegurar-nos que no et quedis sense!"
+      : 'Hemos guardado tu selección de productos del obrador para que puedas retomar tu compra cuando quieras. Los productos artesanos tienen producción limitada y queremos asegurarnos de que no te quedes sin ellos.';
+    const btnText = isCa ? 'Reprendre la meva comanda →' : 'Retomar mi pedido →';
+    const subtotalText = isCa ? 'Total de la selecció:' : 'Total de la selección:';
+
+    const itemsRowsHtml = payload.items
+      .map(
+        (it) => `
+        <tr>
+          <td style="padding: 8px 0; border-bottom: 1px solid #f0eae1; color: #251c15;">
+            <strong>${it.name}</strong>
+          </td>
+          <td style="padding: 8px 0; border-bottom: 1px solid #f0eae1; text-align: center; color: #6e5f52;">
+            ${it.quantity} ud.
+          </td>
+          <td style="padding: 8px 0; border-bottom: 1px solid #f0eae1; text-align: right; font-weight: bold; color: #8c2423;">
+            ${(it.quantity * it.price).toFixed(2)} €
+          </td>
+        </tr>`,
+      )
+      .join('');
+
+    const html = `<!DOCTYPE html>
+<html lang="${lang}">
+<head>
+  <meta charset="utf-8">
+  <title>${subject}</title>
+</head>
+<body style="font-family: Georgia, 'Times New Roman', serif; background-color: #f6f1ea; margin: 0; padding: 24px; color: #251c15;">
+  <table width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border: 1px solid #e5ded3;">
+    <tr>
+      <td style="background-color: #251c15; padding: 28px 32px; text-align: center; color: #f6f1ea;">
+        <span style="font-size: 10px; letter-spacing: 3px; color: #c4a47c; font-weight: bold; font-family: sans-serif;">CAL SARDÀ · OBRADOR DESDE 1930</span>
+        <h1 style="margin: 10px 0 0; font-size: 24px; font-weight: normal;">${headline}</h1>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding: 28px 32px;">
+        <p style="font-size: 16px; margin-top: 0;">${greeting}</p>
+        <p style="font-size: 15px; line-height: 1.6; color: #433830;">${intro}</p>
+
+        <h3 style="font-size: 16px; margin: 24px 0 10px; border-bottom: 2px solid #251c15; padding-bottom: 6px;">
+          ${isCa ? 'Productes a la teva cistella' : 'Productos en tu cesta'}
+        </h3>
+        <table width="100%" border="0" cellspacing="0" cellpadding="0" style="font-family: sans-serif; font-size: 13px; margin-bottom: 16px;">
+          <tbody>
+            ${itemsRowsHtml}
+          </tbody>
+        </table>
+
+        <div style="text-align: right; font-family: sans-serif; font-size: 16px; font-weight: bold; color: #251c15; margin-bottom: 28px;">
+          ${subtotalText} <span style="color: #8c2423;">${payload.total.toFixed(2)} €</span>
+        </div>
+
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="${recoveryUrl}" style="background-color: #8c2423; color: #ffffff; padding: 14px 28px; text-decoration: none; font-weight: bold; font-family: sans-serif; border-radius: 6px; display: inline-block;">
+            ${btnText}
+          </a>
+        </div>
+
+        <div style="border-top: 1px solid #e5ded3; padding-top: 16px; font-size: 12px; color: #6e5f52; font-family: sans-serif; line-height: 1.5;">
+          ${
+            isCa
+              ? 'Si tens qualsevol dubte o vols fer la comanda per telèfon, pots trucar-nos al 93 232 55 08.'
+              : 'Si tienes cualquier duda o prefieres hacer el pedido por teléfono, llámanos al 93 232 55 08.'
+          }
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <td style="background-color: #f7f3ed; padding: 16px 32px; text-align: center; font-size: 11px; color: #7a6b5e; font-family: sans-serif; border-top: 1px solid #e5ded3;">
+        Cal Sardà · Carrer de Marina, 237 · 08013 Barcelona · sarda@calsarda.com<br>
+        ${
+          isCa
+            ? 'Rebeu aquest correu perquè heu iniciat una selecció de compra a la botiga en línia de Cal Sardà.'
+            : 'Recibes este aviso porque iniciaste una selección de compra en la tienda online de Cal Sardà.'
+        }
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`;
+
+    const text = `
+CAL SARDÀ · DESDE 1930
+=========================================
+${headline.toUpperCase()}
+
+${greeting}
+${intro}
+
+PRODUCTOS EN TU CESTA:
+${payload.items.map((it) => `- ${it.quantity}x ${it.name} (${(it.quantity * it.price).toFixed(2)} €)`).join('\n')}
+
+TOTAL: ${payload.total.toFixed(2)} €
+
+Para retomar tu compra, accede a: ${recoveryUrl}
+
+Atención: 93 232 55 08 · sarda@calsarda.com
+    `.trim();
+
+    return {
+      to: payload.customerEmail,
+      from: fromAddress,
+      subject,
+      html,
+      text,
+      replyTo: this.config.storeEmail,
+    };
+  }
+
+  async sendAbandonedCartNotification(
+    payload: AbandonedCartEmailPayload,
+  ): Promise<SendEmailResult> {
+    const email = this.buildAbandonedCartEmail(payload);
+    return this.adapter.sendEmail(email);
   }
 
   getSentEmails(): EmailMessage[] {

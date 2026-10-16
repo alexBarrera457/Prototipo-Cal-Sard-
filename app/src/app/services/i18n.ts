@@ -694,6 +694,23 @@ export const TRANSLATIONS = {
     'b2b.validation_error':
       'Por favor completa todos los datos fiscales obligatorios (Empresa, CIF, Email y Dirección).',
 
+    // Carritos abandonados y recuperación reactiva (#70)
+    'abandoned_cart.banner_title': 'Tu selección gourmet te está esperando',
+    'abandoned_cart.banner_desc':
+      'Tienes productos guardados en tu cesta de Cal Sardà. ¿Deseas retomar tu pedido ahora?',
+    'abandoned_cart.btn_resume': 'Retomar mi compra',
+    'abandoned_cart.btn_dismiss': 'Descartar',
+    'abandoned_cart.reminder_sent': 'Recordatorio amistoso enviado al cliente con éxito.',
+    'abandoned_cart.admin_title': 'Cestas Pendientes y Carritos Abandonados',
+    'abandoned_cart.admin_desc':
+      'Seguimiento y recuperación respetuosa con el RGPD de selecciones no finalizadas en el colmado.',
+    'abandoned_cart.admin_send_btn': 'Enviar recordatorio amable',
+    'abandoned_cart.admin_empty': 'No hay carritos abandonados pendientes en este momento.',
+    'abandoned_cart.admin_th_date': 'Última actividad',
+    'abandoned_cart.admin_th_customer': 'Cliente / Sesión',
+    'abandoned_cart.admin_th_items': 'Productos seleccionados',
+    'abandoned_cart.admin_th_total': 'Importe cesta',
+
     // Categories
     'cat.CAFE_GOURMET': 'Café gourmet',
     'cat.CONSERVAS_DE_MAR': 'Conservas de mar',
@@ -1394,6 +1411,23 @@ export const TRANSLATIONS = {
     'b2b.bank_info_title': 'Dades per a transferència bancària',
     'b2b.validation_error':
       'Si us plau completa totes les dades fiscals obligatòries (Empresa, CIF, Correu i Adreça).',
+
+    // Carrets abandonats i recuperació reactiva (#70)
+    'abandoned_cart.banner_title': "La teva selecció gourmet t'està esperant",
+    'abandoned_cart.banner_desc':
+      'Tens productes desats a la teva cistella de Cal Sardà. Vols reprendre la teva comanda ara?',
+    'abandoned_cart.btn_resume': 'Reprendre la compra',
+    'abandoned_cart.btn_dismiss': 'Descartar',
+    'abandoned_cart.reminder_sent': 'Recordatori amistós enviat al client amb èxit.',
+    'abandoned_cart.admin_title': 'Cistelles Pendents i Carrets Abandonats',
+    'abandoned_cart.admin_desc':
+      "Seguiment i recuperació respectuosa amb el RGPD de seleccions no finalitzades a l'obrador.",
+    'abandoned_cart.admin_send_btn': 'Enviar recordatori amable',
+    'abandoned_cart.admin_empty': 'No hi ha cistelles abandonades pendents en aquest moment.',
+    'abandoned_cart.admin_th_date': 'Darrera activitat',
+    'abandoned_cart.admin_th_customer': 'Client / Sessió',
+    'abandoned_cart.admin_th_items': 'Productes seleccionats',
+    'abandoned_cart.admin_th_total': 'Import cistella',
 
     // Categories
     'cat.CAFE_GOURMET': 'Cafè gourmet',

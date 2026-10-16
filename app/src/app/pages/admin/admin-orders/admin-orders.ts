@@ -4,6 +4,10 @@ import { FormsModule } from '@angular/forms';
 import { OrdersService, type Order, type OrderStatus } from '../../../services/orders';
 import { I18nService } from '../../../services/i18n';
 import { InvoicingService } from '../../../services/invoicing';
+import {
+  AbandonedCartService,
+  type AbandonedCartAdminRecord,
+} from '../../../services/abandoned-cart';
 
 @Component({
   selector: 'app-admin-orders',
@@ -16,6 +20,7 @@ export class AdminOrders {
   readonly ordersService = inject(OrdersService);
   readonly i18n = inject(I18nService);
   readonly invoicingService = inject(InvoicingService);
+  readonly abandonedCartService = inject(AbandonedCartService);
 
   readonly statusFilter = signal<string>('todos');
   readonly fulfillmentFilter = signal<string>('todos');
@@ -24,6 +29,9 @@ export class AdminOrders {
   readonly selectedOrder = signal<Order | null>(null);
   readonly isRefreshing = signal<boolean>(false);
   readonly updatingOrderRef = signal<string | null>(null);
+  readonly abandonedCarts = signal<AbandonedCartAdminRecord[]>(
+    this.abandonedCartService.getAdminAbandonedCarts(),
+  );
 
   // Pedidos filtrados reactivamente
   readonly filteredOrders = computed(() => {
@@ -274,5 +282,17 @@ export class AdminOrders {
 
   printPreparationSlip(order: Order): void {
     this.invoicingService.printPreparationSlip(order, this.i18n.currentLang());
+  }
+
+  async sendAbandonedCartReminder(record: AbandonedCartAdminRecord): Promise<void> {
+    const success = await this.abandonedCartService.sendFriendlyReminder({
+      name: record.customerName,
+      email: record.customerEmail,
+    });
+    if (success) {
+      record.reminderSent = true;
+      record.reminderSentAt = new Date().toISOString();
+      this.showToast(this.i18n.t('abandoned_cart.reminder_sent'));
+    }
   }
 }

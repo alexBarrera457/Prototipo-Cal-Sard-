@@ -6,10 +6,18 @@ import { Navbar } from './components/navbar/navbar';
 import { Footer } from './components/footer/footer';
 import { CookieBanner } from './components/cookie-banner/cookie-banner';
 import { StockAlertModalComponent } from './components/stock-alert-modal/stock-alert-modal';
+import { AbandonedCartBannerComponent } from './components/abandoned-cart-banner/abandoned-cart-banner';
 
 @Component({
   selector: 'app-root',
-  imports: [Navbar, RouterOutlet, Footer, CookieBanner, StockAlertModalComponent],
+  imports: [
+    Navbar,
+    RouterOutlet,
+    Footer,
+    CookieBanner,
+    StockAlertModalComponent,
+    AbandonedCartBannerComponent,
+  ],
   templateUrl: './app.html',
   styleUrl: './app.css',
 })

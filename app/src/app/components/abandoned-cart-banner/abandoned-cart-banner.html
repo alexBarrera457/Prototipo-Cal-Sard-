@@ -1,0 +1,49 @@
+@if (abandonedCart.isBannerVisible()) {
+  <aside
+    class="abandoned-cart-banner"
+    role="region"
+    aria-label="Recuperación de cesta pendiente"
+    aria-live="polite"
+  >
+    <div class="banner-content">
+      <div class="banner-icon-box" aria-hidden="true">
+        <span>🛒</span>
+      </div>
+
+      <div class="banner-text">
+        <strong class="banner-title">{{ i18n.t('abandoned_cart.banner_title') }}</strong>
+        <p class="banner-desc">
+          {{ i18n.t('abandoned_cart.banner_desc') }}
+          @if (abandonedCart.pendingCount() > 0) {
+            <span class="banner-summary">
+              ({{ abandonedCart.pendingCount() }}
+              {{ abandonedCart.pendingCount() === 1 ? 'producto' : 'productos' }} ·
+              <strong>{{ formatCurrency(abandonedCart.pendingTotal()) }}</strong
+              >)
+            </span>
+          }
+        </p>
+      </div>
+
+      <div class="banner-actions">
+        <button
+          type="button"
+          class="btn-resume-cart"
+          (click)="abandonedCart.resumeCart()"
+          aria-label="Retomar compra de la cesta pendiente"
+        >
+          {{ i18n.t('abandoned_cart.btn_resume') }} →
+        </button>
+        <button
+          type="button"
+          class="btn-dismiss-cart"
+          (click)="abandonedCart.dismissBanner()"
+          [attr.aria-label]="i18n.t('abandoned_cart.btn_dismiss')"
+          title="Descartar aviso"
+        >
+          ✕
+        </button>
+      </div>
+    </div>
+  </aside>
+}

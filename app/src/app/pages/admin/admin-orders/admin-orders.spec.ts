@@ -192,4 +192,22 @@ describe('AdminOrders', () => {
     expect(openSpy).not.toHaveBeenCalled();
     expect(component.toastMessage()).toBeTruthy();
   });
+
+  it('permite gestionar carritos abandonados y enviar recordatorio amistoso desde el backoffice', async () => {
+    expect(component.abandonedCarts().length).toBeGreaterThan(0);
+    const cartRecord = component.abandonedCarts()[0];
+
+    const reminderSpy = vi
+      .spyOn(component.abandonedCartService, 'sendFriendlyReminder')
+      .mockResolvedValue(true);
+
+    await component.sendAbandonedCartReminder(cartRecord);
+
+    expect(reminderSpy).toHaveBeenCalledWith({
+      name: cartRecord.customerName,
+      email: cartRecord.customerEmail,
+    });
+    expect(cartRecord.reminderSent).toBe(true);
+    expect(component.toastMessage()).toBeTruthy();
+  });
 });

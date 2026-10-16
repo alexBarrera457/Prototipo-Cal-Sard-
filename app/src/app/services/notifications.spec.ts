@@ -326,5 +326,42 @@ describe('NotificationService', () => {
       expect(webhookAdapter.getDispatchedWebhooks().length).toBe(0);
       expect(service.lastDispatchedAlert()).toBeNull();
     });
+
+    it('genera y envía correos de recordatorio de cesta abandonada en catalán y castellano', async () => {
+      const emailAdapter = new InMemoryEmailAdapter();
+      const service = new NotificationService(emailAdapter);
+
+      const payloadEs = {
+        customerName: 'Laura Soler',
+        customerEmail: 'laura@example.com',
+        items: [
+          { name: 'Queso Curado de Pastor', price: 14.5, quantity: 1 },
+          { name: 'Fuet de Vic', price: 6.5, quantity: 2 },
+        ],
+        total: 27.5,
+        recoveryUrl: 'https://calsarda.com/preparar-pedido',
+        lang: 'es' as const,
+      };
+
+      const emailEs = service.buildAbandonedCartEmail(payloadEs);
+      expect(emailEs.to).toBe('laura@example.com');
+      expect(emailEs.subject).toContain('Tu selección gourmet te está esperando');
+      expect(emailEs.html).toContain('Retomar mi pedido');
+      expect(emailEs.html).toContain('27.50 €');
+      expect(emailEs.text).toContain('Queso Curado de Pastor');
+
+      const payloadCa = {
+        ...payloadEs,
+        lang: 'ca' as const,
+      };
+
+      const emailCa = service.buildAbandonedCartEmail(payloadCa);
+      expect(emailCa.subject).toContain("La teva selecció gourmet t'està esperant");
+      expect(emailCa.html).toContain('Reprendre la meva comanda');
+
+      const sendResult = await service.sendAbandonedCartNotification(payloadCa);
+      expect(sendResult.success).toBe(true);
+      expect(emailAdapter.getSentEmails().length).toBe(1);
+    });
   });
 });

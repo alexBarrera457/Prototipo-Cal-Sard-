@@ -336,6 +336,90 @@
     }
   </section>
 
+  <!-- Sección de Recuperación de Carritos Abandonados (#70) -->
+  <section class="abandoned-carts-section" aria-labelledby="abandoned-carts-title">
+    <header class="section-sub-header">
+      <div>
+        <span class="sub-kicker">{{ i18n.t('admin.obrador_badge') }} · RECUPERACIÓN REACTIVA</span>
+        <h2 id="abandoned-carts-title">{{ i18n.t('abandoned_cart.admin_title') }}</h2>
+        <p class="section-sub-desc">{{ i18n.t('abandoned_cart.admin_desc') }}</p>
+      </div>
+    </header>
+
+    <div class="table-container">
+      <table class="orders-table" aria-label="Cestas pendientes y carritos abandonados">
+        <thead>
+          <tr>
+            <th>{{ i18n.t('abandoned_cart.admin_th_customer') }}</th>
+            <th>{{ i18n.t('abandoned_cart.admin_th_date') }}</th>
+            <th>{{ i18n.t('abandoned_cart.admin_th_items') }}</th>
+            <th class="cell-number">{{ i18n.t('abandoned_cart.admin_th_total') }}</th>
+            <th class="cell-center">Acción</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (cart of abandonedCarts(); track cart.id) {
+            <tr>
+              <td>
+                <div class="customer-info">
+                  <span class="customer-name">{{ cart.customerName }}</span>
+                  <span class="customer-phone">{{ cart.customerEmail }}</span>
+                </div>
+              </td>
+              <td class="td-date">
+                <span class="date-main">{{ cart.lastActive | date: 'dd/MM/yyyy' }}</span>
+                <span class="date-time">{{ cart.lastActive | date: 'HH:mm' }}h</span>
+              </td>
+              <td>
+                <div class="cart-items-summary" style="display: flex; flex-wrap: wrap; gap: 4px">
+                  @for (item of cart.items; track item.name) {
+                    <span
+                      style="
+                        background: #f4ede3;
+                        color: #3a2c20;
+                        font-size: 11px;
+                        padding: 2px 6px;
+                        border-radius: 4px;
+                      "
+                    >
+                      {{ item.quantity }}x {{ item.name }}
+                    </span>
+                  }
+                </div>
+              </td>
+              <td class="cell-number td-total">
+                <strong>{{ formatCurrency(cart.total) }}</strong>
+              </td>
+              <td class="cell-center">
+                @if (cart.reminderSent) {
+                  <span style="color: #2e7d32; font-size: 12px; font-weight: 600"
+                    >✓ Recordatorio enviado</span
+                  >
+                } @else {
+                  <button
+                    type="button"
+                    class="btn-action btn-detail"
+                    style="background: #8c2423; color: #fff; border-color: #8c2423"
+                    (click)="sendAbandonedCartReminder(cart)"
+                    [disabled]="abandonedCartService.reminderSending()"
+                  >
+                    ✉️ {{ i18n.t('abandoned_cart.admin_send_btn') }}
+                  </button>
+                }
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="5" class="empty-cell">
+                <p>{{ i18n.t('abandoned_cart.admin_empty') }}</p>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+
   <!-- Modal / Diálogo Desplegable de Detalle del Pedido -->
   @if (selectedOrder(); as order) {
     <div class="order-modal-backdrop" (click)="closeOrderDetail()" aria-hidden="true"></div>

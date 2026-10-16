@@ -1,0 +1,148 @@
+.abandoned-cart-banner {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(840px, calc(100vw - 32px));
+  background: #251c15;
+  color: #f7f3ed;
+  border-radius: 12px;
+  border: 1.5px solid #aa845c;
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.35);
+  z-index: 1050;
+  animation: slideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  padding: 1rem 1.4rem;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 30px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+.banner-content {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+}
+
+.banner-icon-box {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(170, 132, 92, 0.15);
+  border: 1px solid rgba(170, 132, 92, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  flex-shrink: 0;
+}
+
+.banner-text {
+  flex-grow: 1;
+}
+
+.banner-title {
+  display: block;
+  font-size: 1rem;
+  color: #ffffff;
+  font-weight: 700;
+  margin-bottom: 0.2rem;
+  letter-spacing: -0.01em;
+}
+
+.banner-desc {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #dfd5c8;
+  line-height: 1.4;
+}
+
+.banner-summary {
+  display: inline-block;
+  margin-left: 4px;
+  color: #e5ded3;
+}
+
+.banner-summary strong {
+  color: #e2b380;
+}
+
+.banner-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  flex-shrink: 0;
+}
+
+.btn-resume-cart {
+  background: #8c2423;
+  color: #ffffff;
+  border: none;
+  padding: 0.65rem 1.2rem;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 0.88rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.btn-resume-cart:hover {
+  background: #aa2e2d;
+  transform: translateY(-1px);
+}
+
+.btn-dismiss-cart {
+  background: transparent;
+  color: #b0a395;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: all 0.2s ease;
+}
+
+.btn-dismiss-cart:hover {
+  color: #ffffff;
+  border-color: #ffffff;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+@media (max-width: 640px) {
+  .abandoned-cart-banner {
+    bottom: 16px;
+    padding: 0.9rem;
+  }
+
+  .banner-content {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.8rem;
+  }
+
+  .banner-icon-box {
+    display: none;
+  }
+
+  .banner-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .btn-resume-cart {
+    flex-grow: 1;
+    text-align: center;
+  }
+}

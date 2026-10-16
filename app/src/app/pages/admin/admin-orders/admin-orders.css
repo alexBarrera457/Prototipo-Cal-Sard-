@@ -594,3 +594,33 @@
     flex-direction: column-reverse;
   }
 }
+
+.abandoned-carts-section {
+  margin-top: 3rem;
+  padding-top: 2rem;
+  border-top: 2px dashed #e8decb;
+}
+
+.section-sub-header {
+  margin-bottom: 1.2rem;
+}
+
+.sub-kicker {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: #8c2423;
+  text-transform: uppercase;
+}
+
+.section-sub-header h2 {
+  font-size: 1.4rem;
+  color: #251c15;
+  margin: 0.2rem 0;
+}
+
+.section-sub-desc {
+  font-size: 0.9rem;
+  color: #6a5a4d;
+  margin: 0;
+}

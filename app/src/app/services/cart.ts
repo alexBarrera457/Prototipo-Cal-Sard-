@@ -231,5 +231,20 @@ export class CartService {
   private setProducts(products: CartProduct[]): void {
     this.products.set(products);
     this.adapter.save(products);
+
+    if (typeof localStorage !== 'undefined') {
+      try {
+        if (products.length > 0) {
+          const raw = localStorage.getItem('cal_sarda_abandoned_cart');
+          const meta = raw ? JSON.parse(raw) : {};
+          meta.lastUpdated = Date.now();
+          localStorage.setItem('cal_sarda_abandoned_cart', JSON.stringify(meta));
+        } else {
+          localStorage.removeItem('cal_sarda_abandoned_cart');
+        }
+      } catch {
+        // Ignorar excepciones de almacenamiento
+      }
+    }
   }
 }
