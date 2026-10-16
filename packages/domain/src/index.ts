@@ -39,6 +39,8 @@ export interface OrderCustomer {
   address?: string;
   postalCode?: string;
   city?: string;
+  taxId?: string;
+  companyName?: string;
 }
 
 export type OrderStatus =

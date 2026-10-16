@@ -1,5 +1,5 @@
 import { isPlatformBrowser } from '@angular/common';
-import { Component, inject, Inject, PLATFORM_ID, signal } from '@angular/core';
+import { Component, inject, Inject, OnInit, PLATFORM_ID, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import type {
@@ -8,6 +8,7 @@ import type {
   PaymentTransactionResult,
 } from '@cal-sarda/domain';
 
+import { AuthService } from '../../services/auth';
 import { CartService } from '../../services/cart';
 import { I18nService } from '../../services/i18n';
 import { InvoicingService } from '../../services/invoicing';
@@ -35,7 +36,7 @@ export interface CheckoutFormErrors {
   templateUrl: './checkout-page.html',
   styleUrl: './checkout-page.css',
 })
-export class CheckoutPage {
+export class CheckoutPage implements OnInit {
   fulfillment: FulfillmentMethod = 'pickup';
   paymentMethod: PaymentMethodType = 'store';
   readonly previewReady = signal(false);
@@ -52,14 +53,26 @@ export class CheckoutPage {
   public readonly i18n = inject(I18nService);
   private readonly invoicingService = inject(InvoicingService);
   public readonly paymentsService = inject(PaymentsService);
+  public readonly authService = inject(AuthService, { optional: true });
 
-  customer = {
+  customer: {
+    name: string;
+    email: string;
+    phone: string;
+    address: string;
+    postalCode: string;
+    city: string;
+    taxId?: string;
+    companyName?: string;
+  } = {
     name: '',
     email: '',
     phone: '',
     address: '',
     postalCode: '',
     city: '',
+    taxId: '',
+    companyName: '',
   };
 
   card = {
@@ -77,6 +90,35 @@ export class CheckoutPage {
     public ordersService: OrdersService,
     @Inject(PLATFORM_ID) private readonly platformId: object,
   ) {}
+
+  ngOnInit(): void {
+    const user = this.authService?.currentUser();
+    if (user) {
+      if (!this.customer.name && user.name) this.customer.name = user.name;
+      if (!this.customer.email && user.email) this.customer.email = user.email;
+      if (!this.customer.phone && user.phone) this.customer.phone = user.phone;
+
+      const defaultAddr = user.addresses?.find((a) => a.isDefault) || user.addresses?.[0];
+      if (defaultAddr) {
+        if (!this.customer.address) this.customer.address = defaultAddr.street;
+        if (!this.customer.postalCode) this.customer.postalCode = defaultAddr.postalCode;
+        if (!this.customer.city) this.customer.city = defaultAddr.city;
+      } else if (user.address) {
+        if (!this.customer.address) this.customer.address = user.address;
+        if (!this.customer.postalCode && user.postalCode)
+          this.customer.postalCode = user.postalCode;
+        if (!this.customer.city && user.city) this.customer.city = user.city;
+      }
+
+      if (user.fiscalData) {
+        if (!this.customer.taxId && user.fiscalData.taxId)
+          this.customer.taxId = user.fiscalData.taxId;
+        if (!this.customer.companyName && user.fiscalData.companyName) {
+          this.customer.companyName = user.fiscalData.companyName;
+        }
+      }
+    }
+  }
 
   get isDelivery(): boolean {
     return this.fulfillment === 'delivery';

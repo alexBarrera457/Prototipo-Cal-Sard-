@@ -2,7 +2,7 @@ import { Component, effect, inject, OnInit, signal } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule, NgForm } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { AuthService } from '../../services/auth';
+import { AuthService, type UserAddress, type FiscalData } from '../../services/auth';
 import { I18nService } from '../../services/i18n';
 import { OrdersService, type Order, type OrderStatus } from '../../services/orders';
 import { CartService } from '../../services/cart';
@@ -47,6 +47,28 @@ export class AccountPage implements OnInit {
   confirmPasswordInput = '';
   readonly passwordSaving = signal<boolean>(false);
   readonly passwordError = signal<string | null>(null);
+
+  // Libreta de Direcciones
+  readonly isEditingAddress = signal<boolean>(false);
+  readonly editingAddressId = signal<string | null>(null);
+  addrAlias = '';
+  addrStreet = '';
+  addrPostalCode = '';
+  addrCity = '';
+  addrProvince = 'Barcelona';
+  addrIsDefault = false;
+  readonly addressSaving = signal<boolean>(false);
+  readonly addressError = signal<string | null>(null);
+
+  // Datos Fiscales (NIF/CIF)
+  readonly isEditingFiscal = signal<boolean>(false);
+  fiscalCompany = '';
+  fiscalTaxId = '';
+  fiscalAddress = '';
+  fiscalPostalCode = '';
+  fiscalCity = '';
+  readonly fiscalSaving = signal<boolean>(false);
+  readonly fiscalError = signal<string | null>(null);
 
   // Formulario de inicio de sesión
   email = '';
@@ -203,6 +225,172 @@ export class AccountPage implements OnInit {
       }
     } finally {
       this.passwordSaving.set(false);
+    }
+  }
+
+  openNewAddressForm(): void {
+    this.editingAddressId.set(null);
+    this.addrAlias = '';
+    this.addrStreet = '';
+    this.addrPostalCode = '';
+    this.addrCity = 'Barcelona';
+    this.addrProvince = 'Barcelona';
+    this.addrIsDefault = (this.auth.currentUser()?.addresses?.length ?? 0) === 0;
+    this.addressError.set(null);
+    this.isEditingAddress.set(true);
+  }
+
+  openEditAddressForm(addr: UserAddress): void {
+    this.editingAddressId.set(addr.id);
+    this.addrAlias = addr.alias;
+    this.addrStreet = addr.street;
+    this.addrPostalCode = addr.postalCode;
+    this.addrCity = addr.city;
+    this.addrProvince = addr.province ?? 'Barcelona';
+    this.addrIsDefault = !!addr.isDefault;
+    this.addressError.set(null);
+    this.isEditingAddress.set(true);
+  }
+
+  cancelAddressForm(): void {
+    this.isEditingAddress.set(false);
+    this.editingAddressId.set(null);
+    this.addressError.set(null);
+  }
+
+  async saveAddress(): Promise<void> {
+    const street = this.addrStreet.trim();
+    const postalCode = this.addrPostalCode.trim();
+    const city = this.addrCity.trim();
+    const alias = this.addrAlias.trim() || 'Dirección';
+
+    if (!street || !postalCode || !city) {
+      this.addressError.set(
+        this.i18n.currentLang() === 'ca'
+          ? 'El carrer, codi postal i ciutat són obligatoris.'
+          : 'La calle, código postal y ciudad son obligatorios.',
+      );
+      return;
+    }
+
+    this.addressSaving.set(true);
+    this.addressError.set(null);
+
+    try {
+      const editId = this.editingAddressId();
+      let result;
+      if (editId) {
+        result = await this.auth.updateAddress(editId, {
+          alias,
+          street,
+          postalCode,
+          city,
+          province: this.addrProvince.trim(),
+          isDefault: this.addrIsDefault,
+        });
+      } else {
+        result = await this.auth.addAddress({
+          alias,
+          street,
+          postalCode,
+          city,
+          province: this.addrProvince.trim(),
+          isDefault: this.addrIsDefault,
+        });
+      }
+
+      if (result.success) {
+        this.isEditingAddress.set(false);
+        this.editingAddressId.set(null);
+        this.showToast(
+          this.i18n.currentLang() === 'ca'
+            ? 'Adreça desada amb èxit'
+            : 'Dirección guardada con éxito',
+        );
+      } else {
+        this.addressError.set(result.error ?? 'Error al guardar la dirección.');
+      }
+    } finally {
+      this.addressSaving.set(false);
+    }
+  }
+
+  async deleteAddress(id: string): Promise<void> {
+    const result = await this.auth.deleteAddress(id);
+    if (result.success) {
+      this.showToast(
+        this.i18n.currentLang() === 'ca'
+          ? 'Adreça eliminada correctament'
+          : 'Dirección eliminada correctamente',
+      );
+    }
+  }
+
+  async setDefaultAddress(id: string): Promise<void> {
+    const result = await this.auth.setDefaultAddress(id);
+    if (result.success) {
+      this.showToast(
+        this.i18n.currentLang() === 'ca'
+          ? 'Adreça predeterminada actualitzada'
+          : 'Dirección predeterminada actualizada',
+      );
+    }
+  }
+
+  openEditFiscalForm(): void {
+    const user = this.auth.currentUser();
+    const fiscal = user?.fiscalData;
+    this.fiscalCompany = fiscal?.companyName ?? user?.name ?? '';
+    this.fiscalTaxId = fiscal?.taxId ?? '';
+    this.fiscalAddress = fiscal?.address ?? user?.address ?? '';
+    this.fiscalPostalCode = fiscal?.postalCode ?? user?.postalCode ?? '';
+    this.fiscalCity = fiscal?.city ?? user?.city ?? 'Barcelona';
+    this.fiscalError.set(null);
+    this.isEditingFiscal.set(true);
+  }
+
+  cancelEditFiscalForm(): void {
+    this.isEditingFiscal.set(false);
+    this.fiscalError.set(null);
+  }
+
+  async saveFiscalData(): Promise<void> {
+    const taxId = this.fiscalTaxId.trim();
+    const company = this.fiscalCompany.trim();
+
+    if (!taxId || !company) {
+      this.fiscalError.set(
+        this.i18n.currentLang() === 'ca'
+          ? 'El NIF/CIF i la raó social són obligatoris.'
+          : 'El NIF/CIF y la razón social son obligatorios.',
+      );
+      return;
+    }
+
+    this.fiscalSaving.set(true);
+    this.fiscalError.set(null);
+
+    try {
+      const result = await this.auth.saveFiscalData({
+        companyName: company,
+        taxId,
+        address: this.fiscalAddress.trim(),
+        postalCode: this.fiscalPostalCode.trim(),
+        city: this.fiscalCity.trim(),
+      });
+
+      if (result.success) {
+        this.isEditingFiscal.set(false);
+        this.showToast(
+          this.i18n.currentLang() === 'ca'
+            ? 'Dades fiscals desades correctament'
+            : 'Datos fiscales guardados correctamente',
+        );
+      } else {
+        this.fiscalError.set(result.error ?? 'Error al guardar los datos fiscales.');
+      }
+    } finally {
+      this.fiscalSaving.set(false);
     }
   }
 

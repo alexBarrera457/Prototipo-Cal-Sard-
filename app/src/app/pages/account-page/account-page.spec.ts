@@ -222,4 +222,109 @@ describe('AccountPage', () => {
       expect(component.toastMessage()).toContain('éxito');
     });
   });
+
+  describe('address notebook & fiscal data', () => {
+    beforeEach(async () => {
+      await component.quickSignIn('cliente@calsarda.com', 'cliente1930');
+    });
+
+    it('opens and cancels address form', () => {
+      component.openNewAddressForm();
+      expect(component.isEditingAddress()).toBe(true);
+      expect(component.editingAddressId()).toBeNull();
+      expect(component.addrCity).toBe('Barcelona');
+
+      component.cancelAddressForm();
+      expect(component.isEditingAddress()).toBe(false);
+    });
+
+    it('validates street and postal code are mandatory for address', async () => {
+      component.openNewAddressForm();
+      component.addrStreet = '';
+      component.addrPostalCode = '';
+      await component.saveAddress();
+
+      expect(component.addressError()).toContain('obligatorios');
+      expect(component.isEditingAddress()).toBe(true);
+    });
+
+    it('adds a new address to customer profile', async () => {
+      component.openNewAddressForm();
+      component.addrAlias = 'Oficina Eixample';
+      component.addrStreet = 'Carrer de Mallorca, 200';
+      component.addrPostalCode = '08036';
+      component.addrCity = 'Barcelona';
+      component.addrProvince = 'Barcelona';
+      component.addrIsDefault = false;
+
+      await component.saveAddress();
+
+      expect(component.isEditingAddress()).toBe(false);
+      expect(component.toastMessage()).toContain('éxito');
+      const addrs = authService.currentUser()?.addresses ?? [];
+      expect(addrs.some((a) => a.alias === 'Oficina Eixample')).toBe(true);
+    });
+
+    it('edits an existing address and updates it', async () => {
+      const existing = (authService.currentUser()?.addresses ?? [])[0];
+      expect(existing).toBeDefined();
+
+      component.openEditAddressForm(existing);
+      expect(component.editingAddressId()).toBe(existing.id);
+      expect(component.addrStreet).toBe(existing.street);
+
+      component.addrStreet = 'Carrer d’Aragó, 312, Àtic 1a';
+      await component.saveAddress();
+
+      expect(component.isEditingAddress()).toBe(false);
+      const updated = authService.currentUser()?.addresses?.find((a) => a.id === existing.id);
+      expect(updated?.street).toBe('Carrer d’Aragó, 312, Àtic 1a');
+    });
+
+    it('sets default address and deletes an address', async () => {
+      // Add second address
+      await authService.addAddress({
+        alias: 'Feina',
+        street: 'Diagonal 400',
+        postalCode: '08037',
+        city: 'Barcelona',
+        isDefault: false,
+      });
+
+      const addrs = authService.currentUser()?.addresses ?? [];
+      const second = addrs.find((a) => a.alias === 'Feina');
+      expect(second).toBeDefined();
+
+      await component.setDefaultAddress(second!.id);
+      expect(
+        authService.currentUser()?.addresses?.find((a) => a.id === second!.id)?.isDefault,
+      ).toBe(true);
+
+      await component.deleteAddress(second!.id);
+      expect(authService.currentUser()?.addresses?.some((a) => a.id === second!.id)).toBe(false);
+    });
+
+    it('manages fiscal data: validation and saving', async () => {
+      component.openEditFiscalForm();
+      expect(component.isEditingFiscal()).toBe(true);
+
+      component.fiscalTaxId = '';
+      await component.saveFiscalData();
+      expect(component.fiscalError()).toContain('obligatorios');
+
+      component.fiscalCompany = 'Sardà Distribucions Gourmet SL';
+      component.fiscalTaxId = 'B-12345678';
+      component.fiscalAddress = 'Carrer Marina 237';
+      component.fiscalPostalCode = '08013';
+      component.fiscalCity = 'Barcelona';
+
+      await component.saveFiscalData();
+      expect(component.isEditingFiscal()).toBe(false);
+      expect(authService.currentUser()?.fiscalData?.taxId).toBe('B-12345678');
+      expect(authService.currentUser()?.fiscalData?.companyName).toBe(
+        'Sardà Distribucions Gourmet SL',
+      );
+      expect(component.toastMessage()).toContain('correctamente');
+    });
+  });
 });

@@ -13,6 +13,26 @@ import { SUPABASE_CLIENT, type SupabaseClient } from './supabase';
 
 export type UserRole = 'customer' | 'admin' | 'staff';
 
+export interface UserAddress {
+  id: string;
+  alias: string;
+  street: string;
+  postalCode: string;
+  city: string;
+  province?: string;
+  country?: string;
+  isDefault?: boolean;
+}
+
+export interface FiscalData {
+  companyName?: string;
+  taxId?: string; // NIF / CIF
+  address?: string;
+  postalCode?: string;
+  city?: string;
+  province?: string;
+}
+
 export interface UserProfile {
   id: string;
   email: string;
@@ -26,6 +46,8 @@ export interface UserProfile {
   role: UserRole;
   createdAt?: string;
   updatedAt?: string;
+  addresses?: UserAddress[];
+  fiscalData?: FiscalData;
 }
 
 export interface SignUpInput {
@@ -108,6 +130,26 @@ export class InMemoryAuthAdapter implements AuthAdapter {
       country: 'España',
       role: 'customer',
       createdAt: new Date('2026-01-10T10:00:00Z').toISOString(),
+      addresses: [
+        {
+          id: 'addr-1',
+          alias: 'Casa',
+          street: 'Carrer d’Aragó, 312, 3r 2a',
+          postalCode: '08009',
+          city: 'Barcelona',
+          province: 'Barcelona',
+          country: 'España',
+          isDefault: true,
+        },
+      ],
+      fiscalData: {
+        companyName: 'Jaume Sardà i Fills SL',
+        taxId: 'B-67891234',
+        address: 'Carrer d’Aragó, 312',
+        postalCode: '08009',
+        city: 'Barcelona',
+        province: 'Barcelona',
+      },
     },
   ];
 
@@ -688,5 +730,80 @@ export class AuthService {
     } finally {
       this.loading.set(false);
     }
+  }
+
+  async addAddress(address: Omit<UserAddress, 'id'>): Promise<AuthResult> {
+    const user = this.currentUser();
+    if (!user) {
+      return { success: false, error: 'No hay ninguna sesión activa.' };
+    }
+
+    const currentAddresses = user.addresses ? [...user.addresses] : [];
+    const isFirst = currentAddresses.length === 0;
+    const shouldBeDefault = address.isDefault ?? isFirst;
+
+    const newAddr: UserAddress = {
+      ...address,
+      id: `addr-${Date.now()}-${Math.random().toString(36).substring(2, 5)}`,
+      isDefault: shouldBeDefault,
+    };
+
+    const updatedAddresses = currentAddresses.map((a) =>
+      shouldBeDefault ? { ...a, isDefault: false } : a,
+    );
+    updatedAddresses.push(newAddr);
+
+    return this.updateProfile({ addresses: updatedAddresses });
+  }
+
+  async updateAddress(id: string, partial: Partial<UserAddress>): Promise<AuthResult> {
+    const user = this.currentUser();
+    if (!user || !user.addresses) {
+      return { success: false, error: 'No hay ninguna sesión activa o direcciones.' };
+    }
+
+    const updatedAddresses = user.addresses.map((a) => {
+      if (a.id === id) {
+        return { ...a, ...partial };
+      }
+      if (partial.isDefault) {
+        return { ...a, isDefault: false };
+      }
+      return a;
+    });
+
+    return this.updateProfile({ addresses: updatedAddresses });
+  }
+
+  async deleteAddress(id: string): Promise<AuthResult> {
+    const user = this.currentUser();
+    if (!user || !user.addresses) {
+      return { success: false, error: 'No hay ninguna sesión activa o direcciones.' };
+    }
+
+    const remaining = user.addresses.filter((a) => a.id !== id);
+    if (remaining.length > 0 && !remaining.some((a) => a.isDefault)) {
+      remaining[0].isDefault = true;
+    }
+
+    return this.updateProfile({ addresses: remaining });
+  }
+
+  async setDefaultAddress(id: string): Promise<AuthResult> {
+    const user = this.currentUser();
+    if (!user || !user.addresses) {
+      return { success: false, error: 'No hay ninguna sesión activa o direcciones.' };
+    }
+
+    const updatedAddresses = user.addresses.map((a) => ({
+      ...a,
+      isDefault: a.id === id,
+    }));
+
+    return this.updateProfile({ addresses: updatedAddresses });
+  }
+
+  async saveFiscalData(fiscalData: FiscalData): Promise<AuthResult> {
+    return this.updateProfile({ fiscalData });
   }
 }

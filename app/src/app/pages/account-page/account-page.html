@@ -588,18 +588,252 @@
             </div>
           }
 
-          <!-- Pestaña 3: Direcciones -->
+          <!-- Pestaña 3: Direcciones y Datos Fiscales -->
           @if (activeTab() === 'direcciones') {
             <div class="tab-content tab-addresses" role="tabpanel">
-              <div class="addresses-grid">
-                <!-- Dirección de entrega -->
-                <div class="address-card">
+              <!-- Cabecera de Direcciones -->
+              <div class="addresses-section-header">
+                <div>
+                  <h3>
+                    {{
+                      i18n.currentLang() === 'ca' ? 'Llibreta d’Adreces' : 'Libreta de Direcciones'
+                    }}
+                  </h3>
+                  <p>
+                    {{
+                      i18n.currentLang() === 'ca'
+                        ? 'Gestiona les teves ubicacions habituals de lliurament a domicili.'
+                        : 'Gestiona tus ubicaciones habituales de entrega a domicilio.'
+                    }}
+                  </p>
+                </div>
+                @if (!isEditingAddress()) {
+                  <button type="button" class="btn-add-address" (click)="openNewAddressForm()">
+                    + {{ i18n.currentLang() === 'ca' ? 'Nova adreça' : 'Nueva dirección' }}
+                  </button>
+                }
+              </div>
+
+              <!-- Formulario de Añadir/Editar Dirección -->
+              @if (isEditingAddress()) {
+                <div class="address-card address-form-card">
                   <div class="address-header">
-                    <span class="address-icon">🚚</span>
-                    <h4>{{ i18n.t('account.address_default_shipping') }}</h4>
+                    <span class="address-icon">📍</span>
+                    <h4>
+                      {{
+                        editingAddressId()
+                          ? i18n.currentLang() === 'ca'
+                            ? 'Editar adreça'
+                            : 'Editar dirección'
+                          : i18n.currentLang() === 'ca'
+                            ? 'Nova adreça de lliurament'
+                            : 'Nueva dirección de entrega'
+                      }}
+                    </h4>
                   </div>
-                  <div class="address-body">
-                    @if (user.address) {
+
+                  <form class="profile-edit-form" (ngSubmit)="saveAddress()">
+                    <div class="form-row-2">
+                      <div class="form-group">
+                        <label for="addr-alias">{{
+                          i18n.currentLang() === 'ca'
+                            ? 'Àlies (ex. Casa, Feina)'
+                            : 'Alias (ej. Casa, Trabajo)'
+                        }}</label>
+                        <input
+                          id="addr-alias"
+                          type="text"
+                          name="addrAlias"
+                          class="form-control"
+                          [(ngModel)]="addrAlias"
+                          placeholder="Casa"
+                          [disabled]="addressSaving()"
+                        />
+                      </div>
+
+                      <div class="form-group">
+                        <label for="addr-postal-code">{{
+                          i18n.currentLang() === 'ca' ? 'Codi Postal' : 'Código Postal'
+                        }}</label>
+                        <input
+                          id="addr-postal-code"
+                          type="text"
+                          name="addrPostalCode"
+                          class="form-control"
+                          [(ngModel)]="addrPostalCode"
+                          placeholder="08013"
+                          required
+                          [disabled]="addressSaving()"
+                        />
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <label for="addr-street">{{
+                        i18n.currentLang() === 'ca'
+                          ? 'Carrer, número, pis, porta'
+                          : 'Calle, número, piso, puerta'
+                      }}</label>
+                      <input
+                        id="addr-street"
+                        type="text"
+                        name="addrStreet"
+                        class="form-control"
+                        [(ngModel)]="addrStreet"
+                        placeholder="Carrer de Mallorca, 321, 2n 1a"
+                        required
+                        [disabled]="addressSaving()"
+                      />
+                    </div>
+
+                    <div class="form-row-2">
+                      <div class="form-group">
+                        <label for="addr-city">{{
+                          i18n.currentLang() === 'ca' ? 'Ciutat' : 'Ciudad'
+                        }}</label>
+                        <input
+                          id="addr-city"
+                          type="text"
+                          name="addrCity"
+                          class="form-control"
+                          [(ngModel)]="addrCity"
+                          required
+                          [disabled]="addressSaving()"
+                        />
+                      </div>
+
+                      <div class="form-group">
+                        <label for="addr-province">{{
+                          i18n.currentLang() === 'ca' ? 'Província' : 'Provincia'
+                        }}</label>
+                        <input
+                          id="addr-province"
+                          type="text"
+                          name="addrProvince"
+                          class="form-control"
+                          [(ngModel)]="addrProvince"
+                          [disabled]="addressSaving()"
+                        />
+                      </div>
+                    </div>
+
+                    <div class="form-checkbox-group">
+                      <label class="checkbox-label">
+                        <input
+                          type="checkbox"
+                          name="addrIsDefault"
+                          [(ngModel)]="addrIsDefault"
+                          [disabled]="addressSaving()"
+                        />
+                        <span>{{
+                          i18n.currentLang() === 'ca'
+                            ? 'Marcar com a adreça predeterminada'
+                            : 'Marcar como dirección predeterminada'
+                        }}</span>
+                      </label>
+                    </div>
+
+                    @if (addressError(); as err) {
+                      <div class="form-alert-error" role="alert">
+                        <span>⚠️</span>
+                        <span>{{ err }}</span>
+                      </div>
+                    }
+
+                    <div class="form-actions">
+                      <button type="submit" class="btn-save-profile" [disabled]="addressSaving()">
+                        {{
+                          addressSaving()
+                            ? i18n.currentLang() === 'ca'
+                              ? 'Desant...'
+                              : 'Guardando...'
+                            : i18n.currentLang() === 'ca'
+                              ? 'Desar adreça'
+                              : 'Guardar dirección'
+                        }}
+                      </button>
+                      <button
+                        type="button"
+                        class="btn-cancel-edit"
+                        (click)="cancelAddressForm()"
+                        [disabled]="addressSaving()"
+                      >
+                        {{ i18n.currentLang() === 'ca' ? 'Cancel·lar' : 'Cancelar' }}
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              }
+
+              <!-- Grid de Direcciones Guardadas -->
+              <div class="addresses-grid">
+                @if (user.addresses && user.addresses.length > 0) {
+                  @for (addr of user.addresses; track addr.id) {
+                    <div class="address-card" [class.is-default-card]="addr.isDefault">
+                      <div class="address-header">
+                        <span class="address-icon">🚚</span>
+                        <div class="address-header-meta">
+                          <h4>{{ addr.alias }}</h4>
+                          @if (addr.isDefault) {
+                            <span class="default-badge">
+                              ★
+                              {{
+                                i18n.currentLang() === 'ca' ? 'Predeterminada' : 'Predeterminada'
+                              }}
+                            </span>
+                          }
+                        </div>
+                      </div>
+
+                      <div class="address-body">
+                        <p class="address-line">
+                          <strong>{{ user.name }}</strong>
+                        </p>
+                        <p class="address-line">{{ addr.street }}</p>
+                        <p class="address-line">
+                          {{ addr.postalCode }} {{ addr.city }} ({{ addr.province || 'Barcelona' }})
+                        </p>
+                        <p class="address-line">España</p>
+
+                        <div class="address-card-actions">
+                          @if (!addr.isDefault) {
+                            <button
+                              type="button"
+                              class="btn-addr-action"
+                              (click)="setDefaultAddress(addr.id)"
+                              title="Establecer como dirección predeterminada"
+                            >
+                              ★
+                              {{
+                                i18n.currentLang() === 'ca' ? 'Predeterminada' : 'Predeterminada'
+                              }}
+                            </button>
+                          }
+                          <button
+                            type="button"
+                            class="btn-addr-action"
+                            (click)="openEditAddressForm(addr)"
+                          >
+                            ✏️ {{ i18n.currentLang() === 'ca' ? 'Editar' : 'Editar' }}
+                          </button>
+                          <button
+                            type="button"
+                            class="btn-addr-action btn-addr-delete"
+                            (click)="deleteAddress(addr.id)"
+                          >
+                            🗑️
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  }
+                } @else if (user.address) {
+                  <div class="address-card is-default-card">
+                    <div class="address-header">
+                      <span class="address-icon">🚚</span>
+                      <h4>{{ i18n.t('account.address_default_shipping') }}</h4>
+                    </div>
+                    <div class="address-body">
                       <p class="address-line">
                         <strong>{{ user.name }}</strong>
                       </p>
@@ -607,15 +841,9 @@
                       <p class="address-line">
                         {{ user.postalCode }} {{ user.city }} ({{ user.province || 'Barcelona' }})
                       </p>
-                      <p class="address-line">España</p>
-                    } @else {
-                      <p class="address-line text-muted">{{ i18n.t('account.no_address') }}</p>
-                      <p class="address-hint">
-                        Puedes añadirla en el momento de tramitar tu próximo pedido.
-                      </p>
-                    }
+                    </div>
                   </div>
-                </div>
+                }
 
                 <!-- Punto de recogida oficial -->
                 <div class="address-card card-store">
@@ -627,9 +855,200 @@
                     <p class="address-line"><strong>Cal Sardà Obrador</strong></p>
                     <p class="address-line">{{ i18n.t('account.address_pickup_details') }}</p>
                     <p class="address-line">Metro L2 / L5 Sagrada Família</p>
-                    <p class="address-hours">Lunes a Sábado: 09:00 - 14:00 y 17:00 - 20:30</p>
+                    <p class="address-hours">Dilluns a Dissabte: 09:00 - 14:00 i 17:00 - 20:30</p>
                   </div>
                 </div>
+              </div>
+
+              <!-- Bloque de Datos Fiscales para Facturación (NIF/CIF) -->
+              <div class="profile-card fiscal-card">
+                <div class="profile-card-header">
+                  <div>
+                    <h3>
+                      🏢
+                      {{
+                        i18n.currentLang() === 'ca'
+                          ? 'Dades Fiscals de Facturació'
+                          : 'Datos Fiscales de Facturación'
+                      }}
+                    </h3>
+                    <p class="section-subtitle">
+                      {{
+                        i18n.currentLang() === 'ca'
+                          ? 'Dades de la teva empresa o activitat autònoma per a l’emissió automàtica de factures oficials amb NIF/CIF desglossat.'
+                          : 'Datos de tu empresa o actividad autónoma para la emisión automática de facturas oficiales con NIF/CIF desglosado.'
+                      }}
+                    </p>
+                  </div>
+                  @if (!isEditingFiscal()) {
+                    <button type="button" class="btn-edit-profile" (click)="openEditFiscalForm()">
+                      ✏️
+                      {{
+                        user.fiscalData
+                          ? i18n.currentLang() === 'ca'
+                            ? 'Editar dades'
+                            : 'Editar datos'
+                          : i18n.currentLang() === 'ca'
+                            ? 'Afegir NIF/CIF'
+                            : 'Añadir NIF/CIF'
+                      }}
+                    </button>
+                  }
+                </div>
+
+                @if (!isEditingFiscal()) {
+                  @if (user.fiscalData; as fiscal) {
+                    <div class="dashboard-details">
+                      <div class="detail-item">
+                        <span class="detail-label">{{
+                          i18n.currentLang() === 'ca'
+                            ? 'Raó Social / Empresa'
+                            : 'Razón Social / Empresa'
+                        }}</span>
+                        <strong class="detail-value">{{ fiscal.companyName }}</strong>
+                      </div>
+                      <div class="detail-item">
+                        <span class="detail-label">{{
+                          i18n.currentLang() === 'ca' ? 'NIF / CIF' : 'NIF / CIF'
+                        }}</span>
+                        <strong class="detail-value">{{ fiscal.taxId }}</strong>
+                      </div>
+                      @if (fiscal.address) {
+                        <div class="detail-item">
+                          <span class="detail-label">{{
+                            i18n.currentLang() === 'ca' ? 'Domicili Fiscal' : 'Domicilio Fiscal'
+                          }}</span>
+                          <span class="detail-value"
+                            >{{ fiscal.address }}, {{ fiscal.postalCode }} {{ fiscal.city }}</span
+                          >
+                        </div>
+                      }
+                    </div>
+                  } @else {
+                    <div class="fiscal-empty-notice">
+                      <p>
+                        {{
+                          i18n.currentLang() === 'ca'
+                            ? 'Encara no has configurat les teves dades fiscals. Afegeix el teu NIF/CIF si desitges rebre factures oficials deduebles.'
+                            : 'Aún no has configurado tus datos fiscales. Añade tu NIF/CIF si deseas recibir facturas oficiales deducibles.'
+                        }}
+                      </p>
+                    </div>
+                  }
+                } @else {
+                  <form class="profile-edit-form" (ngSubmit)="saveFiscalData()">
+                    <div class="form-row-2">
+                      <div class="form-group">
+                        <label for="fiscal-company">{{
+                          i18n.currentLang() === 'ca'
+                            ? 'Raó Social o Nom Fiscal'
+                            : 'Razón Social o Nombre Fiscal'
+                        }}</label>
+                        <input
+                          id="fiscal-company"
+                          type="text"
+                          name="fiscalCompany"
+                          class="form-control"
+                          [(ngModel)]="fiscalCompany"
+                          placeholder="Empresa SL o Nom Autònom"
+                          required
+                          [disabled]="fiscalSaving()"
+                        />
+                      </div>
+
+                      <div class="form-group">
+                        <label for="fiscal-taxid">{{
+                          i18n.currentLang() === 'ca' ? 'NIF / CIF' : 'NIF / CIF'
+                        }}</label>
+                        <input
+                          id="fiscal-taxid"
+                          type="text"
+                          name="fiscalTaxId"
+                          class="form-control"
+                          [(ngModel)]="fiscalTaxId"
+                          placeholder="B12345678 o 12345678Z"
+                          required
+                          [disabled]="fiscalSaving()"
+                        />
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <label for="fiscal-address">{{
+                        i18n.currentLang() === 'ca' ? 'Adreça Fiscal' : 'Dirección Fiscal'
+                      }}</label>
+                      <input
+                        id="fiscal-address"
+                        type="text"
+                        name="fiscalAddress"
+                        class="form-control"
+                        [(ngModel)]="fiscalAddress"
+                        placeholder="Carrer de Provença, 120"
+                        [disabled]="fiscalSaving()"
+                      />
+                    </div>
+
+                    <div class="form-row-2">
+                      <div class="form-group">
+                        <label for="fiscal-postal-code">{{
+                          i18n.currentLang() === 'ca' ? 'Codi Postal' : 'Código Postal'
+                        }}</label>
+                        <input
+                          id="fiscal-postal-code"
+                          type="text"
+                          name="fiscalPostalCode"
+                          class="form-control"
+                          [(ngModel)]="fiscalPostalCode"
+                          placeholder="08029"
+                          [disabled]="fiscalSaving()"
+                        />
+                      </div>
+
+                      <div class="form-group">
+                        <label for="fiscal-city">{{
+                          i18n.currentLang() === 'ca' ? 'Ciutat' : 'Ciudad'
+                        }}</label>
+                        <input
+                          id="fiscal-city"
+                          type="text"
+                          name="fiscalCity"
+                          class="form-control"
+                          [(ngModel)]="fiscalCity"
+                          [disabled]="fiscalSaving()"
+                        />
+                      </div>
+                    </div>
+
+                    @if (fiscalError(); as err) {
+                      <div class="form-alert-error" role="alert">
+                        <span>⚠️</span>
+                        <span>{{ err }}</span>
+                      </div>
+                    }
+
+                    <div class="form-actions">
+                      <button type="submit" class="btn-save-profile" [disabled]="fiscalSaving()">
+                        {{
+                          fiscalSaving()
+                            ? i18n.currentLang() === 'ca'
+                              ? 'Desant...'
+                              : 'Guardando...'
+                            : i18n.currentLang() === 'ca'
+                              ? 'Desar dades fiscals'
+                              : 'Guardar datos fiscales'
+                        }}
+                      </button>
+                      <button
+                        type="button"
+                        class="btn-cancel-edit"
+                        (click)="cancelEditFiscalForm()"
+                        [disabled]="fiscalSaving()"
+                      >
+                        {{ i18n.currentLang() === 'ca' ? 'Cancel·lar' : 'Cancelar' }}
+                      </button>
+                    </div>
+                  </form>
+                }
               </div>
             </div>
           }

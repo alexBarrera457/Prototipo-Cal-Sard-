@@ -3,6 +3,7 @@ import { provideRouter } from '@angular/router';
 import { describe, expect, it, vi } from 'vitest';
 import { CheckoutPage } from './checkout-page';
 import { CART_STORAGE_ADAPTER, CartService, InMemoryCartAdapter } from '../../services/cart';
+import { AuthService } from '../../services/auth';
 
 describe('CheckoutPage', () => {
   let component: CheckoutPage;
@@ -26,6 +27,7 @@ describe('CheckoutPage', () => {
         provideRouter([]),
         { provide: CART_STORAGE_ADAPTER, useValue: adapter },
         CartService,
+        AuthService,
       ],
     }).compileComponents();
 
@@ -377,5 +379,42 @@ describe('CheckoutPage', () => {
 
     expect(component.paymentError()).toContain('fondos insuficientes');
     expect(component.confirmedOrder()).toBeNull();
+  });
+
+  it('prefills customer details, default address and fiscal data from authenticated user on ngOnInit', () => {
+    const authService = TestBed.inject(AuthService);
+    authService.currentUser.set({
+      id: 'usr-customer-01',
+      name: 'Jaume Sardà',
+      email: 'cliente@calsarda.com',
+      phone: '611 223 344',
+      role: 'customer',
+      addresses: [
+        {
+          id: 'addr-1',
+          alias: 'Casa',
+          street: 'Carrer d’Aragó, 312, 3r 2a',
+          postalCode: '08009',
+          city: 'Barcelona',
+          isDefault: true,
+        },
+      ],
+      fiscalData: {
+        companyName: 'Jaume Sardà i Fills SL',
+        taxId: 'B-67891234',
+        address: 'Carrer d’Aragó, 312',
+      },
+    });
+
+    component.ngOnInit();
+
+    expect(component.customer.name).toBe('Jaume Sardà');
+    expect(component.customer.email).toBe('cliente@calsarda.com');
+    expect(component.customer.phone).toBe('611 223 344');
+    expect(component.customer.address).toBe('Carrer d’Aragó, 312, 3r 2a');
+    expect(component.customer.postalCode).toBe('08009');
+    expect(component.customer.city).toBe('Barcelona');
+    expect(component.customer.taxId).toBe('B-67891234');
+    expect(component.customer.companyName).toBe('Jaume Sardà i Fills SL');
   });
 });
