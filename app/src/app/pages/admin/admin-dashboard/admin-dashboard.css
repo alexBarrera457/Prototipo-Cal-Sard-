@@ -333,6 +333,347 @@
   font-size: 12px;
 }
 
+/* -------------------------------------------------------------
+   ANALYTICS COMMERCIAL SECTION (#53)
+------------------------------------------------------------- */
+.analytics-section {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.analytics-grid-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+  gap: 20px;
+}
+
+.analytics-card {
+  background: #ffffff;
+  border: 1px solid #e7dfd3;
+  border-radius: 8px;
+  padding: 24px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+}
+
+.card-title-group {
+  margin-bottom: 20px;
+}
+
+.analytics-card-kicker {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: #8b261e;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.analytics-card h2 {
+  margin: 0 0 4px 0;
+  font-family: Georgia, serif;
+  font-size: 19px;
+  color: #2d241e;
+  font-weight: 400;
+}
+
+.analytics-subtitle {
+  margin: 0;
+  font-size: 12px;
+  color: #75695e;
+}
+
+/* Barras de distribución por categoría */
+.category-bars-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.category-bar-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.category-bar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+}
+
+.category-name {
+  color: #2d241e;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.cat-icon {
+  font-size: 15px;
+}
+
+.category-meta {
+  color: #6e5845;
+  font-size: 12px;
+}
+
+.category-meta small {
+  color: #8c7e72;
+  margin-left: 4px;
+}
+
+.category-bar-track {
+  height: 8px;
+  background: #f2ece3;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.category-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.4s ease;
+}
+
+.cat-embutidos {
+  background: #8b261e;
+}
+.cat-quesos {
+  background: #e6a100;
+}
+.cat-conservas {
+  background: #007791;
+}
+.cat-vinos {
+  background: #5c1d39;
+}
+.cat-lotes {
+  background: #aa845c;
+}
+.cat-dulces_cafe {
+  background: #6f4e37;
+}
+
+/* Top Stars */
+.top-stars-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.star-product-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 12px;
+  border-radius: 6px;
+  background: #faf7f2;
+  border: 1px solid #eee7dc;
+}
+
+.star-rank-badge {
+  font-size: 18px;
+  font-weight: 700;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.star-details {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.star-name {
+  font-size: 13px;
+  color: #2d241e;
+}
+
+.star-stats {
+  font-size: 11px;
+  color: #75695e;
+}
+
+.trend-pill {
+  font-size: 10px;
+  font-weight: 700;
+  background: #fff3e0;
+  color: #e65100;
+  padding: 3px 8px;
+  border-radius: 12px;
+  border: 1px solid #ffe0b2;
+}
+
+/* Comparativa Periódica */
+.period-comparison-body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.period-metric-block {
+  display: flex;
+  flex-direction: column;
+}
+
+.period-label {
+  font-size: 12px;
+  color: #8c7e72;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+}
+
+.period-amount {
+  font-family: Georgia, serif;
+  font-size: 32px;
+  color: #2d241e;
+  font-weight: 700;
+}
+
+.period-orders-sub {
+  font-size: 12px;
+  color: #6e5845;
+}
+
+.period-vs-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  background: #f5f5f5;
+  font-size: 12px;
+}
+
+.period-vs-badge.positive {
+  background: #e8f5e9;
+  color: #1b5e20;
+}
+
+.growth-arrow {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.growth-val {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.vs-label {
+  color: #55483d;
+  font-size: 11px;
+}
+
+.period-extra-stats {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.stat-pill {
+  background: #faf7f2;
+  border: 1px solid #ede5da;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  color: #4a3e35;
+}
+
+.stat-pill strong {
+  margin-left: 4px;
+}
+
+/* Baja Rotación */
+.low-rotation-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.low-rotation-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  border-radius: 6px;
+  background: #fff8f8;
+  border: 1px solid #ffebee;
+}
+
+.low-rot-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.low-rot-ref {
+  font-family: monospace;
+  font-size: 11px;
+  color: #8b261e;
+  font-weight: 600;
+}
+
+.low-rot-name {
+  font-size: 13px;
+  color: #2d241e;
+}
+
+.low-rot-price {
+  font-size: 11px;
+  color: #75695e;
+}
+
+.low-rot-action {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.badge-low-rot {
+  font-size: 10px;
+  background: #ffebee;
+  color: #c62828;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+.btn-promo-action {
+  background: #251c15;
+  color: #faf7f2;
+  text-decoration: none;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+.btn-promo-action:hover {
+  background: #8b261e;
+}
+
+.good-rotation-notice {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #e8f5e9;
+  padding: 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  color: #1b5e20;
+}
+
 @media (max-width: 600px) {
   .dashboard-header {
     flex-direction: column;

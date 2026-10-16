@@ -21,17 +21,17 @@
     </div>
   </header>
 
-  <!-- Métricas KPI -->
+  <!-- Métricas KPI Principales -->
   <div class="kpi-grid">
     <div class="kpi-card">
       <div class="kpi-header">
         <span class="kpi-label">{{ i18n.t('admin.kpi_today_orders') }}</span>
         <span class="kpi-icon" aria-hidden="true">📋</span>
       </div>
-      <div class="kpi-value">{{ kpis().todayOrders }}</div>
+      <div class="kpi-value" id="kpi-today-orders-val">{{ kpis().todayOrders }}</div>
       <div class="kpi-footer">
-        <span class="kpi-badge positive">+3 vs ayer</span>
-        <span class="kpi-sub">Total jornada</span>
+        <span class="kpi-badge positive">{{ periodComparison().growthPercent }}</span>
+        <span class="kpi-sub">Total en curso</span>
       </div>
     </div>
 
@@ -59,13 +59,196 @@
 
     <div class="kpi-card">
       <div class="kpi-header">
-        <span class="kpi-label">{{ i18n.t('admin.kpi_deliveries') }}</span>
-        <span class="kpi-icon" aria-hidden="true">🛵</span>
+        <span class="kpi-label">Volumen Facturado</span>
+        <span class="kpi-icon" aria-hidden="true">💶</span>
       </div>
-      <div class="kpi-value">{{ kpis().deliveries }}</div>
+      <div class="kpi-value">{{ kpis().revenueToday.toFixed(2) }} €</div>
       <div class="kpi-footer">
-        <span class="kpi-sub">Reparto Barcelona</span>
+        <span class="kpi-sub"
+          >Ticket medio: {{ periodComparison().averageTicket.toFixed(2) }} €</span
+        >
       </div>
+    </div>
+  </div>
+
+  <!-- SECCIÓN DE ANALÍTICA COMERCIAL Y VENTAS (#53) -->
+  <div
+    class="analytics-section"
+    id="analytics-commercial-section"
+    aria-label="Analítica de rendimiento y rotación"
+  >
+    <!-- Fila 1: Desglose por Categoría y Top Productos Estrella -->
+    <div class="analytics-grid-row">
+      <!-- 1. Desglose de Ventas por Categoría -->
+      <article class="analytics-card category-breakdown-card">
+        <div class="card-title-group">
+          <span class="analytics-card-kicker">RENDIMIENTO POR FAMILIA DE PRODUCTO</span>
+          <h2>Desglose de Ventas por Categoría</h2>
+          <p class="analytics-subtitle">
+            Distribución porcentual de facturación en el catálogo del colmado.
+          </p>
+        </div>
+
+        <div class="category-bars-list" id="category-bars-container">
+          @for (cat of categorySales(); track cat.categoryKey) {
+            <div class="category-bar-item">
+              <div class="category-bar-header">
+                <span class="category-name">
+                  <span class="cat-icon">{{ cat.icon }}</span> {{ cat.name }}
+                </span>
+                <span class="category-meta">
+                  <strong>{{ cat.revenue.toFixed(2) }} €</strong>
+                  <small>({{ cat.percentage }}%)</small>
+                </span>
+              </div>
+              <div class="category-bar-track">
+                <div
+                  class="category-bar-fill cat-{{ cat.categoryKey }}"
+                  [style.width.%]="cat.percentage > 0 ? cat.percentage : 4"
+                  [attr.aria-valuenow]="cat.percentage"
+                  aria-valuemin="0"
+                  aria-valuemax="100"
+                  role="progressbar"
+                ></div>
+              </div>
+            </div>
+          }
+        </div>
+      </article>
+
+      <!-- 2. Top 5 Productos Estrella -->
+      <article class="analytics-card top-stars-card">
+        <div class="card-title-group">
+          <span class="analytics-card-kicker">ROTACIÓN I DEMANDA DE CLIENTES</span>
+          <h2>Top 5 Productos Estrella</h2>
+          <p class="analytics-subtitle">
+            Los artículos más vendidos y apreciados en los encargos del colmado.
+          </p>
+        </div>
+
+        <div class="top-stars-list" id="top-stars-container">
+          @for (star of topProducts(); track star.ranking) {
+            <div class="star-product-item">
+              <div class="star-rank-badge" [class.rank-1]="star.ranking === 1">
+                {{
+                  star.ranking === 1
+                    ? '🥇'
+                    : star.ranking === 2
+                      ? '🥈'
+                      : star.ranking === 3
+                        ? '🥉'
+                        : '#' + star.ranking
+                }}
+              </div>
+              <div class="star-details">
+                <strong class="star-name">{{ star.name }}</strong>
+                <span class="star-stats">
+                  {{ star.units }} unidades vendidas ·
+                  <strong>{{ star.revenue.toFixed(2) }} €</strong>
+                </span>
+              </div>
+              <div class="star-trend">
+                <span class="trend-pill">🔥 Alta rotación</span>
+              </div>
+            </div>
+          }
+        </div>
+      </article>
+    </div>
+
+    <!-- Fila 2: Comparativa Periódica y Productos de Baja Rotación -->
+    <div class="analytics-grid-row">
+      <!-- 3. Comparativa Periódica de Ventas -->
+      <article class="analytics-card period-comparison-card">
+        <div class="card-title-group">
+          <span class="analytics-card-kicker">EVOLUCIÓN MENSUAL</span>
+          <h2>Comparativa Periódica</h2>
+          <p class="analytics-subtitle">
+            Crecimiento comercial frente al mes anterior de referencia.
+          </p>
+        </div>
+
+        <div class="period-comparison-body">
+          <div class="period-metric-block">
+            <span class="period-label">{{ periodComparison().currentMonthLabel }}</span>
+            <strong class="period-amount"
+              >{{ periodComparison().currentRevenue.toFixed(2) }} €</strong
+            >
+            <span class="period-orders-sub"
+              >{{ periodComparison().totalOrders }} pedidos completados</span
+            >
+          </div>
+
+          <div class="period-vs-badge" [class.positive]="periodComparison().isPositive">
+            <span class="growth-arrow">{{ periodComparison().isPositive ? '▲' : '▼' }}</span>
+            <span class="growth-val" id="period-growth-rate">{{
+              periodComparison().growthPercent
+            }}</span>
+            <small class="vs-label"
+              >vs {{ periodComparison().previousMonthLabel }} ({{
+                periodComparison().previousRevenue.toFixed(2)
+              }}
+              €)</small
+            >
+          </div>
+
+          <div class="period-extra-stats">
+            <div class="stat-pill">
+              <span class="stat-name">Ticket Medio:</span>
+              <strong>{{ periodComparison().averageTicket.toFixed(2) }} €</strong>
+            </div>
+            <div class="stat-pill">
+              <span class="stat-name">Canal Preferente:</span>
+              <strong>Recogida Obrador (62%)</strong>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- 4. Indicador de Stock con Baja Rotación -->
+      <article class="analytics-card low-rotation-card">
+        <div class="card-title-group">
+          <span class="analytics-card-kicker">OPTIMIZACIÓN DE EXISTENCIAS</span>
+          <h2>Productos con Baja Rotación</h2>
+          <p class="analytics-subtitle">
+            Artículos en stock disponibles que necesitan impulso o campaña promocional.
+          </p>
+        </div>
+
+        <div class="low-rotation-list">
+          @if (lowRotationProducts().length > 0) {
+            @for (prod of lowRotationProducts(); track prod.number) {
+              <div class="low-rotation-item">
+                <div class="low-rot-info">
+                  <span class="low-rot-ref">#{{ prod.number }}</span>
+                  <strong class="low-rot-name">{{ prod.name }}</strong>
+                  <span class="low-rot-price"
+                    >{{ prod.price.toFixed(2) }} € · {{ prod.category }}</span
+                  >
+                </div>
+                <div class="low-rot-action">
+                  <span class="badge-low-rot">0 ventas recientes</span>
+                  <a
+                    [routerLink]="['/admin/cupones']"
+                    class="btn-promo-action"
+                    title="Crear cupón o promoción para este artículo"
+                  >
+                    🏷️ Promocionar
+                  </a>
+                </div>
+              </div>
+            }
+          } @else {
+            <div class="good-rotation-notice">
+              <span>✅</span>
+              <p>
+                Excelente rotación global: todos los productos del obrador registran rotación
+                comercial fluida.
+              </p>
+            </div>
+          }
+        </div>
+      </article>
     </div>
   </div>
 
@@ -75,16 +258,8 @@
       <div class="module-icon" aria-hidden="true">📦</div>
       <div class="module-content">
         <h3>{{ i18n.t('admin.nav_orders') }}</h3>
-        <p>
-          {{
-            i18n.currentLang() === 'ca'
-              ? 'Controla els encàrrecs rebuts, canvia estats (En preparació / A punt) i avisa els clients.'
-              : 'Controla los encargos recibidos, cambia estados (En preparación / Listo) y avisa a los clientes.'
-          }}
-        </p>
-        <a [routerLink]="['/admin/pedidos']" class="module-link">
-          {{ i18n.currentLang() === 'ca' ? 'Gestionar encàrrecs' : 'Gestionar pedidos' }} →
-        </a>
+        <p>Controla los encargos recibidos, cambia estados y ajusta gramaje real en báscula.</p>
+        <a [routerLink]="['/admin/pedidos']" class="module-link">Gestionar pedidos →</a>
       </div>
     </div>
 
@@ -92,38 +267,31 @@
       <div class="module-icon" aria-hidden="true">🥖</div>
       <div class="module-content">
         <h3>{{ i18n.t('admin.nav_catalog') }}</h3>
-        <p>
-          {{
-            i18n.currentLang() === 'ca'
-              ? 'Pausa productes exhaurits, actualitza existències i preus dels lots de l’obrador.'
-              : 'Pausa productos agotados, actualiza existencias y precios de los lotes del obrador.'
-          }}
-        </p>
-        <a [routerLink]="['/admin/productos']" class="module-link">
-          {{ i18n.currentLang() === 'ca' ? 'Control de catàleg' : 'Control de catálogo' }} →
-        </a>
+        <p>Pausa productos agotados, actualiza existencias y precios del catálogo tradicional.</p>
+        <a [routerLink]="['/admin/productos']" class="module-link">Control de catálogo →</a>
       </div>
     </div>
 
     <div class="module-card">
-      <div class="module-icon" aria-hidden="true">🧾</div>
+      <div class="module-icon" aria-hidden="true">🏷️</div>
       <div class="module-content">
-        <h3>{{ i18n.t('admin.nav_invoicing') }}</h3>
-        <p>
-          {{
-            i18n.currentLang() === 'ca'
-              ? 'Genera tiquets i factures simplificades amb desglossament d’IVA oficial i dades fiscals.'
-              : 'Genera tickets y facturas simplificadas con desglose de IVA oficial y datos fiscales.'
-          }}
-        </p>
-        <a [routerLink]="['/admin/facturacion']" class="module-link">
-          {{ i18n.currentLang() === 'ca' ? 'Veure facturació' : 'Ver facturación' }} →
-        </a>
+        <h3>Cupones y Promociones</h3>
+        <p>Campañas de descuento para festivos, Navidad y vecinos con validación en compra.</p>
+        <a [routerLink]="['/admin/cupones']" class="module-link">Gestionar cupones →</a>
+      </div>
+    </div>
+
+    <div class="module-card">
+      <div class="module-icon" aria-hidden="true">👥</div>
+      <div class="module-content">
+        <h3>Clientes (Mini-CRM)</h3>
+        <p>Historial de clientes habituales, valor LTV y notas personalizadas de preparación.</p>
+        <a [routerLink]="['/admin/clientes']" class="module-link">Fichas de clientes →</a>
       </div>
     </div>
   </div>
 
-  <!-- Tabla de Actividad Reciente -->
+  <!-- Tabla de Actividad Reciente Reales -->
   <div class="recent-orders-section">
     <div class="section-top">
       <div>
@@ -144,27 +312,19 @@
             <th>{{ i18n.t('admin.order_type') }}</th>
             <th>{{ i18n.t('admin.order_total') }}</th>
             <th>{{ i18n.t('admin.order_status') }}</th>
-            <th>Tiempo</th>
+            <th>Fecha</th>
           </tr>
         </thead>
         <tbody>
-          @for (order of recentOrders(); track order.reference) {
+          @for (order of realRecentOrders(); track order.reference || order.id) {
             <tr>
               <td>
                 <strong class="order-ref-cell">{{ order.reference }}</strong>
               </td>
-              <td>{{ order.customerName }}</td>
+              <td>{{ order.customer.name }}</td>
               <td>
-                <span class="fulfillment-badge" [class.pickup]="order.fulfillmentType === 'pickup'">
-                  {{
-                    order.fulfillmentType === 'pickup'
-                      ? i18n.currentLang() === 'ca'
-                        ? 'Recollida botiga'
-                        : 'Recogida tienda'
-                      : i18n.currentLang() === 'ca'
-                        ? 'Domicili BCN'
-                        : 'Domicilio BCN'
-                  }}
+                <span class="fulfillment-badge" [class.pickup]="order.fulfillment === 'pickup'">
+                  {{ order.fulfillment === 'pickup' ? 'Recogida tienda' : 'Domicilio BCN' }}
                 </span>
               </td>
               <td>
@@ -172,23 +332,10 @@
               </td>
               <td>
                 <span class="status-pill" [class]="'status-' + order.status">
-                  @switch (order.status) {
-                    @case ('ready') {
-                      {{ i18n.t('admin.status_ready') }}
-                    }
-                    @case ('in_prep') {
-                      {{ i18n.t('admin.status_in_prep') }}
-                    }
-                    @case ('received') {
-                      {{ i18n.t('admin.status_received') }}
-                    }
-                    @case ('delivered') {
-                      {{ i18n.t('admin.status_delivered') }}
-                    }
-                  }
+                  {{ order.status }}
                 </span>
               </td>
-              <td class="time-cell">{{ order.timeAgo }}</td>
+              <td class="time-cell">{{ order.createdAt | date: 'dd/MM/yyyy HH:mm' }}</td>
             </tr>
           }
         </tbody>
