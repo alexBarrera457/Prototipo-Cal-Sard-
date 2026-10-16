@@ -10,6 +10,7 @@ import type {
 
 import { AuthService } from '../../services/auth';
 import { CartService } from '../../services/cart';
+import { CouponsService, type Coupon } from '../../services/coupons';
 import { I18nService } from '../../services/i18n';
 import { InvoicingService } from '../../services/invoicing';
 import { OrdersService, type Order } from '../../services/orders';
@@ -54,8 +55,24 @@ export class CheckoutPage implements OnInit {
   public readonly i18n = inject(I18nService);
   private readonly invoicingService = inject(InvoicingService);
   public readonly paymentsService = inject(PaymentsService);
+  public readonly couponsService = inject(CouponsService);
   public readonly authService = inject(AuthService, { optional: true });
   public readonly productsService = inject(ProductsService, { optional: true });
+
+  couponCodeInput = '';
+  readonly appliedCoupon = signal<Coupon | null>(null);
+  readonly couponError = signal<string | null>(null);
+  readonly couponSuccess = signal<string | null>(null);
+
+  readonly couponDiscount = computed<number>(() => {
+    const coupon = this.appliedCoupon();
+    if (!coupon) return 0;
+    const subtotal = this.cartService.getTotal();
+    if (coupon.discountType === 'percentage') {
+      return Math.round(((subtotal * coupon.discountValue) / 100) * 100) / 100;
+    }
+    return Math.min(subtotal, coupon.discountValue);
+  });
 
   readonly catalogProducts = signal<StoreProduct[]>([]);
   orderNotes = '';
@@ -220,7 +237,46 @@ export class CheckoutPage implements OnInit {
   }
 
   get finalTotal(): number {
-    return this.cartService.getTotal() + this.shippingCost;
+    return Math.max(0, this.cartService.getTotal() - this.couponDiscount() + this.shippingCost);
+  }
+
+  applyCoupon(): void {
+    this.couponError.set(null);
+    this.couponSuccess.set(null);
+    const code = this.couponCodeInput.trim();
+    if (!code) {
+      this.couponError.set(
+        this.i18n.currentLang() === 'ca'
+          ? 'Introdueix un codi de cupó.'
+          : 'Introduce un código de cupón.',
+      );
+      return;
+    }
+
+    const result = this.couponsService.validateCoupon(code, this.cartService.getTotal());
+    if (!result.valid) {
+      this.couponError.set(result.error || 'El cupó no és vàlid.');
+      return;
+    }
+
+    this.appliedCoupon.set(result.coupon!);
+    const desc =
+      result.coupon!.discountType === 'percentage'
+        ? `-${result.coupon!.discountValue}% (-${result.discountAmount.toFixed(2)} €)`
+        : `-${result.discountAmount.toFixed(2)} €`;
+
+    this.couponSuccess.set(
+      this.i18n.currentLang() === 'ca'
+        ? `Cupó ${result.coupon!.code} aplicat: ${desc}`
+        : `Cupón ${result.coupon!.code} aplicado con éxito: ${desc}`,
+    );
+  }
+
+  removeCoupon(): void {
+    this.appliedCoupon.set(null);
+    this.couponError.set(null);
+    this.couponSuccess.set(null);
+    this.couponCodeInput = '';
   }
 
   isValidEmail(email: string): boolean {
@@ -404,6 +460,9 @@ export class CheckoutPage implements OnInit {
 
       this.paymentResult.set(tx);
 
+      const coupon = this.appliedCoupon();
+      const discount = this.couponDiscount();
+
       const items = [...this.cartService.products()];
       const order = await this.ordersService.submitOrder({
         reference,
@@ -413,6 +472,8 @@ export class CheckoutPage implements OnInit {
         shippingCost: this.shippingCost,
         shippingZoneLabel: this.shippingZoneLabel,
         subtotal: this.cartService.getTotal(),
+        discount,
+        couponCode: coupon ? coupon.code : undefined,
         total: this.finalTotal,
         notes: this.orderNotes.trim() || undefined,
         paymentMethod: this.paymentsService.getMethodLabel(
@@ -423,6 +484,10 @@ export class CheckoutPage implements OnInit {
         paymentStatus: tx.status,
         paymentTransactionId: tx.transactionId,
       });
+
+      if (coupon) {
+        this.couponsService.incrementUsage(coupon.code);
+      }
 
       this.cartService.clearCart();
       this.confirmedOrder.set(order);
@@ -466,6 +531,7 @@ export class CheckoutPage implements OnInit {
     this.submitted.set(false);
     this.paymentError.set(null);
     this.paymentResult.set(null);
+    this.removeCoupon();
     this.customer = {
       name: '',
       email: '',

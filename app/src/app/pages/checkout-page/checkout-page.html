@@ -221,6 +221,18 @@
               >{{ (order.subtotal ?? order.total - (order.shippingCost ?? 0)).toFixed(2) }} €</span
             >
           </div>
+          @if (order.discount && order.discount > 0) {
+            <div class="fin-row discount-fin-row">
+              <span class="text-discount">
+                🏷️
+                {{
+                  i18n.currentLang() === 'ca' ? 'Descompte promocional' : 'Descuento promocional'
+                }}
+                {{ order.couponCode ? '(' + order.couponCode + ')' : '' }}
+              </span>
+              <strong class="text-discount">-{{ order.discount.toFixed(2) }} €</strong>
+            </div>
+          }
           <div class="fin-row">
             <span>{{ i18n.t('checkout.shipping_fees') }} ({{ order.shippingZoneLabel }})</span>
             <span>{{
@@ -711,6 +723,84 @@
             <span>{{ i18n.t('checkout.subtotal') }}</span
             ><strong>{{ cartService.getTotal().toFixed(2) }} €</strong>
           </div>
+
+          <!-- Bloque de Cupón Promocional -->
+          <div class="checkout-coupon-box" aria-label="Aplicar cupón de descuento">
+            @if (!appliedCoupon()) {
+              <div class="coupon-input-group">
+                <input
+                  type="text"
+                  name="couponCode"
+                  [(ngModel)]="couponCodeInput"
+                  [placeholder]="
+                    i18n.currentLang() === 'ca'
+                      ? 'Codi de cupó promocional'
+                      : 'Código de cupón o promo'
+                  "
+                  class="coupon-input"
+                  (keyup.enter)="applyCoupon()"
+                  id="checkout-coupon-input"
+                  aria-label="Código promocional"
+                />
+                <button
+                  type="button"
+                  class="btn-apply-coupon"
+                  (click)="applyCoupon()"
+                  id="btn-apply-coupon"
+                >
+                  {{ i18n.currentLang() === 'ca' ? 'Aplicar' : 'Aplicar' }}
+                </button>
+              </div>
+            } @else {
+              <div class="coupon-applied-badge">
+                <div class="coupon-applied-info">
+                  <span class="coupon-icon">🏷️</span>
+                  <div>
+                    <strong class="applied-code">{{ appliedCoupon()?.code }}</strong>
+                    <span class="applied-desc">
+                      @if (appliedCoupon()?.discountType === 'percentage') {
+                        -{{ appliedCoupon()?.discountValue }}% de descuento
+                      } @else {
+                        -{{ appliedCoupon()?.discountValue?.toFixed(2) }} €
+                      }
+                    </span>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  class="btn-remove-coupon"
+                  (click)="removeCoupon()"
+                  title="Eliminar cupón"
+                  id="btn-remove-coupon"
+                  aria-label="Eliminar cupón"
+                >
+                  ✕
+                </button>
+              </div>
+            }
+
+            @if (couponError(); as err) {
+              <p class="coupon-message coupon-error" role="alert" id="coupon-error-msg">
+                <span>⚠️</span> {{ err }}
+              </p>
+            }
+            @if (couponSuccess(); as success) {
+              <p class="coupon-message coupon-success" role="status" id="coupon-success-msg">
+                <span>✓</span> {{ success }}
+              </p>
+            }
+          </div>
+
+          @if (appliedCoupon() && couponDiscount() > 0) {
+            <div class="summary-total discount-total" id="checkout-discount-row">
+              <span>
+                {{ i18n.currentLang() === 'ca' ? 'Descompte aplicat' : 'Descuento aplicado' }}
+                ({{ appliedCoupon()?.code }})
+              </span>
+              <strong class="discount-amount">-{{ couponDiscount().toFixed(2) }} €</strong>
+            </div>
+          }
+
           <div class="summary-total shipping-total">
             <span>{{ i18n.t('checkout.shipping_fees') }} ({{ shippingZoneLabel }})</span>
             <strong>{{ shippingCost === 0 ? '0,00 €' : shippingCost.toFixed(2) + ' €' }}</strong>

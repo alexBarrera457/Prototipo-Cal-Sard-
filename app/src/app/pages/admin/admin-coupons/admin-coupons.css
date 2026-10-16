@@ -1,0 +1,602 @@
+.admin-coupons-page {
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Toast */
+.coupons-toast {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  background: #251c15;
+  color: #faf7f2;
+  padding: 0.85rem 1.4rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-weight: 500;
+  z-index: 1000;
+  animation: slideUp 0.25s ease-out;
+  border-left: 4px solid #aa845c;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Cabecera */
+.coupons-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+}
+
+.coupons-kicker {
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #8b261e;
+  font-weight: 700;
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.coupons-title {
+  font-size: 1.85rem;
+  color: #251c15;
+  margin: 0 0 0.4rem 0;
+  font-weight: 700;
+}
+
+.coupons-subtitle {
+  color: #63574c;
+  margin: 0;
+  font-size: 0.95rem;
+  max-width: 700px;
+}
+
+.coupons-header-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+/* Botones */
+.btn-primary {
+  background: #8b261e;
+  color: #faf7f2;
+  border: none;
+  padding: 0.75rem 1.3rem;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: background 0.2s;
+  font-size: 0.95rem;
+}
+
+.btn-primary:hover {
+  background: #6f1c16;
+}
+
+.btn-secondary {
+  background: #f0ebe1;
+  color: #251c15;
+  border: 1px solid #dcd3c4;
+  padding: 0.65rem 1.1rem;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 0.85rem;
+}
+
+.btn-secondary:hover {
+  background: #e4dcce;
+}
+
+/* KPIs */
+.coupons-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.25rem;
+  margin-bottom: 2rem;
+}
+
+.kpi-card {
+  background: #ffffff;
+  border: 1px solid #e8e2d8;
+  border-radius: 10px;
+  padding: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+}
+
+.kpi-icon {
+  font-size: 2rem;
+  background: #faf7f2;
+  border: 1px solid #eee7dc;
+  width: 52px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+}
+
+.kpi-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.kpi-label {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  color: #7d7063;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+}
+
+.kpi-value {
+  font-size: 1.6rem;
+  color: #251c15;
+  margin: 0.1rem 0;
+  font-weight: 700;
+}
+
+.kpi-code {
+  font-size: 1.2rem;
+  color: #8b261e;
+  font-family: monospace;
+}
+
+.kpi-hint {
+  font-size: 0.75rem;
+  color: #9c8e80;
+}
+
+/* Barra de herramientas */
+.coupons-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+  background: #ffffff;
+  padding: 0.85rem 1rem;
+  border-radius: 8px;
+  border: 1px solid #e8e2d8;
+}
+
+.search-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-width: 320px;
+  flex: 1;
+}
+
+.search-icon {
+  position: absolute;
+  left: 0.75rem;
+  font-size: 0.9rem;
+  pointer-events: none;
+}
+
+.search-input {
+  width: 100%;
+  padding: 0.6rem 2.2rem 0.6rem 2.2rem;
+  border: 1px solid #dcd3c4;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  background: #faf7f2;
+  color: #251c15;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #8b261e;
+  background: #ffffff;
+}
+
+.search-clear-btn {
+  position: absolute;
+  right: 0.6rem;
+  background: none;
+  border: none;
+  color: #9c8e80;
+  cursor: pointer;
+  padding: 0.2rem;
+}
+
+.filter-pills {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.filter-pill {
+  background: #faf7f2;
+  border: 1px solid #dcd3c4;
+  padding: 0.45rem 0.85rem;
+  border-radius: 20px;
+  font-size: 0.82rem;
+  color: #4a3e35;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-weight: 500;
+}
+
+.filter-pill.active {
+  background: #8b261e;
+  color: #faf7f2;
+  border-color: #8b261e;
+}
+
+.toolbar-spacer {
+  flex: 1;
+}
+
+/* Tabla */
+.coupons-table-wrap {
+  background: #ffffff;
+  border: 1px solid #e8e2d8;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+}
+
+.coupons-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 0.9rem;
+}
+
+.coupons-table th {
+  background: #faf7f2;
+  padding: 0.9rem 1rem;
+  color: #55483d;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 700;
+  border-bottom: 2px solid #e8e2d8;
+}
+
+.coupons-table td {
+  padding: 0.9rem 1rem;
+  border-bottom: 1px solid #f0ebe1;
+  color: #251c15;
+  vertical-align: middle;
+}
+
+.coupons-table tr:hover {
+  background: #fdfcf9;
+}
+
+.row-inactive {
+  opacity: 0.6;
+}
+
+.coupon-code-pill {
+  font-family: monospace;
+  font-weight: 700;
+  font-size: 0.95rem;
+  background: #f0ebe1;
+  padding: 0.25rem 0.6rem;
+  border-radius: 4px;
+  border: 1px solid #dcd3c4;
+  color: #8b261e;
+}
+
+.badge-discount {
+  font-weight: 700;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.85rem;
+}
+
+.badge-percent {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.badge-fixed {
+  background: #e3f2fd;
+  color: #1565c0;
+}
+
+.expired-tag {
+  display: inline-block;
+  background: #ffebee;
+  color: #c62828;
+  font-size: 0.7rem;
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+  margin-left: 0.3rem;
+  font-weight: 600;
+}
+
+.text-danger {
+  color: #c62828;
+}
+
+.text-muted {
+  color: #9c8e80;
+}
+
+.status-badge {
+  padding: 0.25rem 0.65rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  display: inline-block;
+}
+
+.status-active {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.status-inactive {
+  background: #efebe9;
+  color: #795548;
+}
+
+.td-actions {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.action-btn {
+  background: #faf7f2;
+  border: 1px solid #dcd3c4;
+  border-radius: 4px;
+  padding: 0.35rem 0.55rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+
+.action-btn:hover {
+  background: #e8e2d8;
+  transform: translateY(-1px);
+}
+
+.action-delete:hover {
+  background: #ffebee;
+  border-color: #ef9a9a;
+}
+
+/* Empty State */
+.coupons-empty-state {
+  padding: 3rem 1.5rem;
+  text-align: center;
+  color: #63574c;
+}
+
+.empty-icon {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+/* Modales */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(18, 14, 11, 0.65);
+  backdrop-filter: blur(2px);
+  z-index: 1050;
+}
+
+.coupon-modal,
+.delete-confirm-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  z-index: 1100;
+  width: 90%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  border: 1px solid #e8e2d8;
+}
+
+.modal-header {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid #eee7dc;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  background: #faf7f2;
+}
+
+.header-danger {
+  border-bottom-color: #ffcdd2;
+  background: #fff8f8;
+}
+
+.modal-kicker {
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  color: #8b261e;
+  font-weight: 700;
+  display: block;
+  margin-bottom: 0.2rem;
+}
+
+.modal-header h2 {
+  font-size: 1.3rem;
+  color: #251c15;
+  margin: 0;
+}
+
+.modal-close-btn {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  color: #7d7063;
+  cursor: pointer;
+  padding: 0.2rem;
+}
+
+.modal-form {
+  padding: 1.5rem;
+}
+
+.modal-error-alert {
+  background: #ffebee;
+  color: #c62828;
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+  border-left: 4px solid #c62828;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.88rem;
+  font-weight: 500;
+}
+
+.form-row {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.1rem;
+}
+
+.form-group {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  margin-bottom: 1rem;
+}
+
+.form-group label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #4a3e35;
+}
+
+.form-input {
+  padding: 0.65rem 0.8rem;
+  border: 1px solid #dcd3c4;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  background: #faf7f2;
+  color: #251c15;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #8b261e;
+  background: #ffffff;
+}
+
+.code-input {
+  font-family: monospace;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.form-hint {
+  font-size: 0.72rem;
+  color: #7d7063;
+}
+
+.checkbox-group {
+  justify-content: center;
+  padding-top: 1.2rem;
+}
+
+.toggle-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.checkbox-input {
+  width: 1.1rem;
+  height: 1.1rem;
+  accent-color: #8b261e;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+  padding-top: 1.2rem;
+  border-top: 1px solid #eee7dc;
+}
+
+.btn-cancel {
+  background: #f0ebe1;
+  border: 1px solid #dcd3c4;
+  padding: 0.65rem 1.1rem;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  color: #4a3e35;
+}
+
+.btn-submit {
+  background: #8b261e;
+  color: #faf7f2;
+  border: none;
+  padding: 0.65rem 1.3rem;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.btn-submit:hover {
+  background: #6f1c16;
+}
+
+.delete-modal-body {
+  padding: 1.5rem;
+  color: #4a3e35;
+  font-size: 0.95rem;
+}
+
+.btn-danger-confirm {
+  background: #c62828;
+  color: #ffffff;
+  border: none;
+  padding: 0.65rem 1.3rem;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-danger-confirm:hover {
+  background: #b71c1c;
+}

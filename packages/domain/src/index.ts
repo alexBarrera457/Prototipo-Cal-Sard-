@@ -67,6 +67,21 @@ export type OrderStatus =
   | 'shipped'
   | 'cancelled';
 
+export type CouponDiscountType = 'percentage' | 'fixed';
+
+export interface Coupon {
+  id: string;
+  code: string;
+  description?: string;
+  discountType: CouponDiscountType;
+  discountValue: number;
+  minPurchase: number;
+  expiresAt?: string;
+  isActive: boolean;
+  usageCount: number;
+  createdAt: string;
+}
+
 export interface Order {
   id?: string;
   reference?: string;
@@ -74,6 +89,8 @@ export interface Order {
   items: CartItem[];
   subtotal?: number;
   shippingCost?: number;
+  discount?: number;
+  couponCode?: string;
   total: number;
   fulfillment?: FulfillmentMethod;
   shippingZoneLabel?: string;

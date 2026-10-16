@@ -441,4 +441,55 @@ describe('CheckoutPage', () => {
     expect(component.orderNotes).toContain('Alérgenos: Gluten');
     expect(component.orderNotes).toContain('Embolicar amb cura');
   });
+
+  it('validates and applies coupon code with immediate discount breakdown', () => {
+    // Subtotal inicial es 13.60€, BENVINGUTS10 requiere 20€
+    component.couponCodeInput = 'BENVINGUTS10';
+    component.applyCoupon();
+
+    expect(component.couponError()).toContain('compra mínima');
+    expect(component.appliedCoupon()).toBeNull();
+    expect(component.couponDiscount()).toBe(0);
+
+    // Incrementar cantidad en el carrito a 4 unidades (27.20€)
+    cartService.addToCart('Secallona artesana', 6.8, 2);
+    expect(cartService.getTotal()).toBe(27.2);
+
+    component.applyCoupon();
+    expect(component.couponError()).toBeNull();
+    expect(component.appliedCoupon()?.code).toBe('BENVINGUTS10');
+    expect(component.couponDiscount()).toBe(2.72); // 10% de 27.20
+    expect(component.finalTotal).toBe(27.2 - 2.72); // pickup = 0 shipping
+
+    // Quitar cupón
+    component.removeCoupon();
+    expect(component.appliedCoupon()).toBeNull();
+    expect(component.couponDiscount()).toBe(0);
+    expect(component.finalTotal).toBe(27.2);
+  });
+
+  it('records applied coupon and discount into confirmed order', async () => {
+    cartService.addToCart('Secallona artesana', 6.8, 2); // 27.20€
+    component.couponCodeInput = 'BENVINGUTS10';
+    component.applyCoupon();
+
+    component.customer = {
+      name: 'Maria Garcia',
+      email: 'maria@example.com',
+      phone: '612345678',
+      address: 'Carrer de la Marina 237',
+      postalCode: '08013',
+      city: 'Barcelona',
+    };
+    component.fulfillment = 'pickup';
+    component.paymentMethod = 'store';
+
+    await component.confirmOrder();
+
+    const order = component.confirmedOrder();
+    expect(order).toBeTruthy();
+    expect(order?.couponCode).toBe('BENVINGUTS10');
+    expect(order?.discount).toBe(2.72);
+    expect(order?.total).toBe(24.48);
+  });
 });

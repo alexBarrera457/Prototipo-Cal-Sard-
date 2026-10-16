@@ -28,6 +28,8 @@ export interface CreateOrderInput {
   fulfillment: FulfillmentMethod;
   shippingZoneLabel?: string;
   shippingCost?: number;
+  discount?: number;
+  couponCode?: string;
   subtotal?: number;
   total?: number;
   paymentMethod?: string;
@@ -681,7 +683,8 @@ export class OrdersService {
     const subtotal =
       input.subtotal ?? input.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
     const shippingCost = input.shippingCost ?? 0;
-    const total = input.total ?? subtotal + shippingCost;
+    const discount = input.discount ?? 0;
+    const total = input.total ?? Math.max(0, subtotal - discount + shippingCost);
     const reference = input.reference ?? this.generateOrderReference();
     const estimatedDate = this.getEstimatedDateLabel(input.fulfillment);
     const paymentMethod = input.paymentMethod ?? this.getPaymentInstructions(input.fulfillment);
@@ -702,6 +705,8 @@ export class OrdersService {
       items: input.items.map((item) => ({ ...item })),
       subtotal,
       shippingCost,
+      discount,
+      couponCode: input.couponCode,
       total,
       fulfillment: input.fulfillment,
       shippingZoneLabel: input.shippingZoneLabel,

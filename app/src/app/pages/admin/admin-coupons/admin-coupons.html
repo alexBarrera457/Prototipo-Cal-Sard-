@@ -1,0 +1,440 @@
+<div class="admin-coupons-page" role="region" aria-label="Gestión de cupones y promociones">
+  <!-- Toast de aviso -->
+  @if (toastMessage(); as msg) {
+    <div class="coupons-toast" role="status" aria-live="polite">
+      <span>🏷️</span>
+      <span>{{ msg }}</span>
+    </div>
+  }
+
+  <!-- Cabecera de la sección -->
+  <header class="coupons-header">
+    <div class="coupons-title-group">
+      <span class="coupons-kicker">CAMPAÑAS Y PROMOCIONES DE FIDELIZACIÓN</span>
+      <h1 class="coupons-title">Motor de Cupones y Descuentos</h1>
+      <p class="coupons-subtitle">
+        Crea códigos promocionales para días festivos, apertura, vecinos y campañas de Navidad
+        aplicables en el proceso de compra.
+      </p>
+    </div>
+    <div class="coupons-header-actions">
+      <button type="button" class="btn-primary" (click)="openCreateModal()" id="btn-create-coupon">
+        <span>➕</span>
+        <span>Crear Nuevo Cupón</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Tarjetas KPI de Métricas -->
+  <div class="coupons-kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-icon">🏷️</div>
+      <div class="kpi-info">
+        <span class="kpi-label">Cupones Activos</span>
+        <strong class="kpi-value" id="kpi-active-count">{{ totalActive() }}</strong>
+        <span class="kpi-hint">De un total de {{ couponsService.coupons().length }}</span>
+      </div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-icon">📈</div>
+      <div class="kpi-info">
+        <span class="kpi-label">Usos Totales Canjeados</span>
+        <strong class="kpi-value" id="kpi-total-usages">{{ totalUsages() }}</strong>
+        <span class="kpi-hint">En pedidos completados</span>
+      </div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-icon">⭐</div>
+      <div class="kpi-info">
+        <span class="kpi-label">Campaña Más Exitosa</span>
+        <strong class="kpi-value kpi-code">
+          {{ mostUsedCoupon() ? mostUsedCoupon()?.code : 'Sin usos aún' }}
+        </strong>
+        <span class="kpi-hint">
+          {{ mostUsedCoupon() ? mostUsedCoupon()?.usageCount + ' pedidos canjeados' : 'Sin datos' }}
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Barra de Filtros y Búsqueda -->
+  <section class="coupons-toolbar" aria-label="Filtros y búsqueda de cupones">
+    <div class="search-box">
+      <span class="search-icon" aria-hidden="true">🔍</span>
+      <input
+        type="search"
+        class="search-input"
+        placeholder="Buscar por código (ej. BENVINGUTS10) o campaña..."
+        [(ngModel)]="searchQueryModel"
+        (ngModelChange)="onSearchChange($event)"
+        aria-label="Buscar cupones"
+        id="search-coupons-input"
+      />
+      @if (searchQuery()) {
+        <button
+          type="button"
+          class="search-clear-btn"
+          (click)="clearSearch()"
+          aria-label="Limpiar búsqueda"
+        >
+          ✕
+        </button>
+      }
+    </div>
+
+    <div class="filter-pills" role="group" aria-label="Filtrar por estado del cupón">
+      <button
+        type="button"
+        class="filter-pill"
+        [class.active]="statusFilter() === 'todos'"
+        (click)="setStatusFilter('todos')"
+      >
+        Todos ({{ couponsService.coupons().length }})
+      </button>
+      <button
+        type="button"
+        class="filter-pill"
+        [class.active]="statusFilter() === 'activos'"
+        (click)="setStatusFilter('activos')"
+      >
+        Activos ({{ totalActive() }})
+      </button>
+      <button
+        type="button"
+        class="filter-pill"
+        [class.active]="statusFilter() === 'inactivos'"
+        (click)="setStatusFilter('inactivos')"
+      >
+        Inactivos ({{ couponsService.coupons().length - totalActive() }})
+      </button>
+    </div>
+
+    <div class="toolbar-spacer"></div>
+
+    <button
+      type="button"
+      class="btn-secondary btn-reset-defaults"
+      (click)="resetDefaults()"
+      title="Restablecer cupones iniciales de demostración"
+    >
+      🔄 Restablecer Ejemplos
+    </button>
+  </section>
+
+  <!-- Tabla de Cupones -->
+  <div class="coupons-table-wrap">
+    @if (filteredCoupons().length > 0) {
+      <table class="coupons-table" aria-label="Listado de cupones promocionales">
+        <thead>
+          <tr>
+            <th>Código</th>
+            <th>Descripción / Campaña</th>
+            <th>Descuento</th>
+            <th>Compra Mínima</th>
+            <th>Caducidad</th>
+            <th>Usos</th>
+            <th>Estado</th>
+            <th class="th-actions">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (coupon of filteredCoupons(); track coupon.id) {
+            <tr [class.row-inactive]="!coupon.isActive">
+              <td class="td-code">
+                <span class="coupon-code-pill">{{ coupon.code }}</span>
+              </td>
+              <td class="td-desc">
+                {{ coupon.description || '—' }}
+              </td>
+              <td class="td-discount">
+                @if (coupon.discountType === 'percentage') {
+                  <span class="badge-discount badge-percent">-{{ coupon.discountValue }}%</span>
+                } @else {
+                  <span class="badge-discount badge-fixed"
+                    >-{{ coupon.discountValue.toFixed(2) }} €</span
+                  >
+                }
+              </td>
+              <td class="td-min">
+                {{ coupon.minPurchase > 0 ? coupon.minPurchase.toFixed(2) + ' €' : 'Sin mínimo' }}
+              </td>
+              <td class="td-expiry">
+                @if (coupon.expiresAt) {
+                  <span [class.text-danger]="isExpired(coupon.expiresAt)">
+                    {{ coupon.expiresAt | date: 'dd/MM/yyyy' }}
+                    @if (isExpired(coupon.expiresAt)) {
+                      <span class="expired-tag">Caducado</span>
+                    }
+                  </span>
+                } @else {
+                  <span class="text-muted">Sin caducidad</span>
+                }
+              </td>
+              <td class="td-usage">
+                <strong>{{ coupon.usageCount }}</strong>
+              </td>
+              <td class="td-status">
+                @if (coupon.isActive) {
+                  <span class="status-badge status-active">Activo</span>
+                } @else {
+                  <span class="status-badge status-inactive">Inactivo</span>
+                }
+              </td>
+              <td class="td-actions">
+                <button
+                  type="button"
+                  class="action-btn action-toggle"
+                  (click)="toggleStatus(coupon)"
+                  [title]="coupon.isActive ? 'Desactivar cupón' : 'Activar cupón'"
+                  [attr.aria-label]="
+                    coupon.isActive ? 'Desactivar ' + coupon.code : 'Activar ' + coupon.code
+                  "
+                >
+                  {{ coupon.isActive ? '⏸️' : '▶️' }}
+                </button>
+                <button
+                  type="button"
+                  class="action-btn action-edit"
+                  (click)="openEditModal(coupon)"
+                  title="Editar cupón"
+                  [attr.aria-label]="'Editar cupón ' + coupon.code"
+                >
+                  ✏️
+                </button>
+                <button
+                  type="button"
+                  class="action-btn action-delete"
+                  (click)="openDeleteConfirm(coupon)"
+                  title="Eliminar cupón"
+                  [attr.aria-label]="'Eliminar cupón ' + coupon.code"
+                >
+                  🗑️
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    } @else {
+      <div class="coupons-empty-state">
+        <span class="empty-icon">🏷️</span>
+        <h3>No se encontraron cupones</h3>
+        <p>No hay cupones que coincidan con la búsqueda o el filtro seleccionado.</p>
+        @if (searchQuery() || statusFilter() !== 'todos') {
+          <button
+            type="button"
+            class="btn-secondary"
+            (click)="clearSearch(); setStatusFilter('todos')"
+          >
+            Restablecer Filtros
+          </button>
+        }
+      </div>
+    }
+  </div>
+
+  <!-- Modal de Creación / Edición -->
+  @if (modalOpen()) {
+    <div class="modal-backdrop" (click)="closeModal()" role="presentation"></div>
+
+    <div
+      class="coupon-modal"
+      role="dialog"
+      aria-modal="true"
+      [attr.aria-labelledby]="editingCoupon() ? 'edit-coupon-title' : 'create-coupon-title'"
+    >
+      <header class="modal-header">
+        <div>
+          <span class="modal-kicker">
+            {{ editingCoupon() ? 'MODIFICAR CAMPAÑA' : 'NUEVA CAMPAÑA PROMOCIONAL' }}
+          </span>
+          <h2 [id]="editingCoupon() ? 'edit-coupon-title' : 'create-coupon-title'">
+            {{
+              editingCoupon() ? 'Editar Cupón ' + editingCoupon()?.code : 'Crear Cupón de Descuento'
+            }}
+          </h2>
+        </div>
+        <button
+          type="button"
+          class="modal-close-btn"
+          (click)="closeModal()"
+          aria-label="Cerrar ventana"
+        >
+          ✕
+        </button>
+      </header>
+
+      <form (ngSubmit)="saveCoupon()" class="modal-form">
+        @if (formError) {
+          <div class="modal-error-alert" role="alert">
+            <span>⚠️</span>
+            <span>{{ formError }}</span>
+          </div>
+        }
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="coupon-code">Código del Cupón *</label>
+            <input
+              id="coupon-code"
+              type="text"
+              name="formCode"
+              [(ngModel)]="formCode"
+              required
+              class="form-input code-input"
+              placeholder="Ej: NADAL2026"
+              maxlength="20"
+            />
+            <small class="form-hint">Se guardará automáticamente en mayúsculas sin espacios.</small>
+          </div>
+
+          <div class="form-group">
+            <label for="coupon-type">Tipo de Descuento *</label>
+            <select
+              id="coupon-type"
+              name="formDiscountType"
+              [(ngModel)]="formDiscountType"
+              class="form-input"
+            >
+              <option value="percentage">Porcentaje (%)</option>
+              <option value="fixed">Cantidad Fija (€)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="coupon-value">
+              {{
+                formDiscountType === 'percentage'
+                  ? 'Porcentaje de descuento (%) *'
+                  : 'Importe de descuento (€) *'
+              }}
+            </label>
+            <input
+              id="coupon-value"
+              type="number"
+              name="formDiscountValue"
+              [(ngModel)]="formDiscountValue"
+              min="0.01"
+              [max]="formDiscountType === 'percentage' ? 100 : 9999"
+              step="0.01"
+              required
+              class="form-input"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="coupon-min">Compra Mínima (€)</label>
+            <input
+              id="coupon-min"
+              type="number"
+              name="formMinPurchase"
+              [(ngModel)]="formMinPurchase"
+              min="0"
+              step="0.5"
+              class="form-input"
+              placeholder="0 (Sin mínimo)"
+            />
+            <small class="form-hint">Subtotal requerido antes de aplicar el descuento.</small>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="coupon-expiry">Fecha Límite de Validez</label>
+            <input
+              id="coupon-expiry"
+              type="date"
+              name="formExpiresAt"
+              [(ngModel)]="formExpiresAt"
+              class="form-input"
+            />
+            <small class="form-hint">Opcional. Si se deja vacío, no caduca.</small>
+          </div>
+
+          <div class="form-group checkbox-group">
+            <label class="toggle-checkbox-label">
+              <input
+                type="checkbox"
+                name="formIsActive"
+                [(ngModel)]="formIsActive"
+                class="checkbox-input"
+              />
+              <span>Cupón activo y disponible para clientes</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="coupon-desc">Descripción / Motivo Interno</label>
+          <input
+            id="coupon-desc"
+            type="text"
+            name="formDescription"
+            [(ngModel)]="formDescription"
+            class="form-input"
+            placeholder="Ej: Descuento 10% campaña bienvenida a clientes registrados"
+          />
+        </div>
+
+        <footer class="modal-footer">
+          <button type="button" class="btn-cancel" (click)="closeModal()">Cancelar</button>
+          <button type="submit" class="btn-submit" id="btn-save-coupon">
+            <span>💾</span>
+            <span>{{ editingCoupon() ? 'Guardar Cambios' : 'Crear Cupón' }}</span>
+          </button>
+        </footer>
+      </form>
+    </div>
+  }
+
+  <!-- Modal de Confirmación de Eliminación -->
+  @if (deletingCoupon(); as target) {
+    <div class="modal-backdrop" (click)="closeDeleteConfirm()" role="presentation"></div>
+
+    <div
+      class="delete-confirm-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="delete-coupon-title"
+    >
+      <header class="modal-header header-danger">
+        <div>
+          <span class="modal-kicker text-danger">ELIMINAR CUPÓN</span>
+          <h2 id="delete-coupon-title">¿Eliminar cupón {{ target.code }}?</h2>
+        </div>
+        <button
+          type="button"
+          class="modal-close-btn"
+          (click)="closeDeleteConfirm()"
+          aria-label="Cerrar diálogo"
+        >
+          ✕
+        </button>
+      </header>
+
+      <div class="delete-modal-body">
+        <p>
+          Se eliminará permanentemente el cupón <strong>{{ target.code }}</strong> ({{
+            target.description || 'Sin descripción'
+          }}). Los pedidos que ya lo hayan utilizado mantendrán su histórico intacto.
+        </p>
+      </div>
+
+      <footer class="modal-footer">
+        <button type="button" class="btn-cancel" (click)="closeDeleteConfirm()">Cancelar</button>
+        <button
+          type="button"
+          class="btn-danger-confirm"
+          (click)="executeDelete()"
+          id="btn-confirm-delete-coupon"
+        >
+          🗑️ Eliminar Definitivamente
+        </button>
+      </footer>
+    </div>
+  }
+</div>

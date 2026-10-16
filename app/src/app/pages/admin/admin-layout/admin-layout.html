@@ -110,6 +110,16 @@
         </a>
 
         <a
+          [routerLink]="['/admin/cupones']"
+          routerLinkActive="active"
+          (click)="closeSidebar()"
+          class="sidebar-nav-item"
+        >
+          <span class="nav-icon" aria-hidden="true">🏷️</span>
+          <span class="nav-text">{{ i18n.t('admin.nav_coupons') }}</span>
+        </a>
+
+        <a
           [routerLink]="['/admin/ajustes']"
           routerLinkActive="active"
           (click)="closeSidebar()"

@@ -84,6 +84,12 @@ export const routes: Routes = [
           import('./pages/admin/admin-invoicing/admin-invoicing').then((m) => m.AdminInvoicing),
       },
       {
+        path: 'cupones',
+        title: 'Gestión de Cupones y Promociones | Cal Sardà',
+        loadComponent: () =>
+          import('./pages/admin/admin-coupons/admin-coupons').then((m) => m.AdminCoupons),
+      },
+      {
         path: 'ajustes',
         title: 'Ajustes del Obrador y Tienda | Cal Sardà',
         loadComponent: () =>
