@@ -816,7 +816,7 @@
 
 @media (max-width: 600px) {
   .checkout-page {
-    padding: 110px 20px 70px;
+    padding: calc(var(--navbar-height, 146px) + 20px) 20px 70px;
   }
   .checkout-fields {
     grid-template-columns: 1fr;

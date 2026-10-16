@@ -164,7 +164,7 @@ section {
 /* Página de lotes para empresas */
 .business-page {
   max-width: 1380px;
-  padding-top: 150px;
+  padding-top: calc(var(--navbar-height, 124px) + 24px);
 }
 
 .business-hero {

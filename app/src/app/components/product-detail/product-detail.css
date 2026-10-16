@@ -596,8 +596,8 @@
   }
 
   .product-detail-number {
-    top: 25px;
-    left: 25px;
+    top: calc(var(--navbar-height, 146px) + 12px);
+    left: 20px;
   }
 
   .product-detail-category {

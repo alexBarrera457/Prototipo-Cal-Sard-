@@ -398,7 +398,7 @@
 
 .history-page {
   max-width: 1240px;
-  padding-top: 158px;
+  padding-top: calc(var(--navbar-height, 124px) + 34px);
 }
 
 .history-page .brand-page-header {

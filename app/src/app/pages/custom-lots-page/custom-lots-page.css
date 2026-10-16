@@ -1,7 +1,7 @@
 .custom-lots-container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 2rem 1.5rem 8rem 1.5rem;
+  padding: calc(var(--navbar-height, 124px) + 24px) 1.5rem 8rem 1.5rem;
   color: #2b2520;
   font-family: inherit;
 }
