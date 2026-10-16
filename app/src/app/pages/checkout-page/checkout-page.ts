@@ -20,6 +20,29 @@ import { GiftCardsService, type GiftCardRecord } from '../../services/gift-cards
 
 export type { FulfillmentMethod, PaymentMethodType };
 
+export interface TimeSlotOption {
+  id: string;
+  label: string;
+  period: 'morning' | 'midday' | 'afternoon' | 'evening';
+  startHour: number;
+  endHour: number;
+  available: boolean;
+  statusBadge: 'available' | 'limited';
+}
+
+export const CHECKOUT_TIME_SLOTS: {
+  id: string;
+  label: string;
+  period: 'morning' | 'midday' | 'afternoon' | 'evening';
+  startHour: number;
+  endHour: number;
+}[] = [
+  { id: '10:00 - 12:00', label: '10:00 - 12:00', period: 'morning', startHour: 10, endHour: 12 },
+  { id: '12:00 - 14:00', label: '12:00 - 14:00', period: 'midday', startHour: 12, endHour: 14 },
+  { id: '17:00 - 19:00', label: '17:00 - 19:00', period: 'afternoon', startHour: 17, endHour: 19 },
+  { id: '19:00 - 20:30', label: '19:00 - 20:30', period: 'evening', startHour: 19, endHour: 20 },
+];
+
 export interface CheckoutFormErrors {
   name?: string;
   email?: string;
@@ -31,6 +54,8 @@ export interface CheckoutFormErrors {
   cardExp?: string;
   cardCvc?: string;
   bizumPhone?: string;
+  slotDate?: string;
+  slotTime?: string;
 }
 
 @Component({
@@ -40,7 +65,16 @@ export interface CheckoutFormErrors {
   styleUrl: './checkout-page.css',
 })
 export class CheckoutPage implements OnInit {
-  fulfillment: FulfillmentMethod = 'pickup';
+  private _fulfillment: FulfillmentMethod = 'pickup';
+  get fulfillment(): FulfillmentMethod {
+    return this._fulfillment;
+  }
+  set fulfillment(val: FulfillmentMethod) {
+    this._fulfillment = val;
+    if (this.selectedSlotDate && this.selectedSlotDate < this.minSlotDate) {
+      this.selectedSlotDate = this.minSlotDate;
+    }
+  }
   paymentMethod: PaymentMethodType = 'store';
   readonly previewReady = signal(false);
   readonly submitted = signal(false);
@@ -98,6 +132,119 @@ export class CheckoutPage implements OnInit {
 
   readonly catalogProducts = signal<StoreProduct[]>([]);
   orderNotes = '';
+
+  // Selector de franjas horarias (#65)
+  selectedSlotDate = '';
+  selectedTimeSlot = '';
+
+  formatDateIso(date: Date): string {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  }
+
+  get minSlotDate(): string {
+    const now = new Date();
+    if (this.fulfillment === 'pickup') {
+      if (now.getDay() !== 0 && now.getHours() < 18) {
+        return this.formatDateIso(now);
+      }
+      const next = new Date(now);
+      next.setDate(next.getDate() + 1);
+      if (next.getDay() === 0) {
+        next.setDate(next.getDate() + 1);
+      }
+      return this.formatDateIso(next);
+    } else {
+      const next = new Date(now);
+      next.setDate(next.getDate() + 1);
+      if (next.getDay() === 0) {
+        next.setDate(next.getDate() + 1);
+      }
+      return this.formatDateIso(next);
+    }
+  }
+
+  readonly availableTimeSlots = computed<TimeSlotOption[]>(() => {
+    const dateStr = this.selectedSlotDate;
+    if (!dateStr) {
+      return CHECKOUT_TIME_SLOTS.map((s) => ({
+        ...s,
+        available: true,
+        statusBadge: s.id === '12:00 - 14:00' ? 'limited' : 'available',
+      }));
+    }
+
+    const d = new Date(dateStr + 'T12:00:00');
+    if (d.getDay() === 0) {
+      return CHECKOUT_TIME_SLOTS.map((s) => ({
+        ...s,
+        available: false,
+        statusBadge: 'available',
+      }));
+    }
+
+    const now = new Date();
+    const isToday = dateStr === this.formatDateIso(now);
+
+    return CHECKOUT_TIME_SLOTS.map((s) => {
+      let available = true;
+      if (isToday) {
+        available = now.getHours() + 2 <= s.startHour;
+      }
+      return {
+        ...s,
+        available,
+        statusBadge: s.id === '12:00 - 14:00' ? 'limited' : 'available',
+      };
+    });
+  });
+
+  initDefaultSlot(): void {
+    if (!this.selectedSlotDate || this.selectedSlotDate < this.minSlotDate) {
+      this.selectedSlotDate = this.minSlotDate;
+    }
+    const slots = this.availableTimeSlots();
+    const available = slots.filter((s) => s.available);
+    if (!this.selectedTimeSlot || !available.some((s) => s.id === this.selectedTimeSlot)) {
+      if (available.length > 0) {
+        this.selectedTimeSlot = available[0].id;
+      } else {
+        this.selectedTimeSlot = '10:00 - 12:00';
+      }
+    }
+  }
+
+  selectTimeSlot(slotId: string): void {
+    this.selectedTimeSlot = slotId;
+    this.onFieldInput('slotTime');
+  }
+
+  onSlotDateChange(newDate: string): void {
+    this.selectedSlotDate = newDate;
+    const slots = this.availableTimeSlots();
+    const available = slots.filter((s) => s.available);
+    if (!available.some((s) => s.id === this.selectedTimeSlot)) {
+      if (available.length > 0) {
+        this.selectedTimeSlot = available[0].id;
+      }
+    }
+    this.onFieldInput('slotDate');
+  }
+
+  getSlotPeriodLabel(period: 'morning' | 'midday' | 'afternoon' | 'evening'): string {
+    switch (period) {
+      case 'morning':
+        return this.i18n.t('checkout.morning');
+      case 'midday':
+        return this.i18n.t('checkout.midday');
+      case 'afternoon':
+        return this.i18n.t('checkout.afternoon');
+      case 'evening':
+        return this.i18n.t('checkout.evening');
+    }
+  }
 
   readonly detectedAllergenWarnings = computed<string[]>(() => {
     const user = this.authService?.currentUser();
@@ -226,6 +373,8 @@ export class CheckoutPage implements OnInit {
         }
       }
     }
+
+    this.initDefaultSlot();
   }
 
   get isDelivery(): boolean {
@@ -463,6 +612,37 @@ export class CheckoutPage implements OnInit {
       }
     }
 
+    if (!this.selectedSlotDate) {
+      errs.slotDate =
+        this.i18n.currentLang() === 'ca'
+          ? 'La data de recollida o lliurament és obligatòria.'
+          : 'La fecha de entrega o recogida es obligatoria.';
+    } else {
+      const d = new Date(this.selectedSlotDate + 'T12:00:00');
+      if (d.getDay() === 0) {
+        errs.slotDate =
+          this.i18n.currentLang() === 'ca'
+            ? 'L’obrador de Cal Sardà roman tancat els diumenges per descans setmanal.'
+            : 'El obrador de Cal Sardà permanece cerrado los domingos por descanso semanal.';
+      } else if (this.selectedSlotDate < this.minSlotDate) {
+        errs.slotDate =
+          this.i18n.currentLang() === 'ca'
+            ? this.fulfillment === 'delivery'
+              ? 'El repartiment a domicili requereix un mínim de 24 hores d’antelació.'
+              : 'La data seleccionada no compleix el marge mínim de preparació (mín. 2h).'
+            : this.fulfillment === 'delivery'
+              ? 'El reparto a domicilio requiere un mínimo de 24 horas de antelación.'
+              : 'La fecha seleccionada no cumple el margen mínimo de preparación (mín. 2h).';
+      }
+    }
+
+    if (!this.selectedTimeSlot) {
+      errs.slotTime =
+        this.i18n.currentLang() === 'ca'
+          ? 'Has de triar una franja horària concertada.'
+          : 'Debes elegir una franja horaria concertada.';
+    }
+
     this.errors.set(errs);
     return Object.keys(errs).length === 0;
   }
@@ -486,6 +666,10 @@ export class CheckoutPage implements OnInit {
   }
 
   onFulfillmentChange(): void {
+    if (this.selectedSlotDate < this.minSlotDate) {
+      this.selectedSlotDate = this.minSlotDate;
+    }
+    this.initDefaultSlot();
     if (this.submitted()) {
       this.validate();
     }
@@ -548,6 +732,8 @@ export class CheckoutPage implements OnInit {
         fulfillment: this.fulfillment,
         shippingCost: this.shippingCost,
         shippingZoneLabel: this.shippingZoneLabel,
+        scheduledDate: this.selectedSlotDate,
+        scheduledTimeSlot: this.selectedTimeSlot,
         subtotal: this.cartService.getTotal(),
         discount,
         couponCode: coupon ? coupon.code : undefined,

@@ -117,6 +117,8 @@ export interface Order {
   fulfillment?: FulfillmentMethod;
   shippingZoneLabel?: string;
   estimatedDate?: string;
+  scheduledDate?: string;
+  scheduledTimeSlot?: string;
   paymentMethod?: string;
   paymentMethodType?: PaymentMethodType;
   paymentStatus?: PaymentStatus;

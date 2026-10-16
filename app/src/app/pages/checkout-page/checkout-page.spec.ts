@@ -543,4 +543,72 @@ describe('CheckoutPage', () => {
     expect(order?.giftCardDiscount).toBe(13.6);
     expect(order?.total).toBe(0);
   });
+
+  it('validates date and time slot selection and records scheduled slot in order (#65)', async () => {
+    // 1. Initial state has default slot date and time slot
+    expect(component.selectedSlotDate).toBeTruthy();
+    expect(component.selectedTimeSlot).toBeTruthy();
+    expect(component.availableTimeSlots().length).toBe(4);
+
+    // 2. Select different time slot
+    component.selectTimeSlot('17:00 - 19:00');
+    expect(component.selectedTimeSlot).toBe('17:00 - 19:00');
+
+    // 3. Validation: empty date
+    component.selectedSlotDate = '';
+    component.validate();
+    expect(component.errors().slotDate).toBeTruthy();
+
+    // 4. Validation: Sunday closure (2026-10-18 is a Sunday)
+    component.selectedSlotDate = '2026-10-18';
+    component.validate();
+    expect(component.errors().slotDate).toContain('domingo');
+
+    // 5. Validation: empty time slot
+    component.selectedSlotDate = '2026-10-20'; // Tuesday
+    component.selectedTimeSlot = '';
+    component.validate();
+    expect(component.errors().slotTime).toBeTruthy();
+
+    // 6. Complete customer details and confirm order
+    component.selectedSlotDate = '2026-10-20';
+    component.selectedTimeSlot = '12:00 - 14:00';
+
+    component.customer = {
+      name: 'Carme Ruscalleda',
+      email: 'carme@example.cat',
+      phone: '678901234',
+      address: 'Carrer de la Marina 237',
+      postalCode: '08013',
+      city: 'Barcelona',
+    };
+    component.fulfillment = 'pickup';
+    component.paymentMethod = 'store';
+
+    component.preparePreview();
+    expect(component.previewReady()).toBe(true);
+    expect(component.errors().slotDate).toBeUndefined();
+    expect(component.errors().slotTime).toBeUndefined();
+
+    await component.confirmOrder();
+
+    const order = component.confirmedOrder();
+    expect(order).toBeTruthy();
+    expect(order?.scheduledDate).toBe('2026-10-20');
+    expect(order?.scheduledTimeSlot).toBe('12:00 - 14:00');
+  });
+
+  it('adapts minimum lead time depending on fulfillment method (#65)', () => {
+    // Pickup mode allows today or earliest business day
+    component.fulfillment = 'pickup';
+    component.onFulfillmentChange();
+    const pickupMin = component.minSlotDate;
+    expect(pickupMin).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+
+    // Delivery mode requires minimum 24h lead time
+    component.fulfillment = 'delivery';
+    component.onFulfillmentChange();
+    const deliveryMin = component.minSlotDate;
+    expect(deliveryMin).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+  });
 });

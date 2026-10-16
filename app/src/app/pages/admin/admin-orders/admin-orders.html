@@ -230,6 +230,21 @@
                       🚚 {{ getFulfillmentLabel('delivery') }}
                     }
                   </span>
+                  @if (order.scheduledDate) {
+                    <small
+                      class="slot-tag"
+                      style="
+                        display: block;
+                        font-size: 11px;
+                        color: #8c2423;
+                        font-weight: 600;
+                        margin-top: 2px;
+                      "
+                    >
+                      📅 {{ order.scheduledDate }}
+                      {{ order.scheduledTimeSlot ? '(' + order.scheduledTimeSlot + ')' : '' }}
+                    </small>
+                  }
                 </td>
 
                 <!-- Total -->
@@ -481,7 +496,22 @@
                 <p class="modal-muted-text">{{ order.shippingZoneLabel }}</p>
               }
             }
-            @if (order.estimatedDate) {
+            @if (order.scheduledDate) {
+              <p
+                class="modal-scheduled-slot"
+                style="
+                  background: #fdf5f0;
+                  border-left: 3px solid #8c2423;
+                  padding: 6px 10px;
+                  margin-top: 6px;
+                  font-size: 13px;
+                  border-radius: 4px;
+                "
+              >
+                <strong>📅 Cita concertada:</strong> {{ order.scheduledDate }}
+                {{ order.scheduledTimeSlot ? '· ⏰ ' + order.scheduledTimeSlot : '' }}
+              </p>
+            } @else if (order.estimatedDate) {
               <p class="modal-estimated">⏳ {{ order.estimatedDate }}</p>
             }
           </div>

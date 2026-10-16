@@ -269,7 +269,7 @@ export class NotificationService {
           <h4 style="margin: 0 0 6px; color: #251c15; font-size: 15px;">🏪 Recogida en tienda física</h4>
           <p style="margin: 0 0 4px; color: #4a3e35; font-size: 14px;"><strong>Cal Sardà</strong> · Carrer de Marina, 237, 08013 Barcelona</p>
           <p style="margin: 0 0 4px; color: #6e5f52; font-size: 13px;">Horario obrador: Lunes a sábado de 9:00 a 14:00 y de 17:00 a 20:30</p>
-          <p style="margin: 6px 0 0; color: #251c15; font-size: 13px;"><strong>Disponibilidad estimada:</strong> ${order.estimatedDate ?? 'A partir de mañana a las 10:00 h'}</p>
+          <p style="margin: 6px 0 0; color: #251c15; font-size: 13px;"><strong>${order.scheduledDate ? 'Cita concertada:' : 'Disponibilidad estimada:'}</strong> ${order.scheduledDate ? `${order.scheduledDate} ${order.scheduledTimeSlot ? `(${order.scheduledTimeSlot})` : ''}` : (order.estimatedDate ?? 'A partir de mañana a las 10:00 h')}</p>
         </div>`
         : `
         <div style="background-color: #f7f3ed; border-left: 4px solid #aa845c; padding: 14px 18px; margin: 20px 0;">
@@ -277,7 +277,7 @@ export class NotificationService {
           <p style="margin: 0 0 4px; color: #4a3e35; font-size: 14px;"><strong>Destinatario:</strong> ${order.customer.name}</p>
           <p style="margin: 0 0 4px; color: #4a3e35; font-size: 14px;">${order.customer.address}, ${order.customer.postalCode} ${order.customer.city}</p>
           <p style="margin: 0 0 4px; color: #6e5f52; font-size: 13px;">Zona: ${order.shippingZoneLabel ?? 'Península'}</p>
-          <p style="margin: 6px 0 0; color: #251c15; font-size: 13px;"><strong>Plazo estimado:</strong> ${order.estimatedDate ?? '24-48 horas laborables'}</p>
+          <p style="margin: 6px 0 0; color: #251c15; font-size: 13px;"><strong>${order.scheduledDate ? 'Entrega concertada:' : 'Plazo estimado:'}</strong> ${order.scheduledDate ? `${order.scheduledDate} ${order.scheduledTimeSlot ? `(${order.scheduledTimeSlot})` : ''}` : (order.estimatedDate ?? '24-48 horas laborables')}</p>
         </div>`;
 
     const html = `
@@ -380,7 +380,7 @@ CÓDIGO DE REFERENCIA: ${order.reference}
 Conserva este código para cualquier consulta o para la recogida en tienda.
 
 MODALIDAD: ${order.fulfillment === 'pickup' ? 'Recogida en tienda (C/ Marina 237, Barcelona)' : `Envío a domicilio (${order.customer.address}, ${order.customer.postalCode} ${order.customer.city})`}
-FECHA ESTIMADA: ${order.estimatedDate ?? 'A partir de mañana a las 10:00 h'}
+FECHA Y HORARIO: ${order.scheduledDate ? `${order.scheduledDate} (${order.scheduledTimeSlot ?? ''})` : (order.estimatedDate ?? 'A partir de mañana a las 10:00 h')}
 MÉTODO DE PAGO: ${order.paymentMethod ?? 'Pago en tienda física (tarjeta/efectivo) o Bizum.'}
 
 PRODUCTOS SOLICITADOS:

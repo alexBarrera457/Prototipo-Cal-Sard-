@@ -34,6 +34,8 @@ export interface CreateOrderInput {
   giftCardCode?: string;
   subtotal?: number;
   total?: number;
+  scheduledDate?: string;
+  scheduledTimeSlot?: string;
   paymentMethod?: string;
   paymentMethodType?: PaymentMethodType;
   paymentStatus?: PaymentStatus;
@@ -845,6 +847,8 @@ export class OrdersService {
       fulfillment: input.fulfillment,
       shippingZoneLabel: input.shippingZoneLabel,
       estimatedDate,
+      scheduledDate: input.scheduledDate,
+      scheduledTimeSlot: input.scheduledTimeSlot,
       paymentMethod,
       paymentMethodType: input.paymentMethodType,
       paymentStatus,

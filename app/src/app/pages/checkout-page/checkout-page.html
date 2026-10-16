@@ -103,6 +103,16 @@
               <p class="estimated-time">
                 {{ order.estimatedDate }}
               </p>
+              @if (order.scheduledDate) {
+                <p
+                  class="scheduled-slot-badge"
+                  id="confirmation-slot-box"
+                  style="margin-top: 6px; font-size: 13px; font-weight: 700; color: #8c2423"
+                >
+                  📅 {{ i18n.t('checkout.scheduled_slot') }}: {{ order.scheduledDate }}
+                  {{ order.scheduledTimeSlot ? '· ⏰ ' + order.scheduledTimeSlot : '' }}
+                </p>
+              }
             </div>
 
             <div class="info-group">
@@ -458,6 +468,106 @@
                 </div>
               }
 
+              <!-- Selector de Fecha y Franja Horaria Concertada (#65) -->
+              <section
+                class="checkout-slots-section"
+                aria-labelledby="slots-heading"
+                id="checkout-slots-section"
+              >
+                <div class="slots-header">
+                  <span class="slots-icon" aria-hidden="true">📅</span>
+                  <div>
+                    <h3 id="slots-heading" class="slots-title">
+                      {{ i18n.t('checkout.slots_title') }}
+                    </h3>
+                    <p class="slots-desc">{{ i18n.t('checkout.slots_desc') }}</p>
+                  </div>
+                </div>
+
+                <div class="slots-notice-bar">
+                  @if (fulfillment === 'pickup') {
+                    <span class="notice-pill notice-pickup"
+                      >⚡ {{ i18n.t('checkout.slot_pickup_notice') }}</span
+                    >
+                  } @else {
+                    <span class="notice-pill notice-delivery"
+                      >🚚 {{ i18n.t('checkout.slot_delivery_notice') }}</span
+                    >
+                  }
+                  <span class="notice-pill notice-sunday"
+                    >🔒 {{ i18n.t('checkout.sunday_closed') }}</span
+                  >
+                </div>
+
+                <div class="slot-date-picker-group">
+                  <label for="checkout-slot-date" class="slot-date-label">
+                    {{ i18n.t('checkout.slot_date_label') }} *
+                  </label>
+                  <input
+                    type="date"
+                    id="checkout-slot-date"
+                    name="slotDate"
+                    class="form-input slot-date-input"
+                    [min]="minSlotDate"
+                    [(ngModel)]="selectedSlotDate"
+                    (change)="onSlotDateChange($any($event.target).value)"
+                    [attr.aria-invalid]="errors().slotDate ? 'true' : null"
+                    [attr.aria-describedby]="errors().slotDate ? 'slot-date-error' : null"
+                    required
+                  />
+                  @if (errors().slotDate) {
+                    <p class="field-error" id="slot-date-error" role="alert">
+                      {{ errors().slotDate }}
+                    </p>
+                  }
+                </div>
+
+                <div class="time-slots-container">
+                  <span class="time-slots-title">{{ i18n.t('checkout.slot_time_label') }} *</span>
+
+                  <div
+                    class="time-slots-grid"
+                    role="radiogroup"
+                    aria-label="Franjas horarias disponibles"
+                  >
+                    @for (slot of availableTimeSlots(); track slot.id) {
+                      <button
+                        type="button"
+                        class="slot-chip"
+                        [id]="'slot-chip-' + slot.period"
+                        [class.selected]="selectedTimeSlot === slot.id"
+                        [class.disabled]="!slot.available"
+                        [disabled]="!slot.available"
+                        (click)="selectTimeSlot(slot.id)"
+                        role="radio"
+                        [attr.aria-checked]="selectedTimeSlot === slot.id"
+                      >
+                        <div class="slot-chip-top">
+                          <span class="slot-period-tag">{{ getSlotPeriodLabel(slot.period) }}</span>
+                          <span
+                            class="slot-badge"
+                            [class.badge-limited]="slot.statusBadge === 'limited'"
+                          >
+                            {{
+                              slot.statusBadge === 'limited'
+                                ? i18n.t('checkout.slot_limited')
+                                : i18n.t('checkout.slot_available')
+                            }}
+                          </span>
+                        </div>
+                        <strong class="slot-chip-time">{{ slot.label }}</strong>
+                      </button>
+                    }
+                  </div>
+
+                  @if (errors().slotTime) {
+                    <p class="field-error" id="slot-time-error" role="alert">
+                      {{ errors().slotTime }}
+                    </p>
+                  }
+                </div>
+              </section>
+
               <!-- Selector de Métodos de Pago (Issue #45) -->
               <fieldset class="payment-options">
                 <legend>{{ i18n.t('checkout.payment_method_legend') }}</legend>
@@ -627,6 +737,34 @@
                     shippingZoneLabel
                   }})
                 </p>
+              }
+
+              @if (selectedSlotDate) {
+                <div
+                  class="preview-slot-box"
+                  id="preview-slot-box"
+                  style="
+                    background: #f7f3ed;
+                    border-left: 4px solid #9e3a24;
+                    padding: 10px 14px;
+                    margin: 12px 0;
+                    border-radius: 4px;
+                  "
+                >
+                  <span
+                    style="
+                      font-size: 11px;
+                      font-weight: 700;
+                      color: #9e3a24;
+                      text-transform: uppercase;
+                    "
+                  >
+                    📅 {{ i18n.t('checkout.scheduled_slot') }}
+                  </span>
+                  <p style="margin: 4px 0 0; font-weight: 700; font-size: 14px; color: #251c15">
+                    {{ selectedSlotDate }} · {{ selectedTimeSlot }}
+                  </p>
+                </div>
               }
 
               @if (orderNotes) {

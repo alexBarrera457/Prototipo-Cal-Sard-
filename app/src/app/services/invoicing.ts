@@ -716,6 +716,26 @@ export class InvoicingService {
     </div>
 
     ${
+      order.scheduledDate
+        ? `
+      <div style="background: #fff8f0; border: 2px solid #9e3a24; border-radius: 6px; padding: 10px 14px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <div style="font-size: 11px; font-weight: 700; color: #9e3a24; text-transform: uppercase;">
+            📅 ${isCa ? 'FRANJA CONCERTADA DE PREPARACIÓ I LLIURAMENT' : 'FRANJA CONCERTADA DE PREPARACIÓN Y ENTREGA'}
+          </div>
+          <div style="font-size: 15px; font-weight: 800; color: #2b2520; margin-top: 2px;">
+            ${order.scheduledDate} ${order.scheduledTimeSlot ? `· ⏰ ${order.scheduledTimeSlot}` : ''}
+          </div>
+        </div>
+        <div style="background: #9e3a24; color: #fff; font-size: 11px; font-weight: 700; padding: 4px 8px; border-radius: 4px;">
+          ${order.fulfillment === 'delivery' ? (isCa ? 'REPARTIMENT' : 'REPARTO') : isCa ? 'RECOLLIDA' : 'RECOGIDA'}
+        </div>
+      </div>
+    `
+        : ''
+    }
+
+    ${
       order.notes
         ? `
       <div class="notes-box">
