@@ -16,6 +16,7 @@ import { InvoicingService } from '../../services/invoicing';
 import { OrdersService, type Order } from '../../services/orders';
 import { PaymentsService } from '../../services/payments';
 import { ProductsService, type StoreProduct } from '../../services/products';
+import { GiftCardsService, type GiftCardRecord } from '../../services/gift-cards';
 
 export type { FulfillmentMethod, PaymentMethodType };
 
@@ -56,6 +57,7 @@ export class CheckoutPage implements OnInit {
   private readonly invoicingService = inject(InvoicingService);
   public readonly paymentsService = inject(PaymentsService);
   public readonly couponsService = inject(CouponsService);
+  public readonly giftCardsService = inject(GiftCardsService);
   public readonly authService = inject(AuthService, { optional: true });
   public readonly productsService = inject(ProductsService, { optional: true });
 
@@ -63,6 +65,16 @@ export class CheckoutPage implements OnInit {
   readonly appliedCoupon = signal<Coupon | null>(null);
   readonly couponError = signal<string | null>(null);
   readonly couponSuccess = signal<string | null>(null);
+
+  giftCardCodeInput = '';
+  readonly appliedGiftCard = signal<{
+    code: string;
+    card: GiftCardRecord;
+    appliedAmount: number;
+    remainingBalance: number;
+  } | null>(null);
+  readonly giftCardError = signal<string | null>(null);
+  readonly giftCardSuccess = signal<string | null>(null);
 
   readonly couponDiscount = computed<number>(() => {
     const coupon = this.appliedCoupon();
@@ -72,6 +84,16 @@ export class CheckoutPage implements OnInit {
       return Math.round(((subtotal * coupon.discountValue) / 100) * 100) / 100;
     }
     return Math.min(subtotal, coupon.discountValue);
+  });
+
+  readonly giftCardDiscount = computed<number>(() => {
+    const applied = this.appliedGiftCard();
+    if (!applied) return 0;
+    const base = Math.max(
+      0,
+      this.cartService.getTotal() - this.couponDiscount() + this.shippingCost,
+    );
+    return Math.min(base, applied.card.currentBalance);
   });
 
   readonly catalogProducts = signal<StoreProduct[]>([]);
@@ -237,7 +259,8 @@ export class CheckoutPage implements OnInit {
   }
 
   get finalTotal(): number {
-    return Math.max(0, this.cartService.getTotal() - this.couponDiscount() + this.shippingCost);
+    const base = this.cartService.getTotal() - this.couponDiscount() + this.shippingCost;
+    return Math.max(0, Math.round((base - this.giftCardDiscount()) * 100) / 100);
   }
 
   applyCoupon(): void {
@@ -277,6 +300,58 @@ export class CheckoutPage implements OnInit {
     this.couponError.set(null);
     this.couponSuccess.set(null);
     this.couponCodeInput = '';
+  }
+
+  applyGiftCard(): void {
+    this.giftCardError.set(null);
+    this.giftCardSuccess.set(null);
+    const code = this.giftCardCodeInput.trim().toUpperCase();
+    if (!code) {
+      this.giftCardError.set(
+        this.i18n.currentLang() === 'ca'
+          ? 'Introdueix un codi de targeta regal.'
+          : 'Introduce un código de tarjeta regalo.',
+      );
+      return;
+    }
+
+    const res = this.giftCardsService.checkBalance(code);
+    if (!res.valid || !res.card) {
+      this.giftCardError.set(
+        res.message ||
+          (this.i18n.currentLang() === 'ca'
+            ? 'Targeta regal no vàlida o sense saldo.'
+            : 'Tarjeta regalo no válida o sin saldo restante.'),
+      );
+      return;
+    }
+
+    const remainingDue = Math.max(
+      0,
+      this.cartService.getTotal() - this.couponDiscount() + this.shippingCost,
+    );
+    const appliedAmount = Math.min(remainingDue, res.card.currentBalance);
+    const remainingBalance = Math.round((res.card.currentBalance - appliedAmount) * 100) / 100;
+
+    this.appliedGiftCard.set({
+      code: res.card.code,
+      card: res.card,
+      appliedAmount,
+      remainingBalance,
+    });
+
+    this.giftCardSuccess.set(
+      this.i18n.currentLang() === 'ca'
+        ? `Targeta ${res.card.code} aplicada: -${appliedAmount.toFixed(2)} € (Saldo restant: ${remainingBalance.toFixed(2)} €)`
+        : `Tarjeta ${res.card.code} aplicada con éxito: -${appliedAmount.toFixed(2)} € (Saldo restante: ${remainingBalance.toFixed(2)} €)`,
+    );
+  }
+
+  removeGiftCard(): void {
+    this.appliedGiftCard.set(null);
+    this.giftCardError.set(null);
+    this.giftCardSuccess.set(null);
+    this.giftCardCodeInput = '';
   }
 
   isValidEmail(email: string): boolean {
@@ -462,6 +537,8 @@ export class CheckoutPage implements OnInit {
 
       const coupon = this.appliedCoupon();
       const discount = this.couponDiscount();
+      const giftCard = this.appliedGiftCard();
+      const giftCardDisc = this.giftCardDiscount();
 
       const items = [...this.cartService.products()];
       const order = await this.ordersService.submitOrder({
@@ -474,6 +551,8 @@ export class CheckoutPage implements OnInit {
         subtotal: this.cartService.getTotal(),
         discount,
         couponCode: coupon ? coupon.code : undefined,
+        giftCardDiscount: giftCardDisc > 0 ? giftCardDisc : undefined,
+        giftCardCode: giftCard ? giftCard.code : undefined,
         total: this.finalTotal,
         notes: this.orderNotes.trim() || undefined,
         paymentMethod: this.paymentsService.getMethodLabel(
@@ -487,6 +566,10 @@ export class CheckoutPage implements OnInit {
 
       if (coupon) {
         this.couponsService.incrementUsage(coupon.code);
+      }
+
+      if (giftCard && giftCardDisc > 0) {
+        this.giftCardsService.redeemBalance(giftCard.code, giftCardDisc);
       }
 
       this.cartService.clearCart();

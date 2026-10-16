@@ -1,0 +1,370 @@
+<div class="gift-card-container">
+  <!-- Cabecera -->
+  <header class="gift-card-header">
+    <nav class="breadcrumb" aria-label="Migas de pan">
+      <a [routerLink]="['/']">Inicio</a>
+      <span>/</span>
+      <span aria-current="page">Tarjeta Regalo</span>
+    </nav>
+
+    <div class="header-intro">
+      <span class="heritage-badge">OBRADOR I COLMADO · DESDE 1930</span>
+      <h1 id="gift-card-heading">{{ i18n.t('gift_card.page_title') }}</h1>
+      <p class="lead-desc">{{ i18n.t('gift_card.page_subtitle') }}</p>
+    </div>
+
+    <!-- Pestañas de Navegación -->
+    <div class="tab-controls" role="tablist" aria-label="Opciones de tarjeta regalo">
+      <button
+        type="button"
+        class="tab-btn"
+        [class.active]="activeTab() === 'buy'"
+        (click)="setTab('buy')"
+        role="tab"
+        [attr.aria-selected]="activeTab() === 'buy'"
+        id="tab-buy-btn"
+      >
+        🎁 {{ i18n.t('gift_card.tab_buy') }}
+      </button>
+      <button
+        type="button"
+        class="tab-btn"
+        [class.active]="activeTab() === 'check'"
+        (click)="setTab('check')"
+        role="tab"
+        [attr.aria-selected]="activeTab() === 'check'"
+        id="tab-check-btn"
+      >
+        🔍 {{ i18n.t('gift_card.tab_check') }}
+      </button>
+    </div>
+  </header>
+
+  <main class="gift-card-main">
+    <!-- PESTAÑA 1: COMPRAR TARJETA REGALO -->
+    @if (activeTab() === 'buy') {
+      @if (!isPurchased()) {
+        <div class="purchase-layout">
+          <!-- Columna Izquierda: Formulario -->
+          <div class="purchase-form-card">
+            <!-- Selector de Importe -->
+            <section class="amount-selection-section" aria-labelledby="amount-heading">
+              <h2 id="amount-heading" class="section-subtitle">
+                {{ i18n.t('gift_card.select_amount') }}
+              </h2>
+
+              <div class="preset-chips-grid">
+                @for (amt of presetAmounts; track amt) {
+                  <button
+                    type="button"
+                    class="preset-chip"
+                    [class.active]="selectedAmount() === amt && !customAmountInput()"
+                    (click)="selectPreset(amt)"
+                  >
+                    {{ amt }} €
+                  </button>
+                }
+              </div>
+
+              <div class="custom-amount-box">
+                <label for="custom-amount-input">{{ i18n.t('gift_card.custom_amount') }}</label>
+                <div class="input-with-symbol">
+                  <input
+                    id="custom-amount-input"
+                    type="number"
+                    min="10"
+                    step="5"
+                    class="form-input custom-input"
+                    placeholder="Mínimo 10"
+                    [value]="customAmountInput()"
+                    (input)="onCustomAmountChange($any($event.target).value)"
+                  />
+                  <span class="currency-symbol">€</span>
+                </div>
+              </div>
+            </section>
+
+            <!-- Datos del Destinatario y Mensaje -->
+            <form (ngSubmit)="submitPurchase()" class="card-details-form" novalidate>
+              <h2 class="section-subtitle">{{ i18n.t('gift_card.recipient_title') }}</h2>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="recipient-name-input">{{ i18n.t('gift_card.recipient_name') }}</label>
+                  <input
+                    id="recipient-name-input"
+                    type="text"
+                    name="recipientName"
+                    class="form-input"
+                    [(ngModel)]="recipientName"
+                    required
+                    placeholder="Ej. Montserrat Puig"
+                  />
+                </div>
+
+                <div class="form-group">
+                  <label for="recipient-email-input">{{
+                    i18n.t('gift_card.recipient_email')
+                  }}</label>
+                  <input
+                    id="recipient-email-input"
+                    type="email"
+                    name="recipientEmail"
+                    class="form-input"
+                    [(ngModel)]="recipientEmail"
+                    required
+                    placeholder="destinatario@email.com"
+                  />
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="sender-name-input">{{ i18n.t('gift_card.sender_name') }}</label>
+                  <input
+                    id="sender-name-input"
+                    type="text"
+                    name="senderName"
+                    class="form-input"
+                    [(ngModel)]="senderName"
+                    required
+                    placeholder="Tu nombre o empresa"
+                  />
+                </div>
+
+                <div class="form-group">
+                  <label for="sender-email-input">{{ i18n.t('gift_card.sender_email') }}</label>
+                  <input
+                    id="sender-email-input"
+                    type="email"
+                    name="senderEmail"
+                    class="form-input"
+                    [(ngModel)]="senderEmail"
+                    placeholder="tu-correo@email.com"
+                  />
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="delivery-date-input">{{ i18n.t('gift_card.delivery_date') }}</label>
+                <input
+                  id="delivery-date-input"
+                  type="date"
+                  name="deliveryDate"
+                  class="form-input"
+                  [(ngModel)]="deliveryDate"
+                />
+              </div>
+
+              <div class="form-group">
+                <label for="card-dedication-input">{{ i18n.t('gift_card.dedication') }}</label>
+                <textarea
+                  id="card-dedication-input"
+                  name="dedication"
+                  rows="3"
+                  class="form-textarea"
+                  [(ngModel)]="dedication"
+                  placeholder="¡Esperamos que disfrutes de una compra tradicional en Cal Sardà!"
+                  maxlength="250"
+                ></textarea>
+              </div>
+
+              <button
+                type="submit"
+                class="btn-submit-purchase"
+                id="btn-purchase-gift-card"
+                [disabled]="!recipientName.trim() || !recipientEmail.trim() || !senderName.trim()"
+              >
+                {{ i18n.t('gift_card.btn_purchase') }} · {{ formatCurrency(currentAmount()) }}
+              </button>
+            </form>
+          </div>
+
+          <!-- Columna Derecha: Vista Previa en Vivo -->
+          <div class="preview-column">
+            <span class="preview-kicker">{{ i18n.t('gift_card.card_preview_label') }}</span>
+            <div class="digital-card-preview" id="gift-card-live-preview">
+              <div class="card-top-row">
+                <div>
+                  <span class="card-brand-logo">CAL SARDÀ</span>
+                  <span class="card-brand-sub">DESDE 1930 · SAGRADA FAMÍLIA</span>
+                </div>
+                <div class="card-chip-graphic">
+                  <span>💳</span>
+                </div>
+              </div>
+
+              <div class="card-balance-display">
+                <span class="balance-label">SALDO REGALO</span>
+                <strong class="balance-value">{{ formatCurrency(currentAmount()) }}</strong>
+              </div>
+
+              <div class="card-bottom-row">
+                <div class="card-recipient-box">
+                  <span class="recip-label">Para:</span>
+                  <strong class="recip-name">{{ recipientName || 'Destinatario' }}</strong>
+                  @if (senderName) {
+                    <span class="sender-info">De: {{ senderName }}</span>
+                  }
+                </div>
+                <div class="card-sample-code">
+                  <code>REGAL-CS-••••</code>
+                </div>
+              </div>
+            </div>
+
+            @if (dedication) {
+              <div class="preview-dedication-card">
+                <span class="dedication-quote-icon">❝</span>
+                <p>{{ dedication }}</p>
+              </div>
+            }
+          </div>
+        </div>
+      } @else {
+        <!-- Confirmación de Compra con Código Emitido -->
+        @if (createdCard(); as card) {
+          <div class="purchase-success-view" id="gift-card-success-view">
+            <div class="success-icon-badge">✓</div>
+            <h2>{{ i18n.t('gift_card.success_title') }}</h2>
+            <p class="success-desc">{{ i18n.t('gift_card.success_desc') }}</p>
+
+            <div class="voucher-box" id="issued-voucher-card">
+              <div class="voucher-header">
+                <div>
+                  <span class="voucher-brand">CAL SARDÀ</span>
+                  <span class="voucher-est">BARCELONA · 1930</span>
+                </div>
+                <span class="voucher-amount">{{ formatCurrency(card.initialBalance) }}</span>
+              </div>
+
+              <div class="voucher-code-region">
+                <span class="code-label">{{ i18n.t('gift_card.code_label') }}</span>
+                <div class="code-pill">
+                  <code id="issued-gift-card-code">{{ card.code }}</code>
+                  <button
+                    type="button"
+                    class="btn-copy-code"
+                    id="copy-gift-card-code"
+                    (click)="copyCode(card.code)"
+                  >
+                    {{ i18n.t('gift_card.btn_copy') }}
+                  </button>
+                </div>
+              </div>
+
+              <div class="voucher-meta">
+                <p><strong>Para:</strong> {{ card.recipientName }} ({{ card.recipientEmail }})</p>
+                <p><strong>De:</strong> {{ card.senderName }}</p>
+                @if (card.dedication) {
+                  <p class="voucher-dedication">«{{ card.dedication }}»</p>
+                }
+              </div>
+
+              <div class="voucher-barcode">||| | |||| | ||| |||| | || | |||| |||</div>
+            </div>
+
+            <div class="success-actions">
+              <button
+                type="button"
+                class="btn-print-voucher"
+                id="print-gift-card-btn"
+                (click)="printCard()"
+              >
+                {{ i18n.t('gift_card.btn_print') }}
+              </button>
+              <button
+                type="button"
+                class="btn-new-card"
+                id="btn-buy-another-card"
+                (click)="resetPurchase()"
+              >
+                Comprar otra tarjeta
+              </button>
+              <a [routerLink]="['/tienda-online']" class="btn-goto-shop">Ir a la tienda online →</a>
+            </div>
+          </div>
+        }
+      }
+    }
+
+    <!-- PESTAÑA 2: CONSULTAR SALDO -->
+    @if (activeTab() === 'check') {
+      <section class="check-balance-section" id="check-balance-section">
+        <div class="check-card">
+          <h2>{{ i18n.t('gift_card.check_title') }}</h2>
+          <p class="check-desc">
+            Introduce el código de tu tarjeta regalo (ej. <code>REGAL-CS-50</code> o
+            <code>REGAL-CS-1930</code>) para comprobar en tiempo real el saldo disponible.
+          </p>
+
+          <div class="check-input-row">
+            <input
+              id="check-balance-input"
+              type="text"
+              class="form-input check-input"
+              [(ngModel)]="checkCodeInput"
+              (keyup.enter)="checkBalance()"
+              [placeholder]="i18n.t('gift_card.check_input_placeholder')"
+            />
+            <button
+              type="button"
+              class="btn-check-balance"
+              id="btn-do-check-balance"
+              (click)="checkBalance()"
+            >
+              {{ i18n.t('gift_card.btn_check') }}
+            </button>
+          </div>
+
+          <!-- Resultado de la consulta -->
+          @if (balanceCheckResult().checked) {
+            <div
+              class="balance-result-box"
+              [class.valid]="balanceCheckResult().valid"
+              [class.invalid]="!balanceCheckResult().valid"
+              id="balance-result-box"
+            >
+              @if (balanceCheckResult().valid && balanceCheckResult().card; as c) {
+                <div class="result-valid-content">
+                  <div class="result-top">
+                    <span class="result-badge">TARJETA ACTIVA</span>
+                    <strong class="result-amount">{{ formatCurrency(c.currentBalance) }}</strong>
+                  </div>
+                  <div class="result-details">
+                    <p>
+                      <strong>Código:</strong> <code>{{ c.code }}</code>
+                    </p>
+                    <p><strong>Destinatario:</strong> {{ c.recipientName }}</p>
+                    <p><strong>Emitida por:</strong> {{ c.senderName }}</p>
+                    <p><strong>Importe inicial:</strong> {{ formatCurrency(c.initialBalance) }}</p>
+                    @if (c.dedication) {
+                      <p class="result-dedication">«{{ c.dedication }}»</p>
+                    }
+                  </div>
+                  <div class="result-actions">
+                    <a [routerLink]="['/tienda-online']" class="btn-use-balance"
+                      >Comprar en el colmado →</a
+                    >
+                  </div>
+                </div>
+              } @else {
+                <div class="result-invalid-content">
+                  <span class="invalid-icon">⚠️</span>
+                  <p>{{ balanceCheckResult().message }}</p>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </section>
+    }
+  </main>
+
+  <!-- Toast -->
+  @if (toastMessage(); as msg) {
+    <div class="gift-card-toast" role="alert" aria-live="assertive">
+      <span>{{ msg }}</span>
+    </div>
+  }
+</div>

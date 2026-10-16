@@ -840,6 +840,73 @@
             }
           </div>
 
+          <!-- Bloque de Tarjeta Regalo (#64) -->
+          <div
+            class="checkout-coupon-box checkout-gift-card-box"
+            aria-label="Canjear tarjeta regalo"
+          >
+            @if (!appliedGiftCard()) {
+              <div class="coupon-input-group" id="gift-card-input-group">
+                <input
+                  type="text"
+                  name="giftCardCode"
+                  [(ngModel)]="giftCardCodeInput"
+                  [placeholder]="
+                    i18n.currentLang() === 'ca'
+                      ? 'Codi de targeta regal (REGAL-CS-XXXX)'
+                      : 'Código de tarjeta regalo (REGAL-CS-XXXX)'
+                  "
+                  class="coupon-input"
+                  (keyup.enter)="applyGiftCard()"
+                  id="checkout-gift-card-input"
+                  aria-label="Código de tarjeta regalo"
+                />
+                <button
+                  type="button"
+                  class="btn-apply-coupon"
+                  (click)="applyGiftCard()"
+                  id="btn-apply-gift-card"
+                >
+                  {{ i18n.currentLang() === 'ca' ? 'Canviar' : 'Canjear' }}
+                </button>
+              </div>
+            } @else {
+              <div class="coupon-applied-badge gift-card-applied-badge">
+                <div class="coupon-applied-info">
+                  <span class="coupon-icon">💳</span>
+                  <div>
+                    <strong class="applied-code">{{ appliedGiftCard()?.code }}</strong>
+                    <span class="applied-desc">
+                      Saldo restante tras canje:
+                      {{ appliedGiftCard()?.remainingBalance?.toFixed(2) }} €
+                    </span>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  class="btn-remove-coupon"
+                  (click)="removeGiftCard()"
+                  title="Eliminar tarjeta regalo"
+                  id="btn-remove-gift-card"
+                  aria-label="Eliminar tarjeta regalo"
+                >
+                  ✕
+                </button>
+              </div>
+            }
+
+            @if (giftCardError(); as err) {
+              <p class="coupon-message coupon-error" role="alert" id="gift-card-error-msg">
+                <span>⚠️</span> {{ err }}
+              </p>
+            }
+            @if (giftCardSuccess(); as success) {
+              <p class="coupon-message coupon-success" role="status" id="gift-card-success-msg">
+                <span>✓</span> {{ success }}
+              </p>
+            }
+          </div>
+
           @if (appliedCoupon() && couponDiscount() > 0) {
             <div class="summary-total discount-total" id="checkout-discount-row">
               <span>
@@ -847,6 +914,18 @@
                 ({{ appliedCoupon()?.code }})
               </span>
               <strong class="discount-amount">-{{ couponDiscount().toFixed(2) }} €</strong>
+            </div>
+          }
+
+          @if (appliedGiftCard() && giftCardDiscount() > 0) {
+            <div class="summary-total discount-total" id="checkout-gift-card-row">
+              <span>
+                {{
+                  i18n.currentLang() === 'ca' ? 'Targeta regal aplicada' : 'Tarjeta regalo aplicada'
+                }}
+                ({{ appliedGiftCard()?.code }})
+              </span>
+              <strong class="discount-amount">-{{ giftCardDiscount().toFixed(2) }} €</strong>
             </div>
           }
 

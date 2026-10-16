@@ -492,4 +492,55 @@ describe('CheckoutPage', () => {
     expect(order?.discount).toBe(2.72);
     expect(order?.total).toBe(24.48);
   });
+
+  it('allows applying and redeeming digital gift card at checkout (#64)', async () => {
+    // Carrito con 13.60€ (2 unidades a 6.80€)
+    expect(component.finalTotal).toBe(13.6);
+
+    // Código inválido
+    component.giftCardCodeInput = 'INVALID-CARD';
+    component.applyGiftCard();
+    expect(component.giftCardError()).toBeTruthy();
+    expect(component.appliedGiftCard()).toBeNull();
+    expect(component.giftCardDiscount()).toBe(0);
+
+    // Tarjeta válida de 50€ (REGAL-CS-50)
+    component.giftCardCodeInput = 'REGAL-CS-50';
+    component.applyGiftCard();
+    expect(component.giftCardError()).toBeNull();
+    expect(component.appliedGiftCard()).toBeTruthy();
+    expect(component.appliedGiftCard()?.code).toBe('REGAL-CS-50');
+    // Como el total era 13.60€ y la tarjeta tiene 50€, el descuento cubre el 100% de la compra (13.60€)
+    expect(component.giftCardDiscount()).toBe(13.6);
+    expect(component.finalTotal).toBe(0);
+
+    // Quitar la tarjeta
+    component.removeGiftCard();
+    expect(component.appliedGiftCard()).toBeNull();
+    expect(component.giftCardDiscount()).toBe(0);
+    expect(component.finalTotal).toBe(13.6);
+
+    // Reaplicar y confirmar pedido
+    component.giftCardCodeInput = 'REGAL-CS-50';
+    component.applyGiftCard();
+
+    component.customer = {
+      name: 'Joan Sardà',
+      email: 'joan@calsarda.cat',
+      phone: '932325508',
+      address: 'Carrer de la Marina 237',
+      postalCode: '08013',
+      city: 'Barcelona',
+    };
+    component.fulfillment = 'pickup';
+    component.paymentMethod = 'store';
+
+    await component.confirmOrder();
+
+    const order = component.confirmedOrder();
+    expect(order).toBeTruthy();
+    expect(order?.giftCardCode).toBe('REGAL-CS-50');
+    expect(order?.giftCardDiscount).toBe(13.6);
+    expect(order?.total).toBe(0);
+  });
 });

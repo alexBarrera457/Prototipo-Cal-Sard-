@@ -30,6 +30,8 @@ export interface CreateOrderInput {
   shippingCost?: number;
   discount?: number;
   couponCode?: string;
+  giftCardDiscount?: number;
+  giftCardCode?: string;
   subtotal?: number;
   total?: number;
   paymentMethod?: string;
@@ -837,6 +839,8 @@ export class OrdersService {
       shippingCost,
       discount,
       couponCode: input.couponCode,
+      giftCardDiscount: input.giftCardDiscount,
+      giftCardCode: input.giftCardCode,
       total,
       fulfillment: input.fulfillment,
       shippingZoneLabel: input.shippingZoneLabel,

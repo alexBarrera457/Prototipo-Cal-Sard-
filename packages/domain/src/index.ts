@@ -111,6 +111,8 @@ export interface Order {
   shippingCost?: number;
   discount?: number;
   couponCode?: string;
+  giftCardDiscount?: number;
+  giftCardCode?: string;
   total: number;
   fulfillment?: FulfillmentMethod;
   shippingZoneLabel?: string;

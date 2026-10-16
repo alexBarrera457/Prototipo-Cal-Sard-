@@ -145,6 +145,12 @@ export const routes: Routes = [
       import('./pages/custom-lots-page/custom-lots-page').then((m) => m.CustomLotsPage),
   },
   {
+    path: 'tarjeta-regalo',
+    title: 'Tarjeta regalo digital | Cal Sardà',
+    loadComponent: () =>
+      import('./pages/gift-card-page/gift-card-page').then((m) => m.GiftCardPage),
+  },
+  {
     path: 'faq',
     title: 'Preguntas frecuentes | Cal Sardà',
     loadComponent: () => import('./pages/brand-page/brand-page').then((m) => m.BrandPage),
