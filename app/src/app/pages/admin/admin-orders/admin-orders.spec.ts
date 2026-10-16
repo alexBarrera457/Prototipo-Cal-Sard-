@@ -210,4 +210,42 @@ describe('AdminOrders', () => {
     expect(cartRecord.reminderSent).toBe(true);
     expect(component.toastMessage()).toBeTruthy();
   });
+
+  describe('Pesaje real en obrador al corte (#54)', () => {
+    it('detects cut-to-order items and calculates estimated weight', () => {
+      const cutItem = { name: 'Pernil Ibèric al tall 200g', price: 18.0, quantity: 1 };
+      const nonCutItem = { name: 'Vino Tinto Priorat', price: 22.0, quantity: 1 };
+
+      expect(component.isCutToOrder(cutItem)).toBe(true);
+      expect(component.isCutToOrder(nonCutItem)).toBe(false);
+      expect(component.getEstimatedWeight(cutItem)).toBe(200);
+    });
+
+    it('adjusts weight on scale, updating selectedOrder and showing confirmation toast', async () => {
+      const order = DEFAULT_INITIAL_ORDERS.find((o) => o.reference === 'CS-2026-1041')!;
+      component.openOrderDetail(order);
+      expect(component.selectedOrder()).toBeTruthy();
+
+      const itemIndex = order.items.findIndex((it) => component.isCutToOrder(it));
+      expect(itemIndex).toBeGreaterThanOrEqual(0);
+
+      const targetItem = order.items[itemIndex];
+      const initialWeight = component.getCurrentWeight(order, itemIndex, targetItem);
+      const newWeight = initialWeight + 50;
+
+      // Simular cambio en input
+      const fakeEvent = {
+        target: { value: String(newWeight) },
+      } as unknown as Event;
+      component.onWeightChange(order, itemIndex, fakeEvent);
+
+      expect(component.getCurrentWeight(order, itemIndex, targetItem)).toBe(newWeight);
+
+      // Guardar pesaje en báscula
+      await component.saveLineWeight(order, itemIndex);
+
+      expect(component.selectedOrder()?.items[itemIndex].realWeightGrams).toBe(newWeight);
+      expect(component.toastMessage()).toContain('Pes');
+    });
+  });
 });

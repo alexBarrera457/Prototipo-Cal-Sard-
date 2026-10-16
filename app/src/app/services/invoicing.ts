@@ -86,8 +86,12 @@ export class InvoicingService {
       const baseAmount = round2(total / (1 + vatRate / 100));
       const vatAmount = round2(total - baseAmount);
 
+      const weightLabel = item.realWeightGrams
+        ? ` [Pes real bàscula: ${item.realWeightGrams}g]`
+        : '';
+
       return {
-        name: item.name,
+        name: `${item.name}${weightLabel}`,
         quantity,
         unitPrice,
         total,
@@ -525,7 +529,10 @@ export class InvoicingService {
         (it) => `
       <tr>
         <td style="text-align:center; width: 40px; font-size: 16px;">[ &nbsp; ]</td>
-        <td style="font-weight: 600;">${it.name}</td>
+        <td style="font-weight: 600;">
+          ${it.name}
+          ${it.realWeightGrams ? `<br><small style="color: #8b261e; font-weight: 700;">⚖️ Pes real bàscula: ${it.realWeightGrams}g ${it.estimatedWeightGrams ? `(Estimat: ${it.estimatedWeightGrams}g)` : ''}</small>` : ''}
+        </td>
         <td style="text-align: center; font-size: 14px; font-weight: 700;">${it.quantity}</td>
         <td style="text-align: right; color: #555;">${new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(it.price * it.quantity)}</td>
       </tr>

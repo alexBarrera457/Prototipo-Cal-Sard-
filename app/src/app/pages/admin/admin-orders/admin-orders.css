@@ -624,3 +624,109 @@
   color: #6a5a4d;
   margin: 0;
 }
+
+/* Pesaje real en obrador (#54) */
+.item-name-box {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 0.35rem;
+}
+
+.item-name-box .product-title {
+  font-weight: 600;
+  color: #2b2520;
+}
+
+.badge-cut-to-order {
+  display: inline-flex;
+  align-items: center;
+  background: #fbf0ea;
+  color: #8c2423;
+  border: 1px solid #e8c6b7;
+  padding: 0.15rem 0.45rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.badge-weighed-ok {
+  display: inline-flex;
+  align-items: center;
+  background: #eef7ed;
+  color: #1e3a1f;
+  border: 1px solid #c2e2be;
+  padding: 0.15rem 0.45rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.scale-weight-box {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.3rem;
+  background: #fdfbf7;
+  border: 1px solid #e2d9cd;
+  padding: 0.35rem 0.6rem;
+  border-radius: 6px;
+  width: fit-content;
+}
+
+.scale-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #53453b;
+}
+
+.scale-weight-input {
+  width: 75px;
+  padding: 0.25rem 0.4rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  border: 1px solid #c9bca9;
+  border-radius: 4px;
+  background: #ffffff;
+  color: #2b2520;
+  text-align: right;
+}
+
+.scale-weight-input:focus {
+  outline: none;
+  border-color: #8c2423;
+  box-shadow: 0 0 0 2px rgba(140, 36, 35, 0.15);
+}
+
+.btn-save-weight {
+  padding: 0.25rem 0.55rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  background: #8c2423;
+  color: #ffffff;
+  border: 1px solid #8c2423;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-save-weight:hover:not(:disabled) {
+  background: #6e1c1b;
+  border-color: #6e1c1b;
+}
+
+.btn-save-weight:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.est-weight-hint {
+  font-size: 0.75rem;
+  color: #7c6f64;
+  font-style: italic;
+}
+
+.has-cut-to-order {
+  background-color: #fffdfa;
+}

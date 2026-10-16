@@ -431,4 +431,70 @@ describe('SupabaseOrdersRepository', () => {
     const notFound = await service.updateOrderStatus('CS-UNKNOWN-999', 'cancelado');
     expect(notFound).toBeNull();
   });
+
+  describe('Cut-to-order weighing in obrador (#54)', () => {
+    it('correctly identifies cut-to-order products and infers estimated weights', () => {
+      const service = new OrdersService(new InMemoryOrdersRepository());
+
+      expect(service.isCutToOrderProduct('Jamón Ibérico de Bellota al corte 200g')).toBe(true);
+      expect(service.isCutToOrderProduct('Formatge Garrotxa semicurat tallat')).toBe(true);
+      expect(service.isCutToOrderProduct('Secallona artesana d’Osona')).toBe(true);
+      expect(service.isCutToOrderProduct('Conservas Espinaler Berberechos')).toBe(false);
+
+      expect(service.inferEstimatedWeight('Pernil ibèric 200g')).toBe(200);
+      expect(service.inferEstimatedWeight('Formatge Mahó 1kg')).toBe(1000);
+      expect(service.inferEstimatedWeight('Llonganissa artesana')).toBe(250);
+    });
+
+    it('adjusts weight on scale and recalculates item price, subtotal and order total proportionally', async () => {
+      const memoryRepo = new InMemoryOrdersRepository();
+      const service = new OrdersService(memoryRepo);
+
+      const order: Order = {
+        reference: 'CS-2026-WEIGH-01',
+        customer: {
+          name: 'Ferran Adrià',
+          email: 'ferran@elbulli.cat',
+          phone: '932000000',
+          address: 'Cala Montjoi',
+          postalCode: '17480',
+          city: 'Roses',
+        },
+        items: [
+          {
+            name: 'Pernil Ibèric al tall 200g',
+            price: 20.0,
+            quantity: 1,
+            estimatedWeightGrams: 200,
+          },
+          {
+            name: 'Pa amb Tomàquet artesà',
+            price: 4.0,
+            quantity: 2,
+          },
+        ],
+        subtotal: 28.0,
+        shippingCost: 5.0,
+        total: 33.0,
+        status: 'en_preparacion',
+      };
+
+      await memoryRepo.saveOrder(order);
+      await service.loadAllOrders();
+
+      // Ajustar peso de 200g a 220g (+10% -> precio de 20.0 a 22.0)
+      const updated = await service.updateOrderWeighing('CS-2026-WEIGH-01', 0, 220);
+
+      expect(updated).not.toBeNull();
+      expect(updated?.items[0].realWeightGrams).toBe(220);
+      expect(updated?.items[0].price).toBe(22.0); // 20 * (220 / 200) = 22.0
+      expect(updated?.subtotal).toBe(30.0); // 22.0 + 8.0 = 30.0
+      expect(updated?.total).toBe(35.0); // 30.0 + 5.0 shipping = 35.0
+
+      // Re-verificar que en memoria quedó guardado
+      const fetched = await memoryRepo.getOrder('CS-2026-WEIGH-01');
+      expect(fetched?.items[0].realWeightGrams).toBe(220);
+      expect(fetched?.total).toBe(35.0);
+    });
+  });
 });

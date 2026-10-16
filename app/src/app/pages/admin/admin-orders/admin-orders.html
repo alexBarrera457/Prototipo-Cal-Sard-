@@ -508,9 +508,53 @@
               </tr>
             </thead>
             <tbody>
-              @for (item of order.items; track item.name) {
-                <tr>
-                  <td class="item-name">{{ item.name }}</td>
+              @for (item of order.items; track $index; let idx = $index) {
+                <tr class="modal-item-row" [class.has-cut-to-order]="isCutToOrder(item)">
+                  <td class="item-name">
+                    <div class="item-name-box">
+                      <span class="product-title">{{ item.name }}</span>
+                      @if (isCutToOrder(item)) {
+                        <span class="badge-cut-to-order"
+                          >⚖️ {{ i18n.t('admin.cut_to_order') }}</span
+                        >
+                        @if (item.realWeightGrams) {
+                          <span class="badge-weighed-ok"
+                            >✓ {{ item.realWeightGrams }}g {{ i18n.t('admin.weighed_ok') }}</span
+                          >
+                        }
+                      }
+                    </div>
+                    @if (isCutToOrder(item)) {
+                      <div class="scale-weight-box">
+                        <label [for]="'scale-input-' + idx" class="scale-label">
+                          {{ i18n.t('admin.scale_weight') }}:
+                        </label>
+                        <input
+                          [id]="'scale-input-' + idx"
+                          type="number"
+                          min="1"
+                          step="1"
+                          class="scale-weight-input"
+                          [value]="getCurrentWeight(order, idx, item)"
+                          (input)="onWeightChange(order, idx, $event)"
+                          placeholder="Gramos"
+                          [attr.aria-label]="'Pesaje real en gramos de ' + item.name"
+                        />
+                        <button
+                          type="button"
+                          class="btn-save-weight"
+                          (click)="saveLineWeight(order, idx)"
+                          [disabled]="isWeighing()"
+                          [attr.aria-label]="'Ajustar pesaje de ' + item.name"
+                        >
+                          ⚖️ {{ i18n.t('admin.adjust_weight') }}
+                        </button>
+                        <span class="est-weight-hint">
+                          ({{ i18n.t('admin.estimated_label') }}: {{ getEstimatedWeight(item) }}g)
+                        </span>
+                      </div>
+                    }
+                  </td>
                   <td class="text-center">{{ item.quantity }}</td>
                   <td class="text-right">
                     {{ formatCurrency(item.price) }}

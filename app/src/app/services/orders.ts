@@ -48,6 +48,7 @@ export interface OrdersRepository {
   getOrder(referenceOrId: string): Promise<Order | null>;
   getAllOrders?(): Promise<Order[]>;
   updateOrderStatus?(referenceOrId: string, status: OrderStatus): Promise<Order | null>;
+  updateOrder?(order: Order): Promise<Order | null>;
 }
 
 export const ORDERS_REPOSITORY = new InjectionToken<OrdersRepository>('ORDERS_REPOSITORY');
@@ -264,6 +265,18 @@ export class InMemoryOrdersRepository implements OrdersRepository {
       ...this.orders[orderIndex],
       status,
     };
+    return { ...this.orders[orderIndex] };
+  }
+
+  async updateOrder(order: Order): Promise<Order | null> {
+    const orderIndex = this.orders.findIndex(
+      (o) =>
+        (order.reference && o.reference === order.reference) || (order.id && o.id === order.id),
+    );
+    if (orderIndex === -1) {
+      return null;
+    }
+    this.orders[orderIndex] = { ...order };
     return { ...this.orders[orderIndex] };
   }
 }
@@ -540,6 +553,10 @@ export class SupabaseOrdersRepository implements OrdersRepository {
         : null;
     }
   }
+
+  async updateOrder(order: Order): Promise<Order | null> {
+    return this.fallbackRepo.updateOrder ? this.fallbackRepo.updateOrder(order) : null;
+  }
 }
 
 /**
@@ -645,6 +662,119 @@ export class OrdersService {
         const db = b.createdAt ? new Date(b.createdAt).getTime() : 0;
         return db - da;
       });
+  }
+
+  /**
+   * Identifica si un producto es apto para ajuste de pesaje en mostrador al corte / a granel.
+   */
+  isCutToOrderProduct(name: string): boolean {
+    const n = name.toLowerCase();
+    return (
+      n.includes('jamón') ||
+      n.includes('pernil') ||
+      n.includes('paleta') ||
+      n.includes('lomo') ||
+      n.includes('llom') ||
+      n.includes('formatge') ||
+      n.includes('queso') ||
+      n.includes('secallona') ||
+      n.includes('llonganissa') ||
+      n.includes('fuet') ||
+      n.includes('xoriço') ||
+      n.includes('chorizo') ||
+      n.includes('corte') ||
+      n.includes('granel') ||
+      n.includes('tallat') ||
+      n.includes('tall') ||
+      n.includes('botifarra')
+    );
+  }
+
+  /**
+   * Infiere el peso estimado en gramos a partir del nombre del producto o retorna 250g.
+   */
+  inferEstimatedWeight(name: string): number {
+    const match = name.match(/(\d+)\s*(g|gr|kg)/i);
+    if (match) {
+      const val = parseInt(match[1], 10);
+      const unit = match[2].toLowerCase();
+      return unit.startsWith('k') ? val * 1000 : val;
+    }
+    return 250;
+  }
+
+  /**
+   * Ajusta el pesaje real medido en la báscula del obrador para una línea al corte,
+   * recalculando reactivamente el importe de la línea, subtotal y total del pedido.
+   */
+  async updateOrderWeighing(
+    referenceOrId: string,
+    itemIndex: number,
+    realWeightGrams: number,
+  ): Promise<Order | null> {
+    const existing = await this.repository.getOrder(referenceOrId);
+    if (!existing || !existing.items || !existing.items[itemIndex]) {
+      return null;
+    }
+
+    const items = existing.items.map((it, idx) => {
+      if (idx !== itemIndex) return { ...it };
+
+      const estWeight = it.estimatedWeightGrams || this.inferEstimatedWeight(it.name);
+      const baseUnitPrice = (it as any).originalUnitPrice ?? it.price;
+      const safeRealWeight = Math.max(1, realWeightGrams);
+
+      // Recalcular precio de la línea proporcional al gramaje real medido en báscula
+      const adjustedPrice =
+        estWeight > 0
+          ? Math.round(baseUnitPrice * (safeRealWeight / estWeight) * 100) / 100
+          : baseUnitPrice;
+
+      return {
+        ...it,
+        isCutToOrder: true,
+        estimatedWeightGrams: estWeight,
+        realWeightGrams: safeRealWeight,
+        price: adjustedPrice,
+        originalUnitPrice: baseUnitPrice,
+      };
+    });
+
+    const subtotal =
+      Math.round(items.reduce((sum, it) => sum + it.price * it.quantity, 0) * 100) / 100;
+    const shipping = existing.shippingCost || 0;
+    const discount = existing.discount || 0;
+    const total = Math.max(0, Math.round((subtotal - discount + shipping) * 100) / 100);
+
+    const updatedOrder: Order = {
+      ...existing,
+      items,
+      subtotal,
+      total,
+    };
+
+    if (this.repository.updateOrder) {
+      await this.repository.updateOrder(updatedOrder);
+    } else {
+      await this.repository.saveOrder(updatedOrder);
+    }
+
+    this.allOrders.update((orders) =>
+      orders.map((o) =>
+        o.reference === updatedOrder.reference || o.id === updatedOrder.id
+          ? { ...updatedOrder }
+          : o,
+      ),
+    );
+
+    if (
+      this.latestOrder()?.reference === updatedOrder.reference ||
+      this.latestOrder()?.id === updatedOrder.id
+    ) {
+      this.latestOrder.set({ ...updatedOrder });
+    }
+
+    return updatedOrder;
   }
 
   /**

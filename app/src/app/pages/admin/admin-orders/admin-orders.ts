@@ -1,7 +1,12 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { OrdersService, type Order, type OrderStatus } from '../../../services/orders';
+import {
+  OrdersService,
+  type Order,
+  type OrderStatus,
+  type CartItem,
+} from '../../../services/orders';
 import { I18nService } from '../../../services/i18n';
 import { InvoicingService } from '../../../services/invoicing';
 import {
@@ -32,6 +37,8 @@ export class AdminOrders {
   readonly abandonedCarts = signal<AbandonedCartAdminRecord[]>(
     this.abandonedCartService.getAdminAbandonedCarts(),
   );
+  readonly lineWeights = signal<Record<string, number>>({});
+  readonly isWeighing = signal<boolean>(false);
 
   // Pedidos filtrados reactivamente
   readonly filteredOrders = computed(() => {
@@ -293,6 +300,67 @@ export class AdminOrders {
       record.reminderSent = true;
       record.reminderSentAt = new Date().toISOString();
       this.showToast(this.i18n.t('abandoned_cart.reminder_sent'));
+    }
+  }
+
+  isCutToOrder(item: CartItem): boolean {
+    return !!item.isCutToOrder || this.ordersService.isCutToOrderProduct(item.name);
+  }
+
+  getEstimatedWeight(item: CartItem): number {
+    return item.estimatedWeightGrams || this.ordersService.inferEstimatedWeight(item.name);
+  }
+
+  getLineWeightKey(order: Order, index: number): string {
+    return `${order.reference || order.id}-${index}`;
+  }
+
+  getCurrentWeight(order: Order, index: number, item: CartItem): number {
+    const key = this.getLineWeightKey(order, index);
+    const custom = this.lineWeights()[key];
+    if (custom !== undefined) {
+      return custom;
+    }
+    return item.realWeightGrams ?? this.getEstimatedWeight(item);
+  }
+
+  onWeightChange(order: Order, index: number, event: Event): void {
+    const val = parseFloat((event.target as HTMLInputElement).value);
+    if (!isNaN(val) && val > 0) {
+      const key = this.getLineWeightKey(order, index);
+      this.lineWeights.update((weights) => ({
+        ...weights,
+        [key]: val,
+      }));
+    }
+  }
+
+  async saveLineWeight(order: Order, index: number): Promise<void> {
+    const refOrId = order.reference || order.id;
+    if (!refOrId) return;
+
+    const item = order.items?.[index];
+    if (!item) return;
+
+    const weight = this.getCurrentWeight(order, index, item);
+    this.isWeighing.set(true);
+    try {
+      const updated = await this.ordersService.updateOrderWeighing(refOrId, index, weight);
+      if (updated) {
+        if (
+          this.selectedOrder()?.reference === order.reference ||
+          this.selectedOrder()?.id === order.id
+        ) {
+          this.selectedOrder.set(updated);
+        }
+        const isCa = this.i18n.currentLang() === 'ca';
+        const msg = isCa
+          ? `⚖️ Pes real ajustat a ${weight}g. Nou total: ${this.formatCurrency(updated.total)}`
+          : `⚖️ Pesaje ajustado a ${weight}g. Nuevo total: ${this.formatCurrency(updated.total)}`;
+        this.showToast(msg);
+      }
+    } finally {
+      this.isWeighing.set(false);
     }
   }
 }

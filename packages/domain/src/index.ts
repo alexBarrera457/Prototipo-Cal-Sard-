@@ -28,6 +28,10 @@ export interface CartItem {
   quantity: number;
   productNumber?: string;
   image?: string;
+  isCutToOrder?: boolean;
+  estimatedWeightGrams?: number;
+  realWeightGrams?: number;
+  pricePerKg?: number;
 }
 
 export type FulfillmentMethod = 'pickup' | 'delivery';
