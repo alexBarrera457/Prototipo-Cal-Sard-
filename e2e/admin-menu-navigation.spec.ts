@@ -53,7 +53,7 @@ test.describe('Navegación Completa del Menú de Administración: Facturación y
     // Verificar tabla de facturas emitidas
     const rows = page.locator('.invoicing-table tbody tr.invoice-row');
     await expect(rows.first()).toBeVisible();
-    await expect(rows).toHaveCount(6);
+    await expect(rows).toHaveCount(7);
 
     // Abrir modal de vista previa de una factura
     await rows.first().locator('.view-btn').click();
@@ -80,7 +80,7 @@ test.describe('Navegación Completa del Menú de Administración: Facturación y
 
     // Limpiar búsqueda
     await page.locator('.clear-search-btn').click();
-    await expect(filteredRows).toHaveCount(6);
+    await expect(filteredRows).toHaveCount(7);
 
     // Comprobar presencia del botón de exportar CSV
     const exportBtn = page.locator('.btn-export-csv');

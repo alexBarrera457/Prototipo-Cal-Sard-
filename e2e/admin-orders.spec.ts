@@ -34,9 +34,9 @@ test.describe('Gestión de Pedidos en Backoffice (Issue #41)', () => {
     await expect(statusPills.first()).toHaveClass(/active/);
 
     // Comprobar tabla de pedidos cargada con filas
-    const rows = page.locator('.orders-table tbody tr');
+    const rows = page.locator('.main-orders-table tbody tr');
     await expect(rows).not.toHaveCount(0);
-    await expect(page.locator('.orders-table')).toContainText('CS-2026-1042');
+    await expect(page.locator('.main-orders-table')).toContainText('CS-2026-1042');
   });
 
   test('2. Filtra pedidos por estado operacional y por modalidad de entrega', async ({ page }) => {
@@ -44,7 +44,7 @@ test.describe('Gestión de Pedidos en Backoffice (Issue #41)', () => {
     await page.click('.status-pill.pill-prep');
     await expect(page.locator('.status-pill.pill-prep')).toHaveClass(/active/);
 
-    const rows = page.locator('.orders-table tbody tr');
+    const rows = page.locator('.main-orders-table tbody tr');
     const count = await rows.count();
     expect(count).toBeGreaterThan(0);
     for (let i = 0; i < count; i++) {
@@ -55,7 +55,7 @@ test.describe('Gestión de Pedidos en Backoffice (Issue #41)', () => {
 
     // Filtrar por modalidad 'Recogida en tienda'
     await page.selectOption('.fulfillment-select', 'pickup');
-    const pickupRows = page.locator('.orders-table tbody tr');
+    const pickupRows = page.locator('.main-orders-table tbody tr');
     const pickupCount = await pickupRows.count();
     for (let i = 0; i < pickupCount; i++) {
       await expect(pickupRows.nth(i).locator('.fulfillment-tag')).toContainText(
@@ -76,19 +76,19 @@ test.describe('Gestión de Pedidos en Backoffice (Issue #41)', () => {
     // Buscar por referencia específica
     await searchInput.fill('CS-2026-1041');
     await expect(searchInput).toHaveValue('CS-2026-1041');
-    await expect(page.locator('.orders-table tbody tr')).toHaveCount(1);
-    await expect(page.locator('.orders-table')).toContainText('Jaume Sardà');
+    await expect(page.locator('.main-orders-table tbody tr')).toHaveCount(1);
+    await expect(page.locator('.main-orders-table')).toContainText('Jaume Sardà');
 
     // Limpiar búsqueda con el botón de limpiar
     await page.click('.search-clear-btn');
     await expect(searchInput).toHaveValue('');
-    await expect(page.locator('.orders-table tbody tr')).not.toHaveCount(1);
+    await expect(page.locator('.main-orders-table tbody tr')).not.toHaveCount(1);
 
     // Buscar por cliente
     await searchInput.fill('Montserrat');
     await expect(searchInput).toHaveValue('Montserrat');
-    await expect(page.locator('.orders-table tbody tr')).toHaveCount(1);
-    await expect(page.locator('.orders-table')).toContainText('CS-2026-1042');
+    await expect(page.locator('.main-orders-table tbody tr')).toHaveCount(1);
+    await expect(page.locator('.main-orders-table')).toContainText('CS-2026-1042');
   });
 
   test('4. Abre el modal de detalle del encargo y muestra desglose completo', async ({ page }) => {

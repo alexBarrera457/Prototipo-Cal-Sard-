@@ -289,6 +289,24 @@
         <a [routerLink]="['/admin/clientes']" class="module-link">Fichas de clientes →</a>
       </div>
     </div>
+
+    <div class="module-card">
+      <div class="module-icon" aria-hidden="true">🧾</div>
+      <div class="module-content">
+        <h3>{{ i18n.t('admin.nav_invoicing') }}</h3>
+        <p>Genera facturas oficiales con desglose de IVA y libro fiscal descargable.</p>
+        <a [routerLink]="['/admin/facturacion']" class="module-link">Ver facturación →</a>
+      </div>
+    </div>
+
+    <div class="module-card">
+      <div class="module-icon" aria-hidden="true">⚙️</div>
+      <div class="module-content">
+        <h3>{{ i18n.t('admin.nav_settings') }}</h3>
+        <p>Ajustes de contacto, horarios de obrador y umbral de entrega gratuita.</p>
+        <a [routerLink]="['/admin/ajustes']" class="module-link">Configurar tienda →</a>
+      </div>
+    </div>
   </div>
 
   <!-- Tabla de Actividad Reciente Reales -->

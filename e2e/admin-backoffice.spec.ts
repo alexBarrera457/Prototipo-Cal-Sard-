@@ -61,7 +61,7 @@ test.describe('Backoffice y Protección de Ruta AdminGuard (Issue #40)', () => {
     // Comprobar barra lateral (Sidebar)
     const sidebar = page.locator('.admin-sidebar');
     await expect(sidebar).toBeVisible();
-    await expect(sidebar.locator('.sidebar-nav-item')).toHaveCount(5);
+    await expect(sidebar.locator('.sidebar-nav-item')).toHaveCount(7);
 
     // Comprobar que el header y footer públicos de clientes no se solapan
     await expect(page.locator('app-navbar')).toHaveCount(0);

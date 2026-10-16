@@ -19,13 +19,13 @@ test.describe('Área Privada de Cliente - Mis Pedidos e Historial (Issue #44)', 
     page,
   }) => {
     const tabs = page.locator('.account-tab-btn');
-    await expect(tabs).toHaveCount(3);
+    await expect(tabs).toHaveCount(6);
     await expect(tabs.nth(0)).toHaveClass(/active/);
     await expect(tabs.nth(0)).toContainText(/Mis Pedidos|Les meves Comandes/);
 
     // Comprobar presencia de tarjetas de pedidos
     const orderCards = page.locator('.customer-order-card');
-    await expect(orderCards).toHaveCount(2);
+    await expect(orderCards).toHaveCount(3);
 
     // Verificar referencia y totales
     await expect(page.locator('.customer-orders-list')).toContainText('CS-2026-1041');
@@ -84,7 +84,7 @@ test.describe('Área Privada de Cliente - Mis Pedidos e Historial (Issue #44)', 
     // Cambiar a pestaña Perfil
     await tabs.nth(1).click();
     await expect(tabs.nth(1)).toHaveClass(/active/);
-    await expect(page.locator('.profile-card')).toBeVisible();
+    await expect(page.locator('.profile-card').first()).toBeVisible();
 
     // Cambiar a pestaña Direcciones
     await tabs.nth(2).click();
