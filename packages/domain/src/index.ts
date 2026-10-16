@@ -22,6 +22,21 @@ export interface Product {
   allergens?: string[];
 }
 
+export interface CustomLotItem {
+  name: string;
+  price: number;
+  quantity: number;
+}
+
+export interface CustomLotDefinition {
+  packagingName: string;
+  packagingPrice: number;
+  items: CustomLotItem[];
+  dedication?: string;
+  senderName?: string;
+  recipientName?: string;
+}
+
 export interface CartItem {
   name: string;
   price: number;
@@ -32,6 +47,7 @@ export interface CartItem {
   estimatedWeightGrams?: number;
   realWeightGrams?: number;
   pricePerKg?: number;
+  customLot?: CustomLotDefinition;
 }
 
 export type FulfillmentMethod = 'pickup' | 'delivery';

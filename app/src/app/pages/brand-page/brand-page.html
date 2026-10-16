@@ -29,9 +29,28 @@
         <p>
           Si quieres que montemos un lote a medida,
           <a href="mailto:sarda@calsarda.com">escríbenos a sarda&#64;calsarda.com</a> e indícanos
-          qué idea tienes. Con esta información te enviaremos un presupuesto detallado sin
-          compromiso.
+          qué idea tienes. O también puedes configurarlo paso a paso interactivamente con nuestro
+          nuevo asistente:
         </p>
+        <div class="custom-lot-cta-box" style="margin-top: 1.2rem">
+          <a
+            class="business-button-primary"
+            style="
+              display: inline-flex;
+              align-items: center;
+              gap: 0.5rem;
+              background: #8c2423;
+              color: white;
+              padding: 0.8rem 1.6rem;
+              border-radius: 8px;
+              text-decoration: none;
+              font-weight: 700;
+            "
+            [routerLink]="['/lotes-a-medida']"
+          >
+            {{ i18n.t('custom_lots.cta_btn_configure') }} →
+          </a>
+        </div>
       </div>
       <div class="gift-lot-steps">
         @for (card of page.cards; track card.title) {
@@ -105,11 +124,9 @@
           ayudaremos a preparar un lote único.
         </p>
       </div>
-      @if (page.cta) {
-        <a class="business-button-light" [routerLink]="page.cta.route">
-          Pide tu lote a medida <span aria-hidden="true">→</span>
-        </a>
-      }
+      <a class="business-button-light" [routerLink]="['/lotes-a-medida']">
+        {{ i18n.t('custom_lots.cta_btn_configure') }} <span aria-hidden="true">→</span>
+      </a>
     </section>
   </article>
 } @else if (isBusinessPage) {

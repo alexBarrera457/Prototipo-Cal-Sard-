@@ -407,7 +407,29 @@
 
             <h3>
               {{ product.name }}
+              @if (product.customLot) {
+                <span
+                  style="
+                    display: inline-block;
+                    font-size: 10px;
+                    background: #8c2423;
+                    color: white;
+                    padding: 1px 5px;
+                    border-radius: 3px;
+                    margin-left: 4px;
+                  "
+                  >{{ i18n.t('custom_lots.badge_custom_lot') }}</span
+                >
+              }
             </h3>
+            @if (product.customLot) {
+              <div style="font-size: 11px; color: #6a5a4d; margin-top: 2px">
+                <span>📦 {{ product.customLot.packagingName }}</span> ({{
+                  product.customLot.items.length
+                }}
+                artículos)
+              </div>
+            }
 
             <span class="cart-product-price"> {{ product.price.toFixed(2) }} € </span>
           </div>

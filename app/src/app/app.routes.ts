@@ -139,6 +139,12 @@ export const routes: Routes = [
     data: { page: 'lots-i-cistelles-gurmet' },
   },
   {
+    path: 'lotes-a-medida',
+    title: 'Configurador de lotes gourmet a medida | Cal Sardà',
+    loadComponent: () =>
+      import('./pages/custom-lots-page/custom-lots-page').then((m) => m.CustomLotsPage),
+  },
+  {
     path: 'faq',
     title: 'Preguntas frecuentes | Cal Sardà',
     loadComponent: () => import('./pages/brand-page/brand-page').then((m) => m.BrandPage),
@@ -222,6 +228,11 @@ export const routes: Routes = [
   {
     path: 'lots-i-cistelles-gurmet',
     redirectTo: 'lotes-y-cestas-gourmet',
+    pathMatch: 'full',
+  },
+  {
+    path: 'lots-a-mida',
+    redirectTo: 'lotes-a-medida',
     pathMatch: 'full',
   },
   {

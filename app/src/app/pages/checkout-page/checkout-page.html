@@ -712,8 +712,57 @@
               <article class="summary-product">
                 <img [src]="product.image ?? '/images/history.jpg'" [alt]="product.name" />
                 <div>
-                  <h3>{{ product.name }}</h3>
+                  <h3>
+                    {{ product.name }}
+                    @if (product.customLot) {
+                      <span
+                        class="badge-custom-lot"
+                        style="
+                          display: inline-block;
+                          font-size: 10px;
+                          background: #8c2423;
+                          color: white;
+                          padding: 1px 5px;
+                          border-radius: 3px;
+                          margin-left: 4px;
+                        "
+                        >{{ i18n.t('custom_lots.badge_custom_lot') }}</span
+                      >
+                    }
+                  </h3>
                   <span>{{ product.quantity }} × {{ product.price.toFixed(2) }} €</span>
+                  @if (product.customLot) {
+                    <div
+                      class="custom-lot-summary-items"
+                      style="font-size: 11px; color: #6a5a4d; margin-top: 4px; line-height: 1.3"
+                    >
+                      <span
+                        >📦 <strong>{{ product.customLot.packagingName }}</strong></span
+                      >
+                      <div>
+                        @for (it of product.customLot.items; track it.name) {
+                          <span>• {{ it.quantity }}x {{ it.name }} </span>
+                        }
+                      </div>
+                      @if (product.customLot.dedication) {
+                        <div style="font-style: italic; color: #8c2423; margin-top: 2px">
+                          💌 «{{ product.customLot.dedication }}»
+                        </div>
+                      }
+                      @if (product.customLot.recipientName || product.customLot.senderName) {
+                        <div style="font-size: 11px; color: #53453b; margin-top: 2px">
+                          @if (product.customLot.recipientName) {
+                            <span
+                              >Per a / Para: <strong>{{ product.customLot.recipientName }}</strong>
+                            </span>
+                          }
+                          @if (product.customLot.senderName) {
+                            <span>(De: {{ product.customLot.senderName }})</span>
+                          }
+                        </div>
+                      }
+                    </div>
+                  }
                 </div>
                 <strong>{{ (product.quantity * product.price).toFixed(2) }} €</strong>
               </article>

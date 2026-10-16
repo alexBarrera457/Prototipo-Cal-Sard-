@@ -1,0 +1,454 @@
+<div class="custom-lots-container">
+  <!-- Cabecera de Página -->
+  <header class="lots-header">
+    <nav class="lots-breadcrumb" aria-label="Migas de pan">
+      <a [routerLink]="['/']">Inicio</a>
+      <span>/</span>
+      <a [routerLink]="['/lotes-y-cestas-gourmet']">Lotes y Cestas</a>
+      <span>/</span>
+      <span aria-current="page">Fes el teu Lot</span>
+    </nav>
+
+    <div class="header-content">
+      <span class="heritage-badge">FES EL TEU LOT · OBRADOR DESDE 1930</span>
+      <h1 id="custom-lots-heading">{{ i18n.t('custom_lots.page_title') }}</h1>
+      <p class="lots-lead">
+        {{ i18n.t('custom_lots.page_subtitle') }}
+      </p>
+    </div>
+
+    <!-- Stepper de Pasos -->
+    <nav class="steps-nav" aria-label="Pasos de configuración">
+      <button
+        type="button"
+        class="step-item"
+        [class.active]="currentStep() === 1"
+        [class.completed]="currentStep() > 1"
+        (click)="goToStep(1)"
+        aria-label="Paso 1: Estuche"
+      >
+        <span class="step-circle">1</span>
+        <span class="step-label">Estuche</span>
+      </button>
+      <div class="step-line" [class.filled]="currentStep() >= 2"></div>
+
+      <button
+        type="button"
+        class="step-item"
+        [class.active]="currentStep() === 2"
+        [class.completed]="currentStep() > 2"
+        (click)="goToStep(2)"
+        [disabled]="!selectedPackaging()"
+        aria-label="Paso 2: Productos"
+      >
+        <span class="step-circle">2</span>
+        <span class="step-label">Productos</span>
+      </button>
+      <div class="step-line" [class.filled]="currentStep() >= 3"></div>
+
+      <button
+        type="button"
+        class="step-item"
+        [class.active]="currentStep() === 3"
+        (click)="goToStep(3)"
+        [disabled]="itemsCount() === 0"
+        aria-label="Paso 3: Dedicatoria"
+      >
+        <span class="step-circle">3</span>
+        <span class="step-label">Dedicatoria</span>
+      </button>
+    </nav>
+  </header>
+
+  <main class="lots-main">
+    <!-- PASO 1: SELECCIÓN DE ESTUCHE -->
+    @if (currentStep() === 1) {
+      <section class="step-section" aria-labelledby="step1-title">
+        <div class="section-title-box">
+          <span class="step-kicker">PASO 1 DE 3</span>
+          <h2 id="step1-title">{{ i18n.t('custom_lots.step1_title') }}</h2>
+          <p class="section-desc">Selecciona la base artesanal para presentar tu regalo gourmet.</p>
+        </div>
+
+        <div class="packagings-grid">
+          @for (pkg of packagingOptions; track pkg.id) {
+            <div
+              class="packaging-card"
+              [class.selected]="selectedPackagingId() === pkg.id"
+              (click)="selectPackaging(pkg.id)"
+              role="button"
+              tabindex="0"
+              (keydown.enter)="selectPackaging(pkg.id)"
+              (keydown.space)="selectPackaging(pkg.id)"
+              [attr.aria-pressed]="selectedPackagingId() === pkg.id"
+            >
+              <div class="packaging-badge-check">
+                @if (selectedPackagingId() === pkg.id) {
+                  <span>✓</span>
+                }
+              </div>
+
+              <div class="packaging-media">
+                <img [src]="pkg.image" [alt]="pkg.name" loading="lazy" />
+              </div>
+
+              <div class="packaging-info">
+                <div class="pkg-header">
+                  <span class="pkg-icon">{{ pkg.icon }}</span>
+                  <h3 class="pkg-name">
+                    {{ i18n.currentLang() === 'ca' ? pkg.nameCa : pkg.name }}
+                  </h3>
+                </div>
+                <p class="pkg-desc">
+                  {{ i18n.currentLang() === 'ca' ? pkg.descriptionCa : pkg.description }}
+                </p>
+                <div class="pkg-footer">
+                  <span class="pkg-price">{{ formatCurrency(pkg.price) }}</span>
+                  <span class="pkg-action-text">
+                    {{ selectedPackagingId() === pkg.id ? 'Seleccionado' : 'Elegir estuche' }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+
+        <div class="step-actions">
+          <button
+            type="button"
+            class="btn-primary-step"
+            (click)="goToStep(2)"
+            [disabled]="!selectedPackaging()"
+          >
+            {{ i18n.t('custom_lots.btn_next_products') }}
+          </button>
+        </div>
+      </section>
+    }
+
+    <!-- PASO 2: SELECCIÓN DE PRODUCTOS -->
+    @if (currentStep() === 2) {
+      <section class="step-section" aria-labelledby="step2-title">
+        <div class="section-title-box">
+          <span class="step-kicker">PASO 2 DE 3</span>
+          <h2 id="step2-title">{{ i18n.t('custom_lots.step2_title') }}</h2>
+          <p class="section-desc">
+            Añade al lote tus embutidos de bellota, quesos curados de pastor, conservas y vinos
+            favoritos.
+          </p>
+        </div>
+
+        <!-- Filtros por Familia -->
+        <div class="sections-filter-bar" role="tablist" aria-label="Filtrar por sección">
+          <button
+            type="button"
+            class="filter-chip"
+            [class.active]="activeSection() === 'todas'"
+            (click)="setSection('todas')"
+          >
+            {{ i18n.t('custom_lots.filter_all') }}
+          </button>
+          <button
+            type="button"
+            class="filter-chip"
+            [class.active]="activeSection() === 'embutidos'"
+            (click)="setSection('embutidos')"
+          >
+            🥓 {{ i18n.t('custom_lots.filter_embutidos') }}
+          </button>
+          <button
+            type="button"
+            class="filter-chip"
+            [class.active]="activeSection() === 'quesos'"
+            (click)="setSection('quesos')"
+          >
+            🧀 {{ i18n.t('custom_lots.filter_quesos') }}
+          </button>
+          <button
+            type="button"
+            class="filter-chip"
+            [class.active]="activeSection() === 'conservas'"
+            (click)="setSection('conservas')"
+          >
+            🐟 {{ i18n.t('custom_lots.filter_conservas') }}
+          </button>
+          <button
+            type="button"
+            class="filter-chip"
+            [class.active]="activeSection() === 'bodega'"
+            (click)="setSection('bodega')"
+          >
+            🍷 {{ i18n.t('custom_lots.filter_bodega') }}
+          </button>
+          <button
+            type="button"
+            class="filter-chip"
+            [class.active]="activeSection() === 'dulces'"
+            (click)="setSection('dulces')"
+          >
+            🍫 {{ i18n.t('custom_lots.filter_dulces') }}
+          </button>
+        </div>
+
+        <!-- Rejilla de Productos Disponibles -->
+        <div class="lot-products-grid">
+          @for (prod of filteredProducts(); track prod.number || prod.name) {
+            <div
+              class="lot-product-card"
+              [class.in-lot]="getItemQuantity(prod) > 0"
+              [attr.data-product-name]="prod.name"
+            >
+              <div class="prod-thumb">
+                @if (prod.image) {
+                  <img [src]="prod.image" [alt]="prod.name" loading="lazy" />
+                } @else {
+                  <span class="no-img-icon">🛍️</span>
+                }
+                @if (getItemQuantity(prod) > 0) {
+                  <span class="badge-qty-in-card">{{ getItemQuantity(prod) }}</span>
+                }
+              </div>
+
+              <div class="prod-details">
+                <span class="prod-category">{{ prod.category }}</span>
+                <h3 class="prod-name">{{ prod.name }}</h3>
+                <span class="prod-price">{{ formatCurrency(prod.price) }}</span>
+              </div>
+
+              <div class="prod-actions">
+                <button
+                  type="button"
+                  class="btn-qty btn-minus"
+                  [disabled]="getItemQuantity(prod) === 0"
+                  (click)="removeProduct(prod)"
+                  [attr.aria-label]="'Quitar una unidad de ' + prod.name"
+                >
+                  −
+                </button>
+                <span class="qty-counter" aria-live="polite">
+                  {{ getItemQuantity(prod) }}
+                </span>
+                <button
+                  type="button"
+                  class="btn-qty btn-plus"
+                  (click)="addProduct(prod)"
+                  [attr.aria-label]="'Añadir una unidad de ' + prod.name"
+                >
+                  +
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+
+        <div class="step-nav-buttons">
+          <button type="button" class="btn-secondary-step" (click)="goToStep(1)">
+            {{ i18n.t('custom_lots.btn_back') }}
+          </button>
+          <button
+            type="button"
+            class="btn-primary-step btn-step2-next"
+            (click)="goToStep(3)"
+            [disabled]="itemsCount() === 0"
+          >
+            {{ i18n.t('custom_lots.btn_next_dedication') }}
+          </button>
+        </div>
+      </section>
+    }
+
+    <!-- PASO 3: DEDICATORIA PERSONALIZADA -->
+    @if (currentStep() === 3) {
+      <section class="step-section" aria-labelledby="step3-title">
+        <div class="section-title-box">
+          <span class="step-kicker">PASO 3 DE 3</span>
+          <h2 id="step3-title">{{ i18n.t('custom_lots.step3_title') }}</h2>
+          <p class="section-desc">
+            Personaliza una tarjeta artesana que imprimiremos e incluiremos dentro del estuche.
+          </p>
+        </div>
+
+        <div class="dedication-layout">
+          <!-- Formulario de Dedicatoria -->
+          <div class="dedication-form-card">
+            <h3>💌 Mensaje del Regalo</h3>
+
+            <div class="form-group">
+              <label for="sender-input">{{ i18n.t('custom_lots.card_from') }}</label>
+              <input
+                id="sender-input"
+                type="text"
+                class="lot-input"
+                [ngModel]="senderName()"
+                (ngModelChange)="senderName.set($event)"
+                placeholder="Ej. Familia Gómez o Àlex"
+                maxlength="60"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="recipient-input">{{ i18n.t('custom_lots.card_to') }}</label>
+              <input
+                id="recipient-input"
+                type="text"
+                class="lot-input"
+                [ngModel]="recipientName()"
+                (ngModelChange)="recipientName.set($event)"
+                placeholder="Ej. Montserrat o Abuela Carmen"
+                maxlength="60"
+              />
+            </div>
+
+            <div class="form-group">
+              <div class="label-with-counter">
+                <label for="dedication-textarea">{{ i18n.t('custom_lots.card_message') }}</label>
+                <span class="char-count">{{ dedication().length }}/300</span>
+              </div>
+              <textarea
+                id="dedication-textarea"
+                class="lot-textarea"
+                rows="4"
+                [ngModel]="dedication()"
+                (ngModelChange)="dedication.set($event)"
+                placeholder="Escribe aquí tu dedicatoria para el destinatario..."
+                maxlength="300"
+              ></textarea>
+            </div>
+
+            <!-- Resumen de Contenido del Lote -->
+            <div class="lot-review-box">
+              <h4>📦 Contenido de tu lote</h4>
+              <p class="review-packaging">
+                <strong>Estuche:</strong>
+                {{
+                  i18n.currentLang() === 'ca'
+                    ? selectedPackaging().nameCa
+                    : selectedPackaging().name
+                }}
+                ({{ formatCurrency(selectedPackaging().price) }})
+              </p>
+              <ul class="review-items-list">
+                @for (it of selectedLotItemsList(); track it.product.name) {
+                  <li>
+                    <span>{{ it.quantity }}x {{ it.product.name }}</span>
+                    <strong>{{ formatCurrency(it.product.price * it.quantity) }}</strong>
+                  </li>
+                }
+              </ul>
+            </div>
+          </div>
+
+          <!-- Vista Previa de la Tarjeta Cal Sardà -->
+          <div class="card-preview-container">
+            <span class="preview-title">{{ i18n.t('custom_lots.card_preview_title') }}</span>
+            <div class="printed-card-preview" id="card-preview-box">
+              <div class="card-border-frame">
+                <div class="card-brand">
+                  <span class="card-logo">CAL SARDÀ</span>
+                  <span class="card-subtitle">COLMADO FAMILIAR · DESDE 1930</span>
+                  <span class="card-location">Marina 237 · Sagrada Família, Barcelona</span>
+                </div>
+
+                <div class="card-body">
+                  @if (recipientName()) {
+                    <p class="card-greeting">
+                      Para <strong>{{ recipientName() }}</strong
+                      >,
+                    </p>
+                  }
+
+                  <p class="card-message-text">
+                    {{
+                      dedication() ||
+                        '«Esperamos que disfrutes de esta selección artesanal del colmado, preparada especialmente para ti.»'
+                    }}
+                  </p>
+
+                  @if (senderName()) {
+                    <p class="card-signature">
+                      Con cariño,<br />
+                      <strong>{{ senderName() }}</strong>
+                    </p>
+                  }
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="step-nav-buttons">
+          <button type="button" class="btn-secondary-step" (click)="goToStep(2)">
+            {{ i18n.t('custom_lots.btn_back') }}
+          </button>
+          <button
+            type="button"
+            class="btn-primary-step btn-add-lot"
+            id="btn-add-custom-lot-cart"
+            (click)="addCustomLotToCart()"
+          >
+            {{ i18n.t('custom_lots.btn_add_to_cart') }} · {{ formatCurrency(totalPrice()) }}
+          </button>
+        </div>
+      </section>
+    }
+  </main>
+
+  <!-- Barra Fija Inferior (Sticky Bar) -->
+  <aside class="sticky-lot-bar" aria-label="Resumen flotante del lote a medida">
+    <div class="sticky-bar-inner">
+      <div class="sticky-lot-summary">
+        <span class="sticky-pkg-name">
+          {{ selectedPackaging().icon }}
+          {{ i18n.currentLang() === 'ca' ? selectedPackaging().nameCa : selectedPackaging().name }}
+        </span>
+        <span class="sticky-items-counter">
+          <strong>{{ itemsCount() }}</strong> {{ i18n.t('custom_lots.items_count') }}
+        </span>
+      </div>
+
+      <div class="sticky-price-actions">
+        <div class="sticky-total">
+          <span class="sticky-total-label">{{ i18n.t('custom_lots.total_price') }}:</span>
+          <strong class="sticky-total-amount" id="sticky-total-price">{{
+            formatCurrency(totalPrice())
+          }}</strong>
+        </div>
+
+        @if (currentStep() === 1) {
+          <button
+            type="button"
+            class="btn-sticky-action"
+            (click)="goToStep(2)"
+            [disabled]="!selectedPackaging()"
+          >
+            Productos →
+          </button>
+        } @else if (currentStep() === 2) {
+          <button
+            type="button"
+            class="btn-sticky-action btn-sticky-step2"
+            (click)="goToStep(3)"
+            [disabled]="itemsCount() === 0"
+          >
+            Dedicatoria →
+          </button>
+        } @else {
+          <button
+            type="button"
+            class="btn-sticky-action btn-sticky-finish"
+            (click)="addCustomLotToCart()"
+          >
+            Añadir a la cesta
+          </button>
+        }
+      </div>
+    </div>
+  </aside>
+
+  <!-- Toast Notification -->
+  @if (toastMessage(); as msg) {
+    <div class="lot-toast" role="alert" aria-live="assertive">
+      <span>{{ msg }}</span>
+    </div>
+  }
+</div>

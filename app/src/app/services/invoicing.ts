@@ -89,9 +89,12 @@ export class InvoicingService {
       const weightLabel = item.realWeightGrams
         ? ` [Pes real bàscula: ${item.realWeightGrams}g]`
         : '';
+      const customLotLabel = item.customLot
+        ? ` [${item.customLot.packagingName}: ${item.customLot.items.map((ci) => `${ci.quantity}x ${ci.name}`).join(', ')}]`
+        : '';
 
       return {
-        name: `${item.name}${weightLabel}`,
+        name: `${item.name}${weightLabel}${customLotLabel}`,
         quantity,
         unitPrice,
         total,
@@ -532,6 +535,7 @@ export class InvoicingService {
         <td style="font-weight: 600;">
           ${it.name}
           ${it.realWeightGrams ? `<br><small style="color: #8b261e; font-weight: 700;">⚖️ Pes real bàscula: ${it.realWeightGrams}g ${it.estimatedWeightGrams ? `(Estimat: ${it.estimatedWeightGrams}g)` : ''}</small>` : ''}
+          ${it.customLot ? `<br><small style="color: #6a5a4d;">🎁 <strong>Estuche:</strong> ${it.customLot.packagingName}<br><strong>Contenido:</strong> ${it.customLot.items.map((ci) => `${ci.quantity}x ${ci.name}`).join(', ')}${it.customLot.dedication ? `<br><strong>Dedicatoria:</strong> «${it.customLot.dedication}»` : ''}</small>` : ''}
         </td>
         <td style="text-align: center; font-size: 14px; font-weight: 700;">${it.quantity}</td>
         <td style="text-align: right; color: #555;">${new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(it.price * it.quantity)}</td>

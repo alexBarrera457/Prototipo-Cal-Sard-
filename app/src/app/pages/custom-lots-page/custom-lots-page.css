@@ -1,0 +1,840 @@
+.custom-lots-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 8rem 1.5rem;
+  color: #2b2520;
+  font-family: inherit;
+}
+
+/* Header & Breadcrumb */
+.lots-header {
+  margin-bottom: 2.5rem;
+}
+
+.lots-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: #7c6f64;
+  margin-bottom: 1.2rem;
+}
+
+.lots-breadcrumb a {
+  color: #7c6f64;
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.lots-breadcrumb a:hover {
+  color: #8c2423;
+}
+
+.heritage-badge {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: #8c2423;
+  text-transform: uppercase;
+  margin-bottom: 0.4rem;
+}
+
+.header-content h1 {
+  font-size: 2.2rem;
+  color: #251c15;
+  margin: 0 0 0.6rem 0;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.lots-lead {
+  font-size: 1.1rem;
+  color: #6a5a4d;
+  max-width: 800px;
+  line-height: 1.5;
+  margin: 0 0 2rem 0;
+}
+
+/* Steps Stepper */
+.steps-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.8rem;
+  background: #fdfbf7;
+  border: 1px solid #e8decb;
+  border-radius: 12px;
+  padding: 1rem 1.5rem;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.step-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.3rem 0.6rem;
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+
+.step-item:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.step-circle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #e2d9cd;
+  color: #53453b;
+  font-weight: 700;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+
+.step-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #53453b;
+}
+
+.step-item.active .step-circle {
+  background: #8c2423;
+  color: #ffffff;
+}
+
+.step-item.active .step-label {
+  color: #8c2423;
+}
+
+.step-item.completed .step-circle {
+  background: #2e7d32;
+  color: #ffffff;
+}
+
+.step-line {
+  flex: 1;
+  height: 2px;
+  background: #e2d9cd;
+  max-width: 80px;
+  transition: all 0.2s;
+}
+
+.step-line.filled {
+  background: #2e7d32;
+}
+
+/* Step Sections */
+.step-section {
+  animation: fadeIn 0.25s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.section-title-box {
+  margin-bottom: 1.8rem;
+  text-align: center;
+}
+
+.step-kicker {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #8c2423;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.section-title-box h2 {
+  font-size: 1.6rem;
+  color: #251c15;
+  margin: 0.2rem 0 0.4rem 0;
+}
+
+.section-desc {
+  font-size: 0.95rem;
+  color: #6a5a4d;
+  margin: 0;
+}
+
+/* Paso 1: Packagings Grid */
+.packagings-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2.5rem;
+}
+
+.packaging-card {
+  position: relative;
+  background: #ffffff;
+  border: 2px solid #e8decb;
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.packaging-card:hover {
+  border-color: #c9bca9;
+  transform: translateY(-3px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
+}
+
+.packaging-card.selected {
+  border-color: #8c2423;
+  box-shadow: 0 0 0 3px rgba(140, 36, 35, 0.15);
+}
+
+.packaging-badge-check {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 1px solid #d4c6b5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: #8c2423;
+  z-index: 2;
+}
+
+.packaging-card.selected .packaging-badge-check {
+  background: #8c2423;
+  border-color: #8c2423;
+  color: #ffffff;
+}
+
+.packaging-media {
+  height: 180px;
+  background: #fdfbf7;
+  overflow: hidden;
+}
+
+.packaging-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s;
+}
+
+.packaging-card:hover .packaging-media img {
+  transform: scale(1.03);
+}
+
+.packaging-info {
+  padding: 1.2rem;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.pkg-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.4rem;
+}
+
+.pkg-icon {
+  font-size: 1.4rem;
+}
+
+.pkg-name {
+  font-size: 1.1rem;
+  color: #251c15;
+  margin: 0;
+  font-weight: 700;
+}
+
+.pkg-desc {
+  font-size: 0.85rem;
+  color: #6a5a4d;
+  line-height: 1.4;
+  margin: 0 0 1rem 0;
+  flex: 1;
+}
+
+.pkg-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid #f4ede3;
+  padding-top: 0.8rem;
+}
+
+.pkg-price {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #8c2423;
+}
+
+.pkg-action-text {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #7c6f64;
+}
+
+.packaging-card.selected .pkg-action-text {
+  color: #8c2423;
+}
+
+/* Paso 2: Filtros y Productos */
+.sections-filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-bottom: 1.8rem;
+  justify-content: center;
+}
+
+.filter-chip {
+  padding: 0.45rem 0.9rem;
+  background: #fdfbf7;
+  border: 1px solid #d4c6b5;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #4a3e35;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.filter-chip:hover {
+  background: #f4ede3;
+  border-color: #8c2423;
+}
+
+.filter-chip.active {
+  background: #8c2423;
+  color: #ffffff;
+  border-color: #8c2423;
+}
+
+.lot-products-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1.2rem;
+  margin-bottom: 2.5rem;
+}
+
+.lot-product-card {
+  background: #ffffff;
+  border: 1px solid #e8decb;
+  border-radius: 10px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.15s ease;
+}
+
+.lot-product-card:hover {
+  border-color: #c9bca9;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.lot-product-card.in-lot {
+  border-color: #8c2423;
+  background: #fffdfb;
+}
+
+.prod-thumb {
+  position: relative;
+  height: 140px;
+  background: #fdfbf7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.prod-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.no-img-icon {
+  font-size: 2.5rem;
+}
+
+.badge-qty-in-card {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: #8c2423;
+  color: #ffffff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.prod-details {
+  padding: 0.8rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.prod-category {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #8c2423;
+  text-transform: uppercase;
+  margin-bottom: 0.2rem;
+}
+
+.prod-name {
+  font-size: 0.9rem;
+  color: #251c15;
+  margin: 0 0 0.5rem 0;
+  font-weight: 600;
+  line-height: 1.3;
+  flex: 1;
+}
+
+.prod-price {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #2b2520;
+}
+
+.prod-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0.8rem 0.8rem 0.8rem;
+  border-top: 1px solid #f4ede3;
+}
+
+.btn-qty {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  border: 1px solid #c9bca9;
+  background: #fdfbf7;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #3b3028;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.btn-qty:hover:not(:disabled) {
+  background: #8c2423;
+  border-color: #8c2423;
+  color: #ffffff;
+}
+
+.btn-qty:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.qty-counter {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #251c15;
+}
+
+/* Paso 3: Dedicatoria & Vista Previa */
+.dedication-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin-bottom: 2.5rem;
+}
+
+.dedication-form-card {
+  background: #ffffff;
+  border: 1px solid #e8decb;
+  border-radius: 12px;
+  padding: 1.5rem;
+}
+
+.dedication-form-card h3 {
+  font-size: 1.2rem;
+  color: #251c15;
+  margin: 0 0 1.2rem 0;
+}
+
+.form-group {
+  margin-bottom: 1.2rem;
+}
+
+.form-group label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #4a3e35;
+  margin-bottom: 0.35rem;
+}
+
+.label-with-counter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.char-count {
+  font-size: 0.75rem;
+  color: #7c6f64;
+}
+
+.lot-input,
+.lot-textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.6rem 0.8rem;
+  border: 1px solid #c9bca9;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  background: #ffffff;
+  color: #2b2520;
+  transition: border-color 0.15s;
+}
+
+.lot-input:focus,
+.lot-textarea:focus {
+  outline: none;
+  border-color: #8c2423;
+  box-shadow: 0 0 0 2px rgba(140, 36, 35, 0.12);
+}
+
+.lot-review-box {
+  margin-top: 1.5rem;
+  padding-top: 1.2rem;
+  border-top: 1px dashed #d4c6b5;
+}
+
+.lot-review-box h4 {
+  font-size: 1rem;
+  color: #251c15;
+  margin: 0 0 0.5rem 0;
+}
+
+.review-packaging {
+  font-size: 0.85rem;
+  color: #53453b;
+  margin: 0 0 0.6rem 0;
+}
+
+.review-items-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-height: 180px;
+  overflow-y: auto;
+}
+
+.review-items-list li {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  padding: 0.3rem 0;
+  border-bottom: 1px solid #f4ede3;
+}
+
+/* Vista previa de tarjeta */
+.card-preview-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.preview-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #7c6f64;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.8rem;
+}
+
+.printed-card-preview {
+  background: #fdfbf7;
+  border: 2px solid #c9bca9;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+  flex: 1;
+  display: flex;
+}
+
+.card-border-frame {
+  border: 1px solid #d4c6b5;
+  border-radius: 8px;
+  padding: 1.5rem;
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background: #ffffff;
+}
+
+.card-brand {
+  text-align: center;
+  border-bottom: 1px solid #e8decb;
+  padding-bottom: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.card-logo {
+  display: block;
+  font-size: 1.4rem;
+  font-weight: 900;
+  color: #8c2423;
+  letter-spacing: 0.1em;
+}
+
+.card-subtitle {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #6a5a4d;
+  letter-spacing: 0.08em;
+  margin-top: 0.15rem;
+}
+
+.card-location {
+  display: block;
+  font-size: 0.7rem;
+  color: #8b7d72;
+  margin-top: 0.15rem;
+}
+
+.card-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.card-greeting {
+  font-size: 1rem;
+  color: #2b2520;
+  margin: 0 0 1rem 0;
+}
+
+.card-message-text {
+  font-size: 1rem;
+  color: #3b3028;
+  font-style: italic;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  margin: 0 0 1.5rem 0;
+}
+
+.card-signature {
+  text-align: right;
+  font-size: 0.95rem;
+  color: #2b2520;
+  margin: 0;
+}
+
+/* Step Buttons */
+.step-actions,
+.step-nav-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.btn-primary-step {
+  padding: 0.85rem 2rem;
+  background: #8c2423;
+  color: #ffffff;
+  border: 1px solid #8c2423;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-primary-step:hover:not(:disabled) {
+  background: #6e1c1b;
+  border-color: #6e1c1b;
+  transform: translateY(-1px);
+}
+
+.btn-primary-step:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-secondary-step {
+  padding: 0.85rem 1.6rem;
+  background: #fdfbf7;
+  color: #4a3e35;
+  border: 1px solid #c9bca9;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-secondary-step:hover {
+  background: #f4ede3;
+  color: #251c15;
+}
+
+/* Sticky Bottom Bar */
+.sticky-lot-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #251c15;
+  color: #ffffff;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  padding: 0.85rem 1.5rem;
+}
+
+.sticky-bar-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+}
+
+.sticky-lot-summary {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.sticky-pkg-name {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #f4ede3;
+}
+
+.sticky-items-counter {
+  font-size: 0.85rem;
+  color: #c9bca9;
+}
+
+.sticky-price-actions {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.sticky-total {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.sticky-total-label {
+  font-size: 0.85rem;
+  color: #c9bca9;
+}
+
+.sticky-total-amount {
+  font-size: 1.35rem;
+  color: #f6d482;
+  font-weight: 800;
+}
+
+.btn-sticky-action {
+  padding: 0.65rem 1.4rem;
+  background: #8c2423;
+  color: #ffffff;
+  border: 1px solid #a32f2e;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-sticky-action:hover:not(:disabled) {
+  background: #b23534;
+}
+
+.btn-sticky-action:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-sticky-finish {
+  background: #2e7d32;
+  border-color: #388e3c;
+}
+
+.btn-sticky-finish:hover:not(:disabled) {
+  background: #388e3c;
+}
+
+/* Toast */
+.lot-toast {
+  position: fixed;
+  top: 1.5rem;
+  right: 1.5rem;
+  background: #1e3a1f;
+  color: #ffffff;
+  padding: 0.85rem 1.5rem;
+  border-radius: 8px;
+  font-size: 0.92rem;
+  font-weight: 600;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+  z-index: 2000;
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+@media (max-width: 768px) {
+  .dedication-layout {
+    grid-template-columns: 1fr;
+  }
+  .sticky-bar-inner {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.6rem;
+  }
+  .sticky-price-actions {
+    justify-content: space-between;
+  }
+  .steps-nav {
+    padding: 0.8rem;
+  }
+  .step-label {
+    display: none;
+  }
+}
