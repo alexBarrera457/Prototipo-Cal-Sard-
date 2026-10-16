@@ -758,6 +758,132 @@
   color: #34291f;
   font-size: 14px;
 }
+.profile-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #f0eae1;
+}
+.profile-card-header h3 {
+  margin: 0;
+  font-family: Georgia, serif;
+  font-size: 16px;
+  color: #2d241e;
+}
+.btn-edit-profile {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  background: #fbf8f4;
+  border: 1px solid #c8beaf;
+  border-radius: 4px;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  color: #5c4737;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-edit-profile:hover {
+  background: #f0eae1;
+  border-color: #845f39;
+  color: #2b211a;
+}
+.profile-edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.profile-edit-form .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.profile-edit-form label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #6e5845;
+}
+.profile-edit-form .form-control {
+  padding: 7px 10px;
+  border: 1px solid #c8beaf;
+  border-radius: 4px;
+  font: inherit;
+  font-size: 13px;
+  background: #fff;
+  color: #2d241e;
+}
+.profile-edit-form .form-control:focus {
+  outline: none;
+  border-color: #845f39;
+  box-shadow: 0 0 0 2px rgba(132, 95, 57, 0.15);
+}
+.profile-edit-form .disabled-input {
+  background: #f5f2ed;
+  color: #8c7e72;
+  cursor: not-allowed;
+}
+.profile-edit-form .form-hint {
+  font-size: 11px;
+  color: #8c7e72;
+}
+.form-alert-error {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 10px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 4px;
+  color: #b91c1c;
+  font-size: 12px;
+}
+.form-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 6px;
+}
+.btn-save-profile {
+  padding: 7px 14px;
+  background: #2b211a;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.btn-save-profile:hover:not(:disabled) {
+  background: #443429;
+}
+.btn-cancel-edit {
+  padding: 7px 12px;
+  background: transparent;
+  color: #6e5845;
+  border: 1px solid #c8beaf;
+  border-radius: 4px;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+.btn-cancel-edit:hover:not(:disabled) {
+  background: #f5f2ed;
+}
+.security-card {
+  margin-top: 18px;
+}
+.security-info-text {
+  font-size: 13px;
+  color: #63564a;
+  line-height: 1.5;
+  margin: 0;
+}
 .admin-cta-card {
   margin-top: 20px;
   padding: 16px 18px;

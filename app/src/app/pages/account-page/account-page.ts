@@ -33,6 +33,21 @@ export class AccountPage implements OnInit {
   readonly expandedOrderRef = signal<string | null>(null);
   readonly toastMessage = signal<string | null>(null);
 
+  // Edición de Perfil
+  readonly isEditingProfile = signal<boolean>(false);
+  editName = '';
+  editPhone = '';
+  readonly profileSaving = signal<boolean>(false);
+  readonly profileError = signal<string | null>(null);
+
+  // Cambio de Contraseña
+  readonly isChangingPassword = signal<boolean>(false);
+  currentPasswordInput = '';
+  newPasswordInput = '';
+  confirmPasswordInput = '';
+  readonly passwordSaving = signal<boolean>(false);
+  readonly passwordError = signal<string | null>(null);
+
   // Formulario de inicio de sesión
   email = '';
   password = '';
@@ -73,6 +88,122 @@ export class AccountPage implements OnInit {
 
   setTab(tab: AccountTab): void {
     this.activeTab.set(tab);
+  }
+
+  startEditProfile(): void {
+    const user = this.auth.currentUser();
+    this.editName = user?.name ?? '';
+    this.editPhone = user?.phone ?? '';
+    this.profileError.set(null);
+    this.isEditingProfile.set(true);
+  }
+
+  cancelEditProfile(): void {
+    this.isEditingProfile.set(false);
+    this.profileError.set(null);
+  }
+
+  async saveProfile(): Promise<void> {
+    const trimmedName = this.editName.trim();
+    if (!trimmedName) {
+      this.profileError.set(
+        this.i18n.currentLang() === 'ca'
+          ? 'El nom no pot estar buit.'
+          : 'El nombre no puede estar vacío.',
+      );
+      return;
+    }
+
+    this.profileSaving.set(true);
+    this.profileError.set(null);
+
+    try {
+      const result = await this.auth.updateProfile({
+        name: trimmedName,
+        phone: this.editPhone.trim(),
+      });
+
+      if (result.success) {
+        this.isEditingProfile.set(false);
+        this.showToast(
+          this.i18n.currentLang() === 'ca'
+            ? 'Perfil actualitzat correctament'
+            : 'Perfil actualizado correctamente',
+        );
+      } else {
+        this.profileError.set(result.error ?? 'Error al actualizar el perfil.');
+      }
+    } finally {
+      this.profileSaving.set(false);
+    }
+  }
+
+  startChangePassword(): void {
+    this.currentPasswordInput = '';
+    this.newPasswordInput = '';
+    this.confirmPasswordInput = '';
+    this.passwordError.set(null);
+    this.isChangingPassword.set(true);
+  }
+
+  cancelChangePassword(): void {
+    this.isChangingPassword.set(false);
+    this.passwordError.set(null);
+  }
+
+  async savePassword(): Promise<void> {
+    if (!this.currentPasswordInput) {
+      this.passwordError.set(
+        this.i18n.currentLang() === 'ca'
+          ? 'Introdueix la teva contrasenya actual.'
+          : 'Introduce tu contraseña actual.',
+      );
+      return;
+    }
+
+    if (this.newPasswordInput.length < 8) {
+      this.passwordError.set(
+        this.i18n.currentLang() === 'ca'
+          ? 'La nova contrasenya ha de tenir com a mínim 8 caràcters.'
+          : 'La nueva contraseña debe tener al menos 8 caracteres.',
+      );
+      return;
+    }
+
+    if (this.newPasswordInput !== this.confirmPasswordInput) {
+      this.passwordError.set(
+        this.i18n.currentLang() === 'ca'
+          ? 'Les noves contrasenyes no coincideixen.'
+          : 'Las nuevas contraseñas no coinciden.',
+      );
+      return;
+    }
+
+    this.passwordSaving.set(true);
+    this.passwordError.set(null);
+
+    try {
+      const result = await this.auth.changePassword(
+        this.currentPasswordInput,
+        this.newPasswordInput,
+      );
+
+      if (result.success) {
+        this.isChangingPassword.set(false);
+        this.currentPasswordInput = '';
+        this.newPasswordInput = '';
+        this.confirmPasswordInput = '';
+        this.showToast(
+          this.i18n.currentLang() === 'ca'
+            ? 'Contrasenya canviada amb èxit'
+            : 'Contraseña cambiada con éxito',
+        );
+      } else {
+        this.passwordError.set(result.error ?? 'Error al cambiar la contraseña.');
+      }
+    } finally {
+      this.passwordSaving.set(false);
+    }
   }
 
   toggleOrderDetails(ref?: string): void {

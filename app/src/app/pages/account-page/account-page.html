@@ -337,30 +337,253 @@
           }
 
           <!-- Pestaña 2: Mi Perfil -->
+          <!-- Pestaña 2: Mi Perfil -->
           @if (activeTab() === 'perfil') {
             <div class="tab-content tab-profile" role="tabpanel">
+              <!-- Tarjeta de Datos Personales -->
               <div class="profile-card">
-                <h3>Datos Personales</h3>
-                <div class="dashboard-details">
-                  <div class="detail-item">
-                    <span class="detail-label">Nombre y apellidos</span>
-                    <strong class="detail-value">{{ user.name }}</strong>
-                  </div>
-                  <div class="detail-item">
-                    <span class="detail-label">{{ i18n.t('account.email_label') }}</span>
-                    <strong class="detail-value">{{ user.email }}</strong>
-                  </div>
-                  <div class="detail-item">
-                    <span class="detail-label">{{ i18n.t('account.phone_mobile') }}</span>
-                    <span class="detail-value">{{ user.phone || i18n.t('account.no_phone') }}</span>
-                  </div>
-                  <div class="detail-item">
-                    <span class="detail-label">Rol en la plataforma</span>
-                    <span class="detail-value">{{
-                      user.role === 'admin' ? 'Administrador del Obrador' : 'Cliente Particular'
-                    }}</span>
-                  </div>
+                <div class="profile-card-header">
+                  <h3>
+                    {{ i18n.currentLang() === 'ca' ? 'Dades Personals' : 'Datos Personales' }}
+                  </h3>
+                  @if (!isEditingProfile()) {
+                    <button type="button" class="btn-edit-profile" (click)="startEditProfile()">
+                      ✏️ {{ i18n.currentLang() === 'ca' ? 'Editar dades' : 'Editar datos' }}
+                    </button>
+                  }
                 </div>
+
+                @if (!isEditingProfile()) {
+                  <div class="dashboard-details">
+                    <div class="detail-item">
+                      <span class="detail-label">{{
+                        i18n.currentLang() === 'ca' ? 'Nom i cognoms' : 'Nombre y apellidos'
+                      }}</span>
+                      <strong class="detail-value">{{ user.name }}</strong>
+                    </div>
+                    <div class="detail-item">
+                      <span class="detail-label">{{ i18n.t('account.email_label') }}</span>
+                      <strong class="detail-value">{{ user.email }}</strong>
+                    </div>
+                    <div class="detail-item">
+                      <span class="detail-label">{{ i18n.t('account.phone_mobile') }}</span>
+                      <span class="detail-value">{{
+                        user.phone || i18n.t('account.no_phone')
+                      }}</span>
+                    </div>
+                    <div class="detail-item">
+                      <span class="detail-label">{{
+                        i18n.currentLang() === 'ca' ? 'Rol a la plataforma' : 'Rol en la plataforma'
+                      }}</span>
+                      <span class="detail-value">{{
+                        user.role === 'admin'
+                          ? i18n.currentLang() === 'ca'
+                            ? 'Administrador de l’Obrador'
+                            : 'Administrador del Obrador'
+                          : i18n.currentLang() === 'ca'
+                            ? 'Client Particular'
+                            : 'Cliente Particular'
+                      }}</span>
+                    </div>
+                  </div>
+                } @else {
+                  <form class="profile-edit-form" (ngSubmit)="saveProfile()">
+                    <div class="form-group">
+                      <label for="edit-name">{{
+                        i18n.currentLang() === 'ca' ? 'Nom i cognoms' : 'Nombre y apellidos'
+                      }}</label>
+                      <input
+                        id="edit-name"
+                        type="text"
+                        name="editName"
+                        class="form-control"
+                        [(ngModel)]="editName"
+                        required
+                        [disabled]="profileSaving()"
+                      />
+                    </div>
+
+                    <div class="form-group">
+                      <label for="edit-phone">{{ i18n.t('account.phone_mobile') }}</label>
+                      <input
+                        id="edit-phone"
+                        type="tel"
+                        name="editPhone"
+                        class="form-control"
+                        [(ngModel)]="editPhone"
+                        placeholder="600 000 000"
+                        [disabled]="profileSaving()"
+                      />
+                      <small class="form-hint">
+                        {{
+                          i18n.currentLang() === 'ca'
+                            ? 'Utilitzat per avisar-te quan el teu encàrrec estigui llest a Marina 237.'
+                            : 'Utilizado para avisarte cuando tu pedido esté listo en Marina 237.'
+                        }}
+                      </small>
+                    </div>
+
+                    <div class="form-group">
+                      <label>{{ i18n.t('account.email_label') }}</label>
+                      <input
+                        type="email"
+                        class="form-control disabled-input"
+                        [value]="user.email"
+                        disabled
+                      />
+                      <small class="form-hint">
+                        {{
+                          i18n.currentLang() === 'ca'
+                            ? 'El correu electrònic és el teu identificador d’accés i no es pot modificar directament.'
+                            : 'El correo electrónico es tu identificador de acceso y no se puede modificar directamente.'
+                        }}
+                      </small>
+                    </div>
+
+                    @if (profileError(); as err) {
+                      <div class="form-alert-error" role="alert">
+                        <span>⚠️</span>
+                        <span>{{ err }}</span>
+                      </div>
+                    }
+
+                    <div class="form-actions">
+                      <button type="submit" class="btn-save-profile" [disabled]="profileSaving()">
+                        {{
+                          profileSaving()
+                            ? i18n.currentLang() === 'ca'
+                              ? 'Desant...'
+                              : 'Guardando...'
+                            : i18n.currentLang() === 'ca'
+                              ? 'Desar canvis'
+                              : 'Guardar cambios'
+                        }}
+                      </button>
+                      <button
+                        type="button"
+                        class="btn-cancel-edit"
+                        (click)="cancelEditProfile()"
+                        [disabled]="profileSaving()"
+                      >
+                        {{ i18n.currentLang() === 'ca' ? 'Cancel·lar' : 'Cancelar' }}
+                      </button>
+                    </div>
+                  </form>
+                }
+              </div>
+
+              <!-- Tarjeta de Seguridad y Contraseña -->
+              <div class="profile-card security-card">
+                <div class="profile-card-header">
+                  <h3>
+                    🔒
+                    {{
+                      i18n.currentLang() === 'ca'
+                        ? 'Seguretat i Contrasenya'
+                        : 'Seguridad y Contraseña'
+                    }}
+                  </h3>
+                  @if (!isChangingPassword()) {
+                    <button type="button" class="btn-edit-profile" (click)="startChangePassword()">
+                      🔑
+                      {{
+                        i18n.currentLang() === 'ca' ? 'Canviar contrasenya' : 'Cambiar contraseña'
+                      }}
+                    </button>
+                  }
+                </div>
+
+                @if (!isChangingPassword()) {
+                  <p class="security-info-text">
+                    {{
+                      i18n.currentLang() === 'ca'
+                        ? 'La teva contrasenya està encriptada de forma segura. Pots actualitzar-la en qualsevol moment introduint la teva contrasenya actual.'
+                        : 'Tu contraseña está encriptada de forma segura. Puedes actualizarla en cualquier momento introduciendo tu clave actual.'
+                    }}
+                  </p>
+                } @else {
+                  <form class="profile-edit-form" (ngSubmit)="savePassword()">
+                    <div class="form-group">
+                      <label for="current-password">{{
+                        i18n.currentLang() === 'ca' ? 'Contrasenya actual' : 'Contraseña actual'
+                      }}</label>
+                      <input
+                        id="current-password"
+                        type="password"
+                        name="currentPassword"
+                        class="form-control"
+                        [(ngModel)]="currentPasswordInput"
+                        required
+                        [disabled]="passwordSaving()"
+                      />
+                    </div>
+
+                    <div class="form-group">
+                      <label for="new-password">{{
+                        i18n.currentLang() === 'ca'
+                          ? 'Nova contrasenya (mínim 8 caràcters)'
+                          : 'Nueva contraseña (mínimo 8 caracteres)'
+                      }}</label>
+                      <input
+                        id="new-password"
+                        type="password"
+                        name="newPassword"
+                        class="form-control"
+                        [(ngModel)]="newPasswordInput"
+                        required
+                        minlength="8"
+                        [disabled]="passwordSaving()"
+                      />
+                    </div>
+
+                    <div class="form-group">
+                      <label for="confirm-password">{{
+                        i18n.currentLang() === 'ca'
+                          ? 'Confirmar nova contrasenya'
+                          : 'Confirmar nueva contraseña'
+                      }}</label>
+                      <input
+                        id="confirm-password"
+                        type="password"
+                        name="confirmPassword"
+                        class="form-control"
+                        [(ngModel)]="confirmPasswordInput"
+                        required
+                        minlength="8"
+                        [disabled]="passwordSaving()"
+                      />
+                    </div>
+
+                    @if (passwordError(); as err) {
+                      <div class="form-alert-error" role="alert">
+                        <span>⚠️</span>
+                        <span>{{ err }}</span>
+                      </div>
+                    }
+
+                    <div class="form-actions">
+                      <button type="submit" class="btn-save-profile" [disabled]="passwordSaving()">
+                        {{
+                          passwordSaving()
+                            ? i18n.currentLang() === 'ca'
+                              ? 'Actualitzant...'
+                              : 'Actualizando...'
+                            : i18n.currentLang() === 'ca'
+                              ? 'Actualitzar contrasenya'
+                              : 'Actualizar contraseña'
+                        }}
+                      </button>
+                      <button
+                        type="button"
+                        class="btn-cancel-edit"
+                        (click)="cancelChangePassword()"
+                        [disabled]="passwordSaving()"
+                      >
+                        {{ i18n.currentLang() === 'ca' ? 'Cancel·lar' : 'Cancelar' }}
+                      </button>
+                    </div>
+                  </form>
+                }
               </div>
             </div>
           }

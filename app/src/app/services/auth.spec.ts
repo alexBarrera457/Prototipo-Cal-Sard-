@@ -138,6 +138,33 @@ describe('InMemoryAuthAdapter', () => {
     const nonExisting = await adapter.resetPassword('inexistente@calsarda.com');
     expect(nonExisting.success).toBe(false);
   });
+
+  it('changes password successfully when current password matches', async () => {
+    await adapter.signIn({
+      email: 'cliente@calsarda.com',
+      password: 'cliente1930',
+    });
+
+    const badCurrent = await adapter.changePassword('wrong-current', 'nuevaClave123');
+    expect(badCurrent.success).toBe(false);
+    expect(badCurrent.error).toContain('no es correcta');
+
+    const shortNew = await adapter.changePassword('cliente1930', '1234');
+    expect(shortNew.success).toBe(false);
+    expect(shortNew.error).toContain('mínimo de 8 caracteres');
+
+    const validChange = await adapter.changePassword('cliente1930', 'nuevaClaveSegura123');
+    expect(validChange.success).toBe(true);
+
+    // Verify sign in with new password
+    await adapter.signOut();
+    const loginNew = await adapter.signIn({
+      email: 'cliente@calsarda.com',
+      password: 'nuevaClaveSegura123',
+    });
+    expect(loginNew.success).toBe(true);
+    await adapter.signOut();
+  });
 });
 
 describe('SupabaseAuthAdapter', () => {
@@ -243,13 +270,19 @@ describe('AuthService', () => {
   let service: AuthService;
   let mockAdapter: InMemoryAuthAdapter;
 
-  beforeEach(() => {
+  beforeEach(async () => {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      window.localStorage.clear();
+    }
     mockAdapter = new InMemoryAuthAdapter();
+    await mockAdapter.signOut();
+
     TestBed.configureTestingModule({
       providers: [AuthService, { provide: AUTH_ADAPTER, useValue: mockAdapter }],
     });
 
     service = TestBed.inject(AuthService);
+    await service.signOut();
   });
 
   it('starts in unauthenticated state', () => {
@@ -292,5 +325,15 @@ describe('AuthService', () => {
 
     expect(service.currentUser()).toBeNull();
     expect(service.isAuthenticated()).toBe(false);
+  });
+
+  it('delegates changePassword to adapter', async () => {
+    await service.signIn({
+      email: 'cliente@calsarda.com',
+      password: 'cliente1930',
+    });
+
+    const res = await service.changePassword('cliente1930', 'nuevaClave456');
+    expect(res.success).toBe(true);
   });
 });

@@ -65,6 +65,10 @@ export interface AuthAdapter {
   resetPassword(email: string): Promise<{ success: boolean; error?: string }>;
   getCurrentUser(): Promise<UserProfile | null>;
   updateProfile(data: Partial<UserProfile>): Promise<AuthResult>;
+  changePassword(
+    currentPassword: string,
+    newPassword: string,
+  ): Promise<{ success: boolean; error?: string }>;
 }
 
 export const AUTH_ADAPTER = new InjectionToken<AuthAdapter>('AUTH_ADAPTER');
@@ -252,6 +256,31 @@ export class InMemoryAuthAdapter implements AuthAdapter {
 
     this.persistSession(updated);
     return { success: true, user: updated };
+  }
+
+  async changePassword(
+    currentPassword: string,
+    newPassword: string,
+  ): Promise<{ success: boolean; error?: string }> {
+    if (!this.currentUser) {
+      return { success: false, error: 'No hay ninguna sesión activa.' };
+    }
+
+    const user = this.users.find((u) => u.id === this.currentUser?.id);
+    if (!user) {
+      return { success: false, error: 'Usuario no encontrado.' };
+    }
+
+    if (user.passwordHash !== currentPassword) {
+      return { success: false, error: 'La contraseña actual no es correcta.' };
+    }
+
+    if (newPassword.length < 8) {
+      return { success: false, error: 'La nueva contraseña debe tener un mínimo de 8 caracteres.' };
+    }
+
+    user.passwordHash = newPassword;
+    return { success: true };
   }
 }
 
@@ -450,6 +479,51 @@ export class SupabaseAuthAdapter implements AuthAdapter {
     }
   }
 
+  async changePassword(
+    currentPassword: string,
+    newPassword: string,
+  ): Promise<{ success: boolean; error?: string }> {
+    try {
+      const {
+        data: { user },
+        error: userError,
+      } = await this.supabase.auth.getUser();
+
+      if (userError || !user?.email) {
+        return { success: false, error: 'No hay ninguna sesión activa.' };
+      }
+
+      if (newPassword.length < 8) {
+        return {
+          success: false,
+          error: 'La nueva contraseña debe tener un mínimo de 8 caracteres.',
+        };
+      }
+
+      const { error: signInError } = await this.supabase.auth.signInWithPassword({
+        email: user.email,
+        password: currentPassword,
+      });
+
+      if (signInError) {
+        return { success: false, error: 'La contraseña actual no es correcta.' };
+      }
+
+      const { error: updateError } = await this.supabase.auth.updateUser({
+        password: newPassword,
+      });
+
+      if (updateError) {
+        return { success: false, error: updateError.message };
+      }
+
+      return { success: true };
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Error al cambiar la contraseña.';
+      return { success: false, error: message };
+    }
+  }
+
   private async fetchProfile(
     userId: string,
     email: string,
@@ -599,6 +673,18 @@ export class AuthService {
         this.currentUser.set(result.user);
       }
       return result;
+    } finally {
+      this.loading.set(false);
+    }
+  }
+
+  async changePassword(
+    currentPassword: string,
+    newPassword: string,
+  ): Promise<{ success: boolean; error?: string }> {
+    this.loading.set(true);
+    try {
+      return await this.adapter.changePassword(currentPassword, newPassword);
     } finally {
       this.loading.set(false);
     }
