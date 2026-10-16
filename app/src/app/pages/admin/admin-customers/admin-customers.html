@@ -1,0 +1,403 @@
+<div class="admin-customers-page" role="region" aria-label="Gestión de clientes y Mini-CRM">
+  <!-- Toast de aviso -->
+  @if (toastMessage(); as msg) {
+    <div class="customers-toast" role="status" aria-live="polite">
+      <span>👥</span>
+      <span>{{ msg }}</span>
+    </div>
+  }
+
+  <!-- Cabecera de la sección -->
+  <header class="customers-header">
+    <div class="customers-title-group">
+      <span class="customers-kicker">RELACIÓN CON CLIENTES HABITUALES I B2B</span>
+      <h1 class="customers-title">Gestión de Clientes (Mini-CRM)</h1>
+      <p class="customers-subtitle">
+        Historial de compras, valor total acumulado (LTV), segmentación por perfil y notas
+        personalizadas del obrador para cada vecino y empresa.
+      </p>
+    </div>
+  </header>
+
+  <!-- Tarjetas KPI de Métricas -->
+  <div class="customers-kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-icon">👥</div>
+      <div class="kpi-info">
+        <span class="kpi-label">Total Clientes Únicos</span>
+        <strong class="kpi-value" id="kpi-total-customers">{{ totalCustomersCount() }}</strong>
+        <span class="kpi-hint">Con pedidos en el sistema</span>
+      </div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-icon">🔁</div>
+      <div class="kpi-info">
+        <span class="kpi-label">Clientes Recurrentes</span>
+        <strong class="kpi-value text-success" id="kpi-recurrent-customers">{{
+          recurrentCustomersCount()
+        }}</strong>
+        <span class="kpi-hint">2 o más encargos formalizados</span>
+      </div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-icon">💶</div>
+      <div class="kpi-info">
+        <span class="kpi-label">Volumen Facturado (LTV)</span>
+        <strong class="kpi-value" id="kpi-total-ltv">{{ totalRevenueLTV().toFixed(2) }} €</strong>
+        <span class="kpi-hint">Ingresos totales de clientes</span>
+      </div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-icon">📊</div>
+      <div class="kpi-info">
+        <span class="kpi-label">Gasto Medio por Cliente</span>
+        <strong class="kpi-value" id="kpi-average-ltv">{{ averageLTV().toFixed(2) }} €</strong>
+        <span class="kpi-hint">Promedio histórico por cliente</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Barra de Filtros y Búsqueda -->
+  <section class="customers-toolbar" aria-label="Filtros y buscador de clientes">
+    <div class="search-box">
+      <span class="search-icon" aria-hidden="true">🔍</span>
+      <input
+        type="search"
+        class="search-input"
+        placeholder="Buscar por nombre, email o teléfono (ej. Jaume o 611)..."
+        [(ngModel)]="searchQueryModel"
+        (ngModelChange)="onSearchChange($event)"
+        aria-label="Buscar clientes"
+        id="search-customers-input"
+      />
+      @if (searchQuery()) {
+        <button
+          type="button"
+          class="search-clear-btn"
+          (click)="clearSearch()"
+          aria-label="Limpiar búsqueda"
+        >
+          ✕
+        </button>
+      }
+    </div>
+
+    <div class="filter-group">
+      <span class="filter-label">Recurrencia:</span>
+      <div class="filter-pills" role="group" aria-label="Filtrar por recurrencia">
+        <button
+          type="button"
+          class="filter-pill"
+          [class.active]="recurrenceFilter() === 'todos'"
+          (click)="setRecurrenceFilter('todos')"
+        >
+          Todos
+        </button>
+        <button
+          type="button"
+          class="filter-pill"
+          [class.active]="recurrenceFilter() === 'recurrentes'"
+          (click)="setRecurrenceFilter('recurrentes')"
+        >
+          Recurrentes ({{ recurrentCustomersCount() }})
+        </button>
+        <button
+          type="button"
+          class="filter-pill"
+          [class.active]="recurrenceFilter() === 'esporadicos'"
+          (click)="setRecurrenceFilter('esporadicos')"
+        >
+          Esporádicos ({{ totalCustomersCount() - recurrentCustomersCount() }})
+        </button>
+      </div>
+    </div>
+
+    <div class="filter-group">
+      <span class="filter-label">Tipo:</span>
+      <div class="filter-pills" role="group" aria-label="Filtrar por tipo de cliente">
+        <button
+          type="button"
+          class="filter-pill"
+          [class.active]="typeFilter() === 'todos'"
+          (click)="setTypeFilter('todos')"
+        >
+          Todos
+        </button>
+        <button
+          type="button"
+          class="filter-pill"
+          [class.active]="typeFilter() === 'particular'"
+          (click)="setTypeFilter('particular')"
+        >
+          Particular
+        </button>
+        <button
+          type="button"
+          class="filter-pill"
+          [class.active]="typeFilter() === 'empresa'"
+          (click)="setTypeFilter('empresa')"
+        >
+          Empresa
+        </button>
+        <button
+          type="button"
+          class="filter-pill"
+          [class.active]="typeFilter() === 'hosteleria'"
+          (click)="setTypeFilter('hosteleria')"
+        >
+          Hostelería
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Tabla de Clientes -->
+  <div class="customers-table-wrap">
+    @if (filteredCustomers().length > 0) {
+      <table class="customers-table" aria-label="Listado de clientes del obrador">
+        <thead>
+          <tr>
+            <th>Cliente</th>
+            <th>Contacto</th>
+            <th>Tipo</th>
+            <th>Total Pedidos</th>
+            <th>Volumen (LTV)</th>
+            <th>Última Compra</th>
+            <th>Notas Obrador</th>
+            <th class="th-actions">Ficha</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (customer of filteredCustomers(); track customer.email) {
+            <tr class="customer-row" (click)="openCustomerDetail(customer)">
+              <td class="td-customer">
+                <div class="customer-name-group">
+                  <div class="customer-avatar" aria-hidden="true">
+                    {{ customer.name.charAt(0).toUpperCase() }}
+                  </div>
+                  <div>
+                    <strong class="customer-name">{{ customer.name }}</strong>
+                    @if (customer.isRecurrent) {
+                      <span class="badge-recurrent" title="Cliente recurrente con 2 o más pedidos"
+                        >⭐ Recurrente</span
+                      >
+                    }
+                  </div>
+                </div>
+              </td>
+              <td class="td-contact">
+                <div class="contact-email">{{ customer.email }}</div>
+                <div class="contact-phone">{{ customer.phone || '—' }}</div>
+              </td>
+              <td class="td-type">
+                <span class="type-badge type-{{ customer.type }}">
+                  {{ getTypeLabel(customer.type) }}
+                </span>
+              </td>
+              <td class="td-orders">
+                <span class="orders-count-badge">{{ customer.totalOrders }}</span>
+              </td>
+              <td class="td-ltv">
+                <strong>{{ customer.totalSpent.toFixed(2) }} €</strong>
+              </td>
+              <td class="td-date">
+                @if (customer.lastOrderDate) {
+                  <span>{{ customer.lastOrderDate | date: 'dd/MM/yyyy HH:mm' }}</span>
+                } @else {
+                  <span class="text-muted">—</span>
+                }
+              </td>
+              <td class="td-notes">
+                @if (customer.internalNotes) {
+                  <span class="notes-preview" [title]="customer.internalNotes">
+                    📝 {{ customer.internalNotes }}
+                  </span>
+                } @else {
+                  <span class="text-muted">Sin notas</span>
+                }
+              </td>
+              <td class="td-actions" (click)="$event.stopPropagation()">
+                <button
+                  type="button"
+                  class="btn-open-detail"
+                  (click)="openCustomerDetail(customer)"
+                  [attr.aria-label]="'Abrir ficha de ' + customer.name"
+                  id="btn-detail-{{ customer.email }}"
+                >
+                  👁️ Ver Ficha
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    } @else {
+      <div class="customers-empty-state">
+        <span class="empty-icon">👥</span>
+        <h3>No se encontraron clientes</h3>
+        <p>No hay clientes que coincidan con los criterios de búsqueda o filtros.</p>
+        @if (searchQuery() || recurrenceFilter() !== 'todos' || typeFilter() !== 'todos') {
+          <button
+            type="button"
+            class="btn-secondary"
+            (click)="clearSearch(); setRecurrenceFilter('todos'); setTypeFilter('todos')"
+          >
+            Restablecer Filtros
+          </button>
+        }
+      </div>
+    }
+  </div>
+
+  <!-- Modal Detallado de la Ficha de Cliente -->
+  @if (selectedCustomer(); as cust) {
+    <div class="modal-backdrop" (click)="closeCustomerDetail()" role="presentation"></div>
+
+    <div
+      class="customer-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="customer-modal-title"
+    >
+      <header class="modal-header">
+        <div class="header-left">
+          <span class="modal-kicker">FICHA DE CLIENTE CAL SARDÀ</span>
+          <h2 id="customer-modal-title">{{ cust.name }}</h2>
+        </div>
+        <button
+          type="button"
+          class="modal-close-btn"
+          (click)="closeCustomerDetail()"
+          aria-label="Cerrar ficha"
+          id="btn-close-customer-modal"
+        >
+          ✕
+        </button>
+      </header>
+
+      <div class="customer-modal-body">
+        <!-- Tarjeta de Datos Básicos y Contacto -->
+        <div class="modal-section contact-card">
+          <div class="card-avatar">{{ cust.name.charAt(0).toUpperCase() }}</div>
+          <div class="card-details">
+            <div class="card-row">
+              <span class="label">Correo Electrónico:</span>
+              <strong>{{ cust.email }}</strong>
+            </div>
+            <div class="card-row">
+              <span class="label">Teléfono:</span>
+              <span>{{ cust.phone || 'No indicado' }}</span>
+            </div>
+            @if (cust.address) {
+              <div class="card-row">
+                <span class="label">Dirección Habitual:</span>
+                <span>{{ cust.address }}, {{ cust.postalCode }} {{ cust.city }}</span>
+              </div>
+            }
+            <div class="card-row">
+              <span class="label">Volumen Total Gastado (LTV):</span>
+              <strong class="text-gold">{{ cust.totalSpent.toFixed(2) }} €</strong>
+              <small class="orders-hint">({{ cust.totalOrders }} pedidos completados)</small>
+            </div>
+          </div>
+        </div>
+
+        <!-- Edición de Perfil de Cliente y Notas del Obrador -->
+        <div class="modal-section notes-section">
+          <h3>Preferencias y Notas Internas del Obrador</h3>
+          <p class="section-desc">
+            Anota indicaciones sobre el grosor de corte preferido, envasado al vacío o datos de
+            entrega que deben tener en cuenta los charcuteros y preparadores.
+          </p>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="cust-type-select">Tipo de Cliente:</label>
+              <select id="cust-type-select" [(ngModel)]="typeDraft" class="form-input">
+                <option value="particular">👤 Particular (Vecino de Barcelona)</option>
+                <option value="empresa">🏢 Empresa (Lotes y regalos)</option>
+                <option value="hosteleria">🍽️ Hostelería y Restauración</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="cust-notes-input">Notas Internas de Preparación:</label>
+            <textarea
+              id="cust-notes-input"
+              [(ngModel)]="notesDraft"
+              rows="3"
+              class="form-input"
+              placeholder="Ej: Corte muy fino en paleta ibérica. Envasar en sobres de 100g para nevera..."
+            ></textarea>
+          </div>
+
+          <div class="notes-actions">
+            <button
+              type="button"
+              class="btn-save-notes"
+              (click)="saveCustomerChanges()"
+              id="btn-save-customer-notes"
+            >
+              💾 Guardar Notas y Tipo
+            </button>
+          </div>
+        </div>
+
+        <!-- Historial Completo de Pedidos del Cliente -->
+        <div class="modal-section orders-history-section">
+          <h3>Historial de Pedidos ({{ cust.orders.length }})</h3>
+
+          @if (cust.orders.length > 0) {
+            <div class="orders-history-list">
+              @for (order of cust.orders; track order.reference || order.id) {
+                <div class="order-history-item">
+                  <div class="order-history-header">
+                    <div>
+                      <strong class="order-ref">{{ order.reference }}</strong>
+                      <span class="order-date">{{
+                        order.createdAt | date: 'dd/MM/yyyy HH:mm'
+                      }}</span>
+                    </div>
+                    <div class="order-header-right">
+                      <span class="status-badge {{ getStatusBadgeClass(order.status) }}">
+                        {{ order.status }}
+                      </span>
+                      <strong class="order-total">{{ order.total.toFixed(2) }} €</strong>
+                    </div>
+                  </div>
+
+                  <div class="order-history-items">
+                    @for (item of order.items; track item.name) {
+                      <div class="history-item-row">
+                        <span>{{ item.quantity }} × {{ item.name }}</span>
+                        <span>{{ (item.quantity * item.price).toFixed(2) }} €</span>
+                      </div>
+                    }
+                  </div>
+
+                  @if (order.notes) {
+                    <div class="order-history-note">
+                      <small><strong>Nota pedido:</strong> {{ order.notes }}</small>
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          } @else {
+            <p class="text-muted">No constan pedidos registrados para este cliente.</p>
+          }
+        </div>
+      </div>
+
+      <footer class="modal-footer">
+        <button type="button" class="btn-cancel" (click)="closeCustomerDetail()">
+          Cerrar Ficha
+        </button>
+      </footer>
+    </div>
+  }
+</div>

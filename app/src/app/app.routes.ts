@@ -90,6 +90,12 @@ export const routes: Routes = [
           import('./pages/admin/admin-coupons/admin-coupons').then((m) => m.AdminCoupons),
       },
       {
+        path: 'clientes',
+        title: 'Gestión de Clientes (Mini-CRM) | Cal Sardà',
+        loadComponent: () =>
+          import('./pages/admin/admin-customers/admin-customers').then((m) => m.AdminCustomers),
+      },
+      {
         path: 'ajustes',
         title: 'Ajustes del Obrador y Tienda | Cal Sardà',
         loadComponent: () =>
