@@ -155,6 +155,14 @@ export class Store implements AfterViewInit, OnDestroy {
     this.currentPage.set(1);
   }
 
+  resetFilters(): void {
+    this.selectedCategory.set('TODOS');
+    this.glutenFreeFilter.set(false);
+    this.lactoseFreeFilter.set(false);
+    this.searchTerm.set('');
+    this.currentPage.set(1);
+  }
+
   isGlutenFree(product: StoreProduct): boolean {
     return isGlutenFree(product);
   }

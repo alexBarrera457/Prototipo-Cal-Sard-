@@ -139,4 +139,22 @@ describe('Store', () => {
 
     expect(openModalSpy).toHaveBeenCalled();
   });
+
+  it('resets all active filters and search terms', () => {
+    component.selectCategory('CAFÉ GOURMET');
+    component.glutenFreeFilter.set(true);
+    component.lactoseFreeFilter.set(true);
+    component.searchTerm.set('arábiga');
+
+    expect(component.selectedCategory()).toBe('CAFÉ GOURMET');
+    expect(component.glutenFreeFilter()).toBe(true);
+
+    component.resetFilters();
+
+    expect(component.selectedCategory()).toBe('TODOS');
+    expect(component.glutenFreeFilter()).toBe(false);
+    expect(component.lactoseFreeFilter()).toBe(false);
+    expect(component.searchTerm()).toBe('');
+    expect(component.currentPage()).toBe(1);
+  });
 });

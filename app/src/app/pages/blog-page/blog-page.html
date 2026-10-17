@@ -12,14 +12,15 @@
   <section class="blog-grid-section">
     <div class="blog-grid-container">
       <div class="articles-grid">
-        @for (article of articles; track article.slug) {
+        @for (article of articles; track article.slug; let i = $index) {
           <article class="article-card">
             <a [routerLink]="['/blog', article.slug]" class="article-image-link">
               <img
                 [src]="article.coverImage"
                 [alt]="article.title"
                 class="article-image"
-                loading="lazy"
+                [loading]="i < 2 ? 'eager' : 'lazy'"
+                [attr.fetchpriority]="i < 2 ? 'high' : null"
               />
             </a>
             <div class="article-card-body">

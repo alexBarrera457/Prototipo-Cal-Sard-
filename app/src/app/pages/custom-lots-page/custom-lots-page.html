@@ -2,15 +2,23 @@
   <!-- Cabecera de Página -->
   <header class="lots-header">
     <nav class="lots-breadcrumb" aria-label="Migas de pan">
-      <a [routerLink]="['/']">Inicio</a>
+      <a [routerLink]="['/']">{{ i18n.currentLang() === 'ca' ? 'Inici' : 'Inicio' }}</a>
       <span>/</span>
-      <a [routerLink]="['/lotes-y-cestas-gourmet']">Lotes y Cestas</a>
+      <a [routerLink]="['/lotes-y-cestas-gourmet']">{{
+        i18n.currentLang() === 'ca' ? 'Lots i Cistelles' : 'Lotes y Cestas'
+      }}</a>
       <span>/</span>
-      <span aria-current="page">Fes el teu Lot</span>
+      <span aria-current="page">{{
+        i18n.currentLang() === 'ca' ? 'Fes el teu Lot' : 'Haz tu Lote'
+      }}</span>
     </nav>
 
     <div class="header-content">
-      <span class="heritage-badge">FES EL TEU LOT · OBRADOR DESDE 1930</span>
+      <span class="heritage-badge">{{
+        i18n.currentLang() === 'ca'
+          ? 'FES EL TEU LOT · OBRADOR DES DE 1930'
+          : 'HAZ TU LOTE · OBRADOR DESDE 1930'
+      }}</span>
       <h1 id="custom-lots-heading">{{ i18n.t('custom_lots.page_title') }}</h1>
       <p class="lots-lead">
         {{ i18n.t('custom_lots.page_subtitle') }}
@@ -25,10 +33,10 @@
         [class.active]="currentStep() === 1"
         [class.completed]="currentStep() > 1"
         (click)="goToStep(1)"
-        aria-label="Paso 1: Estuche"
+        [attr.aria-label]="i18n.currentLang() === 'ca' ? 'Pas 1: Estoig' : 'Paso 1: Estuche'"
       >
         <span class="step-circle">1</span>
-        <span class="step-label">Estuche</span>
+        <span class="step-label">{{ i18n.currentLang() === 'ca' ? 'Estoig' : 'Estuche' }}</span>
       </button>
       <div class="step-line" [class.filled]="currentStep() >= 2"></div>
 
@@ -39,10 +47,12 @@
         [class.completed]="currentStep() > 2"
         (click)="goToStep(2)"
         [disabled]="!selectedPackaging()"
-        aria-label="Paso 2: Productos"
+        [attr.aria-label]="i18n.currentLang() === 'ca' ? 'Pas 2: Productes' : 'Paso 2: Productos'"
       >
         <span class="step-circle">2</span>
-        <span class="step-label">Productos</span>
+        <span class="step-label">{{
+          i18n.currentLang() === 'ca' ? 'Productes' : 'Productos'
+        }}</span>
       </button>
       <div class="step-line" [class.filled]="currentStep() >= 3"></div>
 
@@ -52,10 +62,14 @@
         [class.active]="currentStep() === 3"
         (click)="goToStep(3)"
         [disabled]="itemsCount() === 0"
-        aria-label="Paso 3: Dedicatoria"
+        [attr.aria-label]="
+          i18n.currentLang() === 'ca' ? 'Pas 3: Dedicatòria' : 'Paso 3: Dedicatoria'
+        "
       >
         <span class="step-circle">3</span>
-        <span class="step-label">Dedicatoria</span>
+        <span class="step-label">{{
+          i18n.currentLang() === 'ca' ? 'Dedicatòria' : 'Dedicatoria'
+        }}</span>
       </button>
     </nav>
   </header>
@@ -65,9 +79,17 @@
     @if (currentStep() === 1) {
       <section class="step-section" aria-labelledby="step1-title">
         <div class="section-title-box">
-          <span class="step-kicker">PASO 1 DE 3</span>
+          <span class="step-kicker">{{
+            i18n.currentLang() === 'ca' ? 'PAS 1 DE 3' : 'PASO 1 DE 3'
+          }}</span>
           <h2 id="step1-title">{{ i18n.t('custom_lots.step1_title') }}</h2>
-          <p class="section-desc">Selecciona la base artesanal para presentar tu regalo gourmet.</p>
+          <p class="section-desc">
+            {{
+              i18n.currentLang() === 'ca'
+                ? 'Selecciona la base artesanal per presentar el teu regal gurmet.'
+                : 'Selecciona la base artesanal para presentar tu regalo gourmet.'
+            }}
+          </p>
         </div>
 
         <div class="packagings-grid">
@@ -105,7 +127,15 @@
                 <div class="pkg-footer">
                   <span class="pkg-price">{{ formatCurrency(pkg.price) }}</span>
                   <span class="pkg-action-text">
-                    {{ selectedPackagingId() === pkg.id ? 'Seleccionado' : 'Elegir estuche' }}
+                    {{
+                      selectedPackagingId() === pkg.id
+                        ? i18n.currentLang() === 'ca'
+                          ? 'Seleccionat'
+                          : 'Seleccionado'
+                        : i18n.currentLang() === 'ca'
+                          ? 'Triar estoig'
+                          : 'Elegir estuche'
+                    }}
                   </span>
                 </div>
               </div>
@@ -130,11 +160,16 @@
     @if (currentStep() === 2) {
       <section class="step-section" aria-labelledby="step2-title">
         <div class="section-title-box">
-          <span class="step-kicker">PASO 2 DE 3</span>
+          <span class="step-kicker">{{
+            i18n.currentLang() === 'ca' ? 'PAS 2 DE 3' : 'PASO 2 DE 3'
+          }}</span>
           <h2 id="step2-title">{{ i18n.t('custom_lots.step2_title') }}</h2>
           <p class="section-desc">
-            Añade al lote tus embutidos de bellota, quesos curados de pastor, conservas y vinos
-            favoritos.
+            {{
+              i18n.currentLang() === 'ca'
+                ? 'Afegeix al lot els teus pernils de gla, formatges curats de pastor, conserves i vins preferits.'
+                : 'Añade al lote tus embutidos de bellota, quesos curados de pastor, conservas y vinos favoritos.'
+            }}
           </p>
         </div>
 
@@ -210,7 +245,7 @@
               </div>
 
               <div class="prod-details">
-                <span class="prod-category">{{ prod.category }}</span>
+                <span class="prod-category">{{ i18n.translateCategory(prod.category) }}</span>
                 <h3 class="prod-name">{{ prod.name }}</h3>
                 <span class="prod-price">{{ formatCurrency(prod.price) }}</span>
               </div>
@@ -221,7 +256,11 @@
                   class="btn-qty btn-minus"
                   [disabled]="getItemQuantity(prod) === 0"
                   (click)="removeProduct(prod)"
-                  [attr.aria-label]="'Quitar una unidad de ' + prod.name"
+                  [attr.aria-label]="
+                    (i18n.currentLang() === 'ca'
+                      ? 'Treure una unitat de '
+                      : 'Quitar una unidad de ') + prod.name
+                  "
                 >
                   −
                 </button>
@@ -232,7 +271,11 @@
                   type="button"
                   class="btn-qty btn-plus"
                   (click)="addProduct(prod)"
-                  [attr.aria-label]="'Añadir una unidad de ' + prod.name"
+                  [attr.aria-label]="
+                    (i18n.currentLang() === 'ca'
+                      ? 'Afegir una unitat de '
+                      : 'Añadir una unidad de ') + prod.name
+                  "
                 >
                   +
                 </button>
@@ -261,17 +304,25 @@
     @if (currentStep() === 3) {
       <section class="step-section" aria-labelledby="step3-title">
         <div class="section-title-box">
-          <span class="step-kicker">PASO 3 DE 3</span>
+          <span class="step-kicker">{{
+            i18n.currentLang() === 'ca' ? 'PAS 3 DE 3' : 'PASO 3 DE 3'
+          }}</span>
           <h2 id="step3-title">{{ i18n.t('custom_lots.step3_title') }}</h2>
           <p class="section-desc">
-            Personaliza una tarjeta artesana que imprimiremos e incluiremos dentro del estuche.
+            {{
+              i18n.currentLang() === 'ca'
+                ? 'Personalitza una targeta artesana que imprimirem i inclourem dins l’estoig.'
+                : 'Personaliza una tarjeta artesana que imprimiremos e incluiremos dentro del estuche.'
+            }}
           </p>
         </div>
 
         <div class="dedication-layout">
           <!-- Formulario de Dedicatoria -->
           <div class="dedication-form-card">
-            <h3>💌 Mensaje del Regalo</h3>
+            <h3>
+              💌 {{ i18n.currentLang() === 'ca' ? 'Missatge del Regal' : 'Mensaje del Regalo' }}
+            </h3>
 
             <div class="form-group">
               <label for="sender-input">{{ i18n.t('custom_lots.card_from') }}</label>
@@ -281,7 +332,11 @@
                 class="lot-input"
                 [ngModel]="senderName()"
                 (ngModelChange)="senderName.set($event)"
-                placeholder="Ej. Familia Gómez o Àlex"
+                [placeholder]="
+                  i18n.currentLang() === 'ca'
+                    ? 'Ex. Família Gómez o Àlex'
+                    : 'Ej. Familia Gómez o Àlex'
+                "
                 maxlength="60"
               />
             </div>
@@ -294,7 +349,11 @@
                 class="lot-input"
                 [ngModel]="recipientName()"
                 (ngModelChange)="recipientName.set($event)"
-                placeholder="Ej. Montserrat o Abuela Carmen"
+                [placeholder]="
+                  i18n.currentLang() === 'ca'
+                    ? 'Ex. Montserrat o Àvia Carme'
+                    : 'Ej. Montserrat o Abuela Carmen'
+                "
                 maxlength="60"
               />
             </div>
@@ -310,16 +369,23 @@
                 rows="4"
                 [ngModel]="dedication()"
                 (ngModelChange)="dedication.set($event)"
-                placeholder="Escribe aquí tu dedicatoria para el destinatario..."
+                [placeholder]="
+                  i18n.currentLang() === 'ca'
+                    ? 'Escriu aquí la teva dedicatòria per al destinatari...'
+                    : 'Escribe aquí tu dedicatoria para el destinatario...'
+                "
                 maxlength="300"
               ></textarea>
             </div>
 
             <!-- Resumen de Contenido del Lote -->
             <div class="lot-review-box">
-              <h4>📦 Contenido de tu lote</h4>
+              <h4>
+                📦
+                {{ i18n.currentLang() === 'ca' ? 'Contingut del teu lot' : 'Contenido de tu lote' }}
+              </h4>
               <p class="review-packaging">
-                <strong>Estuche:</strong>
+                <strong>{{ i18n.currentLang() === 'ca' ? 'Estoig:' : 'Estuche:' }}</strong>
                 {{
                   i18n.currentLang() === 'ca'
                     ? selectedPackaging().nameCa
@@ -345,14 +411,19 @@
               <div class="card-border-frame">
                 <div class="card-brand">
                   <span class="card-logo">CAL SARDÀ</span>
-                  <span class="card-subtitle">COLMADO FAMILIAR · DESDE 1930</span>
+                  <span class="card-subtitle">{{
+                    i18n.currentLang() === 'ca'
+                      ? 'COLMADO FAMILIAR · DES DE 1930'
+                      : 'COLMADO FAMILIAR · DESDE 1930'
+                  }}</span>
                   <span class="card-location">Marina 237 · Sagrada Família, Barcelona</span>
                 </div>
 
                 <div class="card-body">
                   @if (recipientName()) {
                     <p class="card-greeting">
-                      Para <strong>{{ recipientName() }}</strong
+                      {{ i18n.currentLang() === 'ca' ? 'Per a' : 'Para' }}
+                      <strong>{{ recipientName() }}</strong
                       >,
                     </p>
                   }
@@ -360,13 +431,15 @@
                   <p class="card-message-text">
                     {{
                       dedication() ||
-                        '«Esperamos que disfrutes de esta selección artesanal del colmado, preparada especialmente para ti.»'
+                        (i18n.currentLang() === 'ca'
+                          ? '«Esperem que gaudeixis d’aquesta selecció artesanal del colmado, preparada especialment per a tu.»'
+                          : '«Esperamos que disfrutes de esta selección artesanal del colmado, preparada especialmente para ti.»')
                     }}
                   </p>
 
                   @if (senderName()) {
                     <p class="card-signature">
-                      Con cariño,<br />
+                      {{ i18n.currentLang() === 'ca' ? 'Amb afecte,' : 'Con cariño,' }}<br />
                       <strong>{{ senderName() }}</strong>
                     </p>
                   }
@@ -421,7 +494,7 @@
             (click)="goToStep(2)"
             [disabled]="!selectedPackaging()"
           >
-            Productos →
+            {{ i18n.currentLang() === 'ca' ? 'Productes →' : 'Productos →' }}
           </button>
         } @else if (currentStep() === 2) {
           <button
@@ -430,7 +503,7 @@
             (click)="goToStep(3)"
             [disabled]="itemsCount() === 0"
           >
-            Dedicatoria →
+            {{ i18n.currentLang() === 'ca' ? 'Dedicatòria →' : 'Dedicatoria →' }}
           </button>
         } @else {
           <button
@@ -438,7 +511,7 @@
             class="btn-sticky-action btn-sticky-finish"
             (click)="addCustomLotToCart()"
           >
-            Añadir a la cesta
+            {{ i18n.currentLang() === 'ca' ? 'Afegir a la cistella' : 'Añadir a la cesta' }}
           </button>
         }
       </div>

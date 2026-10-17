@@ -2,13 +2,19 @@
   <!-- Cabecera -->
   <header class="gift-card-header">
     <nav class="breadcrumb" aria-label="Migas de pan">
-      <a [routerLink]="['/']">Inicio</a>
+      <a [routerLink]="['/']">{{ i18n.currentLang() === 'ca' ? 'Inici' : 'Inicio' }}</a>
       <span>/</span>
-      <span aria-current="page">Tarjeta Regalo</span>
+      <span aria-current="page">{{
+        i18n.currentLang() === 'ca' ? 'Targeta Regal' : 'Tarjeta Regalo'
+      }}</span>
     </nav>
 
     <div class="header-intro">
-      <span class="heritage-badge">OBRADOR I COLMADO · DESDE 1930</span>
+      <span class="heritage-badge">{{
+        i18n.currentLang() === 'ca'
+          ? 'OBRADOR I COLMADO · DES DE 1930'
+          : 'OBRADOR Y COLMADO · DESDE 1930'
+      }}</span>
       <h1 id="gift-card-heading">{{ i18n.t('gift_card.page_title') }}</h1>
       <p class="lead-desc">{{ i18n.t('gift_card.page_subtitle') }}</p>
     </div>
@@ -75,7 +81,7 @@
                     min="10"
                     step="5"
                     class="form-input custom-input"
-                    placeholder="Mínimo 10"
+                    [placeholder]="i18n.currentLang() === 'ca' ? 'Mínim 10' : 'Mínimo 10'"
                     [value]="customAmountInput()"
                     (input)="onCustomAmountChange($any($event.target).value)"
                   />
@@ -98,7 +104,9 @@
                     class="form-input"
                     [(ngModel)]="recipientName"
                     required
-                    placeholder="Ej. Montserrat Puig"
+                    [placeholder]="
+                      i18n.currentLang() === 'ca' ? 'Ex. Montserrat Puig' : 'Ej. Montserrat Puig'
+                    "
                   />
                 </div>
 
@@ -128,7 +136,9 @@
                     class="form-input"
                     [(ngModel)]="senderName"
                     required
-                    placeholder="Tu nombre o empresa"
+                    [placeholder]="
+                      i18n.currentLang() === 'ca' ? 'El teu nom o empresa' : 'Tu nombre o empresa'
+                    "
                   />
                 </div>
 
@@ -164,7 +174,11 @@
                   rows="3"
                   class="form-textarea"
                   [(ngModel)]="dedication"
-                  placeholder="¡Esperamos que disfrutes de una compra tradicional en Cal Sardà!"
+                  [placeholder]="
+                    i18n.currentLang() === 'ca'
+                      ? 'Esperem que gaudeixis d’una compra tradicional a Cal Sardà!'
+                      : '¡Esperamos que disfrutes de una compra tradicional en Cal Sardà!'
+                  "
                   maxlength="250"
                 ></textarea>
               </div>
@@ -187,7 +201,11 @@
               <div class="card-top-row">
                 <div>
                   <span class="card-brand-logo">CAL SARDÀ</span>
-                  <span class="card-brand-sub">DESDE 1930 · SAGRADA FAMÍLIA</span>
+                  <span class="card-brand-sub">{{
+                    i18n.currentLang() === 'ca'
+                      ? 'DES DE 1930 · SAGRADA FAMÍLIA'
+                      : 'DESDE 1930 · SAGRADA FAMÍLIA'
+                  }}</span>
                 </div>
                 <div class="card-chip-graphic">
                   <span>💳</span>
@@ -195,14 +213,20 @@
               </div>
 
               <div class="card-balance-display">
-                <span class="balance-label">SALDO REGALO</span>
+                <span class="balance-label">{{
+                  i18n.currentLang() === 'ca' ? 'SALDO REGAL' : 'SALDO REGALO'
+                }}</span>
                 <strong class="balance-value">{{ formatCurrency(currentAmount()) }}</strong>
               </div>
 
               <div class="card-bottom-row">
                 <div class="card-recipient-box">
-                  <span class="recip-label">Para:</span>
-                  <strong class="recip-name">{{ recipientName || 'Destinatario' }}</strong>
+                  <span class="recip-label">{{
+                    i18n.currentLang() === 'ca' ? 'Per a:' : 'Para:'
+                  }}</span>
+                  <strong class="recip-name">{{
+                    recipientName || (i18n.currentLang() === 'ca' ? 'Destinatari' : 'Destinatario')
+                  }}</strong>
                   @if (senderName) {
                     <span class="sender-info">De: {{ senderName }}</span>
                   }
@@ -254,7 +278,10 @@
               </div>
 
               <div class="voucher-meta">
-                <p><strong>Para:</strong> {{ card.recipientName }} ({{ card.recipientEmail }})</p>
+                <p>
+                  <strong>{{ i18n.currentLang() === 'ca' ? 'Per a:' : 'Para:' }}</strong>
+                  {{ card.recipientName }} ({{ card.recipientEmail }})
+                </p>
                 <p><strong>De:</strong> {{ card.senderName }}</p>
                 @if (card.dedication) {
                   <p class="voucher-dedication">«{{ card.dedication }}»</p>
@@ -279,9 +306,15 @@
                 id="btn-buy-another-card"
                 (click)="resetPurchase()"
               >
-                Comprar otra tarjeta
+                {{
+                  i18n.currentLang() === 'ca' ? 'Comprar una altra targeta' : 'Comprar otra tarjeta'
+                }}
               </button>
-              <a [routerLink]="['/tienda-online']" class="btn-goto-shop">Ir a la tienda online →</a>
+              <a [routerLink]="['/tienda-online']" class="btn-goto-shop">{{
+                i18n.currentLang() === 'ca'
+                  ? 'Anar a la botiga online →'
+                  : 'Ir a la tienda online →'
+              }}</a>
             </div>
           </div>
         }
@@ -294,8 +327,11 @@
         <div class="check-card">
           <h2>{{ i18n.t('gift_card.check_title') }}</h2>
           <p class="check-desc">
-            Introduce el código de tu tarjeta regalo (ej. <code>REGAL-CS-50</code> o
-            <code>REGAL-CS-1930</code>) para comprobar en tiempo real el saldo disponible.
+            {{
+              i18n.currentLang() === 'ca'
+                ? 'Introdueix el codi de la teva targeta regal (ex. REGAL-CS-50 o REGAL-CS-1930) per comprovar en temps real el saldo disponible.'
+                : 'Introduce el código de tu tarjeta regalo (ej. REGAL-CS-50 o REGAL-CS-1930) para comprobar en tiempo real el saldo disponible.'
+            }}
           </p>
 
           <div class="check-input-row">
@@ -328,24 +364,44 @@
               @if (balanceCheckResult().valid && balanceCheckResult().card; as c) {
                 <div class="result-valid-content">
                   <div class="result-top">
-                    <span class="result-badge">TARJETA ACTIVA</span>
+                    <span class="result-badge">{{
+                      i18n.currentLang() === 'ca' ? 'TARGETA ACTIVA' : 'TARJETA ACTIVA'
+                    }}</span>
                     <strong class="result-amount">{{ formatCurrency(c.currentBalance) }}</strong>
                   </div>
                   <div class="result-details">
                     <p>
-                      <strong>Código:</strong> <code>{{ c.code }}</code>
+                      <strong>{{ i18n.currentLang() === 'ca' ? 'Codi:' : 'Código:' }}</strong>
+                      <code>{{ c.code }}</code>
                     </p>
-                    <p><strong>Destinatario:</strong> {{ c.recipientName }}</p>
-                    <p><strong>Emitida por:</strong> {{ c.senderName }}</p>
-                    <p><strong>Importe inicial:</strong> {{ formatCurrency(c.initialBalance) }}</p>
+                    <p>
+                      <strong>{{
+                        i18n.currentLang() === 'ca' ? 'Destinatari:' : 'Destinatario:'
+                      }}</strong>
+                      {{ c.recipientName }}
+                    </p>
+                    <p>
+                      <strong>{{
+                        i18n.currentLang() === 'ca' ? 'Emesa per:' : 'Emitida por:'
+                      }}</strong>
+                      {{ c.senderName }}
+                    </p>
+                    <p>
+                      <strong>{{
+                        i18n.currentLang() === 'ca' ? 'Import inicial:' : 'Importe inicial:'
+                      }}</strong>
+                      {{ formatCurrency(c.initialBalance) }}
+                    </p>
                     @if (c.dedication) {
                       <p class="result-dedication">«{{ c.dedication }}»</p>
                     }
                   </div>
                   <div class="result-actions">
-                    <a [routerLink]="['/tienda-online']" class="btn-use-balance"
-                      >Comprar en el colmado →</a
-                    >
+                    <a [routerLink]="['/tienda-online']" class="btn-use-balance">{{
+                      i18n.currentLang() === 'ca'
+                        ? 'Comprar al colmado →'
+                        : 'Comprar en el colmado →'
+                    }}</a>
                   </div>
                 </div>
               } @else {

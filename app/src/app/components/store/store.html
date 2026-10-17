@@ -1,20 +1,31 @@
 <section class="store" id="tienda">
   <div class="store-header">
     <div>
-      <span class="store-label"> CAL SARDÀ · TIENDA </span>
+      <span class="store-label">
+        {{ i18n.currentLang() === 'ca' ? 'CAL SARDÀ · BOTIGA' : 'CAL SARDÀ · TIENDA' }}
+      </span>
 
       <h2>
-        Nuestra<br />
-        selección.
+        {{ i18n.currentLang() === 'ca' ? 'La nostra' : 'Nuestra' }}<br />
+        {{ i18n.currentLang() === 'ca' ? 'selecció.' : 'selección.' }}
       </h2>
     </div>
 
-    <p>Descubre una selección de productos tradicionales y gourmet escogidos por Cal Sardà.</p>
+    <p>
+      {{
+        i18n.currentLang() === 'ca'
+          ? 'Descobreix una selecció de productes tradicionals i gurmet triats per Cal Sardà.'
+          : 'Descubre una selección de productos tradicionales y gourmet escogidos por Cal Sardà.'
+      }}
+    </p>
   </div>
 
   <p class="store-prototype-note">
-    Catálogo frontend basado en la tienda oficial. Los precios y la disponibilidad pueden variar; el
-    checkout es solo una vista previa.
+    {{
+      i18n.currentLang() === 'ca'
+        ? 'Colmado familiar des de 1930 · Carrer Marina 237, Sagrada Família (Barcelona).'
+        : 'Colmado familiar desde 1930 · Carrer Marina 237, Sagrada Família (Barcelona).'
+    }}
   </p>
 
   <div class="store-toolbar">
@@ -88,10 +99,20 @@
   </div>
 
   @if (catalogLoading()) {
-    <p class="store-loading" role="status" aria-live="polite">Cargando el catálogo completo…</p>
+    <p class="store-loading" role="status" aria-live="polite">
+      {{
+        i18n.currentLang() === 'ca'
+          ? 'Carregant el catàleg complet…'
+          : 'Cargando el catálogo completo…'
+      }}
+    </p>
   } @else if (catalogError()) {
     <p class="store-empty-search" role="alert">
-      No se pudo cargar el catálogo. Actualiza la página para intentarlo de nuevo.
+      {{
+        i18n.currentLang() === 'ca'
+          ? 'No s’ha pogut carregar el catàleg. Actualitza la pàgina per tornar-ho a intentar.'
+          : 'No se pudo cargar el catálogo. Actualiza la página para intentarlo de nuevo.'
+      }}
     </p>
   } @else if (filteredProducts().length) {
     <div class="store-grid">
@@ -241,7 +262,12 @@
     </div>
 
     @if (pageCount() > 1) {
-      <nav class="store-pagination" aria-label="Páginas de productos">
+      <nav
+        class="store-pagination"
+        [attr.aria-label]="
+          i18n.currentLang() === 'ca' ? 'Pàgines de productes' : 'Páginas de productos'
+        "
+      >
         <button
           type="button"
           (click)="goToPage(currentPage() - 1)"
@@ -265,10 +291,34 @@
       </nav>
     }
   } @else {
-    <p class="store-empty-search" role="status">
-      {{ i18n.t('store.empty_search_prefix') }} “{{ searchTerm() }}”.
-      {{ i18n.t('store.empty_search_suffix') }}
-    </p>
+    <div class="store-empty-search" role="status">
+      <span class="empty-icon" aria-hidden="true">🔍</span>
+      @if (searchTerm()) {
+        <p>
+          {{ i18n.t('store.empty_search_prefix') }} “{{ searchTerm() }}”.
+          {{ i18n.t('store.empty_search_suffix') }}
+        </p>
+      } @else {
+        <p>
+          {{
+            i18n.currentLang() === 'ca'
+              ? 'No hem trobat cap producte disponible per a la combinació de filtres seleccionada.'
+              : 'No hemos encontrado ningún producto disponible para la combinación de filtros seleccionada.'
+          }}
+        </p>
+      }
+      @if (
+        glutenFreeFilter() || lactoseFreeFilter() || selectedCategory() !== 'TODOS' || searchTerm()
+      ) {
+        <button type="button" class="btn-reset-filters" (click)="resetFilters()">
+          {{
+            i18n.currentLang() === 'ca'
+              ? '↺ Netejar tots els filtres'
+              : '↺ Limpiar todos los filtros'
+          }}
+        </button>
+      }
+    </div>
   }
 
   <div class="store-footer">
