@@ -11,6 +11,7 @@ describe('AccountPage', () => {
   let authService: AuthService;
 
   beforeEach(async () => {
+    localStorage.clear();
     const mockAdapter = new InMemoryAuthAdapter();
     await TestBed.configureTestingModule({
       imports: [AccountPage, FormsModule],
@@ -23,6 +24,10 @@ describe('AccountPage', () => {
     // Asegurar estado inicial limpio
     await authService.signOut();
     fixture.detectChanges();
+  });
+
+  afterEach(() => {
+    localStorage.clear();
   });
 
   it('creates the component and starts with unauthenticated state', () => {

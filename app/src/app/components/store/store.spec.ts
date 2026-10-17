@@ -9,6 +9,7 @@ describe('Store', () => {
   let fixture: ComponentFixture<Store>;
 
   beforeEach(async () => {
+    localStorage.clear();
     await loadStoreProducts();
 
     await TestBed.configureTestingModule({
@@ -19,6 +20,10 @@ describe('Store', () => {
     fixture = TestBed.createComponent(Store);
     component = fixture.componentInstance;
     await fixture.whenStable();
+  });
+
+  afterEach(() => {
+    localStorage.clear();
   });
 
   it('should create', () => {
