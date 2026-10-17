@@ -11,6 +11,7 @@ describe('ProductDetail', () => {
   let stockAlertService: StockAlertService;
 
   beforeEach(async () => {
+    localStorage.clear();
     const mockAuthAdapter = new InMemoryAuthAdapter();
     await TestBed.configureTestingModule({
       imports: [ProductDetail],
@@ -26,6 +27,10 @@ describe('ProductDetail', () => {
     authService = TestBed.inject(AuthService);
     stockAlertService = TestBed.inject(StockAlertService);
     await fixture.whenStable();
+  });
+
+  afterEach(() => {
+    localStorage.clear();
   });
 
   it('should create', () => {
