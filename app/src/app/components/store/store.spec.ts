@@ -35,9 +35,9 @@ describe('Store', () => {
 
     expect(component.filteredProducts().map((product) => product.name)).toEqual([
       'Café 100% Robusta',
+      'Pack degustación de café',
       'Café natural 100% arábiga',
       'Café Sarà descafeinado',
-      'Pack degustación de café',
     ]);
   });
 

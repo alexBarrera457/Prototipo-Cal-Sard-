@@ -164,6 +164,18 @@
           <div class="store-product-info">
             <div>
               <div class="store-dietary-badges" aria-label="Información dietética">
+                @if (product.featured) {
+                  <span
+                    class="badge-featured"
+                    [title]="
+                      i18n.currentLang() === 'ca'
+                        ? 'Producte destacat pel Colmado Cal Sardà'
+                        : 'Producto destacado por el Colmado Cal Sardà'
+                    "
+                  >
+                    ⭐ {{ i18n.currentLang() === 'ca' ? 'Destacat' : 'Destacado' }}
+                  </span>
+                }
                 @if (isGlutenFree(product)) {
                   <span
                     class="badge-gluten-free"

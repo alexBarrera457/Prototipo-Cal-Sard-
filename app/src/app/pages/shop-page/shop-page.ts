@@ -5,7 +5,12 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ProductDetail } from '../../components/product-detail/product-detail';
 import { Store } from '../../components/store/store';
 import { I18nService } from '../../services/i18n';
-import { getProductSlug, ProductsService, StoreProduct } from '../../services/products';
+import {
+  getProductSlug,
+  ProductsService,
+  StoreProduct,
+  StoreSortOrder,
+} from '../../services/products';
 
 @Component({
   selector: 'app-shop-page',
@@ -17,6 +22,7 @@ export class ShopPage {
   public readonly i18n = inject(I18nService);
   selectedProduct = signal<StoreProduct | null>(null);
   searchTerm = '';
+  sortOrder: StoreSortOrder = 'featured';
 
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
@@ -27,6 +33,15 @@ export class ShopPage {
   constructor() {
     this.route.queryParamMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
       this.searchTerm = params.get('buscar') ?? '';
+      const orden = params.get('orden');
+      if (
+        orden === 'featured' ||
+        orden === 'name-asc' ||
+        orden === 'price-asc' ||
+        orden === 'price-desc'
+      ) {
+        this.sortOrder = orden;
+      }
       const productNumber = params.get('producto');
       const request = ++this.productRequest;
 

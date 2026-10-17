@@ -50,7 +50,7 @@ export class Store implements AfterViewInit, OnDestroy {
   selectedCategory = signal('TODOS');
   glutenFreeFilter = signal(false);
   lactoseFreeFilter = signal(false);
-  sortOrder = signal<StoreSortOrder>('featured');
+  sortOrder = model<StoreSortOrder>('featured');
   currentPage = signal(1);
   readonly pageSize = 24;
   addedProductNumber: string | null = null;

@@ -128,6 +128,15 @@ describe('ProductsService', () => {
       expect(nameAsc[0].number).toBe('P1'); // Café...
       expect(nameAsc[1].number).toBe('P2'); // Conservas...
       expect(nameAsc[2].number).toBe('P3'); // Galletas...
+
+      // Sort by featured prioritizing featured products and respecting featuredOrder
+      const productsWithFeatured: StoreProduct[] = [
+        { ...mockProducts[0], number: 'P1', featured: false },
+        { ...mockProducts[1], number: 'P2', featured: true, featuredOrder: 2 },
+        { ...mockProducts[2], number: 'P3', featured: true, featuredOrder: 1 },
+      ];
+      const featuredSorted = service.filterAndSort(productsWithFeatured, { sortOrder: 'featured' });
+      expect(featuredSorted.map((p) => p.number)).toEqual(['P3', 'P2', 'P1']);
     });
 
     it('filters by gluten-free and lactose-free requirements', () => {
@@ -289,12 +298,18 @@ describe('ProductsService', () => {
   });
 
   describe('StaticProductsAdapter', () => {
-    it('retrieves products from static catalog in memory', async () => {
+    afterEach(() => {
+      StaticProductsAdapter.resetCatalog(true);
+    });
+
+    it('retrieves products from static catalog in memory with initial featured products', async () => {
       const adapter = new StaticProductsAdapter();
       const products = await adapter.getProducts();
 
       expect(products.length).toBeGreaterThan(0);
       expect(products[0].number).toBe('01');
+      const featured = products.filter((p) => p.featured);
+      expect(featured.length).toBe(6);
     });
 
     it('retrieves single product by number or returns null', async () => {
@@ -306,6 +321,17 @@ describe('ProductsService', () => {
 
       const missing = await adapter.getProductByNumber('non-existent-xyz');
       expect(missing).toBeNull();
+    });
+
+    it('persists product updates across adapter calls using localStorage', async () => {
+      const adapter = new StaticProductsAdapter();
+      await adapter.updateProduct('01', { price: 9.99, featured: true });
+
+      // Reset in-memory cache to simulate fresh page load
+      StaticProductsAdapter.resetCatalog(false);
+      const reloaded = await adapter.getProductByNumber('01');
+      expect(reloaded?.price).toBe(9.99);
+      expect(reloaded?.featured).toBe(true);
     });
   });
 

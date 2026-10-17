@@ -384,11 +384,11 @@ export class AdminCatalog implements OnInit {
     try {
       await this.productsService.updateProduct(product.number, {
         featured: newFeatured,
-        ...(newOrder !== undefined ? { featuredOrder: newOrder } : {}),
+        featuredOrder: newOrder,
       });
       this.showToast(
         'success',
-        `${product.name}: ${newFeatured ? this.i18n.t('admin.badge_featured') : 'No destacado'}`,
+        `${product.name}: ${newFeatured ? this.i18n.t('admin.badge_featured') : this.i18n.t('admin.badge_not_featured')}`,
       );
     } catch {
       // Revertir

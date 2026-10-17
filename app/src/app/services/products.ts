@@ -173,6 +173,79 @@ export function mapDatabaseProductToProduct(row: any): StoreProduct {
   };
 }
 
+const PRODUCT_OVERRIDES_KEY = 'cal_sarda_products_overrides';
+const CREATED_PRODUCTS_KEY = 'cal_sarda_created_products';
+const DELETED_PRODUCTS_KEY = 'cal_sarda_deleted_products';
+
+function getStoredOverrides(): Record<string, Partial<StoreProduct>> {
+  if (typeof window === 'undefined' || typeof localStorage === 'undefined') {
+    return {};
+  }
+  try {
+    const raw = localStorage.getItem(PRODUCT_OVERRIDES_KEY);
+    return raw ? JSON.parse(raw) : {};
+  } catch {
+    return {};
+  }
+}
+
+function saveStoredOverrides(overrides: Record<string, Partial<StoreProduct>>): void {
+  if (typeof window === 'undefined' || typeof localStorage === 'undefined') {
+    return;
+  }
+  try {
+    localStorage.setItem(PRODUCT_OVERRIDES_KEY, JSON.stringify(overrides));
+  } catch {
+    // Ignore quota or storage errors
+  }
+}
+
+function getStoredCreatedProducts(): StoreProduct[] {
+  if (typeof window === 'undefined' || typeof localStorage === 'undefined') {
+    return [];
+  }
+  try {
+    const raw = localStorage.getItem(CREATED_PRODUCTS_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveStoredCreatedProducts(products: StoreProduct[]): void {
+  if (typeof window === 'undefined' || typeof localStorage === 'undefined') {
+    return;
+  }
+  try {
+    localStorage.setItem(CREATED_PRODUCTS_KEY, JSON.stringify(products));
+  } catch {
+    // Ignore quota or storage errors
+  }
+}
+
+function getStoredDeletedProductNumbers(): string[] {
+  if (typeof window === 'undefined' || typeof localStorage === 'undefined') {
+    return [];
+  }
+  try {
+    const raw = localStorage.getItem(DELETED_PRODUCTS_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveStoredDeletedProductNumbers(numbers: string[]): void {
+  if (typeof window === 'undefined' || typeof localStorage === 'undefined') {
+    return;
+  }
+  try {
+    localStorage.setItem(DELETED_PRODUCTS_KEY, JSON.stringify(numbers));
+  } catch {
+    // Ignore quota or storage errors
+  }
+}
+
 /**
  * Adaptador de catálogo estático en memoria (modo offline / desarrollo).
  */
@@ -181,14 +254,47 @@ export class StaticProductsAdapter implements ProductsRepository {
   private static catalogPromise: Promise<StoreProduct[]> | null = null;
   private static catalogData: StoreProduct[] | null = null;
 
+  static resetCatalog(clearStorage = false): void {
+    StaticProductsAdapter.catalogPromise = null;
+    StaticProductsAdapter.catalogData = null;
+    if (clearStorage && typeof localStorage !== 'undefined') {
+      try {
+        localStorage.removeItem(PRODUCT_OVERRIDES_KEY);
+        localStorage.removeItem(CREATED_PRODUCTS_KEY);
+        localStorage.removeItem(DELETED_PRODUCTS_KEY);
+      } catch {
+        // Ignore errors
+      }
+    }
+  }
+
   getProducts(): Promise<StoreProduct[]> {
     StaticProductsAdapter.catalogPromise ??= import('./products-catalog').then((catalog) => {
-      StaticProductsAdapter.catalogData = catalog.storeProducts.map((p) => ({
-        ...p,
-        inStock: p.inStock ?? true,
-        featured: p.featured ?? false,
-        allergens: p.allergens ? [...p.allergens] : [],
-      }));
+      const overrides = getStoredOverrides();
+      const created = getStoredCreatedProducts();
+      const deletedSet = new Set(getStoredDeletedProductNumbers());
+
+      const baseProducts = catalog.storeProducts
+        .filter((p) => !deletedSet.has(p.number))
+        .map((p) => {
+          const override = overrides[p.number];
+          return {
+            ...p,
+            inStock: p.inStock ?? true,
+            featured: p.featured ?? false,
+            allergens: p.allergens ? [...p.allergens] : [],
+            ...override,
+          };
+        });
+
+      const activeCreated = created
+        .filter((p) => !deletedSet.has(p.number))
+        .map((p) => ({
+          ...p,
+          ...(overrides[p.number] || {}),
+        }));
+
+      StaticProductsAdapter.catalogData = [...activeCreated, ...baseProducts];
       return StaticProductsAdapter.catalogData;
     });
     return StaticProductsAdapter.catalogPromise;
@@ -215,6 +321,14 @@ export class StaticProductsAdapter implements ProductsRepository {
       number: current.number,
     };
     products[index] = updated;
+
+    const overrides = getStoredOverrides();
+    overrides[number] = {
+      ...(overrides[number] || {}),
+      ...updates,
+    };
+    saveStoredOverrides(overrides);
+
     return updated;
   }
 
@@ -228,6 +342,11 @@ export class StaticProductsAdapter implements ProductsRepository {
       allergens: product.allergens ? [...product.allergens] : [],
     };
     products.unshift(newProduct);
+
+    const created = getStoredCreatedProducts();
+    created.unshift(newProduct);
+    saveStoredCreatedProducts(created);
+
     return newProduct;
   }
 
@@ -238,6 +357,13 @@ export class StaticProductsAdapter implements ProductsRepository {
       return false;
     }
     products.splice(index, 1);
+
+    const deleted = getStoredDeletedProductNumbers();
+    if (!deleted.includes(number)) {
+      deleted.push(number);
+      saveStoredDeletedProductNumbers(deleted);
+    }
+
     return true;
   }
 }
@@ -715,6 +841,21 @@ export class ProductsService {
 
     return [...results].sort((first, second) => {
       switch (sortOrder) {
+        case 'featured': {
+          const aFeatured = Boolean(first.featured);
+          const bFeatured = Boolean(second.featured);
+          if (aFeatured !== bFeatured) {
+            return aFeatured ? -1 : 1;
+          }
+          if (aFeatured && bFeatured) {
+            const orderA = first.featuredOrder ?? 999;
+            const orderB = second.featuredOrder ?? 999;
+            if (orderA !== orderB) {
+              return orderA - orderB;
+            }
+          }
+          return products.indexOf(first) - products.indexOf(second);
+        }
         case 'name-asc':
           return first.name.localeCompare(second.name, 'es');
         case 'price-asc':

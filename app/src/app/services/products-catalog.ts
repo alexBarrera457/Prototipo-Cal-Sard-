@@ -13,6 +13,8 @@ export const storeProducts: StoreProduct[] = [
     imageFit: 'contain',
     shortDescription: '5,25 € (250 g)',
     priceLabel: '5,25 €',
+    featured: true,
+    featuredOrder: 1,
     sourceUrl: 'https://www.calsarda.com/es/tienda-en-linea/cafe-gourmet/cafe-100-robusta/',
   },
   {
@@ -57,6 +59,8 @@ export const storeProducts: StoreProduct[] = [
     imageFit: 'contain',
     shortDescription: 'Prueba les 3 variedades de Cafés Sardà con dos vasitos de regalo',
     priceLabel: '18 €',
+    featured: true,
+    featuredOrder: 6,
     sourceUrl: 'https://www.calsarda.com/es/tienda-en-linea/cafe-gourmet/pack-degustacion-de-cafe/',
   },
   {
@@ -765,6 +769,8 @@ export const storeProducts: StoreProduct[] = [
     shortDescription:
       'Nuestro cava reserva brut nature de producción ecológica y elaboración artesana',
     priceLabel: '14,75 €',
+    featured: true,
+    featuredOrder: 3,
     sourceUrl: 'https://www.calsarda.com/es/tienda-en-linea/bodega-gourmet/cava-sarda/',
   },
   {
@@ -1441,6 +1447,8 @@ export const storeProducts: StoreProduct[] = [
     imageFit: 'contain',
     shortDescription: 'Queso de oveja madurado con Trufa Leyendas de Baztán',
     priceLabel: '8,99 €',
+    featured: true,
+    featuredOrder: 4,
     sourceUrl: 'https://www.calsarda.com/es/tienda-en-linea/embutidos/queso-de-oveja-con-trufa/',
   },
   {
@@ -2126,6 +2134,8 @@ export const storeProducts: StoreProduct[] = [
     imageFit: 'contain',
     shortDescription: 'Ventresca de bonito trozos Ortiz',
     priceLabel: '5,65 €',
+    featured: true,
+    featuredOrder: 2,
     sourceUrl:
       'https://www.calsarda.com/es/tienda-en-linea/conservas-de-mar/ventresca-de-bonito-trozos-ortiz/',
   },
@@ -2453,6 +2463,8 @@ export const storeProducts: StoreProduct[] = [
     imageFit: 'contain',
     shortDescription: '12 €',
     priceLabel: '14 €',
+    featured: true,
+    featuredOrder: 5,
     sourceUrl:
       'https://www.calsarda.com/es/tienda-en-linea/dulces-tradicionales-de-fiestas/turrones-artesanos/turron-de-alicante-barra-300-g/',
   },
