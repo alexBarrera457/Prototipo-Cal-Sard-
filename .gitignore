@@ -48,3 +48,7 @@ playwright-report/
 # System files
 .DS_Store
 Thumbs.db
+
+# Video render output
+videos/output/
+

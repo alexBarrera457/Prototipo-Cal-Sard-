@@ -20,6 +20,8 @@ export const storeCategories: Category[] = [
   { label: 'Embutidos', value: 'EMBUTIDOS' },
 ];
 
+export const DEFAULT_PRODUCT_IMAGE = '/images/products/viveres-arroz.jpg';
+
 export type StoreSortOrder = 'featured' | 'name-asc' | 'price-asc' | 'price-desc';
 
 export interface FilterProductsOptions {
@@ -151,8 +153,9 @@ export const PRODUCTS_REPOSITORY = new InjectionToken<ProductsRepository>('PRODU
  * Mapea un registro de la tabla 'products' de PostgreSQL al modelo de dominio Product.
  */
 export function mapDatabaseProductToProduct(row: any): StoreProduct {
+  const fallbackImg = String(row.image || DEFAULT_PRODUCT_IMAGE);
   const images: string[] =
-    Array.isArray(row.images) && row.images.length > 0 ? row.images : row.image ? [row.image] : [];
+    Array.isArray(row.images) && row.images.length > 0 ? row.images : [fallbackImg];
 
   return {
     number: String(row.number),
@@ -162,7 +165,7 @@ export function mapDatabaseProductToProduct(row: any): StoreProduct {
     shortDescription: String(row.short_description ?? ''),
     price: typeof row.price === 'number' ? row.price : parseFloat(row.price || '0'),
     priceLabel: row.price_label ?? undefined,
-    image: String(row.image ?? ''),
+    image: fallbackImg,
     images,
     imageFit: row.image_fit === 'cover' ? 'cover' : 'contain',
     sourceUrl: row.source_url ?? undefined,
@@ -334,8 +337,11 @@ export class StaticProductsAdapter implements ProductsRepository {
 
   async createProduct(product: StoreProduct): Promise<StoreProduct> {
     const products = await this.getProducts();
+    const fallbackImage = product.image?.trim() ? product.image.trim() : DEFAULT_PRODUCT_IMAGE;
     const newProduct: StoreProduct = {
       ...product,
+      image: fallbackImage,
+      images: product.images?.length ? product.images : [fallbackImage],
       slug: product.slug || slugify(product.name),
       inStock: product.inStock !== false,
       featured: Boolean(product.featured),
@@ -503,6 +509,7 @@ export class SupabaseProductsAdapter implements ProductsRepository {
     }
 
     try {
+      const fallbackImage = product.image?.trim() ? product.image.trim() : DEFAULT_PRODUCT_IMAGE;
       const dbPayload: Record<string, unknown> = {
         number: product.number,
         name: product.name,
@@ -511,8 +518,8 @@ export class SupabaseProductsAdapter implements ProductsRepository {
         short_description: product.shortDescription,
         price: product.price,
         price_label: product.priceLabel ?? null,
-        image: product.image ?? null,
-        images: product.images ?? (product.image ? [product.image] : []),
+        image: fallbackImage,
+        images: product.images?.length ? product.images : [fallbackImage],
         in_stock: product.inStock !== false,
         featured: Boolean(product.featured),
         allergens: product.allergens ?? [],

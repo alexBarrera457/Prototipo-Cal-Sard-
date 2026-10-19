@@ -36,7 +36,7 @@
         role="group"
         [attr.aria-label]="'Fotos de ' + product.name"
       >
-        @for (image of galleryImages; track image; let index = $index) {
+        @for (image of galleryImages; track $index; let index = $index) {
           <button
             type="button"
             [class.active]="activeImageIndex === index"

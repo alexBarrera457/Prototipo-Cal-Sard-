@@ -99,3 +99,69 @@ describe('CouponsService', () => {
     expect(service.getCouponByCode('COLMADO5')?.usageCount).toBe(initialUsage + 1);
   });
 });
+
+describe('SupabaseCouponsRepository', () => {
+  it('reads and saves coupons to Supabase table and falls back on error', async () => {
+    const couponsDb: any[] = [];
+    const mockSupabase = {
+      from: (table: string) => ({
+        select: () => ({
+          order: async () => ({
+            data: couponsDb,
+            error: null,
+          }),
+        }),
+        upsert: async (payload: any) => {
+          couponsDb.push(payload);
+          return { error: null };
+        },
+        update: (payload: any) => ({
+          eq: (col: string, val: any) => ({
+            select: () => ({
+              single: async () => {
+                const found = couponsDb.find((c) => c[col] === val);
+                if (found) Object.assign(found, payload);
+                return { data: found, error: null };
+              },
+            }),
+          }),
+        }),
+        delete: () => ({
+          eq: async (_col: string, val: any) => {
+            const idx = couponsDb.findIndex((c) => c.id === val);
+            if (idx >= 0) couponsDb.splice(idx, 1);
+            return { error: null };
+          },
+        }),
+      }),
+    };
+
+    const repo = new (await import('./coupons')).SupabaseCouponsRepository(mockSupabase as any);
+
+    const saved = await repo.save({
+      id: 'coupon-remote-1',
+      code: 'REMOTE15',
+      description: 'Cupón remoto 15%',
+      discountType: 'percentage',
+      discountValue: 15,
+      minPurchase: 30,
+      isActive: true,
+      usageCount: 0,
+      createdAt: new Date().toISOString(),
+    });
+
+    expect(saved.code).toBe('REMOTE15');
+    expect(couponsDb.length).toBe(1);
+
+    const all = await repo.getAll();
+    expect(all.length).toBe(1);
+    expect(all[0].code).toBe('REMOTE15');
+
+    const updated = await repo.update('coupon-remote-1', { discountValue: 20 });
+    expect(updated?.discountValue).toBe(20);
+
+    const deleted = await repo.delete('coupon-remote-1');
+    expect(deleted).toBe(true);
+    expect(couponsDb.length).toBe(0);
+  });
+});

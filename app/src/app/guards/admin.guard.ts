@@ -21,14 +21,19 @@ export const adminGuard: CanActivateFn = async (
   state: RouterStateSnapshot,
 ): Promise<boolean | UrlTree> => {
   const platformId = inject(PLATFORM_ID);
+  const router = inject(Router);
 
-  // En renderizado en servidor (SSR), diferir la validación al navegador donde reside la sesión (localStorage / token)
+  // En renderizado en servidor (SSR), denegar acceso para evitar fuga de datos sensibles del backoffice
   if (!isPlatformBrowser(platformId)) {
-    return true;
+    return router.createUrlTree(['/cuenta'], {
+      queryParams: {
+        returnUrl: state.url,
+        motivo: 'requiere_identificacion',
+      },
+    });
   }
 
   const auth = inject(AuthService);
-  const router = inject(Router);
 
   // Si aún no se ha cargado el usuario y estamos inicializando en el navegador
   if (!auth.currentUser()) {

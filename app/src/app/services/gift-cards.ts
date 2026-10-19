@@ -1,4 +1,5 @@
-import { Injectable, signal } from '@angular/core';
+import { Inject, Injectable, InjectionToken, Optional, signal } from '@angular/core';
+import { SUPABASE_CLIENT, type SupabaseClient } from './supabase';
 
 export interface GiftCardRecord {
   code: string;
@@ -64,38 +65,237 @@ export const DEFAULT_INITIAL_GIFT_CARDS: GiftCardRecord[] = [
   },
 ];
 
+export const GIFT_CARDS_REPOSITORY = new InjectionToken<GiftCardsRepository>(
+  'GIFT_CARDS_REPOSITORY',
+);
+
+export interface GiftCardsRepository {
+  getAll(): Promise<GiftCardRecord[]>;
+  getByCode(code: string): Promise<GiftCardRecord | null>;
+  save(card: GiftCardRecord): Promise<GiftCardRecord>;
+  update(code: string, updates: Partial<GiftCardRecord>): Promise<GiftCardRecord | null>;
+}
+
+export class InMemoryGiftCardsRepository implements GiftCardsRepository {
+  private cards: GiftCardRecord[];
+
+  constructor(initialCards: GiftCardRecord[] = DEFAULT_INITIAL_GIFT_CARDS) {
+    this.cards = initialCards.map((c) => ({ ...c }));
+  }
+
+  async getAll(): Promise<GiftCardRecord[]> {
+    return [...this.cards];
+  }
+
+  async getByCode(code: string): Promise<GiftCardRecord | null> {
+    const clean = code.trim().toUpperCase();
+    const found = this.cards.find((c) => c.code.toUpperCase() === clean);
+    return found ? { ...found } : null;
+  }
+
+  async save(card: GiftCardRecord): Promise<GiftCardRecord> {
+    const idx = this.cards.findIndex((c) => c.code.toUpperCase() === card.code.toUpperCase());
+    if (idx >= 0) {
+      this.cards[idx] = { ...card };
+    } else {
+      this.cards.unshift({ ...card });
+    }
+    return { ...card };
+  }
+
+  async update(code: string, updates: Partial<GiftCardRecord>): Promise<GiftCardRecord | null> {
+    const clean = code.trim().toUpperCase();
+    const idx = this.cards.findIndex((c) => c.code.toUpperCase() === clean);
+    if (idx === -1) return null;
+    this.cards[idx] = { ...this.cards[idx], ...updates };
+    return { ...this.cards[idx] };
+  }
+}
+
+export class SupabaseGiftCardsRepository implements GiftCardsRepository {
+  private readonly fallbackRepo: GiftCardsRepository;
+
+  constructor(
+    private readonly supabase?: SupabaseClient | null,
+    fallbackRepo?: GiftCardsRepository,
+  ) {
+    this.fallbackRepo = fallbackRepo ?? new InMemoryGiftCardsRepository();
+  }
+
+  async getAll(): Promise<GiftCardRecord[]> {
+    if (!this.supabase) return this.fallbackRepo.getAll();
+    try {
+      const { data, error } = await this.supabase
+        .from('gift_cards')
+        .select('*')
+        .order('created_at', { ascending: false });
+      if (error || !data) return this.fallbackRepo.getAll();
+      return data.map((d: any) => ({
+        code: d.code,
+        initialBalance: Number(d.initial_balance),
+        currentBalance: Number(d.current_balance),
+        senderName: d.sender_name,
+        senderEmail: d.sender_email ?? undefined,
+        recipientName: d.recipient_name,
+        recipientEmail: d.recipient_email,
+        dedication: d.dedication ?? undefined,
+        deliveryDate: d.delivery_date ?? undefined,
+        createdAt: d.created_at,
+        isActive: d.is_active,
+      }));
+    } catch {
+      return this.fallbackRepo.getAll();
+    }
+  }
+
+  async getByCode(code: string): Promise<GiftCardRecord | null> {
+    if (!this.supabase) return this.fallbackRepo.getByCode(code);
+    try {
+      const clean = code.trim().toUpperCase();
+      const { data, error } = await this.supabase
+        .from('gift_cards')
+        .select('*')
+        .eq('code', clean)
+        .maybeSingle();
+      if (error || !data) return this.fallbackRepo.getByCode(code);
+      return {
+        code: data.code,
+        initialBalance: Number(data.initial_balance),
+        currentBalance: Number(data.current_balance),
+        senderName: data.sender_name,
+        senderEmail: data.sender_email ?? undefined,
+        recipientName: data.recipient_name,
+        recipientEmail: data.recipient_email,
+        dedication: data.dedication ?? undefined,
+        deliveryDate: data.delivery_date ?? undefined,
+        createdAt: data.created_at,
+        isActive: data.is_active,
+      };
+    } catch {
+      return this.fallbackRepo.getByCode(code);
+    }
+  }
+
+  async save(card: GiftCardRecord): Promise<GiftCardRecord> {
+    if (!this.supabase) return this.fallbackRepo.save(card);
+    try {
+      const payload: Record<string, any> = {
+        code: card.code,
+        initial_balance: card.initialBalance,
+        current_balance: card.currentBalance,
+        sender_name: card.senderName,
+        sender_email: card.senderEmail ?? null,
+        recipient_name: card.recipientName,
+        recipient_email: card.recipientEmail,
+        dedication: card.dedication ?? null,
+        delivery_date: card.deliveryDate ?? null,
+        is_active: card.isActive,
+        created_at: card.createdAt,
+      };
+      const { error } = await this.supabase.from('gift_cards').upsert(payload);
+      if (error) return this.fallbackRepo.save(card);
+      await this.fallbackRepo.save(card);
+      return card;
+    } catch {
+      return this.fallbackRepo.save(card);
+    }
+  }
+
+  async update(code: string, updates: Partial<GiftCardRecord>): Promise<GiftCardRecord | null> {
+    if (!this.supabase) return this.fallbackRepo.update(code, updates);
+    try {
+      const clean = code.trim().toUpperCase();
+      const payload: Record<string, any> = {};
+      if (updates.currentBalance !== undefined) payload['current_balance'] = updates.currentBalance;
+      if (updates.isActive !== undefined) payload['is_active'] = updates.isActive;
+
+      const { data, error } = await this.supabase
+        .from('gift_cards')
+        .update(payload)
+        .eq('code', clean)
+        .select()
+        .single();
+      if (error || !data) return this.fallbackRepo.update(code, updates);
+      await this.fallbackRepo.update(code, updates);
+      return {
+        code: data.code,
+        initialBalance: Number(data.initial_balance),
+        currentBalance: Number(data.current_balance),
+        senderName: data.sender_name,
+        senderEmail: data.sender_email ?? undefined,
+        recipientName: data.recipient_name,
+        recipientEmail: data.recipient_email,
+        dedication: data.dedication ?? undefined,
+        deliveryDate: data.delivery_date ?? undefined,
+        createdAt: data.created_at,
+        isActive: data.is_active,
+      };
+    } catch {
+      return this.fallbackRepo.update(code, updates);
+    }
+  }
+}
+
 @Injectable({
   providedIn: 'root',
 })
 export class GiftCardsService {
+  private readonly repository: GiftCardsRepository;
   private readonly storageKey = 'cal_sarda_gift_cards';
   readonly cards = signal<GiftCardRecord[]>([]);
 
-  constructor() {
-    this.loadCards();
+  constructor(
+    @Optional() @Inject(GIFT_CARDS_REPOSITORY) repository?: GiftCardsRepository,
+    @Optional() @Inject(SUPABASE_CLIENT) supabaseClient?: SupabaseClient | null,
+  ) {
+    let initialCards = [...DEFAULT_INITIAL_GIFT_CARDS];
+    if (typeof localStorage !== 'undefined') {
+      try {
+        const stored = localStorage.getItem(this.storageKey);
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            initialCards = parsed;
+          }
+        }
+      } catch {
+        // Ignorar errores de lectura
+      }
+    }
+
+    if (repository) {
+      this.repository = repository;
+    } else if (supabaseClient) {
+      this.repository = new SupabaseGiftCardsRepository(
+        supabaseClient,
+        new InMemoryGiftCardsRepository(initialCards),
+      );
+    } else {
+      this.repository = new InMemoryGiftCardsRepository(initialCards);
+    }
+
+    this.cards.set(initialCards);
+    this.syncFromRepository();
+  }
+
+  private async syncFromRepository(): Promise<void> {
+    try {
+      const fromRepo = await this.repository.getAll();
+      if (fromRepo && fromRepo.length > 0) {
+        this.cards.set(fromRepo);
+        this.saveCards();
+      }
+    } catch {
+      // Fallback
+    }
+  }
+
+  getRepository(): GiftCardsRepository {
+    return this.repository;
   }
 
   private loadCards(): void {
-    if (typeof localStorage === 'undefined') {
-      this.cards.set([...DEFAULT_INITIAL_GIFT_CARDS]);
-      return;
-    }
-
-    try {
-      const stored = localStorage.getItem(this.storageKey);
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          this.cards.set(parsed);
-          return;
-        }
-      }
-    } catch {
-      // Ignorar errores de lectura
-    }
-
-    this.cards.set([...DEFAULT_INITIAL_GIFT_CARDS]);
-    this.saveCards();
+    this.syncFromRepository();
   }
 
   private saveCards(): void {
@@ -145,6 +345,7 @@ export class GiftCardsService {
 
     this.cards.update((list) => [newCard, ...list]);
     this.saveCards();
+    this.repository.save(newCard).catch(() => {});
     return newCard;
   }
 
@@ -215,11 +416,22 @@ export class GiftCardsService {
       ),
     );
     this.saveCards();
+    this.repository
+      .update(card.code, { currentBalance: newBalance, isActive: newBalance > 0 })
+      .catch(() => {});
 
     return {
       success: true,
       redeemedAmount: redeemAmount,
       remainingBalance: newBalance,
     };
+  }
+
+  resetToDefaults(): void {
+    this.cards.set([...DEFAULT_INITIAL_GIFT_CARDS]);
+    this.saveCards();
+    for (const card of DEFAULT_INITIAL_GIFT_CARDS) {
+      this.repository.save(card).catch(() => {});
+    }
   }
 }

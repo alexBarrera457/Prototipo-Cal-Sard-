@@ -123,14 +123,19 @@ describe('CheckoutPage', () => {
     expect(component.finalTotal).toBe(13.6);
   });
 
-  it('calculates 7,99 € shipping for Catalonia and 8,99 € for other peninsular provinces', () => {
+  it('calculates shipping costs according to StoreSettings: Barcelona city, Catalonia, peninsula and free shipping', () => {
     component.fulfillment = 'delivery';
 
-    // Barcelona (08)
+    // Barcelona ciudad (08001 - 08042) -> 4.90 €
     component.customer.postalCode = '08013';
+    expect(component.shippingCost).toBe(4.9);
+    expect(component.shippingZoneLabel).toContain('Barcelona ciudad');
+    expect(component.finalTotal).toBeCloseTo(13.6 + 4.9, 2);
+
+    // Rest of Catalonia (08 outside Bcn, 17, 25, 43) -> 7.99 €
+    component.customer.postalCode = '08201'; // Sabadell
     expect(component.shippingCost).toBe(7.99);
     expect(component.shippingZoneLabel).toContain('Cataluña');
-    expect(component.finalTotal).toBeCloseTo(13.6 + 7.99, 2);
 
     // Girona (17)
     component.customer.postalCode = '17001';
@@ -144,7 +149,7 @@ describe('CheckoutPage', () => {
     component.customer.postalCode = '43001';
     expect(component.shippingCost).toBe(7.99);
 
-    // Madrid (28) - Rest of Peninsula
+    // Madrid (28) - Rest of Peninsula -> 8.99 €
     component.customer.postalCode = '28001';
     expect(component.shippingCost).toBe(8.99);
     expect(component.shippingZoneLabel).toContain('Resto península');
@@ -153,6 +158,12 @@ describe('CheckoutPage', () => {
     // Sevilla (41) - Rest of Peninsula
     component.customer.postalCode = '41001';
     expect(component.shippingCost).toBe(8.99);
+
+    // Free shipping threshold (>= 80.00 €)
+    cartService.addToCart('Lote Navideño Cal Sardà', 70.0); // 13.6 + 70.0 = 83.60 €
+    expect(component.shippingCost).toBe(0);
+    expect(component.shippingZoneLabel).toContain('Envío gratuito');
+    expect(component.finalTotal).toBeCloseTo(83.6, 2);
   });
 
   it('allows editing details from preview', () => {
@@ -270,8 +281,8 @@ describe('CheckoutPage', () => {
     expect(confirmationGrid?.textContent).toContain('24-48 horas laborables');
 
     const financials = compiled.querySelector('.confirmation-financials');
-    expect(financials?.textContent).toContain('7.99 €');
-    expect(financials?.textContent).toContain((13.6 + 7.99).toFixed(2));
+    expect(financials?.textContent).toContain('4.90 €');
+    expect(financials?.textContent).toContain((13.6 + 4.9).toFixed(2));
   });
 
   it('handles printing and clipboard copying safely', async () => {
@@ -379,6 +390,39 @@ describe('CheckoutPage', () => {
 
     expect(component.paymentError()).toContain('fondos insuficientes');
     expect(component.confirmedOrder()).toBeNull();
+  });
+
+  it('catches submitOrder errors, displays informative message with transaction ref, and triggers payment rollback', async () => {
+    component.customer = {
+      name: 'Joan Error',
+      email: 'joan@test.cat',
+      phone: '611223344',
+      address: 'Carrer Provença 10',
+      postalCode: '08029',
+      city: 'Barcelona',
+    };
+    component.paymentMethod = 'card';
+    component.card = {
+      number: '4242 4242 4242 4242',
+      exp: '12/28',
+      cvc: '123',
+    };
+
+    component.preparePreview();
+    expect(component.previewReady()).toBe(true);
+
+    const rollbackSpy = vi.spyOn(component.paymentsService, 'rollbackPayment');
+    vi.spyOn(component.ordersService, 'submitOrder').mockRejectedValueOnce(
+      new Error('Supabase database connectivity failure'),
+    );
+
+    await component.confirmOrder();
+
+    expect(component.paymentError()).toBeTruthy();
+    expect(component.paymentError()).toContain('Ref. Transacción:');
+    expect(rollbackSpy).toHaveBeenCalled();
+    expect(component.confirmedOrder()).toBeNull();
+    expect(component.submitting()).toBe(false);
   });
 
   it('prefills customer details, default address and fiscal data from authenticated user on ngOnInit', () => {

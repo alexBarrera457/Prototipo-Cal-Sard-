@@ -38,6 +38,7 @@ export interface CustomLotDefinition {
 }
 
 export interface CartItem {
+  cartItemId?: string;
   name: string;
   price: number;
   quantity: number;
@@ -82,6 +83,8 @@ export type OrderStatus =
   | 'enviado'
   | 'entregado'
   | 'cancelado'
+  | 'proforma'
+  | 'presupuesto'
   | 'pending'
   | 'confirmed'
   | 'shipped'
@@ -181,6 +184,8 @@ export interface Invoice {
   shippingVat: number;
   shippingTotal: number;
   total: number;
+  discount?: number;
+  isCancelled?: boolean;
   paymentMethod?: string;
   fulfillment?: FulfillmentMethod;
 }

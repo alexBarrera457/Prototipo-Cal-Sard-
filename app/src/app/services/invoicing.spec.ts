@@ -165,4 +165,83 @@ describe('InvoicingService', () => {
     expect(html).toContain('Gourmet BCN S.L.');
     expect(html).toContain('B-12345678');
   });
+
+  it('distributes discounts proportionally across tax rates and guarantees strict fiscal invariant', () => {
+    const order: Order = {
+      reference: 'CS-2026-DISC-01',
+      customer: {
+        name: 'Maria Valls',
+        email: 'maria@example.com',
+      },
+      items: [
+        {
+          name: 'Pa de Pagès artesanal', // 4% IVA
+          price: 5.0,
+          quantity: 2, // 10.00 €
+        },
+        {
+          name: 'Café Robusta', // 10% IVA
+          price: 10.0,
+          quantity: 2, // 20.00 €
+        },
+        {
+          name: 'Vino Tinto Priorat', // 21% IVA
+          price: 20.0,
+          quantity: 1, // 20.00 €
+        },
+      ],
+      shippingCost: 5.0, // 21% IVA
+      // Subtotal productos = 50.00 €, Envío = 5.00 €, Total bruto = 55.00 €
+      discount: 10.0, // Cupón 10€
+      giftCardDiscount: 5.0, // Tarjeta 5€
+      total: 40.0, // Total final facturado
+      status: 'confirmed',
+    };
+
+    const invoice = service.generateInvoice(order);
+
+    expect(invoice.total).toBe(40.0);
+    expect(invoice.discount).toBe(15.0);
+
+    // Invariante fiscal legal estricto: subtotalBase + totalVat === total
+    const sumCalculated = Math.round((invoice.subtotalBase + invoice.totalVat) * 100) / 100;
+    expect(sumCalculated).toBe(invoice.total);
+
+    // Cada fila del desglose debe cumplir baseAmount + vatAmount === total
+    for (const item of invoice.taxBreakdown) {
+      const lineSum = Math.round((item.baseAmount + item.vatAmount) * 100) / 100;
+      expect(lineSum).toBe(item.total);
+    }
+
+    // Comprobar que el HTML incluye la línea de descuento
+    const html = service.generateInvoiceHtml(invoice);
+    expect(html).toContain('Descuento aplicado');
+    expect(html).toContain('15,00');
+  });
+
+  it('renders watermark and cancellation banner when order is cancelled', () => {
+    const order: Order = {
+      reference: 'CS-2026-CANCELLED',
+      customer: {
+        name: 'Joan Roig',
+        email: 'joan@example.com',
+      },
+      items: [
+        {
+          name: 'Fuet Artesano',
+          price: 7.5,
+          quantity: 1,
+        },
+      ],
+      total: 7.5,
+      status: 'cancelado',
+    };
+
+    const invoice = service.generateInvoice(order);
+    expect(invoice.isCancelled).toBe(true);
+
+    const html = service.generateInvoiceHtml(invoice);
+    expect(html).toContain('FACTURA ANULADA / ABONO');
+    expect(html).toContain('DOCUMENTO DE ABONO - Pedido cancelado');
+  });
 });

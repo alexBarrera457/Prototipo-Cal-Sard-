@@ -34,6 +34,7 @@ export interface CreateOrderInput {
   giftCardCode?: string;
   subtotal?: number;
   total?: number;
+  status?: OrderStatus;
   scheduledDate?: string;
   scheduledTimeSlot?: string;
   paymentMethod?: string;
@@ -317,8 +318,21 @@ export class SupabaseOrdersRepository implements OrdersRepository {
           ? (globalThis as any).crypto.randomUUID()
           : undefined);
 
+      let currentUserId: string | null = (order as any).userId ?? null;
+      if (!currentUserId && this.supabase?.auth?.getUser) {
+        try {
+          const { data: authData } = await this.supabase.auth.getUser();
+          if (authData?.user?.id) {
+            currentUserId = authData.user.id;
+          }
+        } catch {
+          // Ignorar si auth falla
+        }
+      }
+
       const orderPayload = {
         ...(clientGeneratedId ? { id: clientGeneratedId } : {}),
+        user_id: currentUserId,
         customer_name: order.customer.name,
         customer_email: order.customer.email,
         customer_phone: order.customer.phone ?? null,
@@ -328,6 +342,10 @@ export class SupabaseOrdersRepository implements OrdersRepository {
           shippingZoneLabel: order.shippingZoneLabel,
           shippingCost: order.shippingCost,
           subtotal: order.subtotal,
+          discount: order.discount,
+          couponCode: order.couponCode,
+          giftCardDiscount: order.giftCardDiscount,
+          giftCardCode: order.giftCardCode,
           address: order.customer.address ?? null,
           postalCode: order.customer.postalCode ?? null,
           city: order.customer.city ?? null,
@@ -360,6 +378,7 @@ export class SupabaseOrdersRepository implements OrdersRepository {
           product_name: item.name,
           unit_price: item.price,
           quantity: item.quantity,
+          real_weight_grams: item.realWeightGrams ?? null,
         }));
 
         await this.supabase.from('order_items').insert(itemsPayload);
@@ -401,7 +420,8 @@ export class SupabaseOrdersRepository implements OrdersRepository {
           order_items (
             product_name,
             unit_price,
-            quantity
+            quantity,
+            real_weight_grams
           )
         `);
 
@@ -422,6 +442,9 @@ export class SupabaseOrdersRepository implements OrdersRepository {
             name: it.product_name,
             price: Number(it.unit_price),
             quantity: Number(it.quantity),
+            ...(it.real_weight_grams != null
+              ? { realWeightGrams: Number(it.real_weight_grams), isCutToOrder: true }
+              : {}),
           }))
         : [];
 
@@ -475,7 +498,8 @@ export class SupabaseOrdersRepository implements OrdersRepository {
           order_items (
             product_name,
             unit_price,
-            quantity
+            quantity,
+            real_weight_grams
           )
         `,
         )
@@ -492,6 +516,9 @@ export class SupabaseOrdersRepository implements OrdersRepository {
               name: it.product_name,
               price: Number(it.unit_price),
               quantity: Number(it.quantity),
+              ...(it.real_weight_grams != null
+                ? { realWeightGrams: Number(it.real_weight_grams), isCutToOrder: true }
+                : {}),
             }))
           : [];
 
@@ -559,7 +586,75 @@ export class SupabaseOrdersRepository implements OrdersRepository {
   }
 
   async updateOrder(order: Order): Promise<Order | null> {
-    return this.fallbackRepo.updateOrder ? this.fallbackRepo.updateOrder(order) : null;
+    if (!this.supabase) {
+      return this.fallbackRepo.updateOrder ? this.fallbackRepo.updateOrder(order) : null;
+    }
+
+    try {
+      const orderId = order.id;
+      const ref = order.reference;
+
+      const updateData: Record<string, any> = {
+        total: order.total,
+        status: order.status,
+      };
+
+      if (order.subtotal !== undefined || order.shippingCost !== undefined || ref) {
+        updateData['shipping_address'] = {
+          reference: order.reference,
+          fulfillment: order.fulfillment,
+          shippingZoneLabel: order.shippingZoneLabel,
+          shippingCost: order.shippingCost,
+          subtotal: order.subtotal,
+          discount: order.discount,
+          couponCode: order.couponCode,
+          giftCardDiscount: order.giftCardDiscount,
+          giftCardCode: order.giftCardCode,
+          address: order.customer.address ?? null,
+          postalCode: order.customer.postalCode ?? null,
+          city: order.customer.city ?? null,
+          estimatedDate: order.estimatedDate,
+          paymentMethod: order.paymentMethod,
+        };
+      }
+
+      let query = this.supabase.from('orders').update(updateData);
+      const isUuid =
+        !!orderId &&
+        /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(orderId);
+      if (isUuid) {
+        query = query.eq('id', orderId);
+      } else if (ref) {
+        query = query.filter('shipping_address->>reference', 'eq', ref);
+      } else {
+        return this.fallbackRepo.updateOrder ? this.fallbackRepo.updateOrder(order) : null;
+      }
+
+      const { data: updatedOrderData, error: updateError } = await query.select().single();
+      if (updateError || !updatedOrderData) {
+        return this.fallbackRepo.updateOrder ? this.fallbackRepo.updateOrder(order) : null;
+      }
+
+      const effectiveOrderId = updatedOrderData.id || orderId;
+
+      if (order.items && effectiveOrderId) {
+        for (const item of order.items) {
+          await this.supabase
+            .from('order_items')
+            .update({
+              unit_price: item.price,
+              real_weight_grams: item.realWeightGrams ?? null,
+            })
+            .eq('order_id', effectiveOrderId)
+            .eq('product_name', item.name);
+        }
+      }
+
+      await this.fallbackRepo.updateOrder?.(order);
+      return this.getOrder(ref || effectiveOrderId);
+    } catch {
+      return this.fallbackRepo.updateOrder ? this.fallbackRepo.updateOrder(order) : null;
+    }
   }
 }
 
@@ -827,11 +922,12 @@ export class OrdersService {
       (input.paymentMethodType && input.paymentMethodType !== 'store' ? 'confirmed' : 'pending');
 
     const status: OrderStatus =
-      input.paymentMethodType &&
+      input.status ??
+      (input.paymentMethodType &&
       input.paymentMethodType !== 'store' &&
       paymentStatus === 'confirmed'
         ? 'en_preparacion'
-        : 'confirmed';
+        : 'confirmed');
 
     const order: Order = {
       reference,
@@ -866,7 +962,11 @@ export class OrdersService {
     ]);
 
     try {
-      await this.notificationService.sendOrderConfirmationNotifications(saved);
+      if (saved.status === 'proforma' || saved.status === 'presupuesto') {
+        await this.notificationService.sendProformaQuoteNotifications(saved);
+      } else {
+        await this.notificationService.sendOrderConfirmationNotifications(saved);
+      }
     } catch (err) {
       console.warn('Fallo al despachar notificación de pedido:', err);
     }

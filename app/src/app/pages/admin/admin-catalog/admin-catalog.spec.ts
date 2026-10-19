@@ -5,6 +5,7 @@ import { AdminCatalog } from './admin-catalog';
 import {
   ProductsService,
   PRODUCTS_REPOSITORY,
+  DEFAULT_PRODUCT_IMAGE,
   type ProductsRepository,
   type StoreProduct,
 } from '../../../services/products';
@@ -274,6 +275,24 @@ describe('AdminCatalog', () => {
     expect(component.isCreatingProduct()).toBe(false);
     expect(component.allProducts().length).toBe(4);
     expect(component.allProducts()[0].name).toBe('Pa de Pagès Tradicional de Fusta');
+  });
+
+  it('assigns DEFAULT_PRODUCT_IMAGE when creating a product without image', async () => {
+    component.openCreateModal();
+    component.createForm.number = '05';
+    component.createForm.name = 'Producto sin foto';
+    component.createForm.price = 5.0;
+    component.createForm.image = '';
+
+    await component.createProduct();
+
+    expect(mockRepo.createProduct).toHaveBeenCalledWith(
+      expect.objectContaining({
+        number: '05',
+        name: 'Producto sin foto',
+        image: DEFAULT_PRODUCT_IMAGE,
+      }),
+    );
   });
 
   it('opens delete confirmation and deletes product from catalog', async () => {

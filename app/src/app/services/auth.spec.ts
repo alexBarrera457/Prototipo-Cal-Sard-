@@ -232,6 +232,7 @@ describe('SupabaseAuthAdapter', () => {
         signUp: vi.fn(),
         signOut: vi.fn().mockResolvedValue({ error: null }),
         resetPasswordForEmail: vi.fn(),
+        updateUser: vi.fn().mockResolvedValue({ data: {}, error: null }),
       },
       from: vi.fn().mockReturnValue({
         select: vi.fn().mockReturnValue({
@@ -246,6 +247,9 @@ describe('SupabaseAuthAdapter', () => {
               error: null,
             }),
           }),
+        }),
+        update: vi.fn().mockReturnValue({
+          eq: vi.fn().mockResolvedValue({ error: null }),
         }),
       }),
     };
@@ -295,6 +299,89 @@ describe('SupabaseAuthAdapter', () => {
 
     expect(result.success).toBe(false);
     expect(result.error).toBe('Invalid credentials');
+  });
+
+  it('persists and retrieves addresses, fiscalData, preferences, and favorites in database and auth metadata', async () => {
+    let capturedProfileUpdates: any = null;
+    let capturedAuthUpdates: any = null;
+
+    mockSupabase.from = vi.fn().mockReturnValue({
+      update: vi.fn().mockImplementation((payload: any) => {
+        capturedProfileUpdates = payload;
+        return {
+          eq: vi.fn().mockResolvedValue({ error: null }),
+        };
+      }),
+      select: vi.fn().mockReturnValue({
+        eq: vi.fn().mockReturnValue({
+          maybeSingle: vi.fn().mockImplementation(async () => ({
+            data: {
+              id: 'sb-usr-1',
+              email: 'test@sb.cat',
+              name: capturedProfileUpdates?.name ?? 'Test SB DB',
+              role: 'customer',
+              addresses: capturedProfileUpdates?.addresses ?? [],
+              fiscal_data: capturedProfileUpdates?.fiscal_data ?? {},
+              preferences: capturedProfileUpdates?.preferences ?? {},
+              favorites: capturedProfileUpdates?.favorites ?? [],
+            },
+            error: null,
+          })),
+        }),
+      }),
+    });
+
+    mockSupabase.auth.updateUser = vi.fn().mockImplementation(async (arg: any) => {
+      capturedAuthUpdates = arg.data;
+      return { data: {}, error: null };
+    });
+
+    const updatePayload: Partial<UserProfile> = {
+      name: 'Joan Cal Sardà',
+      addresses: [
+        {
+          id: 'addr-1',
+          alias: 'Casa',
+          street: 'Carrer Marina 237',
+          postalCode: '08013',
+          city: 'Barcelona',
+          isDefault: true,
+        },
+      ],
+      fiscalData: {
+        companyName: 'Cal Sarda SL',
+        taxId: 'B12345678',
+        address: 'Carrer Marina 237',
+      },
+      preferences: {
+        cutThickness: 'muy_fino',
+        packaging: 'vacio_100g',
+        allergens: ['gluten'],
+      },
+      favorites: ['prod-001', 'prod-002'],
+    };
+
+    const res = await adapter.updateProfile(updatePayload);
+
+    expect(res.success).toBe(true);
+    expect(res.user?.name).toBe('Joan Cal Sardà');
+    expect(res.user?.addresses?.length).toBe(1);
+    expect(res.user?.addresses?.[0].street).toBe('Carrer Marina 237');
+    expect(res.user?.fiscalData?.taxId).toBe('B12345678');
+    expect(res.user?.preferences?.cutThickness).toBe('muy_fino');
+    expect(res.user?.favorites).toEqual(['prod-001', 'prod-002']);
+
+    // Check captured database updates
+    expect(capturedProfileUpdates.addresses.length).toBe(1);
+    expect(capturedProfileUpdates.fiscal_data.taxId).toBe('B12345678');
+    expect(capturedProfileUpdates.preferences.cutThickness).toBe('muy_fino');
+    expect(capturedProfileUpdates.favorites).toEqual(['prod-001', 'prod-002']);
+
+    // Check captured auth metadata updates
+    expect(capturedAuthUpdates.addresses.length).toBe(1);
+    expect(capturedAuthUpdates.fiscalData.taxId).toBe('B12345678');
+    expect(capturedAuthUpdates.preferences.cutThickness).toBe('muy_fino');
+    expect(capturedAuthUpdates.favorites).toEqual(['prod-001', 'prod-002']);
   });
 });
 

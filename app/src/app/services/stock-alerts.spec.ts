@@ -157,3 +157,69 @@ describe('StockAlertService', () => {
     expect(service.getWaitingCount('01')).toBe(0);
   });
 });
+
+describe('SupabaseStockAlertsRepository', () => {
+  it('saves, reads and updates stock alerts in Supabase table and falls back gracefully', async () => {
+    const alertsDb: any[] = [];
+    const mockSupabase = {
+      from: (table: string) => ({
+        select: () => ({
+          order: async () => ({
+            data: alertsDb,
+            error: null,
+          }),
+        }),
+        upsert: async (payload: any) => {
+          alertsDb.push(payload);
+          return { error: null };
+        },
+        update: (payload: any) => ({
+          eq: (col: string, val: any) => ({
+            select: () => ({
+              single: async () => {
+                const found = alertsDb.find((c) => c[col] === val);
+                if (found) Object.assign(found, payload);
+                return { data: found, error: null };
+              },
+            }),
+          }),
+        }),
+        delete: () => ({
+          eq: async (_col: string, val: any) => {
+            const idx = alertsDb.findIndex((c) => c.id === val);
+            if (idx >= 0) alertsDb.splice(idx, 1);
+            return { error: null };
+          },
+        }),
+      }),
+    };
+
+    const repo = new (await import('./stock-alerts')).SupabaseStockAlertsRepository(
+      mockSupabase as any,
+    );
+
+    const saved = await repo.save({
+      id: 'alert-remote-1',
+      productNumber: '08',
+      productName: 'Formatge Tou dels Til·lers',
+      contact: 'test@colmado.cat',
+      channel: 'email',
+      status: 'pending',
+      createdAt: new Date().toISOString(),
+    });
+
+    expect(saved.id).toBe('alert-remote-1');
+    expect(alertsDb.length).toBe(1);
+
+    const all = await repo.getAll();
+    expect(all.length).toBe(1);
+    expect(all[0].productName).toBe('Formatge Tou dels Til·lers');
+
+    const updated = await repo.update('alert-remote-1', { status: 'notified' });
+    expect(updated?.status).toBe('notified');
+
+    const deleted = await repo.delete('alert-remote-1');
+    expect(deleted).toBe(true);
+    expect(alertsDb.length).toBe(0);
+  });
+});

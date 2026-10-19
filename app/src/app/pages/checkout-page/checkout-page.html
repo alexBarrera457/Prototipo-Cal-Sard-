@@ -846,7 +846,10 @@
             <h2>{{ i18n.t('checkout.step2_title') }}</h2>
           </div>
           <div class="summary-products">
-            @for (product of cartService.products(); track product.name) {
+            @for (
+              product of cartService.products();
+              track product.cartItemId || product.name + '_' + $index
+            ) {
               <article class="summary-product">
                 <img [src]="product.image ?? '/images/history.jpg'" [alt]="product.name" />
                 <div>

@@ -1,7 +1,12 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ProductsService, type StoreProduct, type StoreCategory } from '../../../services/products';
+import {
+  ProductsService,
+  type StoreProduct,
+  type StoreCategory,
+  DEFAULT_PRODUCT_IMAGE,
+} from '../../../services/products';
 import { I18nService } from '../../../services/i18n';
 import { StockAlertService } from '../../../services/stock-alerts';
 
@@ -566,14 +571,15 @@ export class AdminCatalog implements OnInit {
       .map((s) => s.trim())
       .filter(Boolean);
 
+    const finalImage = this.createForm.image.trim() || DEFAULT_PRODUCT_IMAGE;
     const newProd: StoreProduct = {
       number: this.createForm.number.trim(),
       name: this.createForm.name.trim(),
       category: this.createForm.category,
       price: Number(this.createForm.price) || 0,
       priceLabel: this.createForm.priceLabel.trim() || undefined,
-      image: this.createForm.image.trim() || '',
-      images: this.createForm.image.trim() ? [this.createForm.image.trim()] : [],
+      image: finalImage,
+      images: [finalImage],
       shortDescription: this.createForm.shortDescription.trim(),
       description: this.createForm.description.trim() || this.createForm.shortDescription.trim(),
       allergens,

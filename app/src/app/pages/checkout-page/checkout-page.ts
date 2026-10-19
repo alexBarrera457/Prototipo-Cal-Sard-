@@ -17,6 +17,7 @@ import { OrdersService, type Order } from '../../services/orders';
 import { PaymentsService } from '../../services/payments';
 import { ProductsService, type StoreProduct } from '../../services/products';
 import { GiftCardsService, type GiftCardRecord } from '../../services/gift-cards';
+import { StoreSettingsService, DEFAULT_STORE_SETTINGS } from '../../services/store-settings';
 
 export type { FulfillmentMethod, PaymentMethodType };
 
@@ -94,6 +95,7 @@ export class CheckoutPage implements OnInit {
   public readonly giftCardsService = inject(GiftCardsService);
   public readonly authService = inject(AuthService, { optional: true });
   public readonly productsService = inject(ProductsService, { optional: true });
+  public readonly storeSettingsService = inject(StoreSettingsService, { optional: true });
 
   couponCodeInput = '';
   readonly appliedCoupon = signal<Coupon | null>(null);
@@ -385,11 +387,26 @@ export class CheckoutPage implements OnInit {
     if (this.fulfillment === 'pickup') {
       return 0;
     }
+
+    const settings =
+      this.storeSettingsService?.settings().logistics ?? DEFAULT_STORE_SETTINGS.logistics;
+    const subtotal = this.cartService.getTotal();
+
+    if (settings.freeShippingThreshold > 0 && subtotal >= settings.freeShippingThreshold) {
+      return 0;
+    }
+
     const cp = this.customer.postalCode.trim();
     if (this.isValidPostalCode(cp)) {
-      return this.isCataloniaPostalCode(cp) ? 7.99 : 8.99;
+      if (this.isBarcelonaCityPostalCode(cp)) {
+        return settings.shippingCostBcn;
+      }
+      if (this.isCataloniaPostalCode(cp)) {
+        return settings.shippingCostCatalonia;
+      }
+      return settings.shippingCostPeninsula;
     }
-    return 7.99;
+    return settings.shippingCostCatalonia;
   }
 
   get shippingZoneLabel(): string {
@@ -397,14 +414,32 @@ export class CheckoutPage implements OnInit {
     if (this.fulfillment === 'pickup') {
       return isCa ? 'Recollida a la botiga (gratuït)' : 'Recogida en tienda (gratis)';
     }
+
+    const settings =
+      this.storeSettingsService?.settings().logistics ?? DEFAULT_STORE_SETTINGS.logistics;
+    const subtotal = this.cartService.getTotal();
+    const isFree = settings.freeShippingThreshold > 0 && subtotal >= settings.freeShippingThreshold;
+
+    if (isFree) {
+      return isCa ? 'Enviament gratuït' : 'Envío gratuito';
+    }
+
     const cp = this.customer.postalCode.trim();
     if (this.isValidPostalCode(cp)) {
-      if (this.isCataloniaPostalCode(cp)) {
-        return isCa ? 'Catalunya (7,99 €)' : 'Cataluña (7,99 €)';
+      if (this.isBarcelonaCityPostalCode(cp)) {
+        const costStr = settings.shippingCostBcn.toFixed(2).replace('.', ',');
+        return isCa ? `Barcelona ciutat (${costStr} €)` : `Barcelona ciudad (${costStr} €)`;
       }
-      return isCa ? 'Resta península (8,99 €)' : 'Resto península (8,99 €)';
+      if (this.isCataloniaPostalCode(cp)) {
+        const costStr = settings.shippingCostCatalonia.toFixed(2).replace('.', ',');
+        return isCa ? `Catalunya (${costStr} €)` : `Cataluña (${costStr} €)`;
+      }
+      const costStr = settings.shippingCostPeninsula.toFixed(2).replace('.', ',');
+      return isCa ? `Resta península (${costStr} €)` : `Resto península (${costStr} €)`;
     }
-    return isCa ? 'Estimat (Catalunya / Península)' : 'Estimado (Cataluña / Península)';
+
+    const defaultCostStr = settings.shippingCostCatalonia.toFixed(2).replace('.', ',');
+    return isCa ? `Estimat (${defaultCostStr} €)` : `Estimado (${defaultCostStr} €)`;
   }
 
   get finalTotal(): number {
@@ -529,6 +564,15 @@ export class CheckoutPage implements OnInit {
     const prefix = clean.substring(0, 2);
     // Barcelona (08), Girona (17), Lleida (25), Tarragona (43)
     return ['08', '17', '25', '43'].includes(prefix);
+  }
+
+  isBarcelonaCityPostalCode(postalCode: string): boolean {
+    const clean = postalCode.trim();
+    if (!this.isValidPostalCode(clean)) {
+      return false;
+    }
+    const cpNum = parseInt(clean, 10);
+    return cpNum >= 8001 && cpNum <= 8042;
   }
 
   validate(): boolean {
@@ -694,11 +738,12 @@ export class CheckoutPage implements OnInit {
     this.submitting.set(true);
     this.paymentProcessing.set(true);
     this.paymentError.set(null);
+    let tx: PaymentTransactionResult | null = null;
     try {
       const reference = this.ordersService.generateOrderReference();
 
       // Procesar el pago a través de la pasarela desacoplada
-      const tx = await this.paymentsService.processPayment({
+      tx = await this.paymentsService.processPayment({
         orderReference: reference,
         amount: this.finalTotal,
         currency: 'eur',
@@ -764,6 +809,25 @@ export class CheckoutPage implements OnInit {
       if (isPlatformBrowser(this.platformId)) {
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }
+    } catch (err: unknown) {
+      console.error('Error al formalizar el pedido tras procesar el pago:', err);
+
+      // Si el pago se había cobrado, ejecutar anulación o rollback transaccional
+      if (tx && tx.success && tx.transactionId && this.paymentMethod !== 'store') {
+        try {
+          await this.paymentsService.rollbackPayment(tx.transactionId);
+        } catch (rollbackErr) {
+          console.error('Fallo al ejecutar rollback de la transacción:', rollbackErr);
+        }
+      }
+
+      const txInfo = tx?.transactionId ? ` (Ref. Transacción: ${tx.transactionId})` : '';
+      const isCa = this.i18n.currentLang() === 'ca';
+      const msg = isCa
+        ? `S'ha produït un error en enregistrar la comanda${txInfo}. Si s'ha realitzat cap càrrec, s'ha sol·licitat l'anul·lació automàtica. Si us plau, posa't en contacte amb nosaltres.`
+        : `Se ha producido un error al registrar el pedido${txInfo}. Si se realizó algún cargo, se ha solicitado la anulación automática. Por favor, contacta con nosotros.`;
+
+      this.paymentError.set(msg);
     } finally {
       this.submitting.set(false);
       this.paymentProcessing.set(false);

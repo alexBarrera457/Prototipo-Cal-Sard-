@@ -521,6 +521,86 @@ TOTAL ENCARGO: ${order.total.toFixed(2)} €
     };
   }
 
+  buildProformaCustomerEmail(order: Order): EmailMessage {
+    const fromAddress = `${this.config.senderName} <${this.config.senderEmail}>`;
+    const company = order.customer.companyName || order.customer.name;
+    const subject = `[Cal Sardà] Presupuesto Proforma ${order.reference} - Lotes Corporativos`;
+    const html = `
+      <div style="font-family: sans-serif; color: #1a1a1a; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #8c2423;">Presupuesto Proforma B2B: ${order.reference}</h2>
+        <p>Estimado/a ${order.customer.name} (${company}),</p>
+        <p>Hemos generado el presupuesto proforma solicitado para tu empresa.</p>
+        <p><strong>Importe Total Proforma:</strong> ${order.total.toFixed(2)} €</p>
+        <div style="background: #faf6f0; border-left: 4px solid #8c2423; padding: 14px 16px; margin: 18px 0; border-radius: 4px;">
+          <h4 style="margin: 0 0 8px 0; color: #8c2423;">Instrucciones de Pago por Transferencia:</h4>
+          <p style="margin: 2px 0;"><strong>Banco:</strong> CaixaBank</p>
+          <p style="margin: 2px 0;"><strong>Beneficiario:</strong> Cal Sardà Obrador Gastronòmic S.L.</p>
+          <p style="margin: 2px 0;"><strong>IBAN:</strong> <span style="font-family: monospace; font-size: 14px; font-weight: bold;">ES66 2100 0418 4502 0005 1930</span></p>
+          <p style="margin: 2px 0;"><strong>Concepto obligatorio:</strong> ${order.reference} - ${company}</p>
+        </div>
+        <p style="font-size: 12px; color: #666;">Una vez confirmada la transferencia bancaria en firme, el obrador iniciará el empaquetado y logística de entrega.</p>
+      </div>
+    `.trim();
+
+    const text = `Presupuesto Proforma B2B: ${order.reference}\nEmpresa: ${company}\nTotal: ${order.total.toFixed(2)} €\nIBAN: ES66 2100 0418 4502 0005 1930\nConcepto: ${order.reference} - ${company}`;
+
+    return {
+      to: order.customer.email,
+      from: fromAddress,
+      subject,
+      html,
+      text,
+    };
+  }
+
+  buildProformaStoreEmail(order: Order): EmailMessage {
+    const fromAddress = `${this.config.senderName} <${this.config.senderEmail}>`;
+    const company = order.customer.companyName || order.customer.name;
+    const subject = `[PROFORMA B2B - NO PREPARAR] Solicitud de Presupuesto ${order.reference} - ${company}`;
+    const html = `
+      <div style="font-family: sans-serif; color: #1a1a1a; max-width: 600px; margin: 0 auto;">
+        <div style="background: #fef3c7; border: 2px solid #f59e0b; padding: 14px; border-radius: 6px; margin-bottom: 16px;">
+          <h3 style="color: #92400e; margin: 0 0 6px 0;">⚠️ SOLICITUD DE PRESUPUESTO PROFORMA (NO PREPARAR TODAVÍA)</h3>
+          <p style="margin: 0; color: #78350f; font-size: 13px;">
+            Este encargo es un presupuesto comercial B2B. No se debe preparar físicamente en obrador hasta comprobar la recepción del pago por transferencia bancaria.
+          </p>
+        </div>
+        <p><strong>Referencia:</strong> ${order.reference}</p>
+        <p><strong>Empresa / Contacto:</strong> ${company} (${order.customer.email})</p>
+        <p><strong>NIF / CIF:</strong> ${order.customer.taxId || 'No indicado'}</p>
+        <p><strong>Importe previsto:</strong> ${order.total.toFixed(2)} €</p>
+      </div>
+    `.trim();
+
+    const text = `⚠️ SOLICITUD DE PRESUPUESTO PROFORMA (${order.reference}) - NO PREPARAR TODAVÍA FÍSICAMENTE.\nEmpresa: ${company}\nImporte: ${order.total.toFixed(2)} €`;
+
+    return {
+      to: this.config.storeEmail,
+      from: fromAddress,
+      subject,
+      html,
+      text,
+      replyTo: order.customer.email,
+    };
+  }
+
+  async sendProformaQuoteNotifications(
+    order: Order,
+  ): Promise<{ customerNotification: SendEmailResult; storeNotification: SendEmailResult }> {
+    const customerEmail = this.buildProformaCustomerEmail(order);
+    const storeEmail = this.buildProformaStoreEmail(order);
+
+    const [customerRes, storeRes] = await Promise.all([
+      this.adapter.sendEmail(customerEmail),
+      this.adapter.sendEmail(storeEmail),
+    ]);
+
+    return {
+      customerNotification: customerRes,
+      storeNotification: storeRes,
+    };
+  }
+
   /**
    * Obtiene los textos y etiquetas bilingües según el estado del pedido y modalidad.
    */
@@ -583,6 +663,16 @@ TOTAL ENCARGO: ${order.total.toFixed(2)} €
               'Et confirmem que la comanda ha estat cancel·lada segons s’ha sol·licitat o acordat.',
             instructions:
               'Si creus que és un error o vols formalitzar una nova comanda, truca’ns al 93 232 55 08.',
+          };
+        case 'proforma':
+        case 'presupuesto':
+          return {
+            subject: 'Pressupost Proforma emès - Cal Sardà',
+            badge: 'PROFORMA B2B',
+            headline: 'Pressupost Proforma generat',
+            message: 'Hem generat el teu pressupost proforma oficial per a la teva empresa.',
+            instructions:
+              'Pots tramitar la transferència bancària amb el número de proforma com a concepte per iniciar la preparació.',
           };
         case 'recibido':
         case 'confirmed':
@@ -652,6 +742,16 @@ TOTAL ENCARGO: ${order.total.toFixed(2)} €
             'Te confirmamos que el encargo ha sido cancelado según lo solicitado o convenido.',
           instructions:
             'Si crees que se trata de un error o deseas realizar un nuevo encargo, por favor llámanos al 93 232 55 08.',
+        };
+      case 'proforma':
+      case 'presupuesto':
+        return {
+          subject: 'Presupuesto Proforma emitido - Cal Sardà',
+          badge: 'PROFORMA B2B',
+          headline: 'Presupuesto Proforma generado',
+          message: 'Hemos generado el presupuesto proforma oficial solicitado para tu empresa.',
+          instructions:
+            'Puedes tramitar la transferencia bancaria indicando la referencia de la proforma como concepto para confirmar el encargo.',
         };
       case 'recibido':
       case 'confirmed':

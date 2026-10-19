@@ -87,6 +87,7 @@ export class AdminOrders {
       enviado: 0,
       entregado: 0,
       cancelado: 0,
+      proforma: 0,
     };
 
     for (const order of orders) {
@@ -120,6 +121,9 @@ export class AdminOrders {
       case 'cancelled':
       case 'cancelado':
         return 'cancelado';
+      case 'proforma':
+      case 'presupuesto':
+        return 'proforma';
       default:
         return 'recibido';
     }
@@ -198,6 +202,8 @@ export class AdminOrders {
         return 'badge-delivered';
       case 'cancelado':
         return 'badge-cancelled';
+      case 'proforma':
+        return 'badge-proforma';
       default:
         return 'badge-received';
     }
@@ -218,6 +224,8 @@ export class AdminOrders {
         return this.i18n.t('admin.status_entregado');
       case 'cancelado':
         return this.i18n.t('admin.status_cancelado');
+      case 'proforma':
+        return 'Proforma B2B (Pendiente pago)';
       default:
         return this.i18n.t('admin.status_recibido');
     }

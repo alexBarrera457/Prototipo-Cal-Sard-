@@ -12,6 +12,7 @@ import type {
  */
 export interface PaymentGatewayAdapter {
   processPayment(request: PaymentIntentRequest): Promise<PaymentTransactionResult>;
+  voidPayment?(transactionId: string): Promise<boolean>;
 }
 
 export const PAYMENT_GATEWAY_ADAPTER = new InjectionToken<PaymentGatewayAdapter>(
@@ -24,6 +25,10 @@ export const PAYMENT_GATEWAY_ADAPTER = new InjectionToken<PaymentGatewayAdapter>
  */
 @Injectable()
 export class MockPaymentGatewayAdapter implements PaymentGatewayAdapter {
+  async voidPayment(_transactionId: string): Promise<boolean> {
+    return true;
+  }
+
   async processPayment(request: PaymentIntentRequest): Promise<PaymentTransactionResult> {
     // Simulación de latencia de red bancaria (50ms para rapidez en tests)
     await new Promise((resolve) => setTimeout(resolve, 50));
@@ -207,6 +212,20 @@ export class PaymentsService {
     } finally {
       this.isProcessing.set(false);
     }
+  }
+
+  /**
+   * Ejecuta la anulación / rollback de una transacción de cobro si la pasarela lo soporta.
+   */
+  async rollbackPayment(transactionId: string): Promise<boolean> {
+    if (this.adapter.voidPayment) {
+      try {
+        return await this.adapter.voidPayment(transactionId);
+      } catch {
+        return false;
+      }
+    }
+    return true;
   }
 
   /**

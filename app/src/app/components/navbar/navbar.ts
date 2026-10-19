@@ -377,18 +377,20 @@ export class Navbar {
     this.cartLiveMessage.set(`${name}: una unidad añadida. Total: ${currentQuantity + 1}.`);
   }
 
-  decreaseCartItem(name: string, currentQuantity: number): void {
-    this.cartService.removeFromCart(name);
+  decreaseCartItem(identifier: string, currentQuantity: number, name?: string): void {
+    this.cartService.removeFromCart(identifier);
+    const label = name || identifier;
     if (currentQuantity > 1) {
-      this.cartLiveMessage.set(`${name}: una unidad restada. Total: ${currentQuantity - 1}.`);
+      this.cartLiveMessage.set(`${label}: una unidad restada. Total: ${currentQuantity - 1}.`);
     } else {
-      this.cartLiveMessage.set(`${name} eliminado de la cesta.`);
+      this.cartLiveMessage.set(`${label} eliminado de la cesta.`);
     }
   }
 
-  deleteCartItem(name: string): void {
-    this.cartService.deleteProduct(name);
-    this.cartLiveMessage.set(`${name} eliminado de la cesta.`);
+  deleteCartItem(identifier: string, name?: string): void {
+    this.cartService.deleteCartItem(identifier);
+    const label = name || identifier;
+    this.cartLiveMessage.set(`${label} eliminado de la cesta.`);
     void this.loadCartPairings();
   }
 

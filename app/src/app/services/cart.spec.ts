@@ -34,7 +34,7 @@ describe('CartService', () => {
     service.addToCart('Almejas Dardo', 7.15);
 
     expect(service.products().length).toBe(2);
-    expect(service.products()[1]).toEqual({
+    expect(service.products()[1]).toMatchObject({
       name: 'Almejas Dardo',
       price: 7.15,
       quantity: 1,
@@ -80,6 +80,42 @@ describe('CartService', () => {
 
     expect(service.products()).toEqual([]);
     expect(service.count()).toBe(0);
+  });
+
+  it('assigns unique cartItemId to added items and allows deleting by cartItemId', () => {
+    service.addToCart('Vino Tinto', 12.0);
+    const vino = service.products().find((p) => p.name === 'Vino Tinto')!;
+    expect(vino.cartItemId).toBeTruthy();
+
+    service.deleteCartItem(vino.cartItemId!);
+    expect(service.products().find((p) => p.name === 'Vino Tinto')).toBeUndefined();
+  });
+
+  it('handles multiple custom lots with same name as independent line items', () => {
+    const lotA = {
+      packagingId: 'box-1',
+      packagingName: 'Caja Regalo',
+      packagingPrice: 5.0,
+      items: [],
+    };
+    const lotB = {
+      packagingId: 'box-2',
+      packagingName: 'Cesta Madera',
+      packagingPrice: 7.0,
+      items: [],
+    };
+
+    service.addToCart('Lote a Medida', 30.0, 1, 'CUSTOM', undefined, lotA);
+    service.addToCart('Lote a Medida', 45.0, 1, 'CUSTOM', undefined, lotB);
+
+    const items = service.products().filter((p) => p.name === 'Lote a Medida');
+    expect(items.length).toBe(2);
+    expect(items[0].cartItemId).not.toBe(items[1].cartItemId);
+
+    service.deleteCartItem(items[0].cartItemId!);
+    const remaining = service.products().filter((p) => p.name === 'Lote a Medida');
+    expect(remaining.length).toBe(1);
+    expect(remaining[0].price).toBe(45.0);
   });
 
   it('clears all products with clearCart', () => {

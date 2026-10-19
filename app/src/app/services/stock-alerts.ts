@@ -1,7 +1,8 @@
 import { isPlatformBrowser } from '@angular/common';
-import { Inject, Injectable, PLATFORM_ID, inject, signal } from '@angular/core';
+import { Inject, Injectable, InjectionToken, Optional, PLATFORM_ID, signal } from '@angular/core';
 import type { StoreProduct } from './products';
 import { NotificationService } from './notifications';
+import { SUPABASE_CLIENT, type SupabaseClient } from './supabase';
 
 export type StockAlertChannel = 'whatsapp' | 'email';
 
@@ -44,10 +45,168 @@ export interface RestockAlertEvent {
   timestamp: string;
 }
 
+export const STOCK_ALERTS_REPOSITORY = new InjectionToken<StockAlertsRepository>(
+  'STOCK_ALERTS_REPOSITORY',
+);
+
+export interface StockAlertsRepository {
+  getAll(): Promise<StockAlertSubscription[]>;
+  save(subscription: StockAlertSubscription): Promise<StockAlertSubscription>;
+  update(
+    id: string,
+    updates: Partial<StockAlertSubscription>,
+  ): Promise<StockAlertSubscription | null>;
+  delete(id: string): Promise<boolean>;
+}
+
+export class InMemoryStockAlertsRepository implements StockAlertsRepository {
+  private subscriptions: StockAlertSubscription[] = [];
+
+  constructor(initial: StockAlertSubscription[] = []) {
+    this.subscriptions = [...initial];
+  }
+
+  async getAll(): Promise<StockAlertSubscription[]> {
+    return [...this.subscriptions];
+  }
+
+  async save(sub: StockAlertSubscription): Promise<StockAlertSubscription> {
+    const idx = this.subscriptions.findIndex((s) => s.id === sub.id);
+    if (idx >= 0) {
+      this.subscriptions[idx] = { ...sub };
+    } else {
+      this.subscriptions.unshift({ ...sub });
+    }
+    return { ...sub };
+  }
+
+  async update(
+    id: string,
+    updates: Partial<StockAlertSubscription>,
+  ): Promise<StockAlertSubscription | null> {
+    const idx = this.subscriptions.findIndex((s) => s.id === id);
+    if (idx === -1) return null;
+    this.subscriptions[idx] = { ...this.subscriptions[idx], ...updates };
+    return { ...this.subscriptions[idx] };
+  }
+
+  async delete(id: string): Promise<boolean> {
+    const prev = this.subscriptions.length;
+    this.subscriptions = this.subscriptions.filter((s) => s.id !== id);
+    return this.subscriptions.length !== prev;
+  }
+}
+
+export class SupabaseStockAlertsRepository implements StockAlertsRepository {
+  private readonly fallbackRepo: StockAlertsRepository;
+
+  constructor(
+    private readonly supabase?: SupabaseClient | null,
+    fallbackRepo?: StockAlertsRepository,
+  ) {
+    this.fallbackRepo = fallbackRepo ?? new InMemoryStockAlertsRepository();
+  }
+
+  async getAll(): Promise<StockAlertSubscription[]> {
+    if (!this.supabase) return this.fallbackRepo.getAll();
+    try {
+      const { data, error } = await this.supabase
+        .from('stock_alerts')
+        .select('*')
+        .order('created_at', { ascending: false });
+      if (error || !data) return this.fallbackRepo.getAll();
+      return data.map((d: any) => ({
+        id: d.id,
+        productNumber: d.product_number,
+        productName: d.product_name,
+        contact: d.contact,
+        channel: d.channel as StockAlertChannel,
+        customerName: d.customer_name ?? undefined,
+        status: d.status as 'pending' | 'notified',
+        createdAt: d.created_at,
+        notifiedAt: d.notified_at ?? undefined,
+      }));
+    } catch {
+      return this.fallbackRepo.getAll();
+    }
+  }
+
+  async save(sub: StockAlertSubscription): Promise<StockAlertSubscription> {
+    if (!this.supabase) return this.fallbackRepo.save(sub);
+    try {
+      const payload: Record<string, any> = {
+        id: sub.id,
+        product_number: sub.productNumber,
+        product_name: sub.productName,
+        contact: sub.contact,
+        channel: sub.channel,
+        customer_name: sub.customerName ?? null,
+        status: sub.status,
+        created_at: sub.createdAt,
+        notified_at: sub.notifiedAt ?? null,
+      };
+      const { error } = await this.supabase.from('stock_alerts').upsert(payload);
+      if (error) return this.fallbackRepo.save(sub);
+      await this.fallbackRepo.save(sub);
+      return sub;
+    } catch {
+      return this.fallbackRepo.save(sub);
+    }
+  }
+
+  async update(
+    id: string,
+    updates: Partial<StockAlertSubscription>,
+  ): Promise<StockAlertSubscription | null> {
+    if (!this.supabase) return this.fallbackRepo.update(id, updates);
+    try {
+      const payload: Record<string, any> = {};
+      if (updates.status !== undefined) payload['status'] = updates.status;
+      if (updates.notifiedAt !== undefined) payload['notified_at'] = updates.notifiedAt;
+      if (updates.productName !== undefined) payload['product_name'] = updates.productName;
+
+      const { data, error } = await this.supabase
+        .from('stock_alerts')
+        .update(payload)
+        .eq('id', id)
+        .select()
+        .single();
+      if (error || !data) return this.fallbackRepo.update(id, updates);
+      await this.fallbackRepo.update(id, updates);
+      return {
+        id: data.id,
+        productNumber: data.product_number,
+        productName: data.product_name,
+        contact: data.contact,
+        channel: data.channel as StockAlertChannel,
+        customerName: data.customer_name ?? undefined,
+        status: data.status as 'pending' | 'notified',
+        createdAt: data.created_at,
+        notifiedAt: data.notified_at ?? undefined,
+      };
+    } catch {
+      return this.fallbackRepo.update(id, updates);
+    }
+  }
+
+  async delete(id: string): Promise<boolean> {
+    if (!this.supabase) return this.fallbackRepo.delete(id);
+    try {
+      const { error } = await this.supabase.from('stock_alerts').delete().eq('id', id);
+      if (error) return this.fallbackRepo.delete(id);
+      await this.fallbackRepo.delete(id);
+      return true;
+    } catch {
+      return this.fallbackRepo.delete(id);
+    }
+  }
+}
+
 @Injectable({
   providedIn: 'root',
 })
 export class StockAlertService {
+  private readonly repository: StockAlertsRepository;
   private readonly storageKey = 'cal_sarda_stock_alerts';
   private readonly isBrowser: boolean;
 
@@ -55,11 +214,61 @@ export class StockAlertService {
   readonly activeAlertProduct = signal<StoreProduct | null>(null);
   readonly lastRestockAlert = signal<RestockAlertEvent | null>(null);
 
-  private readonly notificationService = inject(NotificationService, { optional: true });
+  private readonly notificationService?: NotificationService;
 
-  constructor(@Inject(PLATFORM_ID) platformId: object) {
+  constructor(
+    @Inject(PLATFORM_ID) platformId: object,
+    @Optional() @Inject(STOCK_ALERTS_REPOSITORY) repository?: StockAlertsRepository,
+    @Optional() @Inject(SUPABASE_CLIENT) supabaseClient?: SupabaseClient | null,
+    @Optional() notificationService?: NotificationService,
+  ) {
     this.isBrowser = isPlatformBrowser(platformId);
-    this.loadFromStorage();
+    this.notificationService = notificationService ?? undefined;
+
+    let initialSubs: StockAlertSubscription[] = [];
+    if (this.isBrowser) {
+      try {
+        const raw = localStorage.getItem(this.storageKey);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (Array.isArray(parsed)) {
+            initialSubs = parsed;
+          }
+        }
+      } catch {
+        // Fallback
+      }
+    }
+
+    if (repository) {
+      this.repository = repository;
+    } else if (supabaseClient) {
+      this.repository = new SupabaseStockAlertsRepository(
+        supabaseClient,
+        new InMemoryStockAlertsRepository(initialSubs),
+      );
+    } else {
+      this.repository = new InMemoryStockAlertsRepository(initialSubs);
+    }
+
+    this.subscriptions.set(initialSubs);
+    this.syncFromRepository();
+  }
+
+  private async syncFromRepository(): Promise<void> {
+    try {
+      const fromRepo = await this.repository.getAll();
+      if (fromRepo && fromRepo.length > 0) {
+        this.subscriptions.set(fromRepo);
+        this.persistToStorage(fromRepo);
+      }
+    } catch {
+      // Ignorar fallo
+    }
+  }
+
+  getRepository(): StockAlertsRepository {
+    return this.repository;
   }
 
   openAlertModal(product: StoreProduct): void {
@@ -136,6 +345,7 @@ export class StockAlertService {
     const updated = [newSubscription, ...current];
     this.subscriptions.set(updated);
     this.persistToStorage(updated);
+    this.repository.save(newSubscription).catch(() => {});
 
     return {
       success: true,
@@ -192,6 +402,16 @@ export class StockAlertService {
     this.subscriptions.set(updated);
     this.persistToStorage(updated);
 
+    for (const sub of pendingList) {
+      this.repository
+        .update(sub.id, {
+          status: 'notified',
+          notifiedAt: timestamp,
+          productName: productName || sub.productName,
+        })
+        .catch(() => {});
+    }
+
     const alertEvent: RestockAlertEvent = {
       productNumber,
       productName: productName || pendingList[0].productName,
@@ -210,9 +430,11 @@ export class StockAlertService {
     const updated = this.subscriptions().filter((s) => s.id !== id);
     this.subscriptions.set(updated);
     this.persistToStorage(updated);
+    this.repository.delete(id).catch(() => {});
   }
 
   clearSubscriptions(): void {
+    const toDelete = [...this.subscriptions()];
     this.subscriptions.set([]);
     if (this.isBrowser) {
       try {
@@ -220,6 +442,9 @@ export class StockAlertService {
       } catch {
         // Ignorar fallos de acceso
       }
+    }
+    for (const sub of toDelete) {
+      this.repository.delete(sub.id).catch(() => {});
     }
   }
 

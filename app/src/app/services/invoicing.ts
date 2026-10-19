@@ -105,31 +105,74 @@ export class InvoicingService {
     });
 
     // 2. Gastos de envío (IVA General 21%)
-    const shippingTotal = round2(order.shippingCost ?? 0);
+    const rawShippingTotal = round2(order.shippingCost ?? 0);
     const shippingVatRate = 21;
-    const shippingBase = round2(shippingTotal / (1 + shippingVatRate / 100));
-    const shippingVat = round2(shippingTotal - shippingBase);
 
-    // 3. Agrupar desglose por tipo de IVA
-    const taxMap = new Map<number, { base: number; vat: number; total: number }>();
-
+    // 3. Distribución proporcional de descuentos sobre bases imponibles
+    const rateGrossMap = new Map<number, number>();
     for (const item of invoiceItems) {
-      const current = taxMap.get(item.vatRate) ?? { base: 0, vat: 0, total: 0 };
-      current.base = round2(current.base + item.baseAmount);
-      current.vat = round2(current.vat + item.vatAmount);
-      current.total = round2(current.total + item.total);
-      taxMap.set(item.vatRate, current);
+      rateGrossMap.set(item.vatRate, round2((rateGrossMap.get(item.vatRate) ?? 0) + item.total));
     }
 
-    if (shippingTotal > 0) {
+    const itemsGrossTotal = round2(invoiceItems.reduce((acc, it) => acc + it.total, 0));
+    const preDiscountTotal = round2(itemsGrossTotal + rawShippingTotal);
+
+    const nominalDiscount = round2((order.discount ?? 0) + (order.giftCardDiscount ?? 0));
+    const targetGrandTotal =
+      typeof order.total === 'number'
+        ? round2(order.total)
+        : round2(Math.max(0, preDiscountTotal - nominalDiscount));
+    const totalDiscount = round2(Math.max(0, preDiscountTotal - targetGrandTotal));
+
+    // El descuento aplica preferentemente al total de productos; el excedente a envíos si corresponde
+    const productDiscount = round2(Math.min(totalDiscount, itemsGrossTotal));
+    const shippingDiscount = round2(
+      Math.min(rawShippingTotal, Math.max(0, totalDiscount - itemsGrossTotal)),
+    );
+
+    const effectiveShippingTotal = round2(Math.max(0, rawShippingTotal - shippingDiscount));
+    const shippingBase = round2(effectiveShippingTotal / (1 + shippingVatRate / 100));
+    const shippingVat = round2(effectiveShippingTotal - shippingBase);
+
+    // Distribuir el descuento de productos proporcionalmente entre los tipos de IVA
+    const sortedRates = Array.from(rateGrossMap.keys()).sort((a, b) => b - a);
+    let remainingDiscountToDistribute = productDiscount;
+    const rateEffectiveGross = new Map<number, number>();
+
+    sortedRates.forEach((vatRate, index) => {
+      const gross = rateGrossMap.get(vatRate)!;
+      if (index === sortedRates.length - 1) {
+        // Remanente exacto en el último grupo para evitar cualquier descuadre de redondeo
+        const discountForRate = remainingDiscountToDistribute;
+        rateEffectiveGross.set(vatRate, round2(Math.max(0, gross - discountForRate)));
+      } else {
+        const proportion = itemsGrossTotal > 0 ? gross / itemsGrossTotal : 0;
+        const discountForRate = round2(productDiscount * proportion);
+        remainingDiscountToDistribute = round2(remainingDiscountToDistribute - discountForRate);
+        rateEffectiveGross.set(vatRate, round2(Math.max(0, gross - discountForRate)));
+      }
+    });
+
+    // 4. Construir taxBreakdown a partir de los importes netos tras descuentos
+    const taxMap = new Map<number, { base: number; vat: number; total: number }>();
+
+    for (const [vatRate, effGross] of rateEffectiveGross.entries()) {
+      if (effGross <= 0 && (rateGrossMap.get(vatRate) ?? 0) === 0) continue;
+      const base = round2(effGross / (1 + vatRate / 100));
+      const vat = round2(effGross - base);
+      taxMap.set(vatRate, { base, vat, total: effGross });
+    }
+
+    if (rawShippingTotal > 0 || effectiveShippingTotal > 0) {
       const current = taxMap.get(shippingVatRate) ?? { base: 0, vat: 0, total: 0 };
       current.base = round2(current.base + shippingBase);
       current.vat = round2(current.vat + shippingVat);
-      current.total = round2(current.total + shippingTotal);
+      current.total = round2(current.total + effectiveShippingTotal);
       taxMap.set(shippingVatRate, current);
     }
 
     const taxBreakdown: TaxBreakdownItem[] = Array.from(taxMap.entries())
+      .filter(([_, val]) => val.total > 0 || val.base > 0)
       .map(([vatRate, val]) => ({
         vatRate,
         baseAmount: round2(val.base),
@@ -138,10 +181,12 @@ export class InvoicingService {
       }))
       .sort((a, b) => a.vatRate - b.vatRate);
 
-    // 4. Totales consolidados
+    // 5. Totales consolidados (invariante fiscal garantizado: subtotalBase + totalVat === grandTotal)
     const subtotalBase = round2(taxBreakdown.reduce((sum, t) => sum + t.baseAmount, 0));
     const totalVat = round2(taxBreakdown.reduce((sum, t) => sum + t.vatAmount, 0));
-    const grandTotal = round2(order.total ?? subtotalBase + totalVat);
+    const grandTotal = round2(subtotalBase + totalVat);
+
+    const isCancelled = order.status === 'cancelado' || order.status === 'cancelled';
 
     const customerName =
       fiscalData?.companyName ||
@@ -175,8 +220,10 @@ export class InvoicingService {
       totalVat,
       shippingBase,
       shippingVat,
-      shippingTotal,
+      shippingTotal: effectiveShippingTotal,
       total: grandTotal,
+      discount: totalDiscount > 0 ? totalDiscount : undefined,
+      isCancelled,
       paymentMethod: order.paymentMethod,
       fulfillment: order.fulfillment,
     };
@@ -234,11 +281,18 @@ export class InvoicingService {
       )
       .join('');
 
+    const isCancelled = Boolean(invoice.isCancelled);
     const isProforma = invoice.invoiceNumber.startsWith('PRF-');
-    const docTitle = isProforma
-      ? `Factura Proforma ${invoice.invoiceNumber} - Cal Sardà`
-      : `Factura Simplificada ${invoice.invoiceNumber} - Cal Sardà`;
-    const docHeading = isProforma ? 'FACTURA PROFORMA (B2B)' : 'FACTURA SIMPLIFICADA';
+    const docTitle = isCancelled
+      ? `Factura Anulada / Abono ${invoice.invoiceNumber} - Cal Sardà`
+      : isProforma
+        ? `Factura Proforma ${invoice.invoiceNumber} - Cal Sardà`
+        : `Factura Simplificada ${invoice.invoiceNumber} - Cal Sardà`;
+    const docHeading = isCancelled
+      ? 'FACTURA ANULADA / ABONO'
+      : isProforma
+        ? 'FACTURA PROFORMA (B2B)'
+        : 'FACTURA SIMPLIFICADA';
 
     return `<!DOCTYPE html>
 <html lang="es">
@@ -256,6 +310,8 @@ export class InvoicingService {
       padding: 24px;
     }
     .invoice-card {
+      position: relative;
+      overflow: hidden;
       max-width: 800px;
       margin: 0 auto;
       border: 1px solid #e5e0d8;
@@ -374,6 +430,17 @@ export class InvoicingService {
 </head>
 <body>
   <div class="invoice-card">
+    ${
+      isCancelled
+        ? `
+    <div style="background-color: #fee2e2; border: 2px solid #ef4444; color: #991b1b; padding: 12px 16px; border-radius: 6px; margin-bottom: 20px; font-weight: 700; text-align: center; font-size: 14px; letter-spacing: 0.05em;">
+      ⚠️ FACTURA ANULADA / DOCUMENTO DE ABONO - Pedido cancelado
+    </div>
+    <div style="position: absolute; top: 40%; left: 8%; transform: rotate(-30deg); font-size: 44px; font-weight: 900; color: rgba(220, 38, 38, 0.16); border: 5px solid rgba(220, 38, 38, 0.2); padding: 14px 28px; pointer-events: none; text-transform: uppercase; z-index: 10;">
+      FACTURA ANULADA / ABONO
+    </div>`
+        : ''
+    }
     <div class="header">
       <div>
         <h1 class="brand-title">CAL SARDÀ</h1>
@@ -422,6 +489,15 @@ export class InvoicingService {
       <tbody>
         ${itemsRows}
         ${shippingRow}
+        ${
+          invoice.discount && invoice.discount > 0
+            ? `
+        <tr style="color: #8c2423; font-weight: 600;">
+          <td colspan="4">Descuento aplicado (Cupón / Tarjeta regalo)</td>
+          <td style="text-align:right;">-${formatCurrency(invoice.discount)}</td>
+        </tr>`
+            : ''
+        }
       </tbody>
     </table>
 

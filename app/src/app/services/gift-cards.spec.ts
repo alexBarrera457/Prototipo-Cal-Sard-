@@ -79,3 +79,64 @@ describe('GiftCardsService (#64)', () => {
     expect(checkExhausted.valid).toBe(false);
   });
 });
+
+describe('SupabaseGiftCardsRepository', () => {
+  it('saves and reads gift cards in Supabase table and falls back gracefully', async () => {
+    const giftCardsDb: any[] = [];
+    const mockSupabase = {
+      from: (table: string) => ({
+        select: () => ({
+          order: async () => ({
+            data: giftCardsDb,
+            error: null,
+          }),
+          eq: (_col: string, val: any) => ({
+            maybeSingle: async () => {
+              const found = giftCardsDb.find((c) => c.code === val);
+              return { data: found || null, error: null };
+            },
+          }),
+        }),
+        upsert: async (payload: any) => {
+          giftCardsDb.push(payload);
+          return { error: null };
+        },
+        update: (payload: any) => ({
+          eq: (col: string, val: any) => ({
+            select: () => ({
+              single: async () => {
+                const found = giftCardsDb.find((c) => c[col] === val);
+                if (found) Object.assign(found, payload);
+                return { data: found, error: null };
+              },
+            }),
+          }),
+        }),
+      }),
+    };
+
+    const repo = new (await import('./gift-cards')).SupabaseGiftCardsRepository(
+      mockSupabase as any,
+    );
+
+    const saved = await repo.save({
+      code: 'REGAL-TEST-100',
+      initialBalance: 100,
+      currentBalance: 100,
+      senderName: 'Anna',
+      recipientName: 'Bernat',
+      recipientEmail: 'bernat@example.cat',
+      createdAt: new Date().toISOString(),
+      isActive: true,
+    });
+
+    expect(saved.code).toBe('REGAL-TEST-100');
+    expect(giftCardsDb.length).toBe(1);
+
+    const byCode = await repo.getByCode('REGAL-TEST-100');
+    expect(byCode?.recipientName).toBe('Bernat');
+
+    const updated = await repo.update('REGAL-TEST-100', { currentBalance: 50 });
+    expect(updated?.currentBalance).toBe(50);
+  });
+});

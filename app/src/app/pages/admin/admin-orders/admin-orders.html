@@ -136,6 +136,15 @@
       <span>{{ i18n.t('admin.status_cancelado') }}</span>
       <span class="pill-count">{{ statusCounts().cancelado }}</span>
     </button>
+    <button
+      type="button"
+      class="status-pill pill-proforma"
+      [class.active]="statusFilter() === 'proforma'"
+      (click)="setStatusFilter('proforma')"
+    >
+      <span>Proformas B2B</span>
+      <span class="pill-count">{{ statusCounts().proforma }}</span>
+    </button>
   </nav>
 
   <!-- Listado / Tabla de Pedidos -->
@@ -263,7 +272,17 @@
                 <td class="td-actions">
                   <div class="action-buttons-group">
                     <!-- Botón de avance según estado actual -->
-                    @if (normalizeStatus(order.status) === 'recibido') {
+                    @if (normalizeStatus(order.status) === 'proforma') {
+                      <button
+                        type="button"
+                        class="btn-action btn-advance"
+                        (click)="advanceStatus(order, 'recibido')"
+                        [disabled]="updatingOrderRef() === order.reference"
+                        title="Confirmar recepción de transferencia y pasar a recibido"
+                      >
+                        💳 Confirmar Pago
+                      </button>
+                    } @else if (normalizeStatus(order.status) === 'recibido') {
                       <button
                         type="button"
                         class="btn-action btn-advance"
@@ -635,7 +654,15 @@
       <footer class="modal-footer">
         <div class="modal-footer-status-actions">
           <span class="actions-label">Avanzar estado:</span>
-          @if (normalizeStatus(order.status) === 'recibido') {
+          @if (normalizeStatus(order.status) === 'proforma') {
+            <button
+              type="button"
+              class="btn-modal-action btn-ready"
+              (click)="advanceStatus(order, 'recibido')"
+            >
+              💳 Confirmar Pago y Pasar a Recibido
+            </button>
+          } @else if (normalizeStatus(order.status) === 'recibido') {
             <button
               type="button"
               class="btn-modal-action btn-prep"

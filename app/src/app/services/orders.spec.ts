@@ -16,6 +16,12 @@ function createMockSupabaseClient() {
   const client = {
     ordersDb,
     orderItemsDb,
+    auth: {
+      getUser: vi.fn().mockResolvedValue({
+        data: { user: { id: 'usr-auth-test-uuid' } },
+        error: null,
+      }),
+    },
     from: (table: string) => {
       if (table === 'orders') {
         return {
@@ -32,6 +38,28 @@ function createMockSupabaseClient() {
               },
             }),
           }),
+          update: (updates: any) => {
+            let matched: any = null;
+            const chain: any = {
+              eq: (col: string, val: any) => {
+                matched = ordersDb.find((o) => o[col] === val);
+                if (matched) Object.assign(matched, updates);
+                return chain;
+              },
+              filter: (_p: string, _op: string, val: any) => {
+                matched = ordersDb.find((o) => o.shipping_address?.reference === val);
+                if (matched) Object.assign(matched, updates);
+                return chain;
+              },
+              select: () => ({
+                single: async () => ({
+                  data: matched ? { ...matched } : null,
+                  error: matched ? null : { message: 'Not found' },
+                }),
+              }),
+            };
+            return chain;
+          },
           select: () => {
             const queryObj: any = {
               eq: (col: string, val: any) => ({
@@ -69,13 +97,35 @@ function createMockSupabaseClient() {
             orderItemsDb.push(...items);
             return { error: null };
           },
+          update: (updates: any) => {
+            let orderId: string | null = null;
+            let productName: string | null = null;
+            const chain: any = {
+              eq: (col: string, val: any) => {
+                if (col === 'order_id') orderId = val;
+                if (col === 'product_name') productName = val;
+                if (orderId && productName) {
+                  const item = orderItemsDb.find(
+                    (it) => it.order_id === orderId && it.product_name === productName,
+                  );
+                  if (item) Object.assign(item, updates);
+                }
+                return chain;
+              },
+            };
+            return chain;
+          },
         };
       }
       throw new Error(`Unexpected table: ${table}`);
     },
   };
 
-  return client as unknown as SupabaseClient & { ordersDb: any[]; orderItemsDb: any[] };
+  return client as unknown as SupabaseClient & {
+    ordersDb: any[];
+    orderItemsDb: any[];
+    auth: { getUser: any };
+  };
 }
 
 describe('OrdersService', () => {
@@ -261,6 +311,7 @@ describe('SupabaseOrdersRepository', () => {
 
     // Verify orders table received record
     expect(mockClient.ordersDb.length).toBe(1);
+    expect(mockClient.ordersDb[0].user_id).toBe('usr-auth-test-uuid');
     expect(mockClient.ordersDb[0].customer_name).toBe('Montserrat Caballe');
     expect(mockClient.ordersDb[0].total).toBe(36.09);
     expect(mockClient.ordersDb[0].shipping_address.reference).toBe('CS-2026-1042');
@@ -432,6 +483,29 @@ describe('SupabaseOrdersRepository', () => {
     expect(notFound).toBeNull();
   });
 
+  it('preserves status: proforma and dispatches proforma quote notifications without confirming order', async () => {
+    const memoryRepo = new InMemoryOrdersRepository();
+    const service = new OrdersService(memoryRepo);
+
+    const proformaSpy = vi.spyOn(service.notifications, 'sendProformaQuoteNotifications');
+    const confirmSpy = vi.spyOn(service.notifications, 'sendOrderConfirmationNotifications');
+
+    const created = await service.submitOrder({
+      reference: 'PRF-2026-9999',
+      customer: { name: 'Empresa Test', companyName: 'Empresa Test SL', email: 'b2b@test.cat' },
+      items: [{ name: 'Lote Navidad Gourmet', price: 60.0, quantity: 10 }],
+      total: 600.0,
+      fulfillment: 'delivery',
+      status: 'proforma',
+      paymentStatus: 'pending',
+    });
+
+    expect(created.status).toBe('proforma');
+    expect(created.paymentStatus).toBe('pending');
+    expect(proformaSpy).toHaveBeenCalledWith(created);
+    expect(confirmSpy).not.toHaveBeenCalled();
+  });
+
   describe('Cut-to-order weighing in obrador (#54)', () => {
     it('correctly identifies cut-to-order products and infers estimated weights', () => {
       const service = new OrdersService(new InMemoryOrdersRepository());
@@ -495,6 +569,59 @@ describe('SupabaseOrdersRepository', () => {
       const fetched = await memoryRepo.getOrder('CS-2026-WEIGH-01');
       expect(fetched?.items[0].realWeightGrams).toBe(220);
       expect(fetched?.total).toBe(35.0);
+    });
+
+    it('persists weighing adjustment to Supabase orders and order_items tables via SupabaseOrdersRepository', async () => {
+      const mockClient = createMockSupabaseClient();
+      const service = new OrdersService(undefined, mockClient);
+
+      const created = await service.submitOrder({
+        customer: { name: 'Josep Roca', email: 'josep@celler.cat' },
+        items: [
+          {
+            name: 'Pernil Ibèric de Bellota 200g',
+            price: 25.0,
+            quantity: 1,
+            estimatedWeightGrams: 200,
+          },
+          {
+            name: 'Formatge d’Ovellla Curat',
+            price: 10.0,
+            quantity: 1,
+          },
+        ],
+        fulfillment: 'pickup',
+      });
+
+      expect(mockClient.ordersDb.length).toBe(1);
+      expect(mockClient.orderItemsDb.length).toBe(2);
+
+      // Scale weight measured in store: 240g instead of 200g (+20% -> 30.0 €)
+      const adjusted = await service.updateOrderWeighing(created.reference!, 0, 240);
+
+      expect(adjusted).not.toBeNull();
+      expect(adjusted?.items[0].realWeightGrams).toBe(240);
+      expect(adjusted?.items[0].price).toBe(30.0);
+      expect(adjusted?.subtotal).toBe(40.0); // 30.0 + 10.0 = 40.0
+      expect(adjusted?.total).toBe(40.0);
+
+      // Verify Supabase orders table received the new total and subtotal
+      expect(mockClient.ordersDb[0].total).toBe(40.0);
+      expect(mockClient.ordersDb[0].shipping_address.subtotal).toBe(40.0);
+
+      // Verify Supabase order_items table received updated unit_price and real_weight_grams
+      const pernilItem = mockClient.orderItemsDb.find(
+        (it) => it.product_name === 'Pernil Ibèric de Bellota 200g',
+      );
+      expect(pernilItem).toBeTruthy();
+      expect(pernilItem.unit_price).toBe(30.0);
+      expect(pernilItem.real_weight_grams).toBe(240);
+
+      // Verify fetching from Supabase repository returns updated weight and price
+      const fetchedFromRepo = await service.getOrder(created.reference!);
+      expect(fetchedFromRepo?.total).toBe(40.0);
+      expect(fetchedFromRepo?.items[0].realWeightGrams).toBe(240);
+      expect(fetchedFromRepo?.items[0].price).toBe(30.0);
     });
   });
 });

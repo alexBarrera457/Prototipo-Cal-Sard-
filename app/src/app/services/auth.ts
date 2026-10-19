@@ -502,18 +502,24 @@ export class SupabaseAuthAdapter implements AuthAdapter {
       }
 
       // 1. Actualizar tabla profiles
+      const profileUpdates: Record<string, any> = {
+        name: data.name,
+        phone: data.phone,
+        address: data.address,
+        postal_code: data.postalCode,
+        city: data.city,
+        province: data.province,
+        country: data.country,
+        updated_at: new Date().toISOString(),
+      };
+      if (data.addresses !== undefined) profileUpdates['addresses'] = data.addresses;
+      if (data.fiscalData !== undefined) profileUpdates['fiscal_data'] = data.fiscalData;
+      if (data.preferences !== undefined) profileUpdates['preferences'] = data.preferences;
+      if (data.favorites !== undefined) profileUpdates['favorites'] = data.favorites;
+
       const { error: profileError } = await this.supabase
         .from('profiles')
-        .update({
-          name: data.name,
-          phone: data.phone,
-          address: data.address,
-          postal_code: data.postalCode,
-          city: data.city,
-          province: data.province,
-          country: data.country,
-          updated_at: new Date().toISOString(),
-        })
+        .update(profileUpdates)
         .eq('id', user.id);
 
       if (profileError) {
@@ -521,16 +527,22 @@ export class SupabaseAuthAdapter implements AuthAdapter {
       }
 
       // 2. Actualizar metadata de auth
+      const authDataUpdates: Record<string, any> = {
+        name: data.name,
+        phone: data.phone,
+        address: data.address,
+        postalCode: data.postalCode,
+        city: data.city,
+        province: data.province,
+        country: data.country,
+      };
+      if (data.addresses !== undefined) authDataUpdates['addresses'] = data.addresses;
+      if (data.fiscalData !== undefined) authDataUpdates['fiscalData'] = data.fiscalData;
+      if (data.preferences !== undefined) authDataUpdates['preferences'] = data.preferences;
+      if (data.favorites !== undefined) authDataUpdates['favorites'] = data.favorites;
+
       await this.supabase.auth.updateUser({
-        data: {
-          name: data.name,
-          phone: data.phone,
-          address: data.address,
-          postalCode: data.postalCode,
-          city: data.city,
-          province: data.province,
-          country: data.country,
-        },
+        data: authDataUpdates,
       });
 
       const updated = await this.fetchProfile(user.id, user.email ?? '', {
@@ -614,6 +626,13 @@ export class SupabaseAuthAdapter implements AuthAdapter {
           province: data.province ?? (metadata?.['province'] as string),
           country: data.country ?? (metadata?.['country'] as string) ?? 'España',
           role: (data.role as UserRole) ?? (metadata?.['role'] as UserRole) ?? 'customer',
+          addresses:
+            (data.addresses as UserAddress[]) ?? (metadata?.['addresses'] as UserAddress[]) ?? [],
+          fiscalData: (data.fiscal_data as FiscalData) ?? (metadata?.['fiscalData'] as FiscalData),
+          preferences:
+            (data.preferences as CustomerPreferences) ??
+            (metadata?.['preferences'] as CustomerPreferences),
+          favorites: (data.favorites as string[]) ?? (metadata?.['favorites'] as string[]) ?? [],
           createdAt: data.created_at,
           updatedAt: data.updated_at,
         };
@@ -633,6 +652,10 @@ export class SupabaseAuthAdapter implements AuthAdapter {
       province: metadata?.['province'] as string | undefined,
       country: (metadata?.['country'] as string | undefined) || 'España',
       role: (metadata?.['role'] as UserRole) || 'customer',
+      addresses: (metadata?.['addresses'] as UserAddress[]) || [],
+      fiscalData: metadata?.['fiscalData'] as FiscalData | undefined,
+      preferences: metadata?.['preferences'] as CustomerPreferences | undefined,
+      favorites: (metadata?.['favorites'] as string[]) || [],
     };
   }
 }

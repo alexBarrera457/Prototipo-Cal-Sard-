@@ -67,4 +67,22 @@ describe('adminGuard', () => {
     const urlTree = result as UrlTree;
     expect(urlTree.queryParams['motivo']).toBe('acceso_restringido');
   });
+
+  it('blocks and redirects to /cuenta in SSR/server environment without exposing admin view', async () => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [
+        AuthService,
+        { provide: AUTH_ADAPTER, useValue: mockAdapter },
+        { provide: PLATFORM_ID, useValue: 'server' },
+      ],
+    });
+
+    const result = await TestBed.runInInjectionContext(() => adminGuard(mockRoute, mockState));
+
+    expect(typeof result).not.toBe('boolean');
+    const urlTree = result as UrlTree;
+    expect(urlTree.queryParams['returnUrl']).toBe('/admin/pedidos');
+    expect(urlTree.queryParams['motivo']).toBe('requiere_identificacion');
+  });
 });

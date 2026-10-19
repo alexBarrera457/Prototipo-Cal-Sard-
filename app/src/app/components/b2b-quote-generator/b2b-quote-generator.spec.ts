@@ -93,6 +93,8 @@ describe('B2bQuoteGeneratorComponent', () => {
     expect(submitSpy).toHaveBeenCalled();
     const createdOrder = submitSpy.mock.calls[0][0];
     expect(createdOrder.reference).toContain('PRF-');
+    expect(createdOrder.status).toBe('proforma');
+    expect(createdOrder.paymentStatus).toBe('pending');
     expect(createdOrder.customer.companyName).toBe('Acme Corp S.L.');
     expect(createdOrder.customer.taxId).toBe('B12345678');
     expect(createdOrder.paymentMethod).toBe('Transferencia bancaria B2B');

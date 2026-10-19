@@ -187,6 +187,8 @@ export class B2bQuoteGeneratorComponent {
 
       const orderData: Order = await this.ordersService.submitOrder({
         reference: proformaRef,
+        status: 'proforma',
+        paymentStatus: 'pending',
         customer: {
           name: this.contactPerson.trim() || company,
           companyName: company,

@@ -127,6 +127,7 @@ export class LocalStorageCartAdapter implements CartStorageAdapter {
       typeof item.quantity === 'number' &&
       Number.isInteger(item.quantity) &&
       item.quantity > 0 &&
+      (item.cartItemId === undefined || typeof item.cartItemId === 'string') &&
       (item.productNumber === undefined || typeof item.productNumber === 'string') &&
       (item.image === undefined || typeof item.image === 'string') &&
       (item.customLot === undefined || typeof item.customLot === 'object')
@@ -154,18 +155,32 @@ export class CartService {
   ) {
     this.adapter = customAdapter ?? defaultAdapter ?? new InMemoryCartAdapter();
 
+    const normalizeWithIds = (items: CartProduct[]): CartProduct[] => {
+      return items.map((it, idx) => ({
+        ...it,
+        cartItemId:
+          it.cartItemId || `item-${Date.now()}-${idx}-${Math.random().toString(36).slice(2, 6)}`,
+      }));
+    };
+
     if (this.adapter.init) {
       this.adapter.init((loaded) => {
         if (loaded.length > 0) {
-          this.products.set(loaded);
+          this.products.set(normalizeWithIds(loaded));
         }
       });
     } else {
       const loaded = this.adapter.load();
       if (loaded.length > 0) {
-        this.products.set(loaded);
+        this.products.set(normalizeWithIds(loaded));
       }
     }
+  }
+
+  private generateCartItemId(name: string, productNumber?: string): string {
+    const cleanPrefix = (productNumber || name).slice(0, 8).replace(/[^a-zA-Z0-9_-]/g, '');
+    const rand = Math.random().toString(36).substring(2, 7);
+    return `cart-${cleanPrefix}-${Date.now()}-${rand}`;
   }
 
   addToCart(
@@ -184,7 +199,7 @@ export class CartService {
     if (existingProduct) {
       this.setProducts(
         currentProducts.map((product) =>
-          product.name === name
+          product === existingProduct
             ? {
                 ...product,
                 quantity: product.quantity + quantity,
@@ -197,34 +212,57 @@ export class CartService {
       return;
     }
 
+    const cartItemId = this.generateCartItemId(name, productNumber);
     this.setProducts([
       ...currentProducts,
-      { name, price, quantity, productNumber, image, customLot },
+      { cartItemId, name, price, quantity, productNumber, image, customLot },
     ]);
   }
 
-  removeFromCart(name: string): void {
+  removeCartItem(identifier: string): void {
     const currentProducts = this.products();
-    const product = currentProducts.find((item) => item.name === name);
+    const index = currentProducts.findIndex(
+      (item) => item.cartItemId === identifier || item.name === identifier,
+    );
 
-    if (!product) {
+    if (index === -1) {
       return;
     }
 
-    if (product.quantity > 1) {
-      this.setProducts(
-        currentProducts.map((item) =>
-          item.name === name ? { ...item, quantity: item.quantity - 1 } : item,
-        ),
-      );
+    const item = currentProducts[index];
+    if (item.quantity > 1) {
+      const updated = [...currentProducts];
+      updated[index] = { ...item, quantity: item.quantity - 1 };
+      this.setProducts(updated);
       return;
     }
 
-    this.deleteProduct(name);
+    this.deleteCartItem(identifier);
+  }
+
+  deleteCartItem(identifier: string): void {
+    const currentProducts = this.products();
+    // Si coincide con cartItemId único, eliminar únicamente esa línea
+    if (currentProducts.some((item) => item.cartItemId === identifier)) {
+      this.setProducts(currentProducts.filter((item) => item.cartItemId !== identifier));
+      return;
+    }
+
+    // Si coincide con el nombre de producto, eliminar solo el primer elemento coincidente
+    const index = currentProducts.findIndex((item) => item.name === identifier);
+    if (index !== -1) {
+      const updated = [...currentProducts];
+      updated.splice(index, 1);
+      this.setProducts(updated);
+    }
+  }
+
+  removeFromCart(name: string): void {
+    this.removeCartItem(name);
   }
 
   deleteProduct(name: string): void {
-    this.setProducts(this.products().filter((product) => product.name !== name));
+    this.deleteCartItem(name);
   }
 
   clearCart(): void {

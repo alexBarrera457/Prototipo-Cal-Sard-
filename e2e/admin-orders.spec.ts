@@ -28,9 +28,9 @@ test.describe('Gestión de Pedidos en Backoffice (Issue #41)', () => {
     await expect(page.locator('.search-input')).toBeVisible();
     await expect(page.locator('.fulfillment-select')).toBeVisible();
 
-    // Comprobar píldoras de estado con sus contadores
+    // Comprobar píldoras de estado con sus contadores (incluye filtro de proformas B2B)
     const statusPills = page.locator('.status-pill');
-    await expect(statusPills).toHaveCount(7);
+    await expect(statusPills).toHaveCount(8);
     await expect(statusPills.first()).toHaveClass(/active/);
 
     // Comprobar tabla de pedidos cargada con filas

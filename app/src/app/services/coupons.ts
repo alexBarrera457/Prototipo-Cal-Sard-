@@ -1,6 +1,7 @@
-import { Inject, Injectable, PLATFORM_ID, signal } from '@angular/core';
+import { Inject, Injectable, InjectionToken, Optional, PLATFORM_ID, signal } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import type { Coupon, CouponDiscountType } from '@cal-sarda/domain';
+import { SUPABASE_CLIENT, type SupabaseClient } from './supabase';
 
 export type { Coupon, CouponDiscountType };
 
@@ -9,6 +10,160 @@ export interface CouponValidationResult {
   coupon?: Coupon;
   discountAmount: number;
   error?: string;
+}
+
+export const COUPONS_REPOSITORY = new InjectionToken<CouponsRepository>('COUPONS_REPOSITORY');
+
+export interface CouponsRepository {
+  getAll(): Promise<Coupon[]>;
+  save(coupon: Coupon): Promise<Coupon>;
+  update(id: string, updates: Partial<Coupon>): Promise<Coupon | null>;
+  delete(id: string): Promise<boolean>;
+}
+
+export class InMemoryCouponsRepository implements CouponsRepository {
+  private coupons: Coupon[];
+
+  constructor(initialCoupons: Coupon[] = INITIAL_COUPONS) {
+    this.coupons = initialCoupons.map((c) => ({ ...c }));
+  }
+
+  async getAll(): Promise<Coupon[]> {
+    return [...this.coupons];
+  }
+
+  async save(coupon: Coupon): Promise<Coupon> {
+    const idx = this.coupons.findIndex((c) => c.id === coupon.id || c.code === coupon.code);
+    if (idx >= 0) {
+      this.coupons[idx] = { ...coupon };
+    } else {
+      this.coupons.unshift({ ...coupon });
+    }
+    return { ...coupon };
+  }
+
+  async update(id: string, updates: Partial<Coupon>): Promise<Coupon | null> {
+    const idx = this.coupons.findIndex((c) => c.id === id);
+    if (idx === -1) return null;
+    this.coupons[idx] = { ...this.coupons[idx], ...updates };
+    return { ...this.coupons[idx] };
+  }
+
+  async delete(id: string): Promise<boolean> {
+    const prev = this.coupons.length;
+    this.coupons = this.coupons.filter((c) => c.id !== id);
+    return this.coupons.length !== prev;
+  }
+}
+
+export class SupabaseCouponsRepository implements CouponsRepository {
+  private readonly fallbackRepo: CouponsRepository;
+
+  constructor(
+    private readonly supabase?: SupabaseClient | null,
+    fallbackRepo?: CouponsRepository,
+  ) {
+    this.fallbackRepo = fallbackRepo ?? new InMemoryCouponsRepository();
+  }
+
+  async getAll(): Promise<Coupon[]> {
+    if (!this.supabase) return this.fallbackRepo.getAll();
+    try {
+      const { data, error } = await this.supabase
+        .from('coupons')
+        .select('*')
+        .order('created_at', { ascending: false });
+      if (error || !data) return this.fallbackRepo.getAll();
+      return data.map((d: any) => ({
+        id: d.id,
+        code: d.code,
+        description: d.description,
+        discountType: d.discount_type as CouponDiscountType,
+        discountValue: Number(d.discount_value),
+        minPurchase: Number(d.min_purchase),
+        expiresAt: d.expires_at ?? undefined,
+        isActive: d.is_active,
+        usageCount: Number(d.usage_count),
+        createdAt: d.created_at,
+      }));
+    } catch {
+      return this.fallbackRepo.getAll();
+    }
+  }
+
+  async save(coupon: Coupon): Promise<Coupon> {
+    if (!this.supabase) return this.fallbackRepo.save(coupon);
+    try {
+      const payload: Record<string, any> = {
+        id: coupon.id,
+        code: coupon.code,
+        description: coupon.description,
+        discount_type: coupon.discountType,
+        discount_value: coupon.discountValue,
+        min_purchase: coupon.minPurchase,
+        expires_at: coupon.expiresAt ?? null,
+        is_active: coupon.isActive,
+        usage_count: coupon.usageCount,
+        created_at: coupon.createdAt,
+      };
+      const { error } = await this.supabase.from('coupons').upsert(payload);
+      if (error) return this.fallbackRepo.save(coupon);
+      await this.fallbackRepo.save(coupon);
+      return coupon;
+    } catch {
+      return this.fallbackRepo.save(coupon);
+    }
+  }
+
+  async update(id: string, updates: Partial<Coupon>): Promise<Coupon | null> {
+    if (!this.supabase) return this.fallbackRepo.update(id, updates);
+    try {
+      const payload: Record<string, any> = {};
+      if (updates.code !== undefined) payload['code'] = updates.code;
+      if (updates.description !== undefined) payload['description'] = updates.description;
+      if (updates.discountType !== undefined) payload['discount_type'] = updates.discountType;
+      if (updates.discountValue !== undefined) payload['discount_value'] = updates.discountValue;
+      if (updates.minPurchase !== undefined) payload['min_purchase'] = updates.minPurchase;
+      if (updates.expiresAt !== undefined) payload['expires_at'] = updates.expiresAt;
+      if (updates.isActive !== undefined) payload['is_active'] = updates.isActive;
+      if (updates.usageCount !== undefined) payload['usage_count'] = updates.usageCount;
+
+      const { data, error } = await this.supabase
+        .from('coupons')
+        .update(payload)
+        .eq('id', id)
+        .select()
+        .single();
+      if (error || !data) return this.fallbackRepo.update(id, updates);
+      await this.fallbackRepo.update(id, updates);
+      return {
+        id: data.id,
+        code: data.code,
+        description: data.description,
+        discountType: data.discount_type as CouponDiscountType,
+        discountValue: Number(data.discount_value),
+        minPurchase: Number(data.min_purchase),
+        expiresAt: data.expires_at ?? undefined,
+        isActive: data.is_active,
+        usageCount: Number(data.usage_count),
+        createdAt: data.created_at,
+      };
+    } catch {
+      return this.fallbackRepo.update(id, updates);
+    }
+  }
+
+  async delete(id: string): Promise<boolean> {
+    if (!this.supabase) return this.fallbackRepo.delete(id);
+    try {
+      const { error } = await this.supabase.from('coupons').delete().eq('id', id);
+      if (error) return this.fallbackRepo.delete(id);
+      await this.fallbackRepo.delete(id);
+      return true;
+    } catch {
+      return this.fallbackRepo.delete(id);
+    }
+  }
 }
 
 export const INITIAL_COUPONS: Coupon[] = [
@@ -80,30 +235,65 @@ const STORAGE_KEY = 'cal_sarda_coupons';
   providedIn: 'root',
 })
 export class CouponsService {
+  private readonly repository: CouponsRepository;
   private readonly isBrowser: boolean;
   readonly coupons = signal<Coupon[]>([]);
 
-  constructor(@Inject(PLATFORM_ID) platformId: object) {
+  constructor(
+    @Inject(PLATFORM_ID) platformId: object,
+    @Optional() @Inject(COUPONS_REPOSITORY) repository?: CouponsRepository,
+    @Optional() @Inject(SUPABASE_CLIENT) supabaseClient?: SupabaseClient | null,
+  ) {
     this.isBrowser = isPlatformBrowser(platformId);
-    this.loadCoupons();
-  }
 
-  private loadCoupons(): void {
+    let initialCoupons = INITIAL_COUPONS;
     if (this.isBrowser) {
       try {
         const stored = localStorage.getItem(STORAGE_KEY);
         if (stored) {
           const parsed = JSON.parse(stored) as Coupon[];
           if (Array.isArray(parsed) && parsed.length > 0) {
-            this.coupons.set(parsed);
-            return;
+            initialCoupons = parsed;
           }
         }
       } catch {
         // Fallback en caso de error en localStorage
       }
     }
-    this.coupons.set(INITIAL_COUPONS.map((c) => ({ ...c })));
+
+    if (repository) {
+      this.repository = repository;
+    } else if (supabaseClient) {
+      this.repository = new SupabaseCouponsRepository(
+        supabaseClient,
+        new InMemoryCouponsRepository(initialCoupons),
+      );
+    } else {
+      this.repository = new InMemoryCouponsRepository(initialCoupons);
+    }
+
+    this.coupons.set(initialCoupons.map((c) => ({ ...c })));
+    this.syncFromRepository();
+  }
+
+  private async syncFromRepository(): Promise<void> {
+    try {
+      const remote = await this.repository.getAll();
+      if (remote && remote.length > 0) {
+        this.coupons.set(remote);
+        this.persist();
+      }
+    } catch {
+      // Usar estado actual
+    }
+  }
+
+  getRepository(): CouponsRepository {
+    return this.repository;
+  }
+
+  private loadCoupons(): void {
+    this.syncFromRepository();
   }
 
   private persist(): void {
@@ -208,6 +398,7 @@ export class CouponsService {
 
     this.coupons.update((current) => [newCoupon, ...current]);
     this.persist();
+    this.repository.save(newCoupon).catch(() => {});
     return newCoupon;
   }
 
@@ -238,6 +429,7 @@ export class CouponsService {
 
     if (updatedCoupon) {
       this.persist();
+      this.repository.update(id, updates).catch(() => {});
     }
     return updatedCoupon;
   }
@@ -248,6 +440,7 @@ export class CouponsService {
     const changed = this.coupons().length !== prevLen;
     if (changed) {
       this.persist();
+      this.repository.delete(id).catch(() => {});
     }
     return changed;
   }
@@ -257,6 +450,10 @@ export class CouponsService {
       current.map((c) => (c.id === id ? { ...c, isActive: !c.isActive } : c)),
     );
     this.persist();
+    const target = this.coupons().find((c) => c.id === id);
+    if (target) {
+      this.repository.update(id, { isActive: target.isActive }).catch(() => {});
+    }
   }
 
   incrementUsage(code: string): void {
@@ -267,10 +464,17 @@ export class CouponsService {
       ),
     );
     this.persist();
+    const target = this.getCouponByCode(clean);
+    if (target) {
+      this.repository.update(target.id, { usageCount: target.usageCount }).catch(() => {});
+    }
   }
 
   resetToDefaults(): void {
     this.coupons.set(INITIAL_COUPONS.map((c) => ({ ...c })));
     this.persist();
+    for (const c of INITIAL_COUPONS) {
+      this.repository.save(c).catch(() => {});
+    }
   }
 }
