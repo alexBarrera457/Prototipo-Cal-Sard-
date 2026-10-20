@@ -502,8 +502,18 @@
                             (click)="downloadInvoice(order)"
                             title="Descargar factura simplificada en PDF"
                           >
-                            <span>🧾</span>
-                            <span>{{ i18n.t('account.invoice_button') }}</span>
+                            <span>📄</span>
+                            <span>{{ i18n.t('account.invoice_button') }} (PDF)</span>
+                          </button>
+
+                          <button
+                            type="button"
+                            class="btn-order-action btn-print"
+                            (click)="printInvoice(order)"
+                            [title]="i18n.t('invoices.print_invoice')"
+                          >
+                            <span>🖨️</span>
+                            <span>{{ i18n.t('invoices.print_invoice') }}</span>
                           </button>
                         </div>
                       </footer>
@@ -1717,9 +1727,17 @@
                                 type="button"
                                 class="btn-download-invoice"
                                 (click)="downloadInvoice(inv)"
-                                [title]="i18n.t('invoices.download_pdf')"
+                                [title]="i18n.t('admin.invoicing_btn_download_pdf')"
                               >
-                                🖨️ {{ i18n.t('invoices.download_pdf') }}
+                                📄 {{ i18n.t('admin.invoicing_btn_download_pdf') }}
+                              </button>
+                              <button
+                                type="button"
+                                class="btn-print-invoice"
+                                (click)="printInvoice(inv)"
+                                [title]="i18n.t('invoices.print_invoice')"
+                              >
+                                🖨️ {{ i18n.t('invoices.print_invoice') }}
                               </button>
                               <button
                                 type="button"
@@ -1886,10 +1904,17 @@
                       </button>
                       <button
                         type="button"
+                        class="btn-print-modal"
+                        (click)="printInvoice(selectedInv)"
+                      >
+                        🖨️ {{ i18n.t('invoices.print_invoice') }}
+                      </button>
+                      <button
+                        type="button"
                         class="btn-primary"
                         (click)="downloadInvoice(selectedInv)"
                       >
-                        🖨️ {{ i18n.t('invoices.download_pdf') }}
+                        📄 {{ i18n.t('admin.invoicing_btn_download_pdf') }}
                       </button>
                     </div>
                   </div>

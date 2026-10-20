@@ -159,6 +159,16 @@ describe('AdminOrders', () => {
     expect(printSpy).toHaveBeenCalled();
   });
 
+  it('calls invoicingService.downloadInvoicePdf when downloadInvoice is triggered', () => {
+    const order = DEFAULT_INITIAL_ORDERS[0];
+    const downloadSpy = vi
+      .spyOn(component.invoicingService, 'downloadInvoicePdf')
+      .mockImplementation(() => {});
+    component.downloadInvoice(order);
+    expect(downloadSpy).toHaveBeenCalled();
+    expect(component.toastMessage()).toBeTruthy();
+  });
+
   it('calls invoicingService.printPreparationSlip when printPreparationSlip is triggered', () => {
     const order = DEFAULT_INITIAL_ORDERS[0];
     const slipSpy = vi
@@ -166,6 +176,16 @@ describe('AdminOrders', () => {
       .mockImplementation(() => {});
     component.printPreparationSlip(order);
     expect(slipSpy).toHaveBeenCalledWith(order, component.i18n.currentLang());
+  });
+
+  it('calls invoicingService.downloadPreparationSlipPdf when downloadPreparationSlip is triggered', () => {
+    const order = DEFAULT_INITIAL_ORDERS[0];
+    const downloadSlipSpy = vi
+      .spyOn(component.invoicingService, 'downloadPreparationSlipPdf')
+      .mockImplementation(() => {});
+    component.downloadPreparationSlip(order);
+    expect(downloadSlipSpy).toHaveBeenCalledWith(order, component.i18n.currentLang());
+    expect(component.toastMessage()).toBeTruthy();
   });
 
   it('formats WhatsApp URL correctly and opens chat window for customer with phone', () => {

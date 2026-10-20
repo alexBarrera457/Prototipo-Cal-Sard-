@@ -243,9 +243,24 @@ export class AdminOrders {
     return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(value);
   }
 
+  downloadInvoice(order: Order): void {
+    const invoice = this.invoicingService.generateInvoice(order, order.customer);
+    this.invoicingService.downloadInvoicePdf(invoice);
+    this.showToast(this.i18n.t('admin.toast_invoice_downloaded'));
+  }
+
   printInvoice(order: Order): void {
-    const invoice = this.invoicingService.generateInvoice(order);
+    const invoice = this.invoicingService.generateInvoice(order, order.customer);
     this.invoicingService.printInvoice(invoice);
+  }
+
+  downloadPreparationSlip(order: Order): void {
+    this.invoicingService.downloadPreparationSlipPdf(order, this.i18n.currentLang());
+    this.showToast(this.i18n.t('admin.toast_slip_downloaded'));
+  }
+
+  printPreparationSlip(order: Order): void {
+    this.invoicingService.printPreparationSlip(order, this.i18n.currentLang());
   }
 
   readonly toastMessage = signal<string | null>(null);
@@ -293,10 +308,6 @@ export class AdminOrders {
     if (typeof window !== 'undefined') {
       window.open(this.getWhatsAppUrl(order), '_blank', 'noopener,noreferrer');
     }
-  }
-
-  printPreparationSlip(order: Order): void {
-    this.invoicingService.printPreparationSlip(order, this.i18n.currentLang());
   }
 
   async sendAbandonedCartReminder(record: AbandonedCartAdminRecord): Promise<void> {

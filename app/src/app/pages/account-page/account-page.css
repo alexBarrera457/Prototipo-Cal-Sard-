@@ -1410,6 +1410,7 @@
   justify-content: center;
 }
 .btn-download-invoice,
+.btn-print-invoice,
 .btn-preview-invoice {
   padding: 5px 9px;
   font: inherit;
@@ -1427,6 +1428,37 @@
 }
 .btn-download-invoice:hover {
   background: #6e2c20;
+}
+.btn-print-invoice {
+  background: #fdfaf6;
+  color: #5c432d;
+  border: 1px solid #d4cdc5;
+}
+.btn-print-invoice:hover {
+  background: #f4ede4;
+}
+.btn-print-modal {
+  padding: 8px 16px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+  background: #fdfaf6;
+  color: #5c432d;
+  border: 1px solid #d4cdc5;
+  transition: all 0.2s;
+}
+.btn-print-modal:hover {
+  background: #f4ede4;
+}
+.btn-order-action.btn-print {
+  background: #fdfaf6;
+  color: #5c432d;
+  border: 1px solid #d4cdc5;
+}
+.btn-order-action.btn-print:hover {
+  background: #f4ede4;
 }
 .btn-preview-invoice {
   background: #f8f3ec;

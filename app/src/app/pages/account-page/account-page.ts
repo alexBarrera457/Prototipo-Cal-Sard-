@@ -625,9 +625,21 @@ export class AccountPage implements OnInit {
   }
 
   /**
-   * Genera y abre el diálogo de impresión/descarga de factura simplificada en PDF.
+   * Genera y descarga el archivo oficial PDF de la factura simplificada.
    */
   downloadInvoice(item: Order | Invoice): void {
+    const invoice =
+      'invoiceNumber' in item
+        ? item
+        : this.invoicingService.generateInvoice(item, this.auth.currentUser()?.fiscalData);
+    this.invoicingService.downloadInvoicePdf(invoice);
+    this.showToast(this.i18n.t('invoices.toast_pdf_downloaded'));
+  }
+
+  /**
+   * Abre la factura en modo impresión/previsualización segura sin popup blocker.
+   */
+  printInvoice(item: Order | Invoice): void {
     const invoice =
       'invoiceNumber' in item
         ? item

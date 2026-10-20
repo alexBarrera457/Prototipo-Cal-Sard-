@@ -123,11 +123,12 @@ describe('AccountPage', () => {
 
     const pastOrder = component.customerOrders()[0];
     const invoiceSpy = vi
-      .spyOn(component.invoicingService, 'printInvoice')
+      .spyOn(component.invoicingService, 'downloadInvoicePdf')
       .mockImplementation(() => {});
 
     component.downloadInvoice(pastOrder);
     expect(invoiceSpy).toHaveBeenCalled();
+    expect(component.toastMessage()).toBeTruthy();
   });
 
   it('calculates order timeline step correctly', () => {
@@ -488,11 +489,24 @@ describe('AccountPage', () => {
       expect(component.selectedInvoiceForModal()).toBeNull();
     });
 
-    it('downloads/prints invoice using InvoicingService', () => {
-      const printSpy = vi.spyOn(component.invoicingService, 'printInvoice');
+    it('downloads invoice as PDF using InvoicingService and displays toast', () => {
+      const downloadSpy = vi
+        .spyOn(component.invoicingService, 'downloadInvoicePdf')
+        .mockImplementation(() => {});
       const invoice = component.customerInvoices()[0];
 
       component.downloadInvoice(invoice);
+      expect(downloadSpy).toHaveBeenCalledWith(invoice);
+      expect(component.toastMessage()).toBeTruthy();
+    });
+
+    it('prints invoice using InvoicingService', () => {
+      const printSpy = vi
+        .spyOn(component.invoicingService, 'printInvoice')
+        .mockImplementation(() => {});
+      const invoice = component.customerInvoices()[0];
+
+      component.printInvoice(invoice);
       expect(printSpy).toHaveBeenCalledWith(invoice);
     });
 

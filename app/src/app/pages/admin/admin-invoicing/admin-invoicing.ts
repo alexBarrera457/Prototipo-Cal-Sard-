@@ -168,6 +168,20 @@ export class AdminInvoicing {
     this.selectedInvoice.set(null);
   }
 
+  readonly toastMessage = signal<string | null>(null);
+
+  showToast(text: string): void {
+    this.toastMessage.set(text);
+    setTimeout(() => {
+      this.toastMessage.set(null);
+    }, 3500);
+  }
+
+  downloadInvoicePdf(invoice: Invoice): void {
+    this.invoicingService.downloadInvoicePdf(invoice);
+    this.showToast(this.i18n.t('admin.toast_invoice_downloaded'));
+  }
+
   printInvoice(invoice: Invoice): void {
     this.invoicingService.printInvoice(invoice);
   }

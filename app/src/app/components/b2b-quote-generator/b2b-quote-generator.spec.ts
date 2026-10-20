@@ -122,6 +122,23 @@ describe('B2bQuoteGeneratorComponent', () => {
     expect(printSpy).toHaveBeenCalledWith(component.generatedInvoice()!);
   });
 
+  it('invoca la descarga en PDF al llamar downloadProformaPdf()', async () => {
+    component.companyName = 'Acme Corp S.L.';
+    component.cif = 'B12345678';
+    component.contactEmail = 'compras@acme.com';
+    component.fiscalAddress = 'Carrer de Mallorca 100';
+    component.postalCode = '08029';
+
+    await component.generateProforma();
+
+    const downloadSpy = vi
+      .spyOn(invoicingService, 'downloadInvoicePdf')
+      .mockImplementation(() => {});
+    component.downloadProformaPdf();
+
+    expect(downloadSpy).toHaveBeenCalledWith(component.generatedInvoice()!);
+  });
+
   it('permite reiniciar el generador de presupuestos con reset()', async () => {
     component.companyName = 'Acme Corp S.L.';
     component.cif = 'B12345678';

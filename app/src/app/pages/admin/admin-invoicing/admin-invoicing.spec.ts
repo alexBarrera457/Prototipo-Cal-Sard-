@@ -109,6 +109,17 @@ describe('AdminInvoicing', () => {
     expect(printSpy).toHaveBeenCalledWith(invoice);
   });
 
+  it('delegates invoice PDF download to InvoicingService and shows toast', () => {
+    const downloadSpy = vi
+      .spyOn(invoicingService, 'downloadInvoicePdf')
+      .mockImplementation(() => {});
+    const invoice = component.filteredInvoices()[0];
+
+    component.downloadInvoicePdf(invoice);
+    expect(downloadSpy).toHaveBeenCalledWith(invoice);
+    expect(component.toastMessage()).toBeTruthy();
+  });
+
   it('triggers CSV download for fiscal book export', () => {
     const origCreateObjectURL = (globalThis as any).URL.createObjectURL;
     const origRevokeObjectURL = (globalThis as any).URL.revokeObjectURL;

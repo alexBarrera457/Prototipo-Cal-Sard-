@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { jsPDF } from 'jspdf';
 import type { Invoice, InvoiceItem, Order, TaxBreakdownItem } from '@cal-sarda/domain';
 
 export const CAL_SARDA_COMPANY_INFO = {
@@ -559,13 +560,57 @@ export class InvoicingService {
   }
 
   /**
-   * Abre la factura simplificada en una ventana lista para imprimir o guardar en PDF.
+   * Abre la factura simplificada en una ventana o iframe lista para imprimir de forma segura.
    */
   printInvoice(invoice: Invoice): void {
     if (typeof window === 'undefined') {
       return;
     }
     const html = this.generateInvoiceHtml(invoice);
+    this.printHtmlSafely(html);
+  }
+
+  /**
+   * Imprime HTML utilizando un iframe invisible para evitar el bloqueo por popup blockers,
+   * con fallback automático a window.open si iframes están deshabilitados.
+   */
+  private printHtmlSafely(html: string): void {
+    if (typeof window === 'undefined' || typeof document === 'undefined') {
+      return;
+    }
+
+    try {
+      const iframe = document.createElement('iframe');
+      iframe.style.position = 'fixed';
+      iframe.style.right = '0';
+      iframe.style.bottom = '0';
+      iframe.style.width = '0';
+      iframe.style.height = '0';
+      iframe.style.border = '0';
+      iframe.style.visibility = 'hidden';
+      document.body.appendChild(iframe);
+
+      const doc = iframe.contentWindow?.document || iframe.contentDocument;
+      if (doc) {
+        doc.open();
+        doc.write(html);
+        doc.close();
+        iframe.contentWindow?.focus();
+        setTimeout(() => {
+          try {
+            iframe.contentWindow?.print();
+          } finally {
+            setTimeout(() => {
+              iframe.remove();
+            }, 1000);
+          }
+        }, 250);
+        return;
+      }
+    } catch {
+      // En caso de fallo con iframe, fallback a window.open
+    }
+
     const printWindow = window.open('', '_blank', 'width=840,height=900');
     if (!printWindow) {
       return;
@@ -577,6 +622,422 @@ export class InvoicingService {
     setTimeout(() => {
       printWindow.print();
     }, 250);
+  }
+
+  /**
+   * Genera el documento PDF oficial de la factura simplificada / abono / proforma.
+   */
+  generateInvoicePdf(invoice: Invoice): jsPDF {
+    const doc = new jsPDF({
+      orientation: 'portrait',
+      unit: 'mm',
+      format: 'a4',
+    });
+
+    const isCancelled = Boolean(invoice.isCancelled);
+    const isProforma = invoice.invoiceNumber.startsWith('PRF-');
+    const docHeading = isCancelled
+      ? 'FACTURA ANULADA / ABONO'
+      : isProforma
+        ? 'FACTURA PROFORMA (B2B)'
+        : 'FACTURA SIMPLIFICADA';
+
+    const formattedDate = new Date(invoice.issuedAt).toLocaleDateString('es-ES', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+
+    const formatMoney = (val: number) =>
+      new Intl.NumberFormat('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(
+        val,
+      ) + ' €';
+
+    let currentY = 14;
+
+    // Línea superior burdeos corporativa
+    doc.setFillColor(140, 36, 35);
+    doc.rect(14, currentY, 182, 1.5, 'F');
+    currentY += 8;
+
+    // Cabecera marca Cal Sardà
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(20);
+    doc.setTextColor(140, 36, 35);
+    doc.text('CAL SARDÀ', 14, currentY);
+
+    // Encabezado documento alineado a la derecha
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(11);
+    doc.setTextColor(26, 26, 26);
+    doc.text(docHeading, 196, currentY - 1, { align: 'right' });
+
+    currentY += 5;
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7.5);
+    doc.setTextColor(102, 102, 102);
+    doc.text('OBRADOR GASTRONÒMIC DES DE 1930 · SAGRADA FAMÍLIA', 14, currentY);
+
+    doc.setFontSize(8);
+    doc.text(`Nº: ${invoice.invoiceNumber}`, 196, currentY, { align: 'right' });
+
+    currentY += 4;
+    doc.text(`Fecha: ${formattedDate}`, 196, currentY, { align: 'right' });
+
+    currentY += 4;
+    doc.text(`Pedido: ${invoice.orderReference}`, 196, currentY, { align: 'right' });
+
+    if (isProforma) {
+      currentY += 4;
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(140, 36, 35);
+      doc.text('VALIDEZ: 30 DÍAS NATURALES', 196, currentY, { align: 'right' });
+    }
+
+    currentY += 5;
+
+    // Aviso de factura anulada si procede
+    if (isCancelled) {
+      doc.setFillColor(254, 226, 226);
+      doc.setDrawColor(239, 68, 68);
+      doc.rect(14, currentY, 182, 7, 'FD');
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(8.5);
+      doc.setTextColor(153, 27, 27);
+      doc.text('⚠️ FACTURA ANULADA / DOCUMENTO DE ABONO - Pedido cancelado', 105, currentY + 4.8, {
+        align: 'center',
+      });
+      currentY += 10;
+    }
+
+    // Tarjetas Emisor y Cliente
+    const boxY = currentY;
+    const boxH = 28;
+    const boxW = 88;
+
+    // Tarjeta 1: Emisor / Vendedor
+    doc.setFillColor(250, 248, 245);
+    doc.setDrawColor(229, 223, 213);
+    doc.roundedRect(14, boxY, boxW, boxH, 1.5, 1.5, 'FD');
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(7.5);
+    doc.setTextColor(140, 36, 35);
+    doc.text('EMISOR / VENDEDOR', 17, boxY + 5);
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(8.5);
+    doc.setTextColor(26, 26, 26);
+    doc.text(invoice.company.legalName, 17, boxY + 10);
+
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7.5);
+    doc.setTextColor(60, 60, 60);
+    doc.text(`NIF: ${invoice.company.cif}`, 17, boxY + 14.5);
+    doc.text(
+      `${invoice.company.address}, ${invoice.company.postalCode} ${invoice.company.city}`,
+      17,
+      boxY + 18.5,
+    );
+    doc.text(`Tel: ${invoice.company.phone} · ${invoice.company.email}`, 17, boxY + 22.5);
+
+    // Tarjeta 2: Cliente / Destinatario
+    const box2X = 108;
+    doc.setFillColor(250, 248, 245);
+    doc.setDrawColor(229, 223, 213);
+    doc.roundedRect(box2X, boxY, boxW, boxH, 1.5, 1.5, 'FD');
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(7.5);
+    doc.setTextColor(140, 36, 35);
+    doc.text('CLIENTE / DESTINATARIO', box2X + 3, boxY + 5);
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(8.5);
+    doc.setTextColor(26, 26, 26);
+    const clientName = invoice.customer.companyName || invoice.customer.name;
+    doc.text(doc.splitTextToSize(clientName, 82)[0] ?? '', box2X + 3, boxY + 10);
+
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7.5);
+    doc.setTextColor(60, 60, 60);
+    let clientLineY = boxY + 14.5;
+    if (invoice.customer.taxId) {
+      doc.text(`NIF/CIF: ${invoice.customer.taxId}`, box2X + 3, clientLineY);
+      clientLineY += 4;
+    }
+    if (invoice.customer.address) {
+      const addr = `${invoice.customer.address}, ${invoice.customer.postalCode || ''} ${invoice.customer.city || ''}`;
+      doc.text(doc.splitTextToSize(addr, 82)[0] ?? '', box2X + 3, clientLineY);
+      clientLineY += 4;
+    }
+    const fulfillmentLabel =
+      invoice.fulfillment === 'delivery'
+        ? 'Modalidad: Entrega a domicilio refrigerada'
+        : 'Modalidad: Recogida en colmado (Marina 237)';
+    doc.text(fulfillmentLabel, box2X + 3, clientLineY);
+
+    currentY = boxY + boxH + 6;
+
+    // Cabecera tabla de productos
+    const drawTableHeader = (y: number) => {
+      doc.setFillColor(244, 237, 228);
+      doc.setDrawColor(212, 205, 197);
+      doc.rect(14, y, 182, 6, 'FD');
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(7.5);
+      doc.setTextColor(92, 67, 45);
+      doc.text('CONCEPTO / PRODUCTO', 16, y + 4.2);
+      doc.text('CANT.', 122, y + 4.2, { align: 'center' });
+      doc.text('PRECIO UD.', 145, y + 4.2, { align: 'right' });
+      doc.text('IVA', 163, y + 4.2, { align: 'center' });
+      doc.text('TOTAL', 194, y + 4.2, { align: 'right' });
+    };
+
+    drawTableHeader(currentY);
+    currentY += 6;
+
+    // Líneas de producto
+    for (const item of invoice.items) {
+      if (currentY > 240) {
+        doc.addPage();
+        currentY = 15;
+        drawTableHeader(currentY);
+        currentY += 6;
+      }
+
+      const itemLines = doc.splitTextToSize(item.name, 98);
+      const rowHeight = Math.max(6, itemLines.length * 3.8 + 2);
+
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(8);
+      doc.setTextColor(26, 26, 26);
+      doc.text(itemLines, 16, currentY + 3.8);
+
+      doc.text(`${item.quantity}`, 122, currentY + 3.8, { align: 'center' });
+      doc.text(formatMoney(item.unitPrice), 145, currentY + 3.8, { align: 'right' });
+      doc.text(`${item.vatRate}%`, 163, currentY + 3.8, { align: 'center' });
+      doc.setFont('helvetica', 'bold');
+      doc.text(formatMoney(item.total), 194, currentY + 3.8, { align: 'right' });
+
+      currentY += rowHeight;
+      doc.setDrawColor(240, 237, 233);
+      doc.line(14, currentY, 196, currentY);
+    }
+
+    // Fila de gastos de envío
+    if (invoice.shippingTotal > 0) {
+      if (currentY > 240) {
+        doc.addPage();
+        currentY = 15;
+        drawTableHeader(currentY);
+        currentY += 6;
+      }
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(8);
+      doc.setTextColor(26, 26, 26);
+      doc.text('Gastos de envío refrigerado a domicilio', 16, currentY + 3.8);
+      doc.text('1', 122, currentY + 3.8, { align: 'center' });
+      doc.text(formatMoney(invoice.shippingTotal), 145, currentY + 3.8, { align: 'right' });
+      doc.text('21%', 163, currentY + 3.8, { align: 'center' });
+      doc.setFont('helvetica', 'bold');
+      doc.text(formatMoney(invoice.shippingTotal), 194, currentY + 3.8, { align: 'right' });
+      currentY += 6;
+      doc.setDrawColor(240, 237, 233);
+      doc.line(14, currentY, 196, currentY);
+    }
+
+    // Fila de descuento
+    if (invoice.discount && invoice.discount > 0) {
+      if (currentY > 240) {
+        doc.addPage();
+        currentY = 15;
+        drawTableHeader(currentY);
+        currentY += 6;
+      }
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(8);
+      doc.setTextColor(140, 36, 35);
+      doc.text('Descuento aplicado (Cupón / Tarjeta regalo)', 16, currentY + 3.8);
+      doc.text(`-${formatMoney(invoice.discount)}`, 194, currentY + 3.8, { align: 'right' });
+      currentY += 6;
+      doc.setDrawColor(240, 237, 233);
+      doc.line(14, currentY, 196, currentY);
+    }
+
+    currentY += 5;
+
+    // Desglose de impuestos y totales
+    if (currentY > 215) {
+      doc.addPage();
+      currentY = 15;
+    }
+
+    const sectionY = currentY;
+
+    // Desglose de IVA (izquierda)
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(7.5);
+    doc.setTextColor(140, 36, 35);
+    doc.text('DESGLOSE DE IMPUESTOS (IVA - RD 1619/2012)', 14, sectionY + 3);
+
+    doc.setFillColor(248, 246, 242);
+    doc.setDrawColor(220, 215, 205);
+    doc.rect(14, sectionY + 5, 105, 5, 'FD');
+    doc.setFontSize(7);
+    doc.setTextColor(92, 67, 45);
+    doc.text('Tipo IVA', 16, sectionY + 8.5);
+    doc.text('Base Imp.', 50, sectionY + 8.5, { align: 'right' });
+    doc.text('Cuota IVA', 75, sectionY + 8.5, { align: 'right' });
+    doc.text('Total con IVA', 116, sectionY + 8.5, { align: 'right' });
+
+    let taxRowY = sectionY + 10;
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7.5);
+    doc.setTextColor(30, 30, 30);
+
+    for (const t of invoice.taxBreakdown) {
+      doc.text(`IVA ${t.vatRate}%`, 16, taxRowY + 3.5);
+      doc.text(formatMoney(t.baseAmount), 50, taxRowY + 3.5, { align: 'right' });
+      doc.text(formatMoney(t.vatAmount), 75, taxRowY + 3.5, { align: 'right' });
+      doc.setFont('helvetica', 'bold');
+      doc.text(formatMoney(t.total), 116, taxRowY + 3.5, { align: 'right' });
+      doc.setFont('helvetica', 'normal');
+      taxRowY += 4.5;
+      doc.setDrawColor(245, 242, 238);
+      doc.line(14, taxRowY, 119, taxRowY);
+    }
+
+    // Totales (derecha)
+    const totalsX = 125;
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8);
+    doc.setTextColor(60, 60, 60);
+    doc.text('Subtotal Base:', totalsX, sectionY + 5);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(26, 26, 26);
+    doc.text(formatMoney(invoice.subtotalBase), 194, sectionY + 5, { align: 'right' });
+
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(60, 60, 60);
+    doc.text('Total Cuota IVA:', totalsX, sectionY + 10);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(26, 26, 26);
+    doc.text(formatMoney(invoice.totalVat), 194, sectionY + 10, { align: 'right' });
+
+    doc.setDrawColor(140, 36, 35);
+    doc.setLineWidth(0.4);
+    doc.line(totalsX, sectionY + 13, 196, sectionY + 13);
+    doc.setLineWidth(0.2);
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(8.5);
+    doc.setTextColor(100, 100, 100);
+    doc.text(isProforma ? 'TOTAL PROFORMA' : 'TOTAL FACTURA', totalsX, sectionY + 18);
+
+    doc.setFontSize(14);
+    doc.setTextColor(140, 36, 35);
+    doc.text(formatMoney(invoice.total), 194, sectionY + 18, { align: 'right' });
+
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7);
+    doc.setTextColor(100, 100, 100);
+    doc.text(`Pago: ${invoice.paymentMethod || 'Transferencia B2B'}`, totalsX, sectionY + 23);
+
+    currentY = Math.max(taxRowY + 4, sectionY + 27);
+
+    // Si es proforma, cuadro de cuenta bancaria
+    if (isProforma) {
+      if (currentY > 230) {
+        doc.addPage();
+        currentY = 15;
+      }
+      doc.setFillColor(255, 252, 247);
+      doc.setDrawColor(212, 195, 179);
+      doc.rect(14, currentY, 182, 20, 'FD');
+      doc.setFillColor(140, 36, 35);
+      doc.rect(14, currentY, 2.5, 20, 'F');
+
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(7.5);
+      doc.setTextColor(140, 36, 35);
+      doc.text('DATOS BANCARIOS PARA TRANSFERENCIA (PAGO B2B)', 20, currentY + 4.5);
+
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(7.5);
+      doc.setTextColor(40, 40, 40);
+      doc.text(
+        'Entidad: CaixaBank · Titular: Cal Sardà Obrador Gastronòmic S.L.',
+        20,
+        currentY + 9,
+      );
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(140, 36, 35);
+      doc.text('IBAN: ES66 2100 0418 4502 0005 1930   ·   BIC: CAIXESBBXXX', 20, currentY + 13.5);
+
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(80, 80, 80);
+      doc.text(
+        `Concepto obligatorio: ${invoice.invoiceNumber} - ${invoice.customer.name}`,
+        20,
+        currentY + 17.5,
+      );
+
+      currentY += 24;
+    }
+
+    // Marca de agua central para facturas anuladas
+    if (isCancelled) {
+      doc.setTextColor(220, 38, 38);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(28);
+      doc.text('FACTURA ANULADA / ABONO', 105, 140, { align: 'center', angle: 30 });
+    }
+
+    // Pie de página legal en todas las páginas
+    const totalPages = doc.getNumberOfPages();
+    for (let p = 1; p <= totalPages; p++) {
+      doc.setPage(p);
+      doc.setDrawColor(212, 205, 197);
+      doc.line(14, 282, 196, 282);
+
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(7);
+      doc.setTextColor(120, 120, 120);
+      const legalNote = isProforma
+        ? 'Factura Proforma B2B para pedidos corporativos. Validez: 30 días naturales · Cal Sardà · Carrer de la Marina, 237 · 08013 Barcelona'
+        : 'Documento válido como justificante y factura simplificada según el Real Decreto 1619/2012 de facturación.';
+      doc.text(legalNote, 14, 286);
+      doc.text(`Página ${p} de ${totalPages}`, 196, 286, { align: 'right' });
+      doc.text(
+        'Cal Sardà · Carrer de la Marina, 237 · 08013 Barcelona · Tel: +34 93 245 67 89 · obrador@calsarda.com',
+        14,
+        290,
+      );
+    }
+
+    return doc;
+  }
+
+  /**
+   * Descarga directamente en el navegador el archivo PDF oficial de la factura.
+   */
+  downloadInvoicePdf(invoice: Invoice, filename?: string): void {
+    const doc = this.generateInvoicePdf(invoice);
+    const targetFilename = filename || `Factura-${invoice.invoiceNumber}.pdf`;
+    if (typeof window !== 'undefined') {
+      doc.save(targetFilename);
+    }
+  }
+
+  /**
+   * Obtiene el Blob binario del PDF oficial de la factura.
+   */
+  getInvoicePdfBlob(invoice: Invoice): Blob {
+    const doc = this.generateInvoicePdf(invoice);
+    return doc.output('blob');
   }
 
   /**
@@ -857,23 +1318,340 @@ export class InvoicingService {
   }
 
   /**
-   * Abre la comanda de preparación en una ventana lista para imprimir.
+   * Abre la comanda de preparación en una ventana o iframe lista para imprimir de forma segura.
    */
   printPreparationSlip(order: Order, lang: 'es' | 'ca' = 'es'): void {
     if (typeof window === 'undefined') {
       return;
     }
     const html = this.generatePreparationSlipHtml(order, lang);
-    const printWindow = window.open('', '_blank', 'width=840,height=900');
-    if (!printWindow) {
-      return;
+    this.printHtmlSafely(html);
+  }
+
+  /**
+   * Genera el documento PDF del albarán de preparación / hoja de obrador del colmado.
+   */
+  generatePreparationSlipPdf(order: Order, lang: 'es' | 'ca' = 'es'): jsPDF {
+    const doc = new jsPDF({
+      orientation: 'portrait',
+      unit: 'mm',
+      format: 'a4',
+    });
+
+    const isCa = lang === 'ca';
+    const formattedDate = order.createdAt
+      ? new Date(order.createdAt).toLocaleDateString(isCa ? 'ca-ES' : 'es-ES', {
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit',
+        })
+      : new Date().toLocaleDateString();
+
+    const fulfillmentText =
+      order.fulfillment === 'delivery'
+        ? isCa
+          ? '🚚 REPARTIMENT A DOMICILI'
+          : '🚚 REPARTO A DOMICILIO'
+        : isCa
+          ? '🏪 RECOLLIDA AL COLMADO (Marina 237)'
+          : '🏪 RECOGIDA EN COLMADO (Marina 237)';
+
+    const formatMoney = (val: number) =>
+      new Intl.NumberFormat('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(
+        val,
+      ) + ' €';
+
+    let currentY = 14;
+
+    // Barra superior
+    doc.setFillColor(43, 37, 32);
+    doc.rect(14, currentY, 182, 1.5, 'F');
+    currentY += 8;
+
+    // Título
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(18);
+    doc.setTextColor(158, 58, 36);
+    doc.text('CAL SARDÀ', 14, currentY);
+
+    // Referencia de la comanda
+    doc.setFont('courier', 'bold');
+    doc.setFontSize(16);
+    doc.setTextColor(26, 26, 26);
+    doc.text(order.reference ?? 'CS-COMANDA', 196, currentY, { align: 'right' });
+
+    currentY += 5;
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7.5);
+    doc.setTextColor(90, 90, 90);
+    doc.text(
+      isCa
+        ? 'COLMADO FAMILIAR DES DE 1930 · SAGRADA FAMÍLIA'
+        : 'COLMADO FAMILIAR DESDE 1930 · SAGRADA FAMILIA',
+      14,
+      currentY,
+    );
+
+    // Tipo de entrega
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(8.5);
+    doc.setTextColor(43, 37, 32);
+    doc.text(fulfillmentText, 196, currentY, { align: 'right' });
+
+    currentY += 4;
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7.5);
+    doc.setTextColor(100, 100, 100);
+    doc.text(formattedDate, 196, currentY, { align: 'right' });
+
+    currentY += 5;
+
+    // Tarjetas informativas
+    const boxY = currentY;
+    const boxH = 22;
+    const boxW = 88;
+
+    // Cliente
+    doc.setFillColor(250, 248, 245);
+    doc.setDrawColor(229, 223, 213);
+    doc.roundedRect(14, boxY, boxW, boxH, 1.5, 1.5, 'FD');
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(7.5);
+    doc.setTextColor(158, 58, 36);
+    doc.text(isCa ? 'CLIENT' : 'CLIENTE', 17, boxY + 4.5);
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(9);
+    doc.setTextColor(26, 26, 26);
+    doc.text(order.customer?.name ?? 'Cliente', 17, boxY + 9.5);
+
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7.5);
+    doc.setTextColor(60, 60, 60);
+    if (order.customer?.phone) {
+      doc.text(`Tel: ${order.customer.phone}`, 17, boxY + 14);
     }
-    printWindow.document.open();
-    printWindow.document.write(html);
-    printWindow.document.close();
-    printWindow.focus();
-    setTimeout(() => {
-      printWindow.print();
-    }, 250);
+    if (order.customer?.email) {
+      doc.text(`Email: ${order.customer.email}`, 17, boxY + 18);
+    }
+
+    // Destino / Entrega
+    const box2X = 108;
+    doc.roundedRect(box2X, boxY, boxW, boxH, 1.5, 1.5, 'FD');
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(7.5);
+    doc.setTextColor(158, 58, 36);
+    doc.text(isCa ? 'DESTINACIÓ / LLIURAMENT' : 'DESTINO / ENTREGA', box2X + 3, boxY + 4.5);
+
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8);
+    doc.setTextColor(26, 26, 26);
+    if (order.fulfillment === 'delivery') {
+      doc.setFont('helvetica', 'bold');
+      doc.text(order.customer?.address || 'Dirección de entrega', box2X + 3, boxY + 9.5);
+      doc.setFont('helvetica', 'normal');
+      doc.text(
+        `${order.customer?.postalCode || ''} ${order.customer?.city || ''}`,
+        box2X + 3,
+        boxY + 14,
+      );
+    } else {
+      doc.setFont('helvetica', 'bold');
+      doc.text('Cal Sardà Colmado', box2X + 3, boxY + 9.5);
+      doc.setFont('helvetica', 'normal');
+      doc.text('Carrer de la Marina, 237 · 08013 Barcelona', box2X + 3, boxY + 14);
+    }
+
+    currentY = boxY + boxH + 4;
+
+    // Franja concertada
+    if (order.scheduledDate) {
+      doc.setFillColor(255, 248, 240);
+      doc.setDrawColor(158, 58, 36);
+      doc.roundedRect(14, currentY, 182, 9, 1.5, 1.5, 'FD');
+
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(7.5);
+      doc.setTextColor(158, 58, 36);
+      const slotTitle = isCa
+        ? '📅 FRANJA CONCERTADA DE PREPARACIÓ I LLIURAMENT:'
+        : '📅 FRANJA CONCERTADA DE PREPARACIÓN Y ENTREGA:';
+      doc.text(slotTitle, 17, currentY + 5.8);
+
+      const slotTime = `${order.scheduledDate} ${order.scheduledTimeSlot ? `· ⏰ ${order.scheduledTimeSlot}` : ''}`;
+      doc.setFontSize(9);
+      doc.setTextColor(43, 37, 32);
+      doc.text(slotTime, 95, currentY + 5.8);
+
+      currentY += 13;
+    }
+
+    // Indicaciones especiales
+    if (order.notes) {
+      doc.setFillColor(255, 251, 235);
+      doc.setDrawColor(217, 119, 6);
+      doc.roundedRect(14, currentY, 182, 10, 1.5, 1.5, 'FD');
+
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(7.5);
+      doc.setTextColor(180, 83, 9);
+      doc.text(
+        isCa
+          ? '⚠️ INDICACIONS ESPECIALS DEL CLIENT (Tall / Envasat):'
+          : '⚠️ INDICACIONES ESPECIALES DEL CLIENTE (Corte / Envasado):',
+        17,
+        currentY + 4,
+      );
+
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(8.5);
+      doc.setTextColor(43, 37, 32);
+      const notesWrapped = doc.splitTextToSize(`« ${order.notes} »`, 176);
+      doc.text(notesWrapped[0] ?? '', 17, currentY + 7.8);
+
+      currentY += 14;
+    }
+
+    // Cabecera tabla de preparación
+    const drawSlipTableHeader = (y: number) => {
+      doc.setFillColor(43, 37, 32);
+      doc.rect(14, y, 182, 6, 'F');
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(7.5);
+      doc.setTextColor(255, 255, 255);
+      doc.text('OK', 19, y + 4.2, { align: 'center' });
+      doc.text(
+        isCa ? 'PRODUCTE / ARTICLE DEL COLMADO' : 'PRODUCTO / ARTÍCULO DEL COLMADO',
+        28,
+        y + 4.2,
+      );
+      doc.text(isCa ? 'QUANT.' : 'CANT.', 148, y + 4.2, { align: 'center' });
+      doc.text('TOTAL', 194, y + 4.2, { align: 'right' });
+    };
+
+    drawSlipTableHeader(currentY);
+    currentY += 6;
+
+    // Filas
+    for (const item of order.items ?? []) {
+      if (currentY > 245) {
+        doc.addPage();
+        currentY = 15;
+        drawSlipTableHeader(currentY);
+        currentY += 6;
+      }
+
+      let extraText = '';
+      if (item.realWeightGrams) {
+        extraText += ` [Pes bàscula: ${item.realWeightGrams}g${item.estimatedWeightGrams ? ` / Estimat: ${item.estimatedWeightGrams}g` : ''}]`;
+      }
+      if (item.customLot) {
+        extraText += ` [${item.customLot.packagingName}: ${item.customLot.items.map((ci) => `${ci.quantity}x ${ci.name}`).join(', ')}]`;
+      }
+
+      const fullItemName = `${item.name}${extraText}`;
+      const itemLines = doc.splitTextToSize(fullItemName, 115);
+      const rowHeight = Math.max(7, itemLines.length * 3.8 + 2.5);
+
+      // Casilla verificación
+      doc.setDrawColor(120, 120, 120);
+      doc.rect(17, currentY + 1.5, 4, 4);
+
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(8);
+      doc.setTextColor(26, 26, 26);
+      doc.text(itemLines, 28, currentY + 4);
+
+      doc.setFontSize(9);
+      doc.text(`${item.quantity}`, 148, currentY + 4.5, { align: 'center' });
+
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(8);
+      doc.setTextColor(60, 60, 60);
+      doc.text(formatMoney(item.price * item.quantity), 194, currentY + 4.5, { align: 'right' });
+
+      currentY += rowHeight;
+      doc.setDrawColor(230, 225, 220);
+      doc.line(14, currentY, 196, currentY);
+    }
+
+    currentY += 4;
+
+    // Total comanda
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(10);
+    doc.setTextColor(26, 26, 26);
+    doc.text(
+      `${isCa ? 'Total comanda' : 'Total pedido'}: ${formatMoney(order.total)}`,
+      194,
+      currentY + 2,
+      { align: 'right' },
+    );
+
+    currentY += 8;
+
+    // Firmas de control
+    if (currentY > 245) {
+      doc.addPage();
+      currentY = 15;
+    }
+
+    const sigW = 58;
+    const sigH = 16;
+    const sigY = Math.min(255, Math.max(currentY, 245));
+
+    doc.setDrawColor(180, 175, 170);
+    doc.setFillColor(252, 250, 248);
+
+    doc.roundedRect(14, sigY, sigW, sigH, 1, 1, 'FD');
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(7.5);
+    doc.setTextColor(158, 58, 36);
+    doc.text(isCa ? 'Preparat per:' : 'Preparado por:', 17, sigY + 4.5);
+
+    doc.roundedRect(76, sigY, sigW, sigH, 1, 1, 'FD');
+    doc.text(isCa ? 'Comprovat per:' : 'Comprobado por:', 79, sigY + 4.5);
+
+    doc.roundedRect(138, sigY, sigW, sigH, 1, 1, 'FD');
+    doc.text(isCa ? 'Hora recollida / sortida:' : 'Hora recogida / salida:', 141, sigY + 4.5);
+
+    const totalPages = doc.getNumberOfPages();
+    for (let p = 1; p <= totalPages; p++) {
+      doc.setPage(p);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(7);
+      doc.setTextColor(120, 120, 120);
+      doc.text(
+        'Cal Sardà Obrador · Marina, 237 Barcelona · Document intern de preparació i control de qualitat',
+        14,
+        286,
+      );
+      doc.text(`Pàg. ${p}/${totalPages}`, 196, 286, { align: 'right' });
+    }
+
+    return doc;
+  }
+
+  /**
+   * Descarga directamente en el navegador el archivo PDF del albarán de preparación.
+   */
+  downloadPreparationSlipPdf(order: Order, lang: 'es' | 'ca' = 'es', filename?: string): void {
+    const doc = this.generatePreparationSlipPdf(order, lang);
+    const targetFilename = filename || `Albaran-Comanda-${order.reference}.pdf`;
+    if (typeof window !== 'undefined') {
+      doc.save(targetFilename);
+    }
+  }
+
+  /**
+   * Obtiene el Blob binario del PDF del albarán de preparación de obrador.
+   */
+  getPreparationSlipPdfBlob(order: Order, lang: 'es' | 'ca' = 'es'): Blob {
+    const doc = this.generatePreparationSlipPdf(order, lang);
+    return doc.output('blob');
   }
 }

@@ -463,6 +463,8 @@ export const TRANSLATIONS = {
     'invoices.toast_csv_exported': 'Listado fiscal descargado correctamente para tu gestoría.',
     'invoices.modal_title': 'Detalle de Factura Simplificada',
     'invoices.close_modal': 'Cerrar',
+    'invoices.toast_pdf_downloaded': 'Factura oficial descargada en PDF con éxito.',
+    'invoices.print_invoice': 'Imprimir Factura',
 
     // Canal preferido y guía de recogida en obrador
     'account.pref_channel_title': 'Canal Preferido de Aviso y Seguimiento',
@@ -553,6 +555,12 @@ export const TRANSLATIONS = {
     'admin.estimated_label': 'Est.',
     'admin.close_modal': 'Cerrar',
     'admin.action_print_slip': 'Imprimir Comanda',
+    'admin.action_download_slip_pdf': 'Descargar Albarán PDF',
+    'admin.action_download_invoice_pdf': 'Descargar Factura PDF',
+    'admin.action_print_invoice': 'Imprimir Factura',
+    'admin.invoicing_btn_download_pdf': 'Descargar PDF',
+    'admin.toast_slip_downloaded': 'Albarán de obrador descargado en PDF.',
+    'admin.toast_invoice_downloaded': 'Factura simplificada descargada en PDF.',
     'admin.action_whatsapp': 'WhatsApp',
     'admin.whatsapp_no_phone': 'El cliente no tiene teléfono registrado para WhatsApp.',
 
@@ -1269,6 +1277,8 @@ export const TRANSLATIONS = {
       'Llistat fiscal descarregat correctament per a la teva gestoria.',
     'invoices.modal_title': 'Detall de Factura Simplificada',
     'invoices.close_modal': 'Tancar',
+    'invoices.toast_pdf_downloaded': 'Factura oficial descarregada en PDF amb èxit.',
+    'invoices.print_invoice': 'Imprimir Factura',
 
     // Canal preferit i guia de recollida a l'obrador
     'account.pref_channel_title': 'Canal Preferit d’Avís i Seguiment',
@@ -1358,6 +1368,12 @@ export const TRANSLATIONS = {
     'admin.estimated_label': 'Est.',
     'admin.close_modal': 'Tancar',
     'admin.action_print_slip': 'Imprimir Comanda',
+    'admin.action_download_slip_pdf': 'Descarregar Albarà PDF',
+    'admin.action_download_invoice_pdf': 'Descarregar Factura PDF',
+    'admin.action_print_invoice': 'Imprimir Factura',
+    'admin.invoicing_btn_download_pdf': 'Descarregar PDF',
+    'admin.toast_slip_downloaded': 'Albarà d’obrador descarregat en PDF.',
+    'admin.toast_invoice_downloaded': 'Factura simplificada descarregada en PDF.',
     'admin.action_whatsapp': 'WhatsApp',
     'admin.whatsapp_no_phone': 'El client no té telèfon registrat per a WhatsApp.',
 

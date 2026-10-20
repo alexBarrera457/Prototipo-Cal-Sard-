@@ -64,8 +64,14 @@
         </div>
 
         <div class="b2b-success-actions">
-          <button type="button" class="btn-primary-proforma" (click)="printProforma()">
-            📄 {{ i18n.t('b2b.btn_print') }}
+          <button type="button" class="btn-primary-proforma" (click)="downloadProformaPdf()">
+            📄
+            {{
+              i18n.currentLang() === 'ca' ? 'Descarregar Proforma PDF' : 'Descargar Proforma PDF'
+            }}
+          </button>
+          <button type="button" class="btn-secondary-proforma" (click)="printProforma()">
+            🖨️ {{ i18n.t('b2b.btn_print') }}
           </button>
           <button type="button" class="btn-secondary-proforma" (click)="reset()">
             ↺ {{ i18n.t('b2b.btn_new') }}

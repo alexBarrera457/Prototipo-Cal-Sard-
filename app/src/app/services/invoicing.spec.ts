@@ -244,4 +244,103 @@ describe('InvoicingService', () => {
     expect(html).toContain('FACTURA ANULADA / ABONO');
     expect(html).toContain('DOCUMENTO DE ABONO - Pedido cancelado');
   });
+
+  it('generates a valid binary PDF document for an official invoice', () => {
+    const order: Order = {
+      reference: 'CS-2026-PDF-01',
+      customer: {
+        name: 'Gourmet BCN S.L.',
+        email: 'empresa@example.com',
+        taxId: 'B-87654321',
+        address: 'Rambla Catalunya, 45',
+        postalCode: '08007',
+        city: 'Barcelona',
+      },
+      items: [
+        {
+          name: 'Jamón Ibérico de Bellota 100% Gran Reserva',
+          price: 24.5,
+          quantity: 2,
+          realWeightGrams: 210,
+        },
+      ],
+      shippingCost: 5.0,
+      total: 54.0,
+      status: 'confirmed',
+    };
+
+    const invoice = service.generateInvoice(order, order.customer);
+    const pdfDoc = service.generateInvoicePdf(invoice);
+
+    expect(pdfDoc).toBeDefined();
+    expect(pdfDoc.getNumberOfPages()).toBeGreaterThanOrEqual(1);
+
+    const pdfBlob = service.getInvoicePdfBlob(invoice);
+    expect(pdfBlob).toBeDefined();
+    expect(pdfBlob.size).toBeGreaterThan(1000);
+  });
+
+  it('generates an official preparation slip PDF for the obrador', () => {
+    const order: Order = {
+      reference: 'CS-2026-SLIP-01',
+      createdAt: '2026-10-20T09:30:00.000Z',
+      scheduledDate: '2026-10-21',
+      scheduledTimeSlot: '11:00 - 13:00',
+      fulfillment: 'delivery',
+      customer: {
+        name: 'Carles Soler',
+        email: 'carles@example.com',
+        phone: '654 321 098',
+        address: 'Carrer Provença, 120',
+        postalCode: '08029',
+        city: 'Barcelona',
+      },
+      notes: 'Tall molt fi per a degustació',
+      items: [
+        {
+          name: 'Llom Ibèric Artesanal',
+          price: 9.5,
+          quantity: 2,
+          realWeightGrams: 320,
+        },
+      ],
+      total: 19.0,
+      status: 'confirmed',
+    };
+
+    const pdfDoc = service.generatePreparationSlipPdf(order, 'ca');
+    expect(pdfDoc).toBeDefined();
+    expect(pdfDoc.getNumberOfPages()).toBeGreaterThanOrEqual(1);
+
+    const blob = service.getPreparationSlipPdfBlob(order, 'ca');
+    expect(blob).toBeDefined();
+    expect(blob.size).toBeGreaterThan(1000);
+  });
+
+  it('triggers download with correct default filenames', () => {
+    const order: Order = {
+      reference: 'CS-2026-DL-01',
+      customer: { name: 'Cliente Descarga', email: 'descarga@example.com' },
+      items: [{ name: 'Formatge Curat', price: 12.0, quantity: 1 }],
+      total: 12.0,
+      status: 'confirmed',
+    };
+
+    const invoice = service.generateInvoice(order);
+
+    // Mock save method on jsPDF
+    const pdfDoc = service.generateInvoicePdf(invoice);
+    const saveSpy = vi.spyOn(pdfDoc, 'save').mockImplementation(() => pdfDoc);
+    vi.spyOn(service, 'generateInvoicePdf').mockReturnValue(pdfDoc);
+
+    service.downloadInvoicePdf(invoice);
+    expect(saveSpy).toHaveBeenCalledWith('Factura-FS-2026-DL-01.pdf');
+
+    const slipDoc = service.generatePreparationSlipPdf(order);
+    const slipSaveSpy = vi.spyOn(slipDoc, 'save').mockImplementation(() => slipDoc);
+    vi.spyOn(service, 'generatePreparationSlipPdf').mockReturnValue(slipDoc);
+
+    service.downloadPreparationSlipPdf(order);
+    expect(slipSaveSpy).toHaveBeenCalledWith('Albaran-Comanda-CS-2026-DL-01.pdf');
+  });
 });

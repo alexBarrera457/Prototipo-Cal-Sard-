@@ -339,6 +339,17 @@
                       👁️ {{ i18n.t('admin.action_view_detail') }}
                     </button>
 
+                    <!-- Descargar Albarán PDF -->
+                    <button
+                      type="button"
+                      class="btn-action btn-pdf-slip"
+                      (click)="downloadPreparationSlip(order)"
+                      [attr.aria-label]="i18n.t('admin.action_download_slip_pdf')"
+                      title="Descargar albarán oficial en PDF"
+                    >
+                      📄 {{ i18n.t('admin.action_download_slip_pdf') }}
+                    </button>
+
                     <!-- Imprimir Comanda -->
                     <button
                       type="button"
@@ -348,6 +359,17 @@
                       title="Imprimir comanda de preparación del colmado"
                     >
                       🖨️ {{ i18n.t('admin.action_print_slip') }}
+                    </button>
+
+                    <!-- Descargar Factura PDF -->
+                    <button
+                      type="button"
+                      class="btn-action btn-pdf-invoice"
+                      (click)="downloadInvoice(order)"
+                      [attr.aria-label]="i18n.t('admin.action_download_invoice_pdf')"
+                      title="Descargar factura simplificada en PDF"
+                    >
+                      🧾 {{ i18n.t('admin.action_download_invoice_pdf') }}
                     </button>
 
                     <!-- Contacto WhatsApp -->
@@ -714,6 +736,15 @@
         <div class="modal-footer-secondary">
           <button
             type="button"
+            class="btn-modal-slip-pdf"
+            (click)="downloadPreparationSlip(order)"
+            title="Descargar albarán de preparación en PDF"
+          >
+            📄 {{ i18n.t('admin.action_download_slip_pdf') }}
+          </button>
+
+          <button
+            type="button"
             class="btn-modal-slip"
             (click)="printPreparationSlip(order)"
             title="Imprimir comanda de preparación del colmado"
@@ -723,20 +754,29 @@
 
           <button
             type="button"
-            class="btn-modal-whatsapp"
-            (click)="openWhatsApp(order)"
-            title="Contactar al cliente por WhatsApp"
+            class="btn-modal-invoice-pdf"
+            (click)="downloadInvoice(order)"
+            title="Descargar factura simplificada en PDF"
           >
-            💬 {{ i18n.t('admin.action_whatsapp') }}
+            📄 {{ i18n.t('admin.action_download_invoice_pdf') }}
           </button>
 
           <button
             type="button"
             class="btn-modal-invoice"
             (click)="printInvoice(order)"
-            title="Descargar factura simplificada en PDF"
+            title="Imprimir factura oficial"
           >
-            🧾 Factura (PDF)
+            🖨️ {{ i18n.t('admin.action_print_invoice') }}
+          </button>
+
+          <button
+            type="button"
+            class="btn-modal-whatsapp"
+            (click)="openWhatsApp(order)"
+            title="Contactar al cliente por WhatsApp"
+          >
+            💬 {{ i18n.t('admin.action_whatsapp') }}
           </button>
 
           <button type="button" class="btn-modal-close" (click)="closeOrderDetail()">

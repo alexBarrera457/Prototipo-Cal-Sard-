@@ -230,6 +230,13 @@ export class B2bQuoteGeneratorComponent {
     }
   }
 
+  downloadProformaPdf(): void {
+    const inv = this.generatedInvoice();
+    if (inv) {
+      this.invoicingService.downloadInvoicePdf(inv);
+    }
+  }
+
   printProforma(): void {
     const inv = this.generatedInvoice();
     if (inv) {
