@@ -2,6 +2,7 @@ dist
 **/dist
 node_modules
 .angular
+.agents
 package-lock.json
 app/public/sitemap.xml
 app/public/robots.txt

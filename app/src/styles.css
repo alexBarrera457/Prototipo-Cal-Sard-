@@ -32,6 +32,44 @@ body {
   --luxury-line: rgba(23, 18, 13, 0.12);
   --luxury-muted: #554b45;
   --navbar-height: 124px;
+
+  /* Design Tokens — Emil Kowalski Motion Philosophy */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+  --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
+
+  --duration-instant: 100ms;
+  --duration-fast: 150ms;
+  --duration-normal: 220ms;
+  --duration-slow: 320ms;
+
+  /* Concentric Radius System — Jakub Krehel UI Standards */
+  --radius-xs: 3px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+  --radius-pill: 9999px;
+
+  /* Layered Depth & Elevation Shadows */
+  --shadow-xs: 0 1px 2px 0 rgba(23, 18, 13, 0.05);
+  --shadow-border:
+    0 0 0 1px rgba(23, 18, 13, 0.06), 0 1px 2px -1px rgba(23, 18, 13, 0.06),
+    0 2px 4px 0 rgba(23, 18, 13, 0.04);
+  --shadow-border-hover:
+    0 0 0 1px rgba(140, 36, 35, 0.18), 0 4px 12px -2px rgba(23, 18, 13, 0.08),
+    0 2px 4px -1px rgba(23, 18, 13, 0.04);
+  --shadow-card:
+    0 0 0 1px rgba(23, 18, 13, 0.05), 0 2px 6px -1px rgba(23, 18, 13, 0.07),
+    0 8px 16px -2px rgba(23, 18, 13, 0.05);
+  --shadow-card-hover:
+    0 0 0 1px rgba(140, 36, 35, 0.2), 0 8px 24px -4px rgba(23, 18, 13, 0.12),
+    0 3px 6px -1px rgba(23, 18, 13, 0.06);
+  --shadow-modal:
+    0 0 0 1px rgba(23, 18, 13, 0.08), 0 20px 30px -8px rgba(23, 18, 13, 0.18),
+    0 10px 14px -5px rgba(23, 18, 13, 0.08);
+  --shadow-drawer: -6px 0 24px -4px rgba(23, 18, 13, 0.18), -1px 0 4px 0 rgba(23, 18, 13, 0.06);
 }
 
 @media (max-width: 760px) {
@@ -60,9 +98,52 @@ textarea {
   font-family: inherit;
 }
 
+button {
+  transition:
+    transform var(--duration-fast) var(--ease-out),
+    background-color var(--duration-fast) ease,
+    border-color var(--duration-fast) ease,
+    box-shadow var(--duration-fast) ease,
+    color var(--duration-fast) ease;
+}
+
+button:not(:disabled):active,
+[role='button']:not([aria-disabled='true']):active,
+.btn-primary:not(:disabled):active,
+.btn-secondary:not(:disabled):active,
+.business-button-primary:active,
+.business-button-light:active,
+.store-button:not(:disabled):active,
+.product-detail-button:not(:disabled):active,
+.dietary-filter-chip:active,
+.store-categories button:active {
+  transform: scale(0.97) !important;
+  transition-duration: 70ms !important;
+}
+
+/* Typography — Tabular numbers for prices, metrics, order totals */
+.tabular-nums,
+.price,
+.store-price,
+.product-detail-price,
+.cart-item-price,
+.cart-total,
+.cart-summary,
+.cart-count,
+.checkout-summary,
+.business-offer-value,
+.gift-lot-card-purchase > strong,
+.stock-badge,
+.badge-count,
+.admin-stat-value,
+.table-tabular {
+  font-variant-numeric: tabular-nums;
+}
+
 :focus-visible {
-  outline: 2px solid #845f39;
+  outline: 2px solid #8c2423;
   outline-offset: 3px;
+  border-radius: inherit;
 }
 
 .visually-hidden {
@@ -92,6 +173,7 @@ textarea {
 
 ::-webkit-scrollbar-thumb {
   background: #b28c5a;
+  border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
@@ -100,10 +182,11 @@ textarea {
 
 [appScrollReveal] {
   opacity: 0;
-  transform: translateY(32px);
+  transform: translateY(24px);
   transition:
-    opacity 0.8s ease,
-    transform 0.8s ease;
+    opacity 0.45s var(--ease-out),
+    transform 0.45s var(--ease-out);
+  will-change: opacity, transform;
 }
 
 [appScrollReveal].visible {
@@ -112,10 +195,10 @@ textarea {
 }
 
 [appScrollReveal='left'] {
-  transform: translateX(-36px);
+  transform: translateX(-28px);
 }
 [appScrollReveal='right'] {
-  transform: translateX(36px);
+  transform: translateX(28px);
 }
 [appScrollReveal='scale'] {
   transform: scale(0.96);
@@ -146,7 +229,7 @@ section {
 
 @media (max-width: 700px) {
   [appScrollReveal] {
-    transform: translateY(20px);
+    transform: translateY(16px);
   }
 }
 
@@ -154,10 +237,18 @@ section {
   html {
     scroll-behavior: auto;
   }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
   [appScrollReveal] {
-    opacity: 1;
-    transform: none;
-    transition: none;
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
   }
 }
 
@@ -758,6 +849,17 @@ section {
   min-width: 0;
   flex-direction: column;
   background: #f5efe7;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-border);
+  overflow: hidden;
+  transition:
+    transform var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-fast) var(--ease-out);
+}
+
+.gift-lot-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-border-hover);
 }
 
 .gift-lot-card-image {
@@ -772,11 +874,11 @@ section {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.55s ease;
+  transition: transform 0.5s var(--ease-out);
 }
 
 .gift-lot-card:hover .gift-lot-card-image img {
-  transform: scale(1.035);
+  transform: scale(1.04);
 }
 
 .gift-lot-card-image img.contain {
@@ -840,8 +942,9 @@ section {
 
 .gift-lot-card-purchase button {
   min-height: 40px;
-  padding: 0 12px;
+  padding: 0 14px;
   border: 0;
+  border-radius: var(--radius-xs);
   background: #281f18;
   color: #fff;
   font: inherit;
@@ -850,11 +953,17 @@ section {
   letter-spacing: 0.9px;
   text-transform: uppercase;
   cursor: pointer;
-  transition: background 0.2s ease;
+  transition:
+    background-color var(--duration-fast) ease,
+    transform var(--duration-fast) var(--ease-out);
 }
 
 .gift-lot-card-purchase button:hover {
   background: #8c6840;
+}
+
+.gift-lot-card-purchase button:active {
+  transform: scale(0.96);
 }
 
 .gift-lot-card-purchase button span {

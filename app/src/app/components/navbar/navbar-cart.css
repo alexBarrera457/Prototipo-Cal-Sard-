@@ -3,11 +3,13 @@
   z-index: 1100;
   inset: 0;
   visibility: hidden;
-  background: rgba(0, 0, 0, 0.42);
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
   opacity: 0;
   transition:
-    opacity 0.3s ease,
-    visibility 0.3s ease;
+    opacity var(--duration-fast) var(--ease-out),
+    visibility var(--duration-fast) var(--ease-out);
 }
 
 .cart-overlay.active {
@@ -28,9 +30,10 @@
   flex-direction: column;
   color: #211912;
   background: #f7f0e6;
-  box-shadow: -18px 0 50px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--shadow-drawer);
   transform: translateX(100%);
-  transition: transform 0.4s cubic-bezier(0.77, 0, 0.18, 1);
+  transition: transform 320ms var(--ease-drawer);
+  will-change: transform;
 }
 
 .cart-panel.open {
@@ -65,11 +68,17 @@
   background: transparent;
   cursor: pointer;
   font-size: 34px;
-  transition: transform 0.25s ease;
+  transition:
+    transform var(--duration-fast) var(--ease-spring),
+    opacity var(--duration-fast) ease;
 }
 
 .cart-close:hover {
-  transform: rotate(90deg);
+  transform: rotate(90deg) scale(1.08);
+}
+
+.cart-close:active {
+  transform: rotate(90deg) scale(0.92);
 }
 
 .cart-products {
@@ -108,12 +117,27 @@
 }
 
 .cart-product-actions button {
-  width: 30px;
-  height: 30px;
-  border: 1px solid #302118;
+  width: 32px;
+  height: 32px;
+  border: 1px solid rgba(48, 33, 24, 0.4);
+  border-radius: var(--radius-xs);
   background: transparent;
   cursor: pointer;
-  font-size: 18px;
+  font-size: 16px;
+  transition:
+    background-color var(--duration-fast) ease,
+    border-color var(--duration-fast) ease,
+    color var(--duration-fast) ease,
+    transform var(--duration-fast) var(--ease-out);
+}
+
+.cart-product-actions button:hover {
+  background: #302118;
+  color: #fff;
+}
+
+.cart-product-actions button:active {
+  transform: scale(0.92);
 }
 
 .cart-product-delete {
@@ -125,6 +149,11 @@
   font-size: 9px;
   letter-spacing: 2px;
   text-decoration: underline;
+  transition: opacity var(--duration-fast) ease;
+}
+
+.cart-product-delete:hover {
+  opacity: 0.6;
 }
 
 .cart-empty {
@@ -158,9 +187,21 @@
   padding: 15px 25px;
   color: #fff;
   border: 0;
+  border-radius: var(--radius-xs);
   background: #211912;
   cursor: pointer;
   letter-spacing: 1px;
+  transition:
+    background-color var(--duration-fast) ease,
+    transform var(--duration-fast) var(--ease-out);
+}
+
+.cart-empty button:hover {
+  background: #8c2423;
+}
+
+.cart-empty button:active {
+  transform: scale(0.97);
 }
 
 .cart-footer {
@@ -192,15 +233,26 @@
   padding: 17px;
   color: #fff;
   border: 0;
+  border-radius: var(--radius-xs);
   background: #211912;
   cursor: pointer;
   font-size: 11px;
   letter-spacing: 2px;
+  transition:
+    background-color var(--duration-fast) ease,
+    color var(--duration-fast) ease,
+    transform var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-fast) ease;
 }
 
 .cart-checkout:hover {
-  background: #b89763;
-  color: #211912;
+  background: #8c2423;
+  color: #fff;
+  box-shadow: var(--shadow-xs);
+}
+
+.cart-checkout:active {
+  transform: scale(0.97);
 }
 
 :host .cart-checkout {

@@ -64,18 +64,19 @@
 
 .store-categories button {
   min-height: 38px;
-  padding: 0 14px;
+  padding: 0 16px;
   border: 1px solid rgba(35, 27, 22, 0.25);
-  border-radius: 99px;
+  border-radius: var(--radius-pill);
   background: transparent;
   color: #51443a;
   font: inherit;
   font-size: 11px;
-  transition:
-    color 0.2s ease,
-    background 0.2s ease,
-    border-color 0.2s ease;
   cursor: pointer;
+  transition:
+    color var(--duration-fast) ease,
+    background-color var(--duration-fast) ease,
+    border-color var(--duration-fast) ease,
+    transform var(--duration-fast) var(--ease-out);
 }
 
 .store-categories button:hover,
@@ -85,9 +86,13 @@
   color: #fffaf2;
 }
 
+.store-categories button:active {
+  transform: scale(0.96);
+}
+
 .store-categories button:focus-visible,
 .store-sort select:focus-visible {
-  outline: 2px solid #a17a4c;
+  outline: 2px solid #8c2423;
   outline-offset: 3px;
 }
 
@@ -99,7 +104,7 @@
   gap: 8px;
   padding: 8px 14px;
   background: rgba(132, 95, 57, 0.06);
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   border: 1px dashed rgba(132, 95, 57, 0.3);
 }
 
@@ -117,21 +122,30 @@
   align-items: center;
   gap: 5px;
   min-height: 32px;
-  padding: 0 12px;
+  padding: 0 13px;
   border: 1px solid rgba(43, 33, 26, 0.2);
-  border-radius: 99px;
+  border-radius: var(--radius-pill);
   background: #fff;
   color: #3b2d24;
   font: inherit;
   font-size: 11px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition:
+    border-color var(--duration-fast) ease,
+    background-color var(--duration-fast) ease,
+    color var(--duration-fast) ease,
+    transform var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-fast) ease;
 }
 
 .dietary-filter-chip:hover {
   border-color: #845f39;
   background: #fdfbf7;
+}
+
+.dietary-filter-chip:active {
+  transform: scale(0.96);
 }
 
 .dietary-filter-chip.active {
@@ -346,8 +360,17 @@
   overflow: hidden;
   background: #ddd4c8;
   cursor: pointer;
-  box-shadow: 0 14px 30px rgba(26, 20, 14, 0.08);
-  border: 1px solid rgba(34, 26, 20, 0.06);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-border);
+  border: 1px solid transparent;
+  transition:
+    transform var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-fast) var(--ease-out);
+}
+
+.store-product:hover .store-product-image {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-border-hover);
 }
 
 .store-product-image img {
@@ -356,8 +379,9 @@
   display: block;
   object-fit: cover;
   transition:
-    transform 0.8s ease,
-    filter 0.8s ease;
+    transform 0.5s var(--ease-out),
+    filter 0.5s var(--ease-out);
+  will-change: transform;
 }
 
 .store-product-image img.contain {
@@ -376,8 +400,8 @@
   opacity: 0;
   pointer-events: none;
   transition:
-    opacity 0.4s ease,
-    background 0.4s ease;
+    opacity var(--duration-fast) ease,
+    background-color var(--duration-fast) ease;
   cursor: pointer;
 }
 
@@ -389,23 +413,24 @@
 }
 
 .store-product-overlay span {
-  padding: 15px 22px;
+  padding: 13px 20px;
   border: 1px solid rgba(255, 255, 255, 0.9);
+  border-radius: var(--radius-xs);
   color: #fff;
   font-size: 10px;
   font-weight: 700;
   letter-spacing: 2px;
   text-transform: uppercase;
-  transform: translateY(15px);
+  transform: translateY(12px);
   transition:
-    transform 0.4s ease,
-    background 0.3s ease,
-    color 0.3s ease;
+    transform var(--duration-normal) var(--ease-out),
+    background-color var(--duration-fast) ease,
+    color var(--duration-fast) ease;
 }
 
 .store-product:hover .store-product-image img {
-  transform: scale(1.05);
-  filter: brightness(0.86);
+  transform: scale(1.045);
+  filter: brightness(0.88);
 }
 
 .store-product:hover .store-product-overlay {
@@ -425,23 +450,29 @@
   z-index: 3;
   display: grid;
   place-items: center;
-  width: 34px;
-  height: 34px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   border: 1px solid rgba(255, 255, 255, 0.7);
-  background: rgba(255, 255, 255, 0.88);
-  backdrop-filter: blur(4px);
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   cursor: pointer;
   font-size: 15px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+  box-shadow: var(--shadow-xs);
   transition:
-    transform 0.2s ease,
-    background 0.2s ease;
+    transform var(--duration-fast) var(--ease-spring),
+    background-color var(--duration-fast) ease,
+    border-color var(--duration-fast) ease;
 }
 
 .btn-store-fav:hover {
-  transform: scale(1.15);
+  transform: scale(1.12);
   background: #fff;
+}
+
+.btn-store-fav:active {
+  transform: scale(0.92);
 }
 
 .btn-store-fav.is-favorite {
@@ -517,8 +548,9 @@
 
 .store-button {
   width: 100%;
-  padding: 17px 18px;
+  padding: 16px 18px;
   border: 1px solid #231b16;
+  border-radius: var(--radius-xs);
   background: transparent;
   color: #231b16;
   cursor: pointer;
@@ -527,19 +559,22 @@
   letter-spacing: 2px;
   text-transform: uppercase;
   transition:
-    background 0.3s ease,
-    color 0.3s ease,
-    transform 0.3s ease;
+    background-color var(--duration-fast) ease,
+    color var(--duration-fast) ease,
+    border-color var(--duration-fast) ease,
+    box-shadow var(--duration-fast) ease,
+    transform var(--duration-fast) var(--ease-out);
 }
 
 .store-button:hover {
   background: #231b16;
   color: #fff;
   transform: translateY(-2px);
+  box-shadow: var(--shadow-xs);
 }
 
 .store-button:active {
-  transform: translateY(0) scale(0.98);
+  transform: scale(0.97) !important;
 }
 
 .store-button.store-alert-button {
@@ -551,10 +586,11 @@
 .store-button.store-alert-button:hover {
   background: #d97706;
   color: #ffffff;
+  border-color: #d97706;
 }
 
 .store-button.store-alert-button:active {
-  transform: translateY(0) scale(0.98);
+  transform: scale(0.97) !important;
 }
 
 .store-added-message {

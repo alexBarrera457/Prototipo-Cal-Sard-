@@ -130,28 +130,19 @@
 
 .category-item {
   position: relative;
-
   display: grid;
-
   grid-template-columns: 100px 1fr 70px;
-
   align-items: center;
-
   min-height: 150px;
-
   padding: 0 20px;
-
   border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-
   color: white;
-
   text-decoration: none;
-
   overflow: hidden;
-
   transition:
-    padding 0.4s ease,
-    color 0.4s ease;
+    padding 0.3s var(--ease-out),
+    color var(--duration-fast) ease,
+    background-color var(--duration-fast) ease;
 }
 
 /* =========================
@@ -160,26 +151,18 @@
 
 .category-item::before {
   content: '';
-
   position: absolute;
-
   inset: 0;
-
   background-image:
     linear-gradient(90deg, rgba(20, 14, 10, 0.82), rgba(20, 14, 10, 0.35)), var(--category-image);
-
   background-size: cover;
-
   background-position: center;
-
   opacity: 0;
-
-  transform: scale(1.08);
-
+  transform: scale(1.06);
   transition:
-    opacity 0.5s ease,
-    transform 0.7s ease;
-
+    opacity 0.35s var(--ease-out),
+    transform 0.5s var(--ease-out);
+  will-change: transform, opacity;
   z-index: -2;
 }
 
@@ -187,17 +170,11 @@
 
 .category-item::after {
   content: '';
-
   position: absolute;
-
   inset: 0;
-
   background: linear-gradient(90deg, rgba(20, 14, 10, 0.65), rgba(20, 14, 10, 0.15));
-
   opacity: 0;
-
-  transition: opacity 0.5s ease;
-
+  transition: opacity 0.35s ease;
   z-index: -1;
 }
 
@@ -207,18 +184,20 @@
 
 .category-item:hover {
   padding-left: 35px;
-
   color: white;
 }
 
 .category-item:hover::before {
   opacity: 1;
-
   transform: scale(1);
 }
 
 .category-item:hover::after {
   opacity: 1;
+}
+
+.category-item:active {
+  transform: scale(0.99);
 }
 
 /* =========================
@@ -273,33 +252,25 @@
 
 .category-arrow {
   display: flex;
-
   align-items: center;
   justify-content: center;
-
   width: 50px;
   height: 50px;
-
   border: 1px solid rgba(255, 255, 255, 0.4);
-
   border-radius: 50%;
-
   font-size: 20px;
-
   transition:
-    background 0.3s ease,
-    color 0.3s ease,
-    transform 0.3s ease;
+    background-color var(--duration-fast) ease,
+    color var(--duration-fast) ease,
+    border-color var(--duration-fast) ease,
+    transform var(--duration-normal) var(--ease-spring);
 }
 
 .category-item:hover .category-arrow {
   background: white;
-
   color: #2d241e;
-
   border-color: white;
-
-  transform: rotate(45deg);
+  transform: rotate(45deg) scale(1.08);
 }
 
 /* =========================

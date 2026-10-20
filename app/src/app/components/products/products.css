@@ -108,7 +108,8 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.7s ease;
+  transition: transform 0.5s var(--ease-out);
+  will-change: transform;
 }
 
 .product-card:hover .product-image img {
@@ -190,30 +191,25 @@
 
 .product-info a {
   color: #2d241e;
-
   text-decoration: none;
-
   font-size: 10px;
-
   font-weight: bold;
-
   letter-spacing: 2px;
-
   white-space: nowrap;
-
   border-bottom: 1px solid #2d241e;
-
   padding-bottom: 7px;
-
   transition:
-    opacity 0.3s ease,
-    transform 0.3s ease;
+    opacity var(--duration-fast) ease,
+    transform var(--duration-fast) var(--ease-out);
 }
 
 .product-info a:hover {
   opacity: 0.6;
-
   transform: translateX(5px);
+}
+
+.product-info a:active {
+  transform: translateX(5px) scale(0.96);
 }
 
 /* =========================

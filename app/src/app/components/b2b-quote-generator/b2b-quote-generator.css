@@ -65,10 +65,10 @@
 
 .b2b-step {
   background: #ffffff;
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   padding: 1.8rem;
   border: 1px solid #e8decb;
-  box-shadow: 0 4px 14px rgba(37, 28, 21, 0.04);
+  box-shadow: var(--shadow-card);
 }
 
 .b2b-step-header {
@@ -109,19 +109,26 @@
 .lot-select-card {
   position: relative;
   border: 2px solid #e8decb;
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
   background: #ffffff;
   padding: 1rem;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition:
+    transform var(--duration-fast) var(--ease-out),
+    border-color var(--duration-fast) ease,
+    box-shadow var(--duration-fast) ease;
   display: flex;
   flex-direction: column;
 }
 
 .lot-select-card:hover {
   border-color: #aa845c;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 18px rgba(37, 28, 21, 0.08);
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-border-hover);
+}
+
+.lot-select-card:active {
+  transform: scale(0.98);
 }
 
 .lot-select-card.active {
